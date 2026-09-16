@@ -7,9 +7,9 @@ machine — one Go binary and a Postgres container.
 It is built around a simple idea: an assistant that has read everything you have
 written about your own work gives better advice than one that has not.
 
-> **Status:** early but usable. Retrieval, chat with depth tiers, the journal
-> watcher and the relocation planner all work today. Conversation modes, the
-> generals roster and proactive check-ins are next — see [the roadmap](#roadmap).
+> **Status:** early but usable. Retrieval, chat with depth tiers, the generals
+> roster, the journal watcher and the relocation planner all work today.
+> Conversation modes and proactive check-ins are next — see [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -72,6 +72,27 @@ depth that actually produced it.
 Set `DEFAULT_TIER` and `MAX_TIER` to bound this per deployment. `MAX_TIER=quick`
 turns off tool calling entirely.
 
+## Generals
+
+Twenty strategic lenses. Pick up to three under the composer and they argue about
+your question; pick none and the room chooses based on what you asked.
+
+The point is the disagreement. Every general declares a blind spot — what it
+systematically gets wrong — and a multi-lens answer is structured as each
+position, then **where they disagree**, then a call that names which lens it
+sided with and what that cost. When fewer lenses obviously fit than your depth
+allows, the extra slots are filled from opposing families, because two lenses
+that agree tell you nothing a single lens would not have.
+
+Ask *"ship it now or keep polishing?"* with Kutuzov and Patton pinned and you get
+the argument you were already having with yourself, made explicit.
+
+Generals are markdown with YAML frontmatter, and only a compact card of each one
+reaches the model — never the full doctrine. Selection is deterministic keyword
+routing, so it costs no extra model call. Add or replace any of them through
+`GENERALS_DIR`. See [docs/generals.md](docs/generals.md), which also covers why
+the Wehrmacht figures are included and how to remove them.
+
 ## Relocation planner
 
 `/relocation` turns a stay somewhere into a checklist with real quantities and a
@@ -119,6 +140,7 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `DEFAULT_TIER` | `standard` | `quick`, `standard` or `deep` |
 | `MAX_TIER` | `deep` | ceiling a request cannot exceed |
 | `RELOCATION_CATALOG_DIR` | *(empty)* | overlay for the relocation catalogue |
+| `GENERALS_DIR` | *(empty)* | overlay for the generals roster |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -146,6 +168,8 @@ server never imports a domain package.
 | Method | Path | |
 |---|---|---|
 | `GET` | `/health` | |
+| `GET` | `/api/generals` | the roster |
+| `POST` | `/api/capture` | append a line to today's note |
 | `POST` | `/api/memories` | ingest (JSON or multipart upload) |
 | `GET` | `/api/memories/search?q=&kind=&tags=` | hybrid search |
 | `POST` | `/api/consult` | one-shot question |
@@ -169,7 +193,7 @@ curl -X POST localhost:8080/api/consult \
 - [x] Retrieval fixes: relevance/recency rebalance, full-text query rewriting
 - [x] **Depth tiers** — quick, standard and deep answers
 - [x] Markdown rendering for answers
-- [ ] **Generals** — pick up to three strategic lenses; they argue, then synthesise
+- [x] **Generals** — pick up to three strategic lenses; they argue, then synthesise
 - [ ] **Modes** — plan a day, make a hard call, unstick a stalled task, debrief
 - [x] **Relocation planner** — setup checklist, costs and pitfalls for a stay
 - [ ] **Commitments** — open loops tracked from your own conversations

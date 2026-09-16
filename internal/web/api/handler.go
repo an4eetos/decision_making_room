@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	genport "github.com/an4eetos/decision-room/internal/generals/port"
 	journalusecase "github.com/an4eetos/decision-room/internal/journal/usecase"
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
@@ -15,6 +16,7 @@ import (
 )
 
 type Handler struct {
+	generals  genport.Registry
 	captureUC *journalusecase.Capture
 	ingestUC  *usecase.Ingest
 	searchUC  *usecase.Search
@@ -28,8 +30,10 @@ func NewHandler(
 	consult *usecase.Consult,
 	chat *usecase.Chat,
 	capture *journalusecase.Capture,
+	generals genport.Registry,
 ) *Handler {
 	return &Handler{
+		generals:  generals,
 		ingestUC:  ingest,
 		searchUC:  search,
 		consultUC: consult,
@@ -43,6 +47,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/memories", h.createMemory)
 	mux.HandleFunc("POST /api/consult", h.consult)
 	mux.HandleFunc("POST /api/capture", h.capture)
+	mux.HandleFunc("GET /api/generals", h.listGenerals)
 	mux.HandleFunc("GET /api/memories/search", h.searchMemories)
 	mux.HandleFunc("GET /api/chat/sessions", h.listChatSessions)
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
@@ -125,6 +130,32 @@ func (h *Handler) ingestAndRespond(w http.ResponseWriter, r *http.Request, kindR
 	writeJSON(w, http.StatusCreated, result)
 }
 
+// listGenerals serves the roster for the picker. It deliberately omits the full
+// doctrine: that is several hundred KB across the roster and the UI shows the
+// card fields only.
+func (h *Handler) listGenerals(w http.ResponseWriter, r *http.Request) {
+	type generalDTO struct {
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Epithet string `json:"epithet,omitempty"`
+		Era     string `json:"era,omitempty"`
+		Family  string `json:"family"`
+		Job     string `json:"job"`
+		Bias    string `json:"bias,omitempty"`
+	}
+
+	lenses := h.generals.Generals()
+	out := make([]generalDTO, 0, len(lenses))
+	for _, l := range lenses {
+		out = append(out, generalDTO{
+			ID: l.ID, Name: l.Name, Epithet: l.Epithet, Era: l.Era,
+			Family: string(l.Family), Job: l.Job, Bias: l.Bias,
+		})
+	}
+
+	writeJSON(w, http.StatusOK, out)
+}
+
 // capture appends a line to today's daily note. It writes to the journal folder
 // rather than the database so the markdown stays the source of truth.
 func (h *Handler) capture(w http.ResponseWriter, r *http.Request) {
@@ -147,9 +178,10 @@ func (h *Handler) capture(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) consult(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Question string `json:"question"`
-		Tier     string `json:"tier"`
-		TopK     int    `json:"top_k"`
+		Question string   `json:"question"`
+		Tier     string   `json:"tier"`
+		TopK     int      `json:"top_k"`
+		Generals []string `json:"generals"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
@@ -157,9 +189,10 @@ func (h *Handler) consult(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := h.consultUC.Execute(r.Context(), usecase.ConsultInput{
-		Question: req.Question,
-		Tier:     req.Tier,
-		TopK:     req.TopK,
+		Question:   req.Question,
+		Tier:       req.Tier,
+		TopK:       req.TopK,
+		GeneralIDs: req.Generals,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -243,8 +276,9 @@ func (h *Handler) deleteChatSession(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Content string `json:"content"`
-		Tier    string `json:"tier"`
+		Content  string    `json:"content"`
+		Tier     string    `json:"tier"`
+		Generals *[]string `json:"generals"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
@@ -255,6 +289,7 @@ func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
 		SessionID: r.PathValue("id"),
 		Question:  req.Content,
 		Tier:      req.Tier,
+		Generals:  derefStrings(req.Generals),
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -267,4 +302,16 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+// derefStrings distinguishes "field absent" (nil, leave the session alone) from
+// "field present but empty" (clear the pick back to auto-select).
+func derefStrings(v *[]string) []string {
+	if v == nil {
+		return nil
+	}
+	if *v == nil {
+		return []string{}
+	}
+	return *v
 }

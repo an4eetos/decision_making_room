@@ -993,3 +993,111 @@ textarea {
     margin-top: 0.3rem;
     font-size: 0.8rem;
 }
+
+/* ---------- Lens picker ---------- */
+
+.generals-picker {
+    flex-shrink: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #222d3c;
+}
+
+.generals-picker-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.generals-picker-head h2 {
+    margin: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #9aa8b8;
+}
+
+.generals-picker-head span {
+    font-size: 0.78rem;
+}
+
+/* Scrolls horizontally rather than wrapping: twenty lenses across several rows
+   would dominate a page whose subject is the conversation. */
+.generals-strip {
+    display: flex;
+    gap: 0.3rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    scrollbar-width: thin;
+}
+
+.general {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    flex-shrink: 0;
+    width: 62px;
+    padding: 0.35rem 0.1rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: none;
+    color: #9aa8b8;
+    font: inherit;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+}
+
+.general:hover:not(:disabled) {
+    background: #1e2938;
+}
+
+.general.on {
+    background: #22334a;
+    border-color: #3b5b80;
+    color: #e7ecf3;
+}
+
+.general:disabled {
+    opacity: 0.32;
+    cursor: default;
+}
+
+.general svg {
+    display: block;
+}
+
+.general-name {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.65rem;
+    line-height: 1.2;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lens-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.lens-badge {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: #1e2938;
+    color: #9fb0c4;
+    font-size: 0.65rem;
+    text-transform: capitalize;
+}
+
+/* Auto-selected lenses are marked so one chosen for you never reads as one you
+   picked. */
+.lens-auto {
+    color: #6d7d90;
+    font-size: 0.62rem;
+    font-style: italic;
+}

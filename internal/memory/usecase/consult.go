@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
+	genport "github.com/an4eetos/decision-room/internal/generals/port"
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/service"
@@ -20,6 +21,12 @@ type ConsultInput struct {
 	// Tier is "quick", "standard" or "deep". Empty uses the configured default;
 	// an unrecognised value falls back rather than failing the request.
 	Tier string
+	// GeneralIDs is the user's own pick, up to the tier's maximum. Empty means
+	// auto-select.
+	GeneralIDs []string
+	// RecentGenerals are the lenses used in the last couple of turns; they are
+	// demoted so one lens does not answer everything.
+	RecentGenerals []string
 }
 
 type ConsultSource struct {
@@ -35,6 +42,10 @@ type ConsultResult struct {
 	// Tier is what actually ran, which may be lower than requested if the
 	// deployment caps it, or higher if an empty retrieval forced an escalation.
 	Tier string `json:"tier"`
+	// Generals are the ids the answer was written through, and Method is whether
+	// they were picked by the user or selected automatically.
+	Generals       []string `json:"generals"`
+	GeneralsMethod string   `json:"generals_method,omitempty"`
 }
 
 type Consult struct {
@@ -43,8 +54,7 @@ type Consult struct {
 	retriever      *Retrieve
 	llm            port.LLM
 	initialContext port.InitialContextReader
-	defaultTier    domain.Tier
-	maxTier        domain.Tier
+	resolver       *PlanResolver
 }
 
 func NewConsult(
@@ -54,24 +64,26 @@ func NewConsult(
 	toolLLM port.ToolLLM,
 	initialContext port.InitialContextReader,
 	tools *MemoryToolExecutor,
+	registry genport.Registry,
 	defaultTier, maxTier domain.Tier,
 ) *Consult {
-	c := &Consult{
+	// Without a tool-capable model there is no agent, so no tier can use tools
+	// however high the ceiling is set.
+	var agent *AgentConsult
+	if toolLLM != nil && tools != nil {
+		agent = NewAgentConsult(toolLLM, tools, initialContext)
+	} else {
+		maxTier = domain.TierQuick
+	}
+
+	return &Consult{
+		agent:          agent,
 		repo:           repo,
 		retriever:      retriever,
 		llm:            llm,
 		initialContext: initialContext,
-		defaultTier:    defaultTier,
-		maxTier:        maxTier,
+		resolver:       NewPlanResolver(registry, defaultTier, maxTier),
 	}
-	// Without a tool-capable model there is no agent, so no tier can use tools
-	// however high the ceiling is set.
-	if toolLLM != nil && tools != nil {
-		c.agent = NewAgentConsult(toolLLM, tools, initialContext)
-	} else {
-		c.maxTier = domain.TierQuick
-	}
-	return c
 }
 
 const systemPrompt = `You are a personal advisor with access to the user's stored decisions, plans, and notes.
@@ -80,7 +92,7 @@ Prefer recent decisions over older ones when they conflict.
 Be concise and actionable for daily check-ins.`
 
 func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResult, error) {
-	plan := ResolvePlan(input, u.defaultTier, u.maxTier)
+	plan := u.resolver.Resolve(input)
 	if plan.Question == "" {
 		return ConsultResult{}, fmt.Errorf("question is required")
 	}
@@ -93,8 +105,14 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	// A confidently wrong answer built on nothing is the worst output this can
 	// produce, so an empty retrieval on the cheapest tier buys one more attempt
 	// with the standard pipeline rather than answering blind.
-	if len(context) == 0 && plan.Tier.Tier == domain.TierQuick && u.maxTier.Rank() > domain.TierQuick.Rank() {
-		plan.Tier = domain.PolicyFor(domain.TierStandard)
+	if len(context) == 0 && plan.Tier.Tier == domain.TierQuick && u.resolver.maxTier.Rank() > domain.TierQuick.Rank() {
+		escalated := domain.PolicyFor(domain.TierStandard)
+		// Keep the lens count the escalation implies, but not more lenses than
+		// were actually selected.
+		if escalated.MaxGenerals > len(plan.Generals) {
+			escalated.MaxGenerals = len(plan.Generals)
+		}
+		plan.Tier = escalated
 		if context, err = u.gatherContext(ctx, plan); err != nil {
 			return ConsultResult{}, err
 		}
@@ -162,7 +180,7 @@ func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entri
 	}
 
 	messages := buildConsultMessages(
-		withBudget(systemPrompt, plan.Tier.AnswerBudget),
+		buildSystemPrompt(systemPrompt, plan),
 		aboutMe, plan.History,
 		formatContext(entries, plan.Tier.MaxBodyRunes),
 		plan.Question,
@@ -174,9 +192,11 @@ func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entri
 	}
 
 	return ConsultResult{
-		Answer:  answer,
-		Sources: entriesToSources(entries),
-		Tier:    string(plan.Tier.Tier),
+		Answer:         answer,
+		Sources:        entriesToSources(entries),
+		Tier:           string(plan.Tier.Tier),
+		Generals:       plan.GeneralIDs(),
+		GeneralsMethod: plan.GeneralsMethod,
 	}, nil
 }
 
@@ -216,12 +236,17 @@ func retrievalQuery(plan ConsultPlan) string {
 	return plan.Question
 }
 
-// withBudget appends the tier's length instruction to a system prompt.
-func withBudget(prompt, budget string) string {
-	if strings.TrimSpace(budget) == "" {
-		return prompt
+// buildSystemPrompt assembles the base prompt, the lens instructions and the
+// tier's length budget into one system message.
+func buildSystemPrompt(base string, plan ConsultPlan) string {
+	parts := []string{base}
+	if lenses := generalsPrompt(plan.Generals); lenses != "" {
+		parts = append(parts, lenses)
 	}
-	return prompt + "\n\n" + budget
+	if budget := strings.TrimSpace(plan.Tier.AnswerBudget); budget != "" {
+		parts = append(parts, budget)
+	}
+	return strings.Join(parts, "\n\n")
 }
 
 func lastUserMessage(history []port.Message) string {

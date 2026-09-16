@@ -94,6 +94,14 @@ function renderChatSources(sources) {
     return `<div class="sources"><ul>${items}</ul></div>`;
 }
 
+// Messages store lens ids; the roster has the display names. Falls back to a
+// tidied id so a lens removed from an overlay still renders readably.
+let lensNames = {};
+
+function lensName(id) {
+    return lensNames[id] || String(id).replace(/_/g, " ");
+}
+
 function renderChatMessages(container, messages) {
     if (messages === null) {
         container.innerHTML = '<p class="muted">Loading conversation...</p>';
@@ -118,11 +126,20 @@ function renderChatMessages(container, messages) {
             ? `<span class="tier-badge tier-${escapeHTML(message.tier)}">${escapeHTML(TIER_LABELS[message.tier] || message.tier)}</span>`
             : "";
 
+        // Which lenses produced this answer, and whether you picked them. An
+        // auto-selected lens should never look like one you chose.
+        const lenses = isAssistant && message.generals?.length
+            ? `<span class="lens-badges">${message.generals.map((id) =>
+                    `<span class="lens-badge">${escapeHTML(lensName(id))}</span>`).join("")}` +
+              `${message.generals_method === "auto" ? '<span class="lens-auto" title="Chosen for you">auto</span>' : ""}</span>`
+            : "";
+
         return `
         <div class="chat-message ${escapeHTML(message.role)}">
             <div class="chat-message-head">
                 <span class="chat-message-role">${escapeHTML(message.role)}</span>
                 ${tier}
+                ${lenses}
             </div>
             ${body}
             ${isAssistant ? renderChatSources(message.sources) : ""}
@@ -255,6 +272,29 @@ function setupConsultForm() {
 
     const tierPicker = form.elements.tier;
 
+    // The tier caps how many lenses an answer is written through, so the picker
+    // follows it rather than letting you choose three for a quick answer.
+    const LENSES_PER_TIER = { quick: 1, standard: 2, deep: 3 };
+
+    const generals = setupGeneralsPicker();
+    generals?.load().then(() => {
+        generals.setMax(LENSES_PER_TIER[selectedTier()] ?? 2);
+        lensNames = generals.names();
+        // Any messages already on screen were rendered before the roster
+        // arrived, so redraw them with proper names.
+        if (activeSessionID) {
+            loadSession(activeSessionID);
+        }
+    });
+
+    if (tierPicker) {
+        for (const radio of tierPicker) {
+            radio.addEventListener("change", () => {
+                generals?.setMax(LENSES_PER_TIER[radio.value] ?? 2);
+            });
+        }
+    }
+
     function selectedTier() {
         return tierPicker ? tierPicker.value : "standard";
     }
@@ -309,9 +349,11 @@ function setupConsultForm() {
             activeSessionID = sessionID;
             persistActiveSession(sessionID);
             renderChatMessages(messages, data.messages);
-            // A session remembers the depth it was last used at, so reopening a
-            // deep conversation does not silently drop back to standard.
+            // A session remembers the depth and the lenses it was last used
+            // with, so reopening a conversation does not silently reset either.
             applyTier(data.session?.tier);
+            generals?.setMax(LENSES_PER_TIER[selectedTier()] ?? 2);
+            generals?.set(data.session?.generals);
             result.innerHTML = "";
         } catch (error) {
             if (token !== sessionLoadToken) {
@@ -345,6 +387,7 @@ function setupConsultForm() {
     }
 
     function startNewChat() {
+        generals?.set([]);
         activeSessionID = null;
         sessionLoadToken++;
         form.question.value = "";
@@ -478,7 +521,11 @@ function setupConsultForm() {
             const data = await apiJSON(`/api/chat/sessions/${sessionID}/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: question, tier }),
+                body: JSON.stringify({
+                    content: question,
+                    tier,
+                    generals: generals?.selected() ?? [],
+                }),
                 timeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
             });
 

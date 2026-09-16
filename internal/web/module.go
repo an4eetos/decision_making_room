@@ -3,6 +3,7 @@ package web
 import (
 	"go.uber.org/fx"
 
+	genport "github.com/an4eetos/decision-room/internal/generals/port"
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	httpserver "github.com/an4eetos/decision-room/internal/infra/http"
 	journalusecase "github.com/an4eetos/decision-room/internal/journal/usecase"
@@ -39,8 +40,9 @@ func provideAPIHandler(
 	consult *usecase.Consult,
 	chat *usecase.Chat,
 	capture *journalusecase.Capture,
+	generals genport.Registry,
 ) *api.Handler {
-	return api.NewHandler(ingest, search, consult, chat, capture)
+	return api.NewHandler(ingest, search, consult, chat, capture, generals)
 }
 
 func provideUIHandler(cfg config.Config) (*ui.Handler, error) {

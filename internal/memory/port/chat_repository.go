@@ -24,7 +24,9 @@ type ChatSession struct {
 	SummaryUpdatedAt *time.Time
 	// Tier is the session's default answer depth, so a conversation you started
 	// deep stays deep without re-picking it every turn.
-	Tier      string
+	Tier string
+	// Generals is the session's pinned lens selection. Empty means auto-select.
+	Generals  []string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -38,8 +40,12 @@ type ChatMessage struct {
 	// Tier records what actually ran for this answer. Stored per message rather
 	// than only per session because the depth can change mid-conversation, and
 	// because it is what lets you compare answers later without adding telemetry.
-	Tier      string
-	CreatedAt time.Time
+	Tier string
+	// Generals are the lenses this answer was written through, and DetectMethod
+	// is whether they were picked or auto-selected.
+	Generals     []string
+	DetectMethod string
+	CreatedAt    time.Time
 }
 
 type ChatRepository interface {

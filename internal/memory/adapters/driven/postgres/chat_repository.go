@@ -32,9 +32,9 @@ func (r *ChatRepository) CreateSession(ctx context.Context, session port.ChatSes
 	session.UpdatedAt = now
 
 	_, err := r.pool.Exec(ctx, `
-		INSERT INTO chat_sessions (id, title, summary, summary_updated_at, tier, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, session.ID, session.Title, session.Summary, session.SummaryUpdatedAt, session.Tier, session.CreatedAt, session.UpdatedAt)
+		INSERT INTO chat_sessions (id, title, summary, summary_updated_at, tier, generals, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`, session.ID, session.Title, session.Summary, session.SummaryUpdatedAt, session.Tier, nonNilStrings(session.Generals), session.CreatedAt, session.UpdatedAt)
 	if err != nil {
 		return port.ChatSession{}, fmt.Errorf("insert chat session: %w", err)
 	}
@@ -48,7 +48,7 @@ func (r *ChatRepository) ListSessions(ctx context.Context, limit int) ([]port.Ch
 	}
 
 	rows, err := r.pool.Query(ctx, `
-		SELECT id, title, summary, summary_updated_at, tier, created_at, updated_at
+		SELECT id, title, summary, summary_updated_at, tier, generals, created_at, updated_at
 		FROM chat_sessions
 		ORDER BY updated_at DESC
 		LIMIT $1
@@ -74,7 +74,7 @@ func (r *ChatRepository) ListSessions(ctx context.Context, limit int) ([]port.Ch
 
 func (r *ChatRepository) GetSession(ctx context.Context, id uuid.UUID) (port.ChatSession, error) {
 	row := r.pool.QueryRow(ctx, `
-		SELECT id, title, summary, summary_updated_at, tier, created_at, updated_at
+		SELECT id, title, summary, summary_updated_at, tier, generals, created_at, updated_at
 		FROM chat_sessions
 		WHERE id = $1
 	`, id)
@@ -95,9 +95,11 @@ func (r *ChatRepository) UpdateSession(ctx context.Context, session port.ChatSes
 		    summary = $3,
 		    summary_updated_at = $4,
 		    tier = $5,
-		    updated_at = $6
+		    generals = $6,
+		    updated_at = $7
 		WHERE id = $1
-	`, session.ID, session.Title, session.Summary, session.SummaryUpdatedAt, session.Tier, session.UpdatedAt)
+	`, session.ID, session.Title, session.Summary, session.SummaryUpdatedAt, session.Tier,
+		nonNilStrings(session.Generals), session.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("update chat session: %w", err)
 	}
@@ -119,9 +121,9 @@ func (r *ChatRepository) CreateMessage(ctx context.Context, message port.ChatMes
 	}
 
 	_, err = r.pool.Exec(ctx, `
-		INSERT INTO chat_messages (id, session_id, role, content, sources, tier, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, message.ID, message.SessionID, message.Role, message.Content, sourcesJSON, message.Tier, message.CreatedAt)
+		INSERT INTO chat_messages (id, session_id, role, content, sources, tier, generals, detect_method, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	`, message.ID, message.SessionID, message.Role, message.Content, sourcesJSON, message.Tier, nonNilStrings(message.Generals), message.DetectMethod, message.CreatedAt)
 	if err != nil {
 		return port.ChatMessage{}, fmt.Errorf("insert chat message: %w", err)
 	}
@@ -140,7 +142,7 @@ func (r *ChatRepository) CreateMessage(ctx context.Context, message port.ChatMes
 
 func (r *ChatRepository) ListMessages(ctx context.Context, sessionID uuid.UUID) ([]port.ChatMessage, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT id, session_id, role, content, sources, tier, created_at
+		SELECT id, session_id, role, content, sources, tier, generals, detect_method, created_at
 		FROM chat_messages
 		WHERE session_id = $1
 		ORDER BY created_at ASC, id ASC
@@ -192,6 +194,7 @@ func scanChatSession(row chatSessionScannable) (port.ChatSession, error) {
 		&session.Summary,
 		&session.SummaryUpdatedAt,
 		&session.Tier,
+		&session.Generals,
 		&session.CreatedAt,
 		&session.UpdatedAt,
 	)
@@ -211,6 +214,8 @@ func scanChatMessage(row chatSessionScannable) (port.ChatMessage, error) {
 		&message.Content,
 		&sourcesJSON,
 		&message.Tier,
+		&message.Generals,
+		&message.DetectMethod,
 		&message.CreatedAt,
 	)
 	if err != nil {
@@ -223,4 +228,13 @@ func scanChatMessage(row chatSessionScannable) (port.ChatMessage, error) {
 		message.Sources = []port.ChatSource{}
 	}
 	return message, nil
+}
+
+// nonNilStrings keeps a nil slice out of the driver: the columns are NOT NULL
+// with a '{}' default, and pgx would otherwise send NULL.
+func nonNilStrings(v []string) []string {
+	if v == nil {
+		return []string{}
+	}
+	return v
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	genport "github.com/an4eetos/decision-room/internal/generals/port"
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	"github.com/an4eetos/decision-room/internal/infra/gemini"
 	"github.com/an4eetos/decision-room/internal/infra/ollama"
@@ -95,6 +96,7 @@ func provideConsult(
 	toolLLM port.ToolLLM,
 	initialContext port.InitialContextReader,
 	tools *usecase.MemoryToolExecutor,
+	registry genport.Registry,
 	cfg config.Config,
 ) *usecase.Consult {
 	return usecase.NewConsult(
@@ -104,6 +106,7 @@ func provideConsult(
 		toolLLM,
 		initialContext,
 		tools,
+		registry,
 		domain.ParseTier(cfg.DefaultTier, domain.TierStandard),
 		domain.ParseTier(cfg.MaxTier, domain.TierDeep),
 	)
