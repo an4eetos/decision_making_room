@@ -1,0 +1,28 @@
+{{define "chat.html"}}
+{{template "layout-head" .}}
+<section class="chat-shell">
+    <aside class="chat-sidebar card">
+        <div class="chat-sidebar-header">
+            <h2>Chats</h2>
+            <button id="new-chat-button" type="button" class="btn">New chat</button>
+        </div>
+        <div id="chat-sessions" class="chat-sessions"></div>
+    </aside>
+
+    <section class="card chat-main">
+        <h1>Daily Consult</h1>
+        <p class="muted">Talk to your memory agent. Conversation history is saved and retrieval runs every turn.</p>
+
+        <div id="chat-messages" class="chat-messages"></div>
+
+        <form id="consult-form" class="form chat-form">
+            <label for="question">Your message</label>
+            <textarea id="question" name="question" rows="4" placeholder="What should I focus on today?" required></textarea>
+            <button type="submit" class="btn primary">Send</button>
+        </form>
+
+        <div id="consult-result" class="consult-result"></div>
+    </section>
+</section>
+{{template "layout-foot" .}}
+{{end}}

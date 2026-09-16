@@ -1,0 +1,25 @@
+{{define "layout-head"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} — Kotakbaevsky</title>
+    <link rel="stylesheet" href="/static/style.css?v=2">
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="brand">Kotakbaevsky</a>
+        <a href="/">Consult</a>
+        <a href="/ingest">Ingest</a>
+        <a href="/memories">Memories</a>
+    </nav>
+    <main class="container{{if .ContainerClass}} {{.ContainerClass}}{{end}}">
+{{end}}
+
+{{define "layout-foot"}}
+    </main>
+    <script src="/static/app.js?v=2"></script>
+</body>
+</html>
+{{end}}

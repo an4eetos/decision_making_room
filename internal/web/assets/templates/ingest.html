@@ -1,0 +1,33 @@
+{{define "ingest.html"}}
+{{template "layout-head" .}}
+<section class="card">
+    <h1>Ingest Memory</h1>
+    <p class="muted">Add decisions, plans, notes, or daily logs. Long text is chunked automatically.</p>
+
+    <form id="ingest-form" enctype="multipart/form-data" class="form">
+        <label for="kind">Kind</label>
+        <select id="kind" name="kind" required>
+            {{range .Kinds}}
+            <option value="{{.}}">{{.}}</option>
+            {{end}}
+        </select>
+
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" placeholder="Short title">
+
+        <label for="tags">Tags (comma-separated)</label>
+        <input id="tags" name="tags" type="text" placeholder="work, q2, architecture">
+
+        <label for="body">Content</label>
+        <textarea id="body" name="body" rows="10" placeholder="Paste your decision, plan, or notes..."></textarea>
+
+        <label for="file">Or upload .md / .txt</label>
+        <input id="file" name="file" type="file" accept=".md,.txt,.markdown">
+
+        <button type="submit" class="btn primary">Save</button>
+    </form>
+
+    <div id="ingest-result"></div>
+</section>
+{{template "layout-foot" .}}
+{{end}}
