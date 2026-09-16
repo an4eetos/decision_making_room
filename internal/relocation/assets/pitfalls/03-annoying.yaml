@@ -1,0 +1,76 @@
+- id: no_real_desk
+  title: There is no desk, or the desk is a dining table
+  severity: annoying
+  when: {min_nights: 21}
+  body: >
+    A dining table is around 75cm; a surface you can type at comfortably is
+    around 72cm, and a kitchen counter is 90cm. Three months at the wrong height
+    produces shoulder and neck pain that outlasts the trip.
+  action: >
+    Ask for a photo of the work surface with a chair pushed in, and confirm the
+    chair. If it is wrong, budget for a chair and a laptop stand on arrival and
+    plan to resell them.
+
+- id: wifi_tested_at_the_wrong_time
+  title: The wifi was fine when you tested it at 2pm
+  severity: annoying
+  when: {min_nights: 14}
+  body: >
+    Residential connections congest in the evening, and shared-building
+    connections congest whenever everyone is home. A speed test during a viewing
+    tells you very little about a video call at 9pm.
+  action: >
+    Ask the host to run a speed test at the hour you would actually be working and
+    send a screenshot. Have a mobile data fallback regardless.
+
+- id: aircon_undersized
+  title: The aircon cannot cool the room it is in
+  severity: annoying
+  when: {climate: [tropical, arid], min_nights: 21}
+  body: >
+    An undersized or old unit runs constantly, cools nothing, is loud enough to
+    disrupt calls and sleep, and produces an electricity bill out of proportion to
+    the comfort it provides.
+  action: Ask how old the unit is, when it was last serviced, and what the highest recent electricity bill was.
+
+- id: seasonal_timing
+  title: You may have booked the wrong season
+  severity: annoying
+  when: {min_nights: 30}
+  body: >
+    Monsoon, the hottest month, the coldest month, or the stretch when half the
+    city closes for a holiday. Any of these will define the stay more than the
+    apartment does.
+  action: Check the monthly climate averages and the local holiday calendar for your exact dates.
+
+- id: timezone_overlap
+  title: The timezone overlap with your team is worse than it sounds
+  severity: annoying
+  when: {min_nights: 21}
+  body: >
+    A gap that looks manageable on paper often turns out to mean every meeting
+    lands in your evening, which quietly removes your social life and then your
+    sleep.
+  action: >
+    Write out a normal week of your actual recurring meetings in local time before
+    booking, not an abstract hour count.
+
+- id: central_heating_calendar
+  title: Heating is switched on by date, not by weather
+  severity: annoying
+  when: {climate: [cold], min_nights: 21}
+  body: >
+    Centrally heated buildings in much of Eastern Europe and Central Asia turn
+    heating on and off on fixed calendar dates. The fortnight either side can be
+    genuinely cold indoors with nothing you can do about it.
+  action: Check the local switch-on date and bring or buy a electric heater and an extra blanket for the gap.
+
+- id: no_second_towel
+  title: Small comfort items you will not think of until you need them
+  severity: annoying
+  when: {min_nights: 30}
+  body: >
+    A second towel so one can dry. A bath mat. Hangers. A sharp knife. A drain
+    catcher. Individually trivial, collectively the difference between somewhere
+    you live and somewhere you are staying.
+  action: Work through the setup list in the first week rather than discovering each one at the worst moment.

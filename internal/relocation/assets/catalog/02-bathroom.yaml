@@ -1,0 +1,115 @@
+- id: bath_towel
+  category: bathroom
+  name: Bath towel
+  unit: towel
+  anchor_usd: 9
+  quantity: {base: 2, per_person: true}
+  when: {min_nights: 7, not_housing: [hotel, serviced]}
+  commonly_forgotten: true
+  note: Two per person so one can dry. Furnished rentals supply one thin towel per person, or none at all.
+
+- id: hand_towel
+  category: bathroom
+  name: Hand towel
+  unit: towel
+  anchor_usd: 5
+  quantity: {base: 2}
+  when: {min_nights: 14, not_housing: [hotel, serviced]}
+
+- id: bath_mat
+  category: bathroom
+  name: Bath mat
+  unit: mat
+  anchor_usd: 10
+  quantity: {base: 1}
+  when: {min_nights: 21, not_housing: [hotel, serviced]}
+  commonly_forgotten: true
+  note: Almost never provided. A wet tile floor every morning for three months.
+
+- id: shower_gel
+  category: bathroom
+  name: Shower gel or soap
+  unit: bottle
+  anchor_usd: 5
+  quantity: {per_days: 45, per_person: true}
+
+- id: shampoo
+  category: bathroom
+  name: Shampoo
+  unit: bottle
+  anchor_usd: 7
+  quantity: {per_days: 50, per_person: true}
+
+- id: toothpaste
+  category: bathroom
+  name: Toothpaste
+  unit: tube
+  anchor_usd: 4
+  quantity: {per_days: 40, per_person: true}
+
+- id: toothbrush
+  category: bathroom
+  name: Toothbrush
+  unit: brush
+  anchor_usd: 4
+  quantity: {per_days: 90, per_person: true}
+
+- id: floss
+  category: bathroom
+  name: Dental floss
+  unit: pack
+  anchor_usd: 4
+  quantity: {per_days: 60, per_person: true}
+  when: {min_nights: 21}
+
+- id: razor_blades
+  category: bathroom
+  name: Razor and blades
+  unit: pack
+  anchor_usd: 14
+  quantity: {per_days: 60, per_person: true}
+  when: {min_nights: 14}
+  note: Blades are one of the few things reliably cheaper to bring than to buy abroad.
+
+- id: deodorant
+  category: bathroom
+  name: Deodorant
+  unit: stick
+  anchor_usd: 5
+  quantity: {per_days: 60, per_person: true}
+
+- id: nail_clippers
+  category: bathroom
+  name: Nail clippers and tweezers
+  unit: set
+  anchor_usd: 6
+  quantity: {base: 1}
+  when: {min_nights: 21}
+  commonly_forgotten: true
+
+- id: hairdryer
+  category: bathroom
+  name: Hairdryer
+  unit: unit
+  anchor_usd: 22
+  quantity: {base: 1}
+  when: {min_nights: 30, not_housing: [hotel, serviced], budget: [standard, comfortable]}
+  commonly_forgotten: true
+
+- id: drain_catcher
+  category: bathroom
+  name: Shower drain hair catcher
+  unit: unit
+  anchor_usd: 3
+  quantity: {base: 1}
+  when: {min_nights: 30, not_housing: [hotel, serviced]}
+  commonly_forgotten: true
+  note: Three dollars against a blocked drain you will be blamed for and charged to fix.
+
+- id: toilet_paper_stock
+  category: bathroom
+  name: Toilet paper (ongoing)
+  unit: pack
+  anchor_usd: 6
+  quantity: {per_days: 30, per_person: true}
+  when: {not_housing: [hotel, serviced]}

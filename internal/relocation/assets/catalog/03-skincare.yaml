@@ -1,0 +1,70 @@
+# Quantities here are the point. A three-month stay is a different shopping list
+# from a two-week one, not simply a larger one.
+- id: cleanser
+  category: skincare
+  name: Face cleanser
+  unit: bottle
+  anchor_usd: 12
+  quantity: {per_days: 60, per_person: true}
+  note: A 150ml cleanser is roughly two months of twice-daily use.
+
+- id: moisturiser
+  category: skincare
+  name: Face moisturiser
+  unit: jar
+  anchor_usd: 16
+  quantity: {per_days: 60, per_person: true}
+  note: 50ml is about two months at daily use. Buy the second one before the first runs out, not after.
+
+- id: sunscreen
+  category: skincare
+  name: Sunscreen SPF 50
+  unit: bottle
+  anchor_usd: 14
+  quantity: {per_days: 21, per_person: true}
+  when: {climate: [tropical, arid]}
+  commonly_forgotten: true
+  note: A 50ml bottle applied at the recommended amount lasts about three weeks. Most people underestimate this by a factor of four, which is the same as not wearing it.
+
+- id: sunscreen_temperate
+  category: skincare
+  name: Sunscreen SPF 30
+  unit: bottle
+  anchor_usd: 12
+  quantity: {per_days: 45, per_person: true}
+  when: {climate: [temperate], min_nights: 30}
+
+- id: lip_balm
+  category: skincare
+  name: Lip balm
+  unit: stick
+  anchor_usd: 4
+  quantity: {per_days: 45, per_person: true}
+  when: {climate: [cold, arid]}
+  commonly_forgotten: true
+
+- id: after_sun
+  category: skincare
+  name: After-sun or aloe gel
+  unit: bottle
+  anchor_usd: 8
+  quantity: {base: 1}
+  when: {climate: [tropical], min_nights: 14}
+
+- id: body_lotion
+  category: skincare
+  name: Body lotion
+  unit: bottle
+  anchor_usd: 10
+  quantity: {per_days: 60, per_person: true}
+  when: {climate: [cold, arid], min_nights: 21}
+  note: Dry cold air and hard water will wreck your skin by week two.
+
+- id: bite_cream
+  category: skincare
+  name: Insect bite cream and repellent
+  unit: set
+  anchor_usd: 12
+  quantity: {base: 1, per_person: true}
+  when: {climate: [tropical]}
+  commonly_forgotten: true

@@ -1,0 +1,105 @@
+- id: own_pillow
+  category: bedding
+  name: Your own pillow
+  unit: pillow
+  anchor_usd: 25
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 30, not_housing: [hotel]}
+  commonly_forgotten: true
+  note: The provided pillow is always wrong. This is the highest return-per-dollar purchase on the entire list for a stay over a month.
+
+- id: bed_sheets
+  category: bedding
+  name: Bed sheet set
+  unit: set
+  anchor_usd: 35
+  quantity: {base: 2}
+  when: {min_nights: 30, housing: [unfurnished]}
+  note: Two sets, so washing day does not mean sleeping on a bare mattress.
+
+- id: spare_sheets
+  category: bedding
+  name: Spare bed sheet set
+  unit: set
+  anchor_usd: 30
+  quantity: {base: 1}
+  when: {min_nights: 45, housing: [furnished, serviced, shared]}
+  commonly_forgotten: true
+  note: A furnished place supplies one set. Washing day then means either a bare mattress or a wet bed, and short-let laundry rarely runs on your schedule.
+
+- id: duvet
+  category: bedding
+  name: Duvet or blanket for the climate
+  unit: unit
+  anchor_usd: 45
+  quantity: {base: 1}
+  when: {min_nights: 30, housing: [unfurnished]}
+
+- id: extra_blanket
+  category: bedding
+  name: Extra blanket
+  unit: blanket
+  anchor_usd: 20
+  quantity: {base: 1, per_person: true}
+  when: {climate: [cold], min_nights: 21, not_housing: [hotel]}
+  note: Heating is often centrally controlled and switched on by a calendar date rather than by the weather.
+
+- id: sleep_kit
+  category: bedding
+  name: Eye mask and earplugs
+  unit: set
+  anchor_usd: 12
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 7}
+  commonly_forgotten: true
+  note: Curtains are rarely blackout, and the building site next door starts at seven.
+
+- id: hangers
+  category: laundry
+  name: Clothes hangers
+  unit: pack
+  anchor_usd: 8
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 21, not_housing: [hotel]}
+  commonly_forgotten: true
+
+- id: detergent
+  category: laundry
+  name: Laundry detergent
+  unit: pack
+  anchor_usd: 10
+  quantity: {per_days: 45}
+  when: {not_housing: [hotel]}
+
+- id: drying_rack
+  category: laundry
+  name: Drying rack
+  unit: rack
+  anchor_usd: 20
+  quantity: {base: 1}
+  when: {min_nights: 45, housing: [unfurnished]}
+  note: Tumble dryers are rare outside North America.
+
+- id: laundry_service
+  category: laundry
+  name: Laundry service
+  unit: month
+  anchor_usd: 30
+  quantity: {per_days: 30, per_person: true}
+  when: {min_nights: 14, housing: [hotel, serviced, shared]}
+
+- id: cleaning_supplies
+  category: cleaning
+  name: Cleaning supplies
+  unit: set
+  anchor_usd: 15
+  quantity: {base: 1}
+  when: {min_nights: 30, not_housing: [hotel, serviced]}
+
+- id: cleaner
+  category: cleaning
+  name: Cleaner
+  unit: month
+  anchor_usd: 60
+  quantity: {per_days: 30}
+  when: {min_nights: 60, budget: [comfortable], not_housing: [hotel, serviced]}

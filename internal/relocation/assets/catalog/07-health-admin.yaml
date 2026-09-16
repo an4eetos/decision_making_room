@@ -1,0 +1,134 @@
+- id: prescription_supply
+  category: health
+  name: Full prescription supply plus one month buffer
+  unit: course
+  anchor_usd: 0
+  quantity: {base: 1, per_person: true}
+  commonly_forgotten: true
+  note: Check legality and availability at the destination before booking anything. Stimulants for ADHD, strong painkillers and some antidepressants are controlled or outright banned in a number of countries, including ones that are otherwise popular with remote workers. Carry the prescription and the original packaging.
+
+- id: travel_insurance
+  category: health
+  name: Travel or expat health insurance
+  unit: month
+  anchor_usd: 55
+  quantity: {per_days: 30, per_person: true}
+  note: Check that it covers the actual length of stay. Many policies quietly cap at 90 days per trip.
+
+- id: pharmacy_kit
+  category: health
+  name: Basic pharmacy kit
+  unit: kit
+  anchor_usd: 25
+  quantity: {base: 1}
+  when: {min_nights: 14}
+  note: Painkillers, rehydration salts, antihistamine, plasters, something for an upset stomach. Needed at 2am, when the pharmacy is shut and you do not speak the language.
+
+- id: dentist_before
+  category: health
+  name: Dental check before departure
+  unit: visit
+  anchor_usd: 90
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 60}
+  commonly_forgotten: true
+  note: A root canal in an unfamiliar healthcare system is the worst possible way to learn how it works.
+
+- id: vaccinations
+  category: health
+  name: Vaccinations and prophylaxis
+  unit: course
+  anchor_usd: 120
+  quantity: {base: 1, per_person: true}
+  when: {climate: [tropical]}
+  note: Some need to start weeks before departure, so this is a booking-time task rather than a packing-time one.
+
+- id: clinic_lookup
+  category: health
+  name: Nearest clinic, pharmacy and emergency number
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 14}
+  commonly_forgotten: true
+  note: Five minutes on arrival. The emergency number is not 911 in most of the world.
+
+- id: fx_card
+  category: connectivity
+  name: Card with no foreign transaction fees
+  unit: card
+  anchor_usd: 0
+  quantity: {base: 1}
+  note: Tell the bank you are travelling. A card frozen for fraud on day one, with no local cash, is a genuinely bad afternoon.
+
+- id: backup_card
+  category: connectivity
+  name: Second card, stored separately
+  unit: card
+  anchor_usd: 0
+  quantity: {base: 1}
+  commonly_forgotten: true
+  note: Separately means not in the same bag as the first one.
+
+- id: local_payment_app
+  category: connectivity
+  name: Local payment app
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 14}
+  note: Several countries are effectively app-only for everyday payments, and some of those apps require a local bank account or phone number to register.
+
+- id: esim_backup
+  category: connectivity
+  name: Roaming eSIM for the first day
+  unit: plan
+  anchor_usd: 8
+  quantity: {base: 1, per_person: true}
+  note: You need data to order the taxi that takes you to the shop that sells the local SIM.
+
+- id: visa_check
+  category: admin
+  name: Visa type, permitted days, and whether remote work is allowed on it
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1, per_person: true}
+  commonly_forgotten: true
+  note: Working remotely on a tourist visa is tolerated in many places and illegal in most of them. Know which situation you are in before you decide how visible to be.
+
+- id: address_registration
+  category: admin
+  name: Address registration, if required
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 30}
+  note: Germany's Anmeldung, Thailand's TM30 and equivalents elsewhere carry real fines and can block you from opening a bank account or renewing a visa.
+
+- id: proof_of_address
+  category: admin
+  name: Proof of address
+  unit: document
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 60}
+  commonly_forgotten: true
+  note: Needed for a bank account, a gym membership, a phone contract. A short-term rental agreement often does not count.
+
+- id: tax_days
+  category: admin
+  name: Tax residency day count
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 60}
+  note: 183 days in a calendar year is the common threshold, but not the only one, and some countries count differently. Track the days from the start rather than reconstructing them later.
+
+- id: document_scans
+  category: admin
+  name: Offline scans of passport, visa and insurance
+  unit: set
+  anchor_usd: 0
+  quantity: {base: 1, per_person: true}
+  commonly_forgotten: true
+  note: Offline. A cloud copy is no use when the phone with the cloud login is the thing that was stolen.

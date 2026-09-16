@@ -1,0 +1,93 @@
+- id: chef_knife
+  category: kitchen
+  name: A knife that actually cuts
+  unit: knife
+  anchor_usd: 15
+  quantity: {base: 1}
+  when: {min_nights: 21, housing: [furnished, unfurnished, shared]}
+  commonly_forgotten: true
+  note: Every furnished flat has four blunt knives. One sharp knife changes whether you cook at all, which changes your food budget more than any other purchase here.
+
+- id: chopping_board
+  category: kitchen
+  name: Chopping board
+  unit: board
+  anchor_usd: 8
+  quantity: {base: 1}
+  when: {min_nights: 21, housing: [furnished, unfurnished, shared]}
+
+- id: frying_pan
+  category: kitchen
+  name: Frying pan
+  unit: pan
+  anchor_usd: 18
+  quantity: {base: 1}
+  when: {min_nights: 30, housing: [unfurnished]}
+
+- id: saucepan
+  category: kitchen
+  name: Saucepan
+  unit: pan
+  anchor_usd: 14
+  quantity: {base: 1}
+  when: {min_nights: 30, housing: [unfurnished]}
+
+- id: tableware
+  category: kitchen
+  name: Plate, bowl, mug, cutlery set
+  unit: set
+  anchor_usd: 20
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 30, housing: [unfurnished]}
+
+- id: kettle
+  category: kitchen
+  name: Kettle
+  unit: unit
+  anchor_usd: 20
+  quantity: {base: 1}
+  when: {min_nights: 30, housing: [unfurnished]}
+
+- id: pantry_basics
+  category: kitchen
+  name: Oil, salt, pepper, basic spices
+  unit: set
+  anchor_usd: 18
+  quantity: {base: 1}
+  when: {min_nights: 14, housing: [furnished, unfurnished, shared]}
+  commonly_forgotten: true
+  note: Rebuying a whole pantry from zero is the hidden cost of every move. Budget for it once and use it up before you leave.
+
+- id: food_containers
+  category: kitchen
+  name: Food storage containers
+  unit: set
+  anchor_usd: 12
+  quantity: {base: 1}
+  when: {min_nights: 30, housing: [furnished, unfurnished, shared]}
+
+- id: dish_soap
+  category: kitchen
+  name: Dish soap, sponges, tea towel
+  unit: set
+  anchor_usd: 9
+  quantity: {per_days: 45}
+  when: {housing: [furnished, unfurnished, shared]}
+
+- id: water_plan
+  category: kitchen
+  name: Drinking water (filter or delivery)
+  unit: month
+  anchor_usd: 12
+  quantity: {per_days: 30, per_person: true}
+  when: {min_nights: 14}
+  note: Check whether the tap water is drinkable before assuming either way. Buying single bottles daily is the expensive answer to a cheap problem.
+
+- id: coffee_setup
+  category: kitchen
+  name: Coffee setup
+  unit: set
+  anchor_usd: 25
+  quantity: {base: 1}
+  when: {min_nights: 30, budget: [standard, comfortable], housing: [furnished, unfurnished, shared]}
+  note: A month of daily café coffee costs more than the equipment.

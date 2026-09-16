@@ -58,6 +58,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /{$}", h.chatPage)
 	mux.HandleFunc("GET /ingest", h.ingestPage)
 	mux.HandleFunc("GET /memories", h.memoriesPage)
+	mux.HandleFunc("GET /relocation", h.relocationPage)
 }
 
 func (h *Handler) chatPage(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +82,13 @@ func (h *Handler) memoriesPage(w http.ResponseWriter, r *http.Request) {
 		"Query": r.URL.Query().Get("q"),
 		"Kind":  r.URL.Query().Get("kind"),
 		"Tags":  r.URL.Query().Get("tags"),
+	})
+}
+
+func (h *Handler) relocationPage(w http.ResponseWriter, r *http.Request) {
+	h.render(w, "relocation.html", map[string]any{
+		"Title":          "Relocation",
+		"ContainerClass": "container--wide",
 	})
 }
 

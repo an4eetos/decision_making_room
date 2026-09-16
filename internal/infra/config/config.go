@@ -28,8 +28,12 @@ type Config struct {
 	AgenticRAGEnabled      bool
 	AgentMaxToolRounds     int
 	WebRoot                string
-	JournalWatchDir        string
-	JournalWatchEnabled    bool
+	// RelocationCatalogDir optionally overlays the shipped relocation knowledge
+	// base. It holds catalog/ and pitfalls/ subdirectories; an entry replaces a
+	// shipped one by id, or is appended when the id is new.
+	RelocationCatalogDir string
+	JournalWatchDir      string
+	JournalWatchEnabled  bool
 }
 
 func Load() (Config, error) {
@@ -81,6 +85,7 @@ func Load() (Config, error) {
 		AgenticRAGEnabled:      envBoolOrDefault("AGENTIC_RAG_ENABLED", true),
 		AgentMaxToolRounds:     agentRounds,
 		WebRoot:                os.Getenv("WEB_ROOT"), // empty => assets embedded in the binary
+		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
 		JournalWatchDir:        journalDir,
 		JournalWatchEnabled:    envBoolOrDefault("JOURNAL_WATCH_ENABLED", journalDir != ""),
 	}

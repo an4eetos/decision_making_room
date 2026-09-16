@@ -1,0 +1,81 @@
+- id: sight_unseen_long_booking
+  title: Booking three months sight-unseen
+  severity: costly
+  when: {min_nights: 45}
+  body: >
+    Photos hide noise, smell, water pressure, mould, a bed that ruins your back,
+    and neighbours. A long booking made from another country is the single most
+    expensive mistake available here, because you are usually locked in.
+  action: >
+    Book one week first. Use it to view places in person, then sign for the rest.
+    The extra cost of the trial week is a fraction of one bad month.
+
+- id: airbnb_vs_local_market
+  title: Monthly platform rates are far above the local market
+  severity: costly
+  when: {min_nights: 30}
+  body: >
+    A monthly discount on a short-let platform still typically prices at two to
+    three times what a local tenant pays. In most cities the real market runs
+    through local listing sites, agents or Facebook groups, in the local language.
+  action: >
+    Price the local market before committing, even roughly. A week on a platform
+    followed by a local lease is usually much cheaper than three months on the
+    platform.
+
+- id: furnished_means_nothing
+  title: '"Furnished" rarely includes bedding, towels or kitchen basics'
+  severity: costly
+  when: {min_nights: 21, housing: [furnished, unfurnished]}
+  body: >
+    Furnished generally means there is furniture. Sheets, pillows, towels, pans,
+    knives and a bin are frequently absent, and replacing all of it in the first
+    week is a real and unbudgeted cost.
+  action: Ask for photographs of the inside of the kitchen cupboards and the linen cupboard before you pay anything.
+
+- id: utilities_excluded
+  title: The quoted rent probably excludes utilities
+  severity: costly
+  when: {min_nights: 30, not_housing: [hotel, serviced]}
+  body: >
+    Electricity, water, heating, building maintenance, internet and rubbish
+    collection may all be separate. In hot or cold climates the aircon or heating
+    bill alone can add a large fraction of the rent.
+  action: >
+    Ask for the total monthly cost including everything, and for the last two
+    actual bills. A landlord who will not show them is telling you something.
+
+- id: cash_deposit_no_receipt
+  title: Deposit paid in cash with no receipt
+  severity: costly
+  when: {min_nights: 30, not_housing: [hotel, serviced]}
+  body: >
+    A deposit is typically one to two months of rent, and without a signed receipt
+    and written return conditions you have no way to get it back and no way to
+    argue about damage that was already there.
+  action: >
+    Get a signed receipt. Agree the return conditions in writing. Photograph every
+    room, including existing damage, on the day you move in.
+
+- id: overbuying_day_one
+  title: Buying everything on day one at tourist prices
+  severity: costly
+  when: {min_nights: 21}
+  body: >
+    The shop nearest a short-let flat charges accordingly. Buying three months of
+    toiletries there, in a panic, on the first evening, costs substantially more
+    than the same basket at a supermarket two days later.
+  action: >
+    Buy only the true first-night items on arrival. Do one proper supermarket run
+    on day two or three, once you know where locals actually shop.
+
+- id: shipping_what_you_can_buy
+  title: Carrying things you could buy locally for very little
+  severity: costly
+  when: {min_nights: 30}
+  body: >
+    Excess baggage fees regularly exceed the local cost of the contents. Towels,
+    detergent, basic kitchen equipment and toiletries are cheap almost everywhere.
+  action: >
+    Carry what is genuinely hard to replace — medication, electronics, good shoes,
+    a pillow if you care about sleep. Buy the rest there and sell it on the way out.

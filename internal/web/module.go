@@ -6,7 +6,10 @@ import (
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	httpserver "github.com/an4eetos/decision-room/internal/infra/http"
 	"github.com/an4eetos/decision-room/internal/memory/usecase"
+	relport "github.com/an4eetos/decision-room/internal/relocation/port"
+	relusecase "github.com/an4eetos/decision-room/internal/relocation/usecase"
 	"github.com/an4eetos/decision-room/internal/web/api"
+	"github.com/an4eetos/decision-room/internal/web/relocationapi"
 	"github.com/an4eetos/decision-room/internal/web/ui"
 )
 
@@ -17,6 +20,7 @@ var Module = fx.Module("web",
 	fx.Provide(
 		asRoute(provideAPIHandler),
 		asRoute(provideUIHandler),
+		asRoute(provideRelocationHandler),
 	),
 )
 
@@ -39,4 +43,12 @@ func provideAPIHandler(
 
 func provideUIHandler(cfg config.Config) (*ui.Handler, error) {
 	return ui.NewHandler(cfg.WebRoot)
+}
+
+func provideRelocationHandler(
+	plans relport.PlanRepository,
+	prices relport.PriceRepository,
+	build *relusecase.Build,
+) *relocationapi.Handler {
+	return relocationapi.NewHandler(plans, prices, build)
 }

@@ -52,6 +52,35 @@ journal/
 
 The folder is watched. Save a file and it is ingested within a second.
 
+## Relocation planner
+
+`/relocation` turns a stay somewhere into a checklist with real quantities and a
+budget. Give it a destination, dates, housing type and climate; it produces the
+things that stay actually needs, how many of each, what they roughly cost, and
+the mistakes worth avoiding — filtered to the ones that apply to you.
+
+The quantities are the point. Durable goods do not scale with the stay: you need
+the same two towels for two weeks or six months. Consumables do, and rounded up
+— a 50ml sunscreen applied properly is about three weeks, so a three-month stay
+is a different shopping list rather than a longer one.
+
+It also covers the things people discover too late: that "furnished" rarely
+includes bedding or a sharp knife, that a dining table is the wrong height to
+work at for three months, that your prescription may be a controlled substance
+where you are going.
+
+**About the prices.** The catalogue fixes *what* you need and *how many*. The
+prices start as rough global anchors in USD, and **Price for this city** asks the
+model to localise them. Those are estimates and the interface says so on every
+line — an `est` badge, and the share of the total that is guesswork. Type a real
+price on any line and it replaces the estimate, is marked as confirmed, and is
+remembered for the next time you stay in that city.
+
+Extend or correct the knowledge base without forking: point `RELOCATION_CATALOG_DIR`
+at a directory with `catalog/` and `pitfalls/` YAML. An entry with an existing id
+replaces the shipped one; a new id is appended. It is validated at startup, and a
+broken entry fails the boot rather than silently vanishing from your checklist.
+
 ## Configuration
 
 Copy `.env.example` to `.env`. Real environment variables take precedence.
@@ -67,6 +96,7 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `JOURNAL_WATCH_DIR` | `./journal` | |
 | `RETRIEVAL_TOP_K` | `8` | memories passed to the model |
 | `RETRIEVAL_CANDIDATES` | `30` | hybrid pool before reranking |
+| `RELOCATION_CATALOG_DIR` | *(empty)* | overlay for the relocation catalogue |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -100,6 +130,10 @@ server never imports a domain package.
 | `GET` `POST` | `/api/chat/sessions` | |
 | `GET` `DELETE` | `/api/chat/sessions/{id}` | |
 | `POST` | `/api/chat/sessions/{id}/messages` | |
+| `GET` `POST` | `/api/relocation/plans` | |
+| `GET` `PATCH` `DELETE` | `/api/relocation/plans/{id}` | |
+| `POST` | `/api/relocation/plans/{id}/build?reprice=true` | rebuild, optionally repricing |
+| `PATCH` `DELETE` | `/api/relocation/items/{id}` | |
 
 ```bash
 curl -X POST localhost:8080/api/consult \
@@ -114,6 +148,7 @@ curl -X POST localhost:8080/api/consult \
 - [ ] **Depth tiers** — quick, standard and deep answers
 - [ ] **Generals** — pick up to three strategic lenses; they argue, then synthesise
 - [ ] **Modes** — plan a day, make a hard call, unstick a stalled task, debrief
+- [x] **Relocation planner** — setup checklist, costs and pitfalls for a stay
 - [ ] **Commitments** — open loops tracked from your own conversations
 - [ ] **Check-ins** — it asks how the day is going, instead of waiting
 
