@@ -9,6 +9,7 @@ import (
 	"github.com/an4eetos/decision-room/internal/infra/ollama"
 	memfs "github.com/an4eetos/decision-room/internal/memory/adapters/driven/fs"
 	mempostgres "github.com/an4eetos/decision-room/internal/memory/adapters/driven/postgres"
+	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/usecase"
 )
@@ -83,8 +84,8 @@ func provideSearch(repo port.MemoryRepository, retriever *usecase.Retrieve) *use
 	return usecase.NewSearch(repo, retriever)
 }
 
-func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository, cfg config.Config) *usecase.MemoryToolExecutor {
-	return usecase.NewMemoryToolExecutor(retriever, repo, cfg.RetrievalTopK)
+func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository) *usecase.MemoryToolExecutor {
+	return usecase.NewMemoryToolExecutor(retriever, repo)
 }
 
 func provideConsult(
@@ -103,9 +104,8 @@ func provideConsult(
 		toolLLM,
 		initialContext,
 		tools,
-		cfg.RetrievalTopK,
-		cfg.AgenticRAGEnabled,
-		cfg.AgentMaxToolRounds,
+		domain.ParseTier(cfg.DefaultTier, domain.TierStandard),
+		domain.ParseTier(cfg.MaxTier, domain.TierDeep),
 	)
 }
 

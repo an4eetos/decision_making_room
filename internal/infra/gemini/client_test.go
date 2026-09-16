@@ -1,7 +1,12 @@
 package gemini
 
 import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/an4eetos/decision-room/internal/memory/port"
 )
@@ -119,5 +124,90 @@ func TestNormalizeModel(t *testing.T) {
 
 	if got := normalizeModel("models/gemini-2.0-flash"); got != "gemini-2.0-flash" {
 		t.Fatalf("normalizeModel = %q", got)
+	}
+}
+
+// Overload is reported as a 503 with a "high demand" message, not a 429. Chat
+// previously did not retry at all, so a spike of a few seconds failed the whole
+// question.
+func TestChatRetriesTransientOverload(t *testing.T) {
+	t.Parallel()
+
+	var calls int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if atomic.AddInt32(&calls, 1) == 1 {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_, _ = w.Write([]byte(`{"error":{"code":503,"message":"This model is currently experiencing high demand."}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"candidates":[{"content":{"parts":[{"text":"recovered"}]}}]}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "key", []string{"test-model"}, "embed")
+	answer, err := client.Chat(context.Background(), []port.Message{{Role: "user", Content: "hi"}})
+	if err != nil {
+		t.Fatalf("chat: %v", err)
+	}
+	if answer != "recovered" {
+		t.Fatalf("answer = %q", answer)
+	}
+	if got := atomic.LoadInt32(&calls); got != 2 {
+		t.Fatalf("expected one retry, got %d calls", got)
+	}
+}
+
+// A permanent error must not be retried — a retired model will never come back,
+// and retrying only delays a clear message.
+func TestChatDoesNotRetryPermanentErrors(t *testing.T) {
+	t.Parallel()
+
+	var calls int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&calls, 1)
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":{"code":400,"message":"This model is no longer available."}}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "key", []string{"test-model"}, "embed")
+	if _, err := client.Chat(context.Background(), []port.Message{{Role: "user", Content: "hi"}}); err == nil {
+		t.Fatal("expected an error")
+	}
+	if got := atomic.LoadInt32(&calls); got != 1 {
+		t.Fatalf("expected no retry, got %d calls", got)
+	}
+}
+
+// A retry delay longer than a person will wait is not worth taking.
+func TestPostGivesUpOnLongRetryDelays(t *testing.T) {
+	t.Parallel()
+
+	var calls int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&calls, 1)
+		w.WriteHeader(http.StatusTooManyRequests)
+		_, _ = w.Write([]byte(`{"error":{"code":429,"message":"quota","details":[{"@type":"type.googleapis.com/google.rpc.RetryInfo","retryDelay":"120s"}]}}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "key", []string{"test-model"}, "embed")
+
+	done := make(chan error, 1)
+	go func() {
+		_, err := client.Chat(context.Background(), []port.Message{{Role: "user", Content: "hi"}})
+		done <- err
+	}()
+
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Fatal("expected an error")
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("client waited on a 120s retry delay instead of giving up")
+	}
+	if got := atomic.LoadInt32(&calls); got != 1 {
+		t.Fatalf("expected a single attempt, got %d", got)
 	}
 }

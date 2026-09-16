@@ -24,11 +24,12 @@ func TestLastUserMessageSkipsSummary(t *testing.T) {
 func TestRetrievalQueryIncludesLastUserTurn(t *testing.T) {
 	t.Parallel()
 
-	query := retrievalQuery(ConsultInput{
+	query := retrievalQuery(ConsultPlan{
+		Question: "what about last week?",
 		History: []port.Message{
 			{Role: "user", Content: "bench press"},
 		},
-	}, "what about last week?")
+	})
 
 	if !strings.Contains(query, "bench press") {
 		t.Fatalf("expected prior user turn in query, got %q", query)

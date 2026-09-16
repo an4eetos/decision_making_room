@@ -14,8 +14,14 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://generativelanguage.googleapis.com/v1beta"
-	maxRateRetries = 1
+	defaultBaseURL   = "https://generativelanguage.googleapis.com/v1beta"
+	defaultChatModel = "gemini-flash-latest"
+	// Transient overload is common on the free tier and lasts seconds. Failing a
+	// whole question because of it is worse than waiting.
+	maxRateRetries = 2
+	// A retry that waits longer than this is not worth it interactively; better
+	// to surface the error than to hang.
+	maxRetryDelay = 20 * time.Second
 )
 
 type Client struct {
@@ -125,11 +131,16 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 	var errOut error
 	models := c.chatModels
 	if len(models) == 0 {
-		models = []string{"gemini-2.0-flash"}
+		// An alias rather than a pinned version: pinned ones get retired, and the
+		// app then fails every question with "this model is no longer available".
+		models = []string{defaultChatModel}
 	}
 	for _, model := range models {
 		url := fmt.Sprintf("%s/models/%s:generateContent?key=%s", c.baseURL, normalizeModel(model), c.apiKey)
-		respBody, errOut = c.post(ctx, url, body, false)
+		// Retries within a model first, then falls over to the next one. Chat used
+		// to skip retrying entirely, so a momentary spike killed the request even
+		// though the error was explicitly classified as retryable.
+		respBody, errOut = c.post(ctx, url, body)
 		if errOut == nil {
 			break
 		}
@@ -165,7 +176,7 @@ func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 	}
 
 	url := fmt.Sprintf("%s/models/%s:embedContent?key=%s", c.baseURL, normalizeModel(c.embedModel), c.apiKey)
-	respBody, err := c.post(ctx, url, body, true)
+	respBody, err := c.post(ctx, url, body)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +193,7 @@ func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 	return result.Embedding.Values, nil
 }
 
-func (c *Client) post(ctx context.Context, url string, body []byte, allowRetry bool) ([]byte, error) {
+func (c *Client) post(ctx context.Context, url string, body []byte) ([]byte, error) {
 	var lastBody []byte
 
 	for attempt := 0; attempt <= maxRateRetries; attempt++ {
@@ -196,13 +207,13 @@ func (c *Client) post(ctx context.Context, url string, body []byte, allowRetry b
 		}
 
 		lastBody = respBody
-		if !allowRetry || status != http.StatusTooManyRequests || attempt == maxRateRetries {
+		if !isRetryableStatus(status) || attempt == maxRateRetries {
 			break
 		}
 
-		delay := parseRetryDelay(respBody)
+		delay := retryDelayFor(respBody, attempt)
 		if delay <= 0 {
-			delay = time.Duration(attempt+1) * 10 * time.Second
+			break
 		}
 
 		select {
@@ -213,6 +224,34 @@ func (c *Client) post(ctx context.Context, url string, body []byte, allowRetry b
 	}
 
 	return nil, fmt.Errorf("request failed: %s", formatAPIError(lastBody))
+}
+
+// isRetryableStatus covers more than rate limiting. Overload is reported as a
+// 500 or 503 with a "high demand" message, not a 429, so retrying only on 429
+// meant the most common transient failure was never retried at all.
+func isRetryableStatus(status int) bool {
+	switch status {
+	case http.StatusTooManyRequests,
+		http.StatusInternalServerError,
+		http.StatusServiceUnavailable,
+		http.StatusGatewayTimeout:
+		return true
+	default:
+		return false
+	}
+}
+
+// retryDelayFor honours the server's own RetryInfo when it gives one, and backs
+// off exponentially otherwise. It returns zero when the wait would be too long
+// to be worth it, which the caller treats as "give up now".
+func retryDelayFor(respBody []byte, attempt int) time.Duration {
+	if delay := parseRetryDelay(respBody); delay > 0 {
+		if delay > maxRetryDelay {
+			return 0
+		}
+		return delay
+	}
+	return time.Duration(1<<attempt) * time.Second
 }
 
 func (c *Client) doPost(ctx context.Context, url string, body []byte) ([]byte, int, error) {

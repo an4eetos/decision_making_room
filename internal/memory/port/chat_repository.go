@@ -22,8 +22,11 @@ type ChatSession struct {
 	Title            string
 	Summary          string
 	SummaryUpdatedAt *time.Time
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	// Tier is the session's default answer depth, so a conversation you started
+	// deep stays deep without re-picking it every turn.
+	Tier      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type ChatMessage struct {
@@ -32,6 +35,10 @@ type ChatMessage struct {
 	Role      string
 	Content   string
 	Sources   []ChatSource
+	// Tier records what actually ran for this answer. Stored per message rather
+	// than only per session because the depth can change mid-conversation, and
+	// because it is what lets you compare answers later without adding telemetry.
+	Tier      string
 	CreatedAt time.Time
 }
 

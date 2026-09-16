@@ -10,15 +10,39 @@
     </aside>
 
     <section class="card chat-main">
-        <h1>Daily Consult</h1>
-        <p class="muted">Talk to your memory agent. Conversation history is saved and retrieval runs every turn.</p>
+        <header class="chat-head">
+            <h1>Daily Consult</h1>
+            <p class="muted">Ask about anything you have written down.</p>
+        </header>
+
+        <form id="capture-form" class="capture" title="Appends a timestamped line to today's daily note">
+            <input id="capture-input" name="text" type="text" autocomplete="off"
+                   placeholder="Log a line to today's note — no chat, no answer">
+            <button type="submit" class="btn">Log</button>
+        </form>
+        <div id="capture-result" class="capture-result"></div>
 
         <div id="chat-messages" class="chat-messages"></div>
 
-        <form id="consult-form" class="form chat-form">
-            <label for="question">Your message</label>
-            <textarea id="question" name="question" rows="4" placeholder="What should I focus on today?" required></textarea>
-            <button type="submit" class="btn primary">Send</button>
+        <form id="consult-form" class="chat-form">
+            <textarea id="question" name="question" rows="3"
+                      placeholder="What should I focus on today?" required></textarea>
+
+            <div class="chat-form-controls">
+                <fieldset class="tier-picker" aria-label="Answer depth">
+                    <label title="A few memories, no digging. Seconds.">
+                        <input type="radio" name="tier" value="quick"><span>Quick</span>
+                    </label>
+                    <label title="Full retrieval, one round of digging if context is thin.">
+                        <input type="radio" name="tier" value="standard" checked><span>Standard</span>
+                    </label>
+                    <label title="Wider search, keeps digging. Slow and thorough.">
+                        <input type="radio" name="tier" value="deep"><span>Deep</span>
+                    </label>
+                </fieldset>
+
+                <button type="submit" class="btn primary">Send</button>
+            </div>
         </form>
 
         <div id="consult-result" class="consult-result"></div>

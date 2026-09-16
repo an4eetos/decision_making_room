@@ -15,6 +15,9 @@ type RetrieveInput struct {
 	Query  string
 	Filter port.SearchFilter
 	TopK   int
+	// CandidateLimit overrides the configured pool size per request, so a deep
+	// question can widen the net without changing the deployment default.
+	CandidateLimit int
 
 	// Rerank is optional; the zero value uses the default weights and clock.
 	// Callers that care about how relevance, recency and kind trade off — or
@@ -45,12 +48,17 @@ func (u *Retrieve) Execute(ctx context.Context, input RetrieveInput) ([]domain.M
 		topK = u.defaultTopK
 	}
 
+	candidateLimit := input.CandidateLimit
+	if candidateLimit <= 0 {
+		candidateLimit = u.candidateLimit
+	}
+
 	embedding, err := u.embedder.Embed(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("embed query: %w", err)
 	}
 
-	vectorResults, err := u.repo.SearchSimilar(ctx, embedding, u.candidateLimit, input.Filter)
+	vectorResults, err := u.repo.SearchSimilar(ctx, embedding, candidateLimit, input.Filter)
 	if err != nil {
 		return nil, fmt.Errorf("vector search: %w", err)
 	}
@@ -63,7 +71,7 @@ func (u *Retrieve) Execute(ctx context.Context, input RetrieveInput) ([]domain.M
 			English: ftsQuery.English,
 			Simple:  ftsQuery.Simple,
 			Terms:   ftsQuery.Terms,
-		}, u.candidateLimit, input.Filter)
+		}, candidateLimit, input.Filter)
 		if err != nil {
 			return nil, fmt.Errorf("full text search: %w", err)
 		}

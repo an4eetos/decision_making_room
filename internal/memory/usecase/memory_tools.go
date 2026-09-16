@@ -23,17 +23,12 @@ const (
 )
 
 type MemoryToolExecutor struct {
-	retriever   *Retrieve
-	repo        port.MemoryRepository
-	defaultTopK int
+	retriever *Retrieve
+	repo      port.MemoryRepository
 }
 
-func NewMemoryToolExecutor(retriever *Retrieve, repo port.MemoryRepository, defaultTopK int) *MemoryToolExecutor {
-	return &MemoryToolExecutor{
-		retriever:   retriever,
-		repo:        repo,
-		defaultTopK: defaultTopK,
-	}
+func NewMemoryToolExecutor(retriever *Retrieve, repo port.MemoryRepository) *MemoryToolExecutor {
+	return &MemoryToolExecutor{retriever: retriever, repo: repo}
 }
 
 type ToolExecutionResult struct {
@@ -41,16 +36,18 @@ type ToolExecutionResult struct {
 	Entries []domain.MemoryEntry
 }
 
-func (e *MemoryToolExecutor) Execute(ctx context.Context, name string, args map[string]any) (ToolExecutionResult, error) {
+// Execute takes the tier policy so a recall made inside a deep answer searches
+// as widely as the surrounding request, rather than at a fixed default.
+func (e *MemoryToolExecutor) Execute(ctx context.Context, name string, args map[string]any, policy domain.TierPolicy) (ToolExecutionResult, error) {
 	switch name {
 	case "recall_memories":
-		return e.recallMemories(ctx, args)
+		return e.recallMemories(ctx, args, policy)
 	default:
 		return ToolExecutionResult{}, fmt.Errorf("unknown tool: %s", name)
 	}
 }
 
-func (e *MemoryToolExecutor) recallMemories(ctx context.Context, args map[string]any) (ToolExecutionResult, error) {
+func (e *MemoryToolExecutor) recallMemories(ctx context.Context, args map[string]any, policy domain.TierPolicy) (ToolExecutionResult, error) {
 	query := strings.TrimSpace(stringArg(args, "query"))
 	if query == "" {
 		return ToolExecutionResult{}, fmt.Errorf("query is required")
@@ -67,17 +64,18 @@ func (e *MemoryToolExecutor) recallMemories(ctx context.Context, args map[string
 	}
 
 	entries, err := e.retriever.Execute(ctx, RetrieveInput{
-		Query:  query,
-		Filter: filter,
-		TopK:   limit,
+		Query:          query,
+		Filter:         filter,
+		TopK:           limit,
+		CandidateLimit: policy.CandidateLimit,
 	})
 	if err != nil {
 		return ToolExecutionResult{}, err
 	}
 
-	includeRecent := boolArg(args, "include_recent", true)
+	includeRecent := boolArg(args, "include_recent", true) && policy.IncludeRecent > 0
 	if includeRecent {
-		recent, err := e.repo.ListRecent(ctx, 5, filter)
+		recent, err := e.repo.ListRecent(ctx, policy.IncludeRecent, filter)
 		if err != nil {
 			return ToolExecutionResult{}, err
 		}
@@ -88,7 +86,7 @@ func (e *MemoryToolExecutor) recallMemories(ctx context.Context, args map[string
 	}
 
 	return ToolExecutionResult{
-		Content: formatToolEntries(entries),
+		Content: formatToolEntries(entries, policy.MaxBodyRunes),
 		Entries: entries,
 	}, nil
 }
@@ -181,7 +179,7 @@ func boolArg(args map[string]any, key string, fallback bool) bool {
 	}
 }
 
-func formatToolEntries(entries []domain.MemoryEntry) string {
+func formatToolEntries(entries []domain.MemoryEntry, maxBodyRunes int) string {
 	if len(entries) == 0 {
 		return "(no matching memories)"
 	}
@@ -197,7 +195,7 @@ func formatToolEntries(entries []domain.MemoryEntry) string {
 		if e.Score > 0 {
 			score = fmt.Sprintf(" score=%.3f", e.Score)
 		}
-		body := truncateRunes(e.Body, maxEntryBodyRunes)
+		body := truncateRunes(e.Body, maxBodyRunes)
 		fmt.Fprintf(&b, "[%s | %s%s] Title: %s\nBody: %s\n\n", date, e.Kind, score, title, body)
 	}
 	return strings.TrimSpace(b.String())
