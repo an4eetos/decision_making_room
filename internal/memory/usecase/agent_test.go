@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -86,9 +87,9 @@ func TestAgentConsultAnswersFromPrefetchWithoutTools(t *testing.T) {
 	}}
 
 	retriever := &Retrieve{repo: stubRepo{}, embedder: stubEmbedder{}, candidateLimit: 8, defaultTopK: 8}
-	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}, 8), stubInitialContext{content: "I lift"}, 2)
+	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}), stubInitialContext{content: "I lift"})
 
-	result, err := agent.Execute(context.Background(), ConsultInput{Question: "How is my lifting?"}, prefetch)
+	result, err := agent.Execute(context.Background(), testPlan("How is my lifting?", 1), prefetch)
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
@@ -118,9 +119,9 @@ func TestAgentConsultUsesRecallToolOnce(t *testing.T) {
 	}
 
 	retriever := &Retrieve{repo: stubRepo{}, embedder: stubEmbedder{}, candidateLimit: 8, defaultTopK: 8}
-	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}, 8), stubInitialContext{content: "I lift"}, 2)
+	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}), stubInitialContext{content: "I lift"})
 
-	result, err := agent.Execute(context.Background(), ConsultInput{Question: "How is my lifting?"}, nil)
+	result, err := agent.Execute(context.Background(), testPlan("How is my lifting?", 1), nil)
 	if err != nil {
 		t.Fatalf("execute: %v", err)
 	}
@@ -139,4 +140,15 @@ type stubEmbedder struct{}
 
 func (stubEmbedder) Embed(context.Context, string) ([]float32, error) {
 	return []float32{1, 0}, nil
+}
+
+// testPlan builds a plan with a fixed clock so recency scoring is deterministic.
+func testPlan(question string, toolRounds int) ConsultPlan {
+	policy := domain.PolicyFor(domain.TierStandard)
+	policy.MaxToolRounds = toolRounds
+	return ConsultPlan{
+		Question: question,
+		Tier:     policy,
+		Now:      time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC),
+	}
 }

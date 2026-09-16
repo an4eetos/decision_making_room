@@ -28,6 +28,7 @@ type ChatSessionDTO struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
 	Summary   string    `json:"summary,omitempty"`
+	Tier      string    `json:"tier,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -37,6 +38,7 @@ type ChatMessageDTO struct {
 	Role      string          `json:"role"`
 	Content   string          `json:"content"`
 	Sources   []ConsultSource `json:"sources,omitempty"`
+	Tier      string          `json:"tier,omitempty"`
 	CreatedAt time.Time       `json:"created_at"`
 }
 
@@ -103,7 +105,16 @@ func (c *Chat) GetSession(ctx context.Context, sessionID string) (ChatSessionDet
 	}, nil
 }
 
-func (c *Chat) SendMessage(ctx context.Context, sessionID, question string) (ChatSessionDetail, error) {
+// SendMessageInput carries the per-turn choices. Tier is optional; empty falls
+// back to the session's, then to the configured default.
+type SendMessageInput struct {
+	SessionID string
+	Question  string
+	Tier      string
+}
+
+func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessionDetail, error) {
+	sessionID, question := in.SessionID, in.Question
 	id, err := uuid.Parse(sessionID)
 	if err != nil {
 		return ChatSessionDetail{}, fmt.Errorf("invalid session id")
@@ -140,10 +151,24 @@ func (c *Chat) SendMessage(ctx context.Context, sessionID, question string) (Cha
 		}
 	}
 
+	// Per-turn tier wins, then the session's, then the configured default. An
+	// explicit pick also becomes the session default, so a conversation you took
+	// deep stays deep without re-picking every turn.
+	tier := strings.TrimSpace(in.Tier)
+	if tier == "" {
+		tier = session.Tier
+	} else if tier != session.Tier {
+		session.Tier = tier
+		if err := c.repo.UpdateSession(ctx, session); err != nil {
+			return ChatSessionDetail{}, err
+		}
+	}
+
 	conversationHistory := buildChatHistory(session.Summary, messages[:len(messages)-1])
 	consultResult, err := c.consult.Execute(ctx, ConsultInput{
 		Question: question,
 		History:  conversationHistory,
+		Tier:     tier,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
@@ -154,6 +179,7 @@ func (c *Chat) SendMessage(ctx context.Context, sessionID, question string) (Cha
 		Role:      "assistant",
 		Content:   consultResult.Answer,
 		Sources:   toChatSources(consultResult.Sources),
+		Tier:      consultResult.Tier,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
@@ -268,6 +294,7 @@ func toChatSessionDTO(session port.ChatSession) ChatSessionDTO {
 		ID:        session.ID.String(),
 		Title:     session.Title,
 		Summary:   session.Summary,
+		Tier:      session.Tier,
 		CreatedAt: session.CreatedAt,
 		UpdatedAt: session.UpdatedAt,
 	}
@@ -281,6 +308,7 @@ func toChatMessagesDTO(messages []port.ChatMessage) []ChatMessageDTO {
 			Role:      message.Role,
 			Content:   message.Content,
 			Sources:   fromChatSources(message.Sources),
+			Tier:      message.Tier,
 			CreatedAt: message.CreatedAt,
 		}
 	}

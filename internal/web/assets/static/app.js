@@ -36,7 +36,7 @@ async function apiJSON(url, options) {
     } catch (error) {
         clearTimeout(timeout);
         if (error && error.name === "AbortError") {
-            throw new Error("Request timed out. Try again or switch to another Gemini model.");
+            throw new Error("Request timed out. Try a shallower depth, or switch to another Gemini model.");
         }
         throw error;
     }
@@ -51,6 +51,12 @@ async function apiJSON(url, options) {
     }
     return response.json();
 }
+
+const TIER_LABELS = { quick: "Quick", standard: "Standard", deep: "Deep" };
+
+// How long a tier is allowed to take. Deep runs several tool rounds against a
+// wider candidate pool; the old flat 45s aborted it mid-answer.
+const TIER_TIMEOUTS = { quick: 30000, standard: 90000, deep: 240000 };
 
 function renderConsultResult(container, result) {
     let sourcesHTML = "";
@@ -67,7 +73,7 @@ function renderConsultResult(container, result) {
     container.innerHTML = `
         <div class="answer">
             <h3>Answer</h3>
-            <div class="answer-body">${escapeHTML(result.answer)}</div>
+            <div class="answer-body markdown">${renderMarkdown(result.answer)}</div>
         </div>
         ${sourcesHTML}
     `;
@@ -99,13 +105,29 @@ function renderChatMessages(container, messages) {
         return;
     }
 
-    container.innerHTML = messages.map((message) => `
-        <div class="chat-message ${message.role}">
-            <div class="chat-message-role">${escapeHTML(message.role)}</div>
-            <div class="chat-message-body">${escapeHTML(message.content)}</div>
-            ${message.role === "assistant" ? renderChatSources(message.sources) : ""}
-        </div>
-    `).join("");
+    container.innerHTML = messages.map((message) => {
+        const isAssistant = message.role === "assistant";
+        // Only assistant answers are markdown. What you typed is shown exactly as
+        // you typed it — rendering your own text would mangle anything containing
+        // an asterisk or a hash.
+        const body = isAssistant
+            ? `<div class="chat-message-body markdown">${renderMarkdown(message.content)}</div>`
+            : `<div class="chat-message-body">${escapeHTML(message.content)}</div>`;
+
+        const tier = isAssistant && message.tier
+            ? `<span class="tier-badge tier-${escapeHTML(message.tier)}">${escapeHTML(TIER_LABELS[message.tier] || message.tier)}</span>`
+            : "";
+
+        return `
+        <div class="chat-message ${escapeHTML(message.role)}">
+            <div class="chat-message-head">
+                <span class="chat-message-role">${escapeHTML(message.role)}</span>
+                ${tier}
+            </div>
+            ${body}
+            ${isAssistant ? renderChatSources(message.sources) : ""}
+        </div>`;
+    }).join("");
     container.scrollTop = container.scrollHeight;
 }
 
@@ -212,7 +234,9 @@ function appendOptimisticMessage(container, role, content, id) {
 
     container.insertAdjacentHTML("beforeend", `
         <div id="${id}" class="chat-message ${role} pending">
-            <div class="chat-message-role">${escapeHTML(role)}</div>
+            <div class="chat-message-head">
+                <span class="chat-message-role">${escapeHTML(role)}</span>
+            </div>
             <div class="chat-message-body">${escapeHTML(content)}</div>
         </div>
     `);
@@ -227,6 +251,21 @@ function setupConsultForm() {
     const newChatButton = document.getElementById("new-chat-button");
     if (!form || !result || !messages || !sessions) {
         return;
+    }
+
+    const tierPicker = form.elements.tier;
+
+    function selectedTier() {
+        return tierPicker ? tierPicker.value : "standard";
+    }
+
+    function applyTier(tier) {
+        if (!tier || !tierPicker) {
+            return;
+        }
+        for (const radio of tierPicker) {
+            radio.checked = radio.value === tier;
+        }
     }
 
     let activeSessionID = null;
@@ -270,6 +309,9 @@ function setupConsultForm() {
             activeSessionID = sessionID;
             persistActiveSession(sessionID);
             renderChatMessages(messages, data.messages);
+            // A session remembers the depth it was last used at, so reopening a
+            // deep conversation does not silently drop back to standard.
+            applyTier(data.session?.tier);
             result.innerHTML = "";
         } catch (error) {
             if (token !== sessionLoadToken) {
@@ -422,16 +464,22 @@ function setupConsultForm() {
         sendInFlight = true;
         form.question.value = "";
 
+        const tier = selectedTier();
         appendOptimisticMessage(messages, "user", question, "chat-pending-user");
-        appendOptimisticMessage(messages, "assistant", "Thinking...", "chat-pending-assistant");
+        appendOptimisticMessage(
+            messages,
+            "assistant",
+            tier === "deep" ? "Digging through your notes..." : "Thinking...",
+            "chat-pending-assistant",
+        );
 
         try {
             const sessionID = await ensureSession();
             const data = await apiJSON(`/api/chat/sessions/${sessionID}/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: question }),
-                timeoutMs: 45000,
+                body: JSON.stringify({ content: question, tier }),
+                timeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
             });
 
             activeSessionID = data.session.id;
@@ -513,8 +561,53 @@ async function loadMemoriesTable() {
     }
 }
 
+// Quick capture writes straight to today's daily note. It exists so the thought
+// you had at 3pm lands somewhere before it is gone, without starting a
+// conversation about it.
+function setupCaptureForm() {
+    const form = document.getElementById("capture-form");
+    const input = document.getElementById("capture-input");
+    const result = document.getElementById("capture-result");
+    if (!form || !input || !result) {
+        return;
+    }
+
+    let clearTimer = null;
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const text = input.value.trim();
+        if (!text) {
+            return;
+        }
+
+        const button = form.querySelector("button");
+        button.disabled = true;
+
+        try {
+            const saved = await apiJSON("/api/capture", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text }),
+            });
+            input.value = "";
+            result.innerHTML = `<span class="muted">Logged to ${escapeHTML(saved.path)}</span>`;
+            clearTimeout(clearTimer);
+            clearTimer = setTimeout(() => {
+                result.innerHTML = "";
+            }, 4000);
+        } catch (error) {
+            showMessage(result, error.message, "error");
+        } finally {
+            button.disabled = false;
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     setupConsultForm();
+    setupCaptureForm();
     setupIngestForm();
     loadMemoriesTable();
 });

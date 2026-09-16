@@ -6,8 +6,11 @@ CREATE TABLE chat_sessions (
     summary_updated_at TIMESTAMPTZ,
     mode_id            TEXT NOT NULL DEFAULT '',
     mode_locked        BOOLEAN NOT NULL DEFAULT FALSE,
-    tier               TEXT NOT NULL DEFAULT 'standard'
-                       CHECK (tier IN ('quick', 'standard', 'deep')),
+    -- Empty means "no explicit choice": the session follows the configured
+    -- default, so changing DEFAULT_TIER moves existing sessions with it rather
+    -- than leaving them pinned to whatever was default when they were created.
+    tier               TEXT NOT NULL DEFAULT ''
+                       CHECK (tier IN ('', 'quick', 'standard', 'deep')),
     generals           TEXT[] NOT NULL DEFAULT '{}',
     created_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at         TIMESTAMPTZ NOT NULL DEFAULT now()

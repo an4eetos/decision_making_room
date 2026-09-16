@@ -10,12 +10,16 @@ import (
 
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
+	"github.com/an4eetos/decision-room/internal/memory/service"
 )
 
 type ConsultInput struct {
 	Question string
 	TopK     int
 	History  []port.Message
+	// Tier is "quick", "standard" or "deep". Empty uses the configured default;
+	// an unrecognised value falls back rather than failing the request.
+	Tier string
 }
 
 type ConsultSource struct {
@@ -28,6 +32,9 @@ type ConsultSource struct {
 type ConsultResult struct {
 	Answer  string          `json:"answer"`
 	Sources []ConsultSource `json:"sources"`
+	// Tier is what actually ran, which may be lower than requested if the
+	// deployment caps it, or higher if an empty retrieval forced an escalation.
+	Tier string `json:"tier"`
 }
 
 type Consult struct {
@@ -36,8 +43,8 @@ type Consult struct {
 	retriever      *Retrieve
 	llm            port.LLM
 	initialContext port.InitialContextReader
-	defaultTopK    int
-	agenticEnabled bool
+	defaultTier    domain.Tier
+	maxTier        domain.Tier
 }
 
 func NewConsult(
@@ -47,20 +54,22 @@ func NewConsult(
 	toolLLM port.ToolLLM,
 	initialContext port.InitialContextReader,
 	tools *MemoryToolExecutor,
-	defaultTopK int,
-	agenticEnabled bool,
-	agentMaxRounds int,
+	defaultTier, maxTier domain.Tier,
 ) *Consult {
 	c := &Consult{
 		repo:           repo,
 		retriever:      retriever,
 		llm:            llm,
 		initialContext: initialContext,
-		defaultTopK:    defaultTopK,
-		agenticEnabled: agenticEnabled,
+		defaultTier:    defaultTier,
+		maxTier:        maxTier,
 	}
-	if agenticEnabled && toolLLM != nil && tools != nil {
-		c.agent = NewAgentConsult(toolLLM, tools, initialContext, agentMaxRounds)
+	// Without a tool-capable model there is no agent, so no tier can use tools
+	// however high the ceiling is set.
+	if toolLLM != nil && tools != nil {
+		c.agent = NewAgentConsult(toolLLM, tools, initialContext)
+	} else {
+		c.maxTier = domain.TierQuick
 	}
 	return c
 }
@@ -71,52 +80,61 @@ Prefer recent decisions over older ones when they conflict.
 Be concise and actionable for daily check-ins.`
 
 func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResult, error) {
-	question := strings.TrimSpace(input.Question)
-	if question == "" {
+	plan := ResolvePlan(input, u.defaultTier, u.maxTier)
+	if plan.Question == "" {
 		return ConsultResult{}, fmt.Errorf("question is required")
 	}
 
-	if u.agent != nil {
-		prefetch, err := u.prefetchContext(ctx, input, question)
-		if err != nil {
-			return ConsultResult{}, err
-		}
-		return u.agent.Execute(ctx, input, prefetch)
+	context, err := u.gatherContext(ctx, plan)
+	if err != nil {
+		return ConsultResult{}, err
 	}
 
-	return u.executeSingleShot(ctx, input, question)
+	// A confidently wrong answer built on nothing is the worst output this can
+	// produce, so an empty retrieval on the cheapest tier buys one more attempt
+	// with the standard pipeline rather than answering blind.
+	if len(context) == 0 && plan.Tier.Tier == domain.TierQuick && u.maxTier.Rank() > domain.TierQuick.Rank() {
+		plan.Tier = domain.PolicyFor(domain.TierStandard)
+		if context, err = u.gatherContext(ctx, plan); err != nil {
+			return ConsultResult{}, err
+		}
+	}
+
+	if plan.Tier.UsesTools() && u.agent != nil {
+		return u.agent.Execute(ctx, plan, context)
+	}
+	return u.executeSingleShot(ctx, plan, context)
 }
 
-func (u *Consult) prefetchContext(ctx context.Context, input ConsultInput, question string) ([]domain.MemoryEntry, error) {
-	if skipRetrieval(question) {
+// gatherContext runs retrieval once for every tier. Single-shot and agent paths
+// used to each do their own, with slightly different parameters and different
+// ideas of what counted as a source.
+func (u *Consult) gatherContext(ctx context.Context, plan ConsultPlan) ([]domain.MemoryEntry, error) {
+	if skipRetrieval(plan.Question) {
 		return nil, nil
 	}
 
-	query := question
-	if lastUser := lastUserMessage(input.History); lastUser != "" {
-		query = question + " " + lastUser
-	}
-
-	topK := input.TopK
-	if topK <= 0 {
-		topK = u.defaultTopK
-	}
-
 	retrieved, err := u.retriever.Execute(ctx, RetrieveInput{
-		Query:  query,
-		TopK:   topK,
-		Filter: port.SearchFilter{},
+		Query:          retrievalQuery(plan),
+		TopK:           plan.Tier.TopK,
+		CandidateLimit: plan.Tier.CandidateLimit,
+		Filter:         port.SearchFilter{},
+		Rerank:         service.RerankOptions{Now: plan.Now},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("prefetch retrieve: %w", err)
+		return nil, fmt.Errorf("retrieve context: %w", err)
 	}
 
-	recent, err := u.repo.ListRecent(ctx, 5, port.SearchFilter{})
+	if plan.Tier.IncludeRecent <= 0 {
+		return retrieved, nil
+	}
+
+	recent, err := u.repo.ListRecent(ctx, plan.Tier.IncludeRecent, port.SearchFilter{})
 	if err != nil {
-		return nil, fmt.Errorf("prefetch recent: %w", err)
+		return nil, fmt.Errorf("list recent: %w", err)
 	}
 
-	return mergeEntries(retrieved, recent), nil
+	return mergeEntries(retrieved, recent, plan.Now), nil
 }
 
 func skipRetrieval(question string) bool {
@@ -137,55 +155,32 @@ func skipRetrieval(question string) bool {
 	return false
 }
 
-func (u *Consult) executeSingleShot(ctx context.Context, input ConsultInput, question string) (ConsultResult, error) {
-	topK := input.TopK
-	if topK <= 0 {
-		topK = u.defaultTopK
-	}
-
-	retrieved, err := u.retriever.Execute(ctx, RetrieveInput{
-		Query:  retrievalQuery(input, question),
-		TopK:   topK,
-		Filter: port.SearchFilter{},
-	})
-	if err != nil {
-		return ConsultResult{}, fmt.Errorf("retrieve context: %w", err)
-	}
-
-	recent, err := u.repo.ListRecent(ctx, 5, port.SearchFilter{})
-	if err != nil {
-		return ConsultResult{}, fmt.Errorf("list recent: %w", err)
-	}
-
-	contextEntries := mergeEntries(retrieved, recent)
-	contextBlock := formatContext(contextEntries)
-
+func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entries []domain.MemoryEntry) (ConsultResult, error) {
 	aboutMe, err := u.initialContext.Read()
 	if err != nil {
 		return ConsultResult{}, fmt.Errorf("read about me: %w", err)
 	}
 
-	messages := buildConsultMessages(systemPrompt, aboutMe, input.History, contextBlock, question)
+	messages := buildConsultMessages(
+		withBudget(systemPrompt, plan.Tier.AnswerBudget),
+		aboutMe, plan.History,
+		formatContext(entries, plan.Tier.MaxBodyRunes),
+		plan.Question,
+	)
 
 	answer, err := u.llm.Chat(ctx, messages)
 	if err != nil {
 		return ConsultResult{}, fmt.Errorf("llm chat: %w", err)
 	}
 
-	sources := make([]ConsultSource, 0, len(retrieved))
-	for _, e := range retrieved {
-		sources = append(sources, ConsultSource{
-			ID:    e.ID.String(),
-			Kind:  e.Kind,
-			Title: e.Title,
-			Score: e.Score,
-		})
-	}
-
-	return ConsultResult{Answer: answer, Sources: sources}, nil
+	return ConsultResult{
+		Answer:  answer,
+		Sources: entriesToSources(entries),
+		Tier:    string(plan.Tier.Tier),
+	}, nil
 }
 
-func mergeEntries(primary, recent []domain.MemoryEntry) []domain.MemoryEntry {
+func mergeEntries(primary, recent []domain.MemoryEntry, now time.Time) []domain.MemoryEntry {
 	seen := make(map[uuid.UUID]struct{})
 	var merged []domain.MemoryEntry
 
@@ -197,7 +192,7 @@ func mergeEntries(primary, recent []domain.MemoryEntry) []domain.MemoryEntry {
 		merged = append(merged, e)
 	}
 
-	cutoff := time.Now().UTC().Add(-7 * 24 * time.Hour)
+	cutoff := now.Add(-7 * 24 * time.Hour)
 	for _, e := range recent {
 		if e.CreatedAt.Before(cutoff) {
 			continue
@@ -212,12 +207,21 @@ func mergeEntries(primary, recent []domain.MemoryEntry) []domain.MemoryEntry {
 	return merged
 }
 
-func retrievalQuery(input ConsultInput, question string) string {
-	query := question
-	if lastUser := lastUserMessage(input.History); lastUser != "" {
-		query = question + " " + lastUser
+// retrievalQuery widens the search with the previous user turn, so a follow-up
+// like "and the other one?" still retrieves against its actual subject.
+func retrievalQuery(plan ConsultPlan) string {
+	if lastUser := lastUserMessage(plan.History); lastUser != "" {
+		return plan.Question + " " + lastUser
 	}
-	return query
+	return plan.Question
+}
+
+// withBudget appends the tier's length instruction to a system prompt.
+func withBudget(prompt, budget string) string {
+	if strings.TrimSpace(budget) == "" {
+		return prompt
+	}
+	return prompt + "\n\n" + budget
 }
 
 func lastUserMessage(history []port.Message) string {
@@ -233,7 +237,7 @@ func lastUserMessage(history []port.Message) string {
 	return ""
 }
 
-func formatContext(entries []domain.MemoryEntry) string {
+func formatContext(entries []domain.MemoryEntry, maxBodyRunes int) string {
 	if len(entries) == 0 {
 		return "(no stored memories yet)"
 	}
@@ -245,7 +249,7 @@ func formatContext(entries []domain.MemoryEntry) string {
 		if title == "" {
 			title = "(untitled)"
 		}
-		fmt.Fprintf(&b, "[%s | %s] Title: %s\nBody: %s\n\n", date, e.Kind, title, truncateRunes(e.Body, maxEntryBodyRunes))
+		fmt.Fprintf(&b, "[%s | %s] Title: %s\nBody: %s\n\n", date, e.Kind, title, truncateRunes(e.Body, maxBodyRunes))
 	}
 	return strings.TrimSpace(b.String())
 }

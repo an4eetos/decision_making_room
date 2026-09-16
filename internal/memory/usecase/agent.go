@@ -11,7 +11,7 @@ import (
 
 const agentSystemPrompt = `You are a personal advisor with access to the user's stored decisions, plans, and notes.
 
-Relevant memories are pre-loaded in the user message under "Pre-loaded memories".
+Relevant memories are pre-loaded in the user message under "Retrieved context".
 Answer directly from that context when it is sufficient.
 
 You have one optional tool: recall_memories — use it ONLY when pre-loaded context clearly lacks a specific topic.
@@ -23,33 +23,29 @@ Rules:
 
 Do not invent facts. Be concise and actionable.`
 
+// AgentConsult holds no per-request state. The round limit in particular lives
+// on the plan, not here: as a struct field it was frozen when the dependency
+// graph was built, which made a per-request depth setting impossible.
 type AgentConsult struct {
 	toolLLM        port.ToolLLM
 	tools          *MemoryToolExecutor
 	initialContext port.InitialContextReader
-	maxRounds      int
 }
 
 func NewAgentConsult(
 	toolLLM port.ToolLLM,
 	tools *MemoryToolExecutor,
 	initialContext port.InitialContextReader,
-	maxRounds int,
 ) *AgentConsult {
-	if maxRounds <= 0 {
-		maxRounds = 3
-	}
 	return &AgentConsult{
 		toolLLM:        toolLLM,
 		tools:          tools,
 		initialContext: initialContext,
-		maxRounds:      maxRounds,
 	}
 }
 
-func (a *AgentConsult) Execute(ctx context.Context, input ConsultInput, prefetch []domain.MemoryEntry) (ConsultResult, error) {
-	question := strings.TrimSpace(input.Question)
-	if question == "" {
+func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch []domain.MemoryEntry) (ConsultResult, error) {
+	if plan.Question == "" {
 		return ConsultResult{}, fmt.Errorf("question is required")
 	}
 
@@ -59,15 +55,26 @@ func (a *AgentConsult) Execute(ctx context.Context, input ConsultInput, prefetch
 	}
 
 	collected := append([]domain.MemoryEntry(nil), prefetch...)
-	contextBlock := formatContext(prefetch)
-	messages := buildConsultMessages(agentSystemPrompt, aboutMe, input.History, contextBlock, question)
+	messages := buildConsultMessages(
+		withBudget(agentSystemPrompt, plan.Tier.AnswerBudget),
+		aboutMe, plan.History,
+		formatContext(prefetch, plan.Tier.MaxBodyRunes),
+		plan.Question,
+	)
 
 	toolDefs := MemoryTools()
 	seenCallBatches := make(map[string]int)
 
-	for round := 0; round < a.maxRounds; round++ {
+	// MaxToolRounds counts rounds where tools are offered; the extra iteration is
+	// the same conversation with tools withdrawn, so the model answers from what
+	// it gathered instead of being cut off mid-dig.
+	totalRounds := plan.Tier.MaxToolRounds + 1
+
+	for round := 0; round < totalRounds; round++ {
+		lastRound := round == totalRounds-1
+
 		toolsForRound := toolDefs
-		if round == a.maxRounds-1 {
+		if lastRound {
 			toolsForRound = nil
 		}
 
@@ -83,10 +90,11 @@ func (a *AgentConsult) Execute(ctx context.Context, input ConsultInput, prefetch
 			return ConsultResult{
 				Answer:  turn.Content,
 				Sources: entriesToSources(collected),
+				Tier:    string(plan.Tier.Tier),
 			}, nil
 		}
 
-		if round == a.maxRounds-1 {
+		if lastRound {
 			break
 		}
 
@@ -104,7 +112,7 @@ func (a *AgentConsult) Execute(ctx context.Context, input ConsultInput, prefetch
 		})
 
 		for _, call := range turn.ToolCalls {
-			result, err := a.tools.Execute(ctx, call.Name, call.Arguments)
+			result, err := a.tools.Execute(ctx, call.Name, call.Arguments, plan.Tier)
 			if err != nil {
 				result = ToolExecutionResult{Content: "tool error: " + err.Error()}
 			}
@@ -117,17 +125,24 @@ func (a *AgentConsult) Execute(ctx context.Context, input ConsultInput, prefetch
 		}
 	}
 
-	return a.fallbackAnswer(ctx, aboutMe, input, collected)
+	return a.fallbackAnswer(ctx, aboutMe, plan, collected)
 }
 
+// fallbackAnswer runs when the loop stopped because it ran out of rounds or hit
+// the repeat guard. It switches to the non-agentic prompt deliberately: the
+// agent prompt talks about tools that are no longer on offer.
 func (a *AgentConsult) fallbackAnswer(
 	ctx context.Context,
 	aboutMe string,
-	input ConsultInput,
+	plan ConsultPlan,
 	collected []domain.MemoryEntry,
 ) (ConsultResult, error) {
-	contextBlock := formatContext(collected)
-	finalMessages := buildConsultMessages(systemPrompt, aboutMe, input.History, contextBlock, input.Question)
+	finalMessages := buildConsultMessages(
+		withBudget(systemPrompt, plan.Tier.AnswerBudget),
+		aboutMe, plan.History,
+		formatContext(collected, plan.Tier.MaxBodyRunes),
+		plan.Question,
+	)
 	answer, err := a.toolLLM.Chat(ctx, finalMessages)
 	if err != nil {
 		return ConsultResult{}, fmt.Errorf("agent fallback llm chat: %w", err)
@@ -138,6 +153,7 @@ func (a *AgentConsult) fallbackAnswer(
 	return ConsultResult{
 		Answer:  answer,
 		Sources: entriesToSources(collected),
+		Tier:    string(plan.Tier.Tier),
 	}, nil
 }
 

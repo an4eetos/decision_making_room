@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	journalusecase "github.com/an4eetos/decision-room/internal/journal/usecase"
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/service"
@@ -14,18 +15,26 @@ import (
 )
 
 type Handler struct {
+	captureUC *journalusecase.Capture
 	ingestUC  *usecase.Ingest
 	searchUC  *usecase.Search
 	consultUC *usecase.Consult
 	chatUC    *usecase.Chat
 }
 
-func NewHandler(ingest *usecase.Ingest, search *usecase.Search, consult *usecase.Consult, chat *usecase.Chat) *Handler {
+func NewHandler(
+	ingest *usecase.Ingest,
+	search *usecase.Search,
+	consult *usecase.Consult,
+	chat *usecase.Chat,
+	capture *journalusecase.Capture,
+) *Handler {
 	return &Handler{
 		ingestUC:  ingest,
 		searchUC:  search,
 		consultUC: consult,
 		chatUC:    chat,
+		captureUC: capture,
 	}
 }
 
@@ -33,6 +42,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /health", h.health)
 	mux.HandleFunc("POST /api/memories", h.createMemory)
 	mux.HandleFunc("POST /api/consult", h.consult)
+	mux.HandleFunc("POST /api/capture", h.capture)
 	mux.HandleFunc("GET /api/memories/search", h.searchMemories)
 	mux.HandleFunc("GET /api/chat/sessions", h.listChatSessions)
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
@@ -115,16 +125,42 @@ func (h *Handler) ingestAndRespond(w http.ResponseWriter, r *http.Request, kindR
 	writeJSON(w, http.StatusCreated, result)
 }
 
-func (h *Handler) consult(w http.ResponseWriter, r *http.Request) {
+// capture appends a line to today's daily note. It writes to the journal folder
+// rather than the database so the markdown stays the source of truth.
+func (h *Handler) capture(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Question string `json:"question"`
+		Text string `json:"text"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
 
-	result, err := h.consultUC.Execute(r.Context(), usecase.ConsultInput{Question: req.Question})
+	result, err := h.captureUC.Execute(r.Context(), req.Text)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, result)
+}
+
+func (h *Handler) consult(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Question string `json:"question"`
+		Tier     string `json:"tier"`
+		TopK     int    `json:"top_k"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	result, err := h.consultUC.Execute(r.Context(), usecase.ConsultInput{
+		Question: req.Question,
+		Tier:     req.Tier,
+		TopK:     req.TopK,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -208,13 +244,18 @@ func (h *Handler) deleteChatSession(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Content string `json:"content"`
+		Tier    string `json:"tier"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
 
-	detail, err := h.chatUC.SendMessage(r.Context(), r.PathValue("id"), req.Content)
+	detail, err := h.chatUC.SendMessage(r.Context(), usecase.SendMessageInput{
+		SessionID: r.PathValue("id"),
+		Question:  req.Content,
+		Tier:      req.Tier,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

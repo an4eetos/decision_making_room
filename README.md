@@ -7,9 +7,9 @@ machine — one Go binary and a Postgres container.
 It is built around a simple idea: an assistant that has read everything you have
 written about your own work gives better advice than one that has not.
 
-> **Status:** early. The retrieval engine, chat and journal watcher work today.
-> Conversation modes, the generals roster, depth tiers and proactive check-ins
-> are landing incrementally — see [the roadmap](#roadmap).
+> **Status:** early but usable. Retrieval, chat with depth tiers, the journal
+> watcher and the relocation planner all work today. Conversation modes, the
+> generals roster and proactive check-ins are next — see [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -17,17 +17,19 @@ You need Docker and Go 1.24+.
 
 ```bash
 git clone https://github.com/an4eetos/decision-room && cd decision-room
-cp .env.example .env          # then put a Gemini API key in it
-make journal                  # creates ./journal from the shipped example
-make up                       # starts Postgres
-make dev                      # migrates and serves on :8080
+make run
 ```
 
-Get a free Gemini key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
-Prefer to run entirely offline? Set `LLM_PROVIDER=ollama`, then `make up-ollama`
-and `make pull-models`.
+The first run creates `.env` and stops, because it needs an API key. Put a free
+one from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) in it
+and run `make run` again. That starts Postgres, applies migrations, creates your
+journal from the shipped example, serves on :8080 and opens your browser.
 
-Open <http://localhost:8080>.
+`make run` is also the everyday command — everything it does is idempotent.
+
+Prefer to stay fully offline? Set `LLM_PROVIDER=ollama` in `.env`, then
+`make up-ollama && make pull-models` before `make run`. Nothing leaves your
+machine in that mode.
 
 ## How memory works
 
@@ -51,6 +53,24 @@ journal/
 ```
 
 The folder is watched. Save a file and it is ingested within a second.
+
+## Answer depth
+
+Every question runs at one of three depths, picked under the composer.
+
+| Depth | Retrieval | Digging | For |
+|---|---|---|---|
+| **Quick** | top 3, no tools | none | "what's next" — seconds, one recommendation |
+| **Standard** | top 8, full hybrid search | one round if context is thin | the default |
+| **Deep** | top 12 from a pool of 60 | up to three rounds | a decision worth the wait |
+
+A session remembers the depth you last used, so a conversation you took deep
+stays deep. If Quick retrieves nothing at all it escalates itself to Standard
+rather than answering from no context, and every answer is labelled with the
+depth that actually produced it.
+
+Set `DEFAULT_TIER` and `MAX_TIER` to bound this per deployment. `MAX_TIER=quick`
+turns off tool calling entirely.
 
 ## Relocation planner
 
@@ -90,12 +110,14 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `DATABASE_URL` | `postgres://room:room@localhost:5432/decision_room?sslmode=disable` | |
 | `LLM_PROVIDER` | `gemini` | `gemini` or `ollama` |
 | `GEMINI_API_KEY` | — | required when provider is `gemini` |
-| `GEMINI_CHAT_MODEL` | `gemini-2.0-flash` | |
+| `GEMINI_CHAT_MODEL` | `gemini-flash-latest` | an alias, so a retired version does not break the app | |
 | `GEMINI_CHAT_MODELS` | — | optional failover order, tried left to right |
 | `OLLAMA_CHAT_MODEL` | `qwen3:8b` | use `qwen3:4b` if RAM is tight |
 | `JOURNAL_WATCH_DIR` | `./journal` | |
 | `RETRIEVAL_TOP_K` | `8` | memories passed to the model |
 | `RETRIEVAL_CANDIDATES` | `30` | hybrid pool before reranking |
+| `DEFAULT_TIER` | `standard` | `quick`, `standard` or `deep` |
+| `MAX_TIER` | `deep` | ceiling a request cannot exceed |
 | `RELOCATION_CATALOG_DIR` | *(empty)* | overlay for the relocation catalogue |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
@@ -144,8 +166,9 @@ curl -X POST localhost:8080/api/consult \
 ## Roadmap
 
 - [x] Hybrid retrieval, chat with history and summarisation, journal watcher
-- [ ] Retrieval fixes: relevance/recency rebalance, full-text query rewriting
-- [ ] **Depth tiers** — quick, standard and deep answers
+- [x] Retrieval fixes: relevance/recency rebalance, full-text query rewriting
+- [x] **Depth tiers** — quick, standard and deep answers
+- [x] Markdown rendering for answers
 - [ ] **Generals** — pick up to three strategic lenses; they argue, then synthesise
 - [ ] **Modes** — plan a day, make a hard call, unstick a stalled task, debrief
 - [x] **Relocation planner** — setup checklist, costs and pitfalls for a stay

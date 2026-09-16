@@ -5,6 +5,7 @@ import (
 
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	httpserver "github.com/an4eetos/decision-room/internal/infra/http"
+	journalusecase "github.com/an4eetos/decision-room/internal/journal/usecase"
 	"github.com/an4eetos/decision-room/internal/memory/usecase"
 	relport "github.com/an4eetos/decision-room/internal/relocation/port"
 	relusecase "github.com/an4eetos/decision-room/internal/relocation/usecase"
@@ -37,8 +38,9 @@ func provideAPIHandler(
 	search *usecase.Search,
 	consult *usecase.Consult,
 	chat *usecase.Chat,
+	capture *journalusecase.Capture,
 ) *api.Handler {
-	return api.NewHandler(ingest, search, consult, chat)
+	return api.NewHandler(ingest, search, consult, chat, capture)
 }
 
 func provideUIHandler(cfg config.Config) (*ui.Handler, error) {

@@ -9,24 +9,29 @@ import (
 )
 
 type Config struct {
-	DatabaseURL            string
-	LLMProvider            string
-	OllamaBaseURL          string
-	OllamaChatModel        string
-	OllamaEmbedModel       string
-	GeminiAPIKey           string
-	GeminiBaseURL          string
-	GeminiChatModel        string
-	GeminiChatModels       []string
-	GeminiEmbedModel       string
-	HTTPAddr               string
-	RetrievalTopK          int
-	RetrievalCandidates    int
+	DatabaseURL         string
+	LLMProvider         string
+	OllamaBaseURL       string
+	OllamaChatModel     string
+	OllamaEmbedModel    string
+	GeminiAPIKey        string
+	GeminiBaseURL       string
+	GeminiChatModel     string
+	GeminiChatModels    []string
+	GeminiEmbedModel    string
+	HTTPAddr            string
+	RetrievalTopK       int
+	RetrievalCandidates int
+
+	// DefaultTier is the answer depth used when a request does not ask for one.
+	// MaxTier is the ceiling. It replaces the old AGENTIC_RAG_ENABLED boolean,
+	// which silently switched code paths instead of naming a limit; setting it
+	// to "quick" disables tool calling entirely.
+	DefaultTier            string
+	MaxTier                string
 	AboutMeFile            string
 	ContextDir             string
 	InitialContextMaxRunes int
-	AgenticRAGEnabled      bool
-	AgentMaxToolRounds     int
 	WebRoot                string
 	// RelocationCatalogDir optionally overlays the shipped relocation knowledge
 	// base. It holds catalog/ and pitfalls/ subdirectories; an entry replaces a
@@ -60,11 +65,6 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("parse INITIAL_CONTEXT_MAX_RUNES: %w", err)
 	}
 
-	agentRounds, err := strconv.Atoi(envOrDefault("AGENT_MAX_TOOL_ROUNDS", "3"))
-	if err != nil {
-		return Config{}, fmt.Errorf("parse AGENT_MAX_TOOL_ROUNDS: %w", err)
-	}
-
 	cfg := Config{
 		DatabaseURL:            envOrDefault("DATABASE_URL", "postgres://room:room@localhost:5432/decision_room?sslmode=disable"),
 		LLMProvider:            envOrDefault("LLM_PROVIDER", "gemini"),
@@ -73,17 +73,17 @@ func Load() (Config, error) {
 		OllamaEmbedModel:       envOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
 		GeminiAPIKey:           os.Getenv("GEMINI_API_KEY"),
 		GeminiBaseURL:          envOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
-		GeminiChatModel:        envOrDefault("GEMINI_CHAT_MODEL", "gemini-2.0-flash"),
+		GeminiChatModel:        envOrDefault("GEMINI_CHAT_MODEL", "gemini-flash-latest"),
 		GeminiChatModels:       parseCSVEnv("GEMINI_CHAT_MODELS"),
 		GeminiEmbedModel:       envOrDefault("GEMINI_EMBED_MODEL", "gemini-embedding-001"),
 		HTTPAddr:               envOrDefault("HTTP_ADDR", ":8080"),
 		RetrievalTopK:          topK,
 		RetrievalCandidates:    candidates,
+		DefaultTier:            envOrDefault("DEFAULT_TIER", "standard"),
+		MaxTier:                envOrDefault("MAX_TIER", "deep"),
 		AboutMeFile:            aboutMeFile,
 		ContextDir:             contextDir,
 		InitialContextMaxRunes: maxRunes,
-		AgenticRAGEnabled:      envBoolOrDefault("AGENTIC_RAG_ENABLED", true),
-		AgentMaxToolRounds:     agentRounds,
 		WebRoot:                os.Getenv("WEB_ROOT"), // empty => assets embedded in the binary
 		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
 		JournalWatchDir:        journalDir,
