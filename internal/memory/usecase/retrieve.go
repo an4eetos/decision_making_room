@@ -12,9 +12,14 @@ import (
 )
 
 type RetrieveInput struct {
-	Query string
+	Query  string
 	Filter port.SearchFilter
 	TopK   int
+
+	// Rerank is optional; the zero value uses the default weights and clock.
+	// Callers that care about how relevance, recency and kind trade off — or
+	// that need a fixed clock in a test — set it.
+	Rerank service.RerankOptions
 }
 
 type Retrieve struct {
@@ -50,9 +55,18 @@ func (u *Retrieve) Execute(ctx context.Context, input RetrieveInput) ([]domain.M
 		return nil, fmt.Errorf("vector search: %w", err)
 	}
 
-	textResults, err := u.repo.SearchFullText(ctx, query, u.candidateLimit, input.Filter)
-	if err != nil {
-		return nil, fmt.Errorf("full text search: %w", err)
+	// A question with no content words left (a greeting, or punctuation) cannot
+	// match anything, so the full-text arm is skipped rather than run.
+	var textResults []domain.MemoryEntry
+	if ftsQuery, ok := service.BuildFTSQuery(query); ok {
+		textResults, err = u.repo.SearchFullText(ctx, port.TextQuery{
+			English: ftsQuery.English,
+			Simple:  ftsQuery.Simple,
+			Terms:   ftsQuery.Terms,
+		}, u.candidateLimit, input.Filter)
+		if err != nil {
+			return nil, fmt.Errorf("full text search: %w", err)
+		}
 	}
 
 	if len(vectorResults) == 0 && len(textResults) == 0 {
@@ -79,7 +93,9 @@ func (u *Retrieve) Execute(ctx context.Context, input RetrieveInput) ([]domain.M
 		})
 	}
 
-	return service.RerankCandidates(candidates, topK), nil
+	rerank := input.Rerank
+	rerank.TopK = topK
+	return service.RerankCandidates(candidates, rerank), nil
 }
 
 func extractIDs(entries []domain.MemoryEntry) []uuid.UUID {

@@ -5,7 +5,10 @@ import (
 	"unicode/utf8"
 )
 
-const defaultChunkSize = 2000
+// DefaultChunkSize is the rune budget a stored chunk is built to. It is exported
+// because the prompt-side body cap has to match it: capping lower means paying to
+// embed and store text that is then thrown away at read time.
+const DefaultChunkSize = 2000
 
 func ChunkText(text string, maxRunes int) []string {
 	text = strings.TrimSpace(text)
@@ -13,7 +16,7 @@ func ChunkText(text string, maxRunes int) []string {
 		return nil
 	}
 	if maxRunes <= 0 {
-		maxRunes = defaultChunkSize
+		maxRunes = DefaultChunkSize
 	}
 	if utf8.RuneCountInString(text) <= maxRunes {
 		return []string{text}

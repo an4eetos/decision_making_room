@@ -18,6 +18,7 @@ import (
 	"github.com/an4eetos/decision-room/internal/memory/adapters/driven/postgres"
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
+	"github.com/an4eetos/decision-room/internal/memory/service"
 )
 
 func TestRepositorySearchFullText(t *testing.T) {
@@ -32,7 +33,7 @@ func TestRepositorySearchFullText(t *testing.T) {
 		t.Fatalf("insert books: %v", err)
 	}
 
-	results, err := repo.SearchFullText(ctx, "60kg bench", 5, port.SearchFilter{})
+	results, err := repo.SearchFullText(ctx, textQuery(t, "60kg bench"), 5, port.SearchFilter{})
 	if err != nil {
 		t.Fatalf("search full text: %v", err)
 	}
@@ -57,12 +58,15 @@ func TestRepositoryHybridFindsExactAndSemanticCandidates(t *testing.T) {
 		t.Fatalf("insert bench: %v", err)
 	}
 
-	textResults, err := repo.SearchFullText(ctx, uniqueToken, 5, port.SearchFilter{})
+	textResults, err := repo.SearchFullText(ctx, textQuery(t, uniqueToken), 5, port.SearchFilter{})
 	if err != nil {
 		t.Fatalf("fts: %v", err)
 	}
-	if len(textResults) != 1 || !strings.Contains(textResults[0].Body, uniqueToken) {
-		t.Fatalf("expected unique token match, got %+v", textResults)
+	// Rank, not count. Terms are OR-joined, so this deliberately recalls more
+	// than an exact match — "tokens" in the other entry stems to "token". Full
+	// text search is a candidate generator; RRF and reranking decide precision.
+	if len(textResults) == 0 || !strings.Contains(textResults[0].Body, uniqueToken) {
+		t.Fatalf("expected the unique-token entry ranked first, got %+v", textResults)
 	}
 
 	vectorResults, err := repo.SearchSimilar(ctx, unitVector(0.89, 0.11), 5, port.SearchFilter{})
@@ -108,7 +112,7 @@ func startPostgres(t *testing.T) *pgxpool.Pool {
 			ExposedPorts: []string{"5432/tcp"},
 			Env: map[string]string{
 				"POSTGRES_DB":       "decision_room",
-				"POSTGRES_USER":   "room",
+				"POSTGRES_USER":     "room",
 				"POSTGRES_PASSWORD": "room",
 			},
 			WaitingFor: wait.ForListeningPort("5432/tcp"),
@@ -227,4 +231,65 @@ func unitVector(a, b float64) []float32 {
 
 func dockerAvailable() bool {
 	return exec.Command("docker", "info").Run() == nil
+}
+
+// textQuery mirrors what Retrieve does, so the integration tests exercise the
+// same prose-to-tsquery path as production rather than a hand-built expression.
+func textQuery(t *testing.T, question string) port.TextQuery {
+	t.Helper()
+
+	q, ok := service.BuildFTSQuery(question)
+	if !ok {
+		t.Fatalf("BuildFTSQuery(%q) produced no usable terms", question)
+	}
+	return port.TextQuery{English: q.English, Simple: q.Simple, Terms: q.Terms}
+}
+
+// The defect this replaced: websearch_to_tsquery AND-joined every lexeme of the
+// question, so a natural-sentence query matched nothing and hybrid search
+// silently ran on vectors alone.
+func TestRepositoryFullTextAnswersConversationalQuestions(t *testing.T) {
+	pool := startPostgres(t)
+	ctx := context.Background()
+	repo := postgres.NewRepository(pool)
+
+	if err := insertMemory(ctx, repo, "Database choice",
+		"picked postgres over dynamo because transactions mattered more than scale", nil); err != nil {
+		t.Fatalf("insert: %v", err)
+	}
+
+	question := "Why on earth did I end up choosing postgres for the backend?"
+
+	results, err := repo.SearchFullText(ctx, textQuery(t, question), 5, port.SearchFilter{})
+	if err != nil {
+		t.Fatalf("fts: %v", err)
+	}
+	if len(results) == 0 {
+		t.Fatalf("full text search returned nothing for %q", question)
+	}
+	if !strings.Contains(results[0].Body, "postgres") {
+		t.Fatalf("expected the postgres entry first, got %+v", results[0])
+	}
+}
+
+// The simple-config vector exists for words the english stemmer mangles.
+func TestRepositoryFullTextMatchesProperNouns(t *testing.T) {
+	pool := startPostgres(t)
+	ctx := context.Background()
+	repo := postgres.NewRepository(pool)
+
+	if err := insertMemory(ctx, repo, "Retro", "the kotakbaevsky migration finally shipped", nil); err != nil {
+		t.Fatalf("insert: %v", err)
+	}
+	if err := insertMemory(ctx, repo, "Unrelated", "bought milk and bread", nil); err != nil {
+		t.Fatalf("insert: %v", err)
+	}
+
+	results, err := repo.SearchFullText(ctx, textQuery(t, "how did kotakbaevsky go"), 5, port.SearchFilter{})
+	if err != nil {
+		t.Fatalf("fts: %v", err)
+	}
+	if len(results) == 0 || !strings.Contains(results[0].Body, "kotakbaevsky") {
+		t.Fatalf("expected the proper-noun entry first, got %+v", results)
+	}
 }

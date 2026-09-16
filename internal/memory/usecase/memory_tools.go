@@ -9,11 +9,16 @@ import (
 
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
+	"github.com/an4eetos/decision-room/internal/memory/service"
 )
 
 const (
-	maxToolResults     = 8
-	maxToolBodyRunes   = 400
+	maxToolResults = 8
+	// A retrieved memory is shown to the model at full chunk length. This used to
+	// be 400 while chunks are stored at 2000, so roughly 80% of every chunk was
+	// embedded, indexed and stored, then silently discarded on the way into the
+	// prompt.
+	maxEntryBodyRunes  = service.DefaultChunkSize
 	defaultRecallLimit = 6
 )
 
@@ -192,7 +197,7 @@ func formatToolEntries(entries []domain.MemoryEntry) string {
 		if e.Score > 0 {
 			score = fmt.Sprintf(" score=%.3f", e.Score)
 		}
-		body := truncateRunes(e.Body, maxToolBodyRunes)
+		body := truncateRunes(e.Body, maxEntryBodyRunes)
 		fmt.Fprintf(&b, "[%s | %s%s] Title: %s\nBody: %s\n\n", date, e.Kind, score, title, body)
 	}
 	return strings.TrimSpace(b.String())

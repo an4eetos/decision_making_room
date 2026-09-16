@@ -61,7 +61,6 @@ func (r *Repository) Save(ctx context.Context, entry domain.MemoryEntry) error {
 	return nil
 }
 
-
 func (r *Repository) SearchSimilar(ctx context.Context, embedding []float32, limit int, filter port.SearchFilter) ([]domain.MemoryEntry, error) {
 	if limit <= 0 {
 		limit = 8
@@ -168,37 +167,50 @@ func (r *Repository) SourceContentHash(ctx context.Context, sourcePath string) (
 	return hash, true, nil
 }
 
-func (r *Repository) SearchFullText(ctx context.Context, query string, limit int, filter port.SearchFilter) ([]domain.MemoryEntry, error) {
-	query = strings.TrimSpace(query)
-	if query == "" {
+func (r *Repository) SearchFullText(ctx context.Context, query port.TextQuery, limit int, filter port.SearchFilter) ([]domain.MemoryEntry, error) {
+	if query.IsZero() {
 		return nil, nil
 	}
 	if limit <= 0 {
 		limit = 8
 	}
 
-	args := []any{query, limit}
-	where := []string{"search_vector @@ websearch_to_tsquery('english', $1)"}
-	argIdx := 3
-
-	if filter.Kind != nil {
-		where = append(where, fmt.Sprintf("kind = $%d", argIdx))
-		args = append(args, string(*filter.Kind))
-		argIdx++
+	entries, err := r.searchTSQuery(ctx, query, limit, filter)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(filter.Tags) > 0 {
-		where = append(where, fmt.Sprintf("tags && $%d", argIdx))
-		args = append(args, filter.Tags)
+	// Trigram fallback for typos and near-misses. Gated on a thin result set so
+	// it never competes when real full-text search is working.
+	if len(entries) < minFullTextResults {
+		fuzzy, err := r.searchTrigram(ctx, query, limit, filter)
+		if err != nil {
+			return nil, err
+		}
+		entries = appendUnseen(entries, fuzzy)
 	}
 
+	return entries, nil
+}
+
+const minFullTextResults = 3
+
+func (r *Repository) searchTSQuery(ctx context.Context, query port.TextQuery, limit int, filter port.SearchFilter) ([]domain.MemoryEntry, error) {
+	args := []any{query.English, query.Simple, limit}
+	where := []string{`(search_vector @@ to_tsquery('english', $1) OR search_vector_simple @@ to_tsquery('simple', $2))`}
+	args, where = appendFilters(args, where, filter, 4)
+
+	// The simple-config vector is weighted at half the english one: it matches
+	// proper nouns and codenames the stemmer would mangle, but it also matches
+	// stopword noise, so it breaks ties rather than driving the ranking.
 	sqlQuery := fmt.Sprintf(`
 		SELECT id, kind, title, body, tags, metadata, created_at, updated_at,
-		       ts_rank(search_vector, websearch_to_tsquery('english', $1)) AS score
+		       ts_rank(search_vector, to_tsquery('english', $1))
+		         + 0.5 * ts_rank(search_vector_simple, to_tsquery('simple', $2)) AS score
 		FROM memories
 		WHERE %s
 		ORDER BY score DESC
-		LIMIT $2
+		LIMIT $3
 	`, strings.Join(where, " AND "))
 
 	rows, err := r.pool.Query(ctx, sqlQuery, args...)
@@ -208,6 +220,64 @@ func (r *Repository) SearchFullText(ctx context.Context, query string, limit int
 	defer rows.Close()
 
 	return scanEntries(rows)
+}
+
+func (r *Repository) searchTrigram(ctx context.Context, query port.TextQuery, limit int, filter port.SearchFilter) ([]domain.MemoryEntry, error) {
+	if len(query.Terms) == 0 {
+		return nil, nil
+	}
+
+	needle := strings.Join(query.Terms, " ")
+	args := []any{needle, limit}
+	// Single %: this string is a Sprintf argument, not a format string.
+	where := []string{"title % $1"}
+	args, where = appendFilters(args, where, filter, 3)
+
+	sqlQuery := fmt.Sprintf(`
+		SELECT id, kind, title, body, tags, metadata, created_at, updated_at,
+		       similarity(title, $1) AS score
+		FROM memories
+		WHERE %s
+		ORDER BY score DESC
+		LIMIT $2
+	`, strings.Join(where, " AND "))
+
+	rows, err := r.pool.Query(ctx, sqlQuery, args...)
+	if err != nil {
+		return nil, fmt.Errorf("search trigram: %w", err)
+	}
+	defer rows.Close()
+
+	return scanEntries(rows)
+}
+
+// appendFilters adds the optional kind and tag predicates, continuing the
+// placeholder numbering from nextIdx.
+func appendFilters(args []any, where []string, filter port.SearchFilter, nextIdx int) ([]any, []string) {
+	if filter.Kind != nil {
+		where = append(where, fmt.Sprintf("kind = $%d", nextIdx))
+		args = append(args, string(*filter.Kind))
+		nextIdx++
+	}
+	if len(filter.Tags) > 0 {
+		where = append(where, fmt.Sprintf("tags && $%d", nextIdx))
+		args = append(args, filter.Tags)
+	}
+	return args, where
+}
+
+func appendUnseen(entries, extra []domain.MemoryEntry) []domain.MemoryEntry {
+	seen := make(map[uuid.UUID]struct{}, len(entries))
+	for _, e := range entries {
+		seen[e.ID] = struct{}{}
+	}
+	for _, e := range extra {
+		if _, ok := seen[e.ID]; ok {
+			continue
+		}
+		entries = append(entries, e)
+	}
+	return entries
 }
 
 func scanEntries(rows pgx.Rows) ([]domain.MemoryEntry, error) {

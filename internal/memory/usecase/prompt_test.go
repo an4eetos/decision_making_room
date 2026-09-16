@@ -7,9 +7,6 @@ import (
 	"github.com/an4eetos/decision-room/internal/memory/port"
 )
 
-
-
-
 func TestLastUserMessageSkipsSummary(t *testing.T) {
 	t.Parallel()
 

@@ -14,7 +14,7 @@ func ChunkContent(text string, maxRunes int) []string {
 		return nil
 	}
 	if maxRunes <= 0 {
-		maxRunes = defaultChunkSize
+		maxRunes = DefaultChunkSize
 	}
 
 	if chunks := chunkMarkdown(text, maxRunes); len(chunks) > 0 {

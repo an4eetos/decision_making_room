@@ -57,7 +57,7 @@ func (stubRepo) SearchSimilar(context.Context, []float32, int, port.SearchFilter
 		},
 	}, nil
 }
-func (stubRepo) SearchFullText(context.Context, string, int, port.SearchFilter) ([]domain.MemoryEntry, error) {
+func (stubRepo) SearchFullText(context.Context, port.TextQuery, int, port.SearchFilter) ([]domain.MemoryEntry, error) {
 	return nil, nil
 }
 func (stubRepo) ListRecent(context.Context, int, port.SearchFilter) ([]domain.MemoryEntry, error) {

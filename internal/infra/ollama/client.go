@@ -36,8 +36,8 @@ type chatRequest struct {
 }
 
 type toolWire struct {
-	Type     string       `json:"type"`
-	Function toolDefWire  `json:"function"`
+	Type     string      `json:"type"`
+	Function toolDefWire `json:"function"`
 }
 
 type toolDefWire struct {
@@ -47,10 +47,10 @@ type toolDefWire struct {
 }
 
 type chatMessage struct {
-	Role      string          `json:"role"`
-	Content   string          `json:"content,omitempty"`
-	ToolCalls []toolCallWire  `json:"tool_calls,omitempty"`
-	ToolName  string          `json:"tool_name,omitempty"`
+	Role      string         `json:"role"`
+	Content   string         `json:"content,omitempty"`
+	ToolCalls []toolCallWire `json:"tool_calls,omitempty"`
+	ToolName  string         `json:"tool_name,omitempty"`
 }
 
 type toolCallWire struct {

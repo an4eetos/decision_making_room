@@ -13,9 +13,9 @@ import (
 )
 
 type ConsultInput struct {
-	Question            string
-	TopK                int
-	History             []port.Message
+	Question string
+	TopK     int
+	History  []port.Message
 }
 
 type ConsultSource struct {
@@ -245,7 +245,7 @@ func formatContext(entries []domain.MemoryEntry) string {
 		if title == "" {
 			title = "(untitled)"
 		}
-		fmt.Fprintf(&b, "[%s | %s] Title: %s\nBody: %s\n\n", date, e.Kind, title, truncateRunes(e.Body, maxToolBodyRunes))
+		fmt.Fprintf(&b, "[%s | %s] Title: %s\nBody: %s\n\n", date, e.Kind, title, truncateRunes(e.Body, maxEntryBodyRunes))
 	}
 	return strings.TrimSpace(b.String())
 }

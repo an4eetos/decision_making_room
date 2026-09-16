@@ -40,8 +40,8 @@ func NewClient(baseURL, apiKey string, chatModels []string, embedModel string) *
 }
 
 type generateRequest struct {
-	SystemInstruction *contentWire `json:"systemInstruction,omitempty"`
-	Contents          []contentWire `json:"contents"`
+	SystemInstruction *contentWire    `json:"systemInstruction,omitempty"`
+	Contents          []contentWire   `json:"contents"`
 	Tools             []toolGroupWire `json:"tools,omitempty"`
 }
 
