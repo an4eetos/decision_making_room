@@ -1,0 +1,81 @@
+{{define "relocation.html"}}
+{{template "layout-head" .}}
+<section class="reloc">
+    <aside class="card reloc-sidebar">
+        <div class="reloc-sidebar-head">
+            <h2>Stays</h2>
+            <button id="reloc-new" type="button" class="btn">New</button>
+        </div>
+        <div id="reloc-plans" class="reloc-plan-list"></div>
+    </aside>
+
+    <section class="reloc-main">
+        <form id="reloc-form" class="card reloc-form" hidden>
+            <h1>Where are you going?</h1>
+            <p class="muted">
+                Everything below adapts the checklist. Leave a field blank and the list
+                widens rather than guessing.
+            </p>
+
+            <div class="reloc-grid">
+                <label class="span-2">Destination
+                    <input name="destination" type="text" placeholder="Bangkok, Thailand" required>
+                </label>
+                <label>Country code
+                    <input name="country_code" type="text" maxlength="2" placeholder="TH">
+                </label>
+                <label>Currency
+                    <input name="currency" type="text" maxlength="3" value="USD">
+                </label>
+
+                <label>Arrive
+                    <input name="arrive_on" type="date" required>
+                </label>
+                <label>Depart
+                    <input name="depart_on" type="date" required>
+                </label>
+                <label>People
+                    <input name="party_size" type="number" min="1" value="1">
+                </label>
+
+                <label>Housing
+                    <select name="housing">
+                        <option value="">Not sure yet</option>
+                        <option value="hotel">Hotel</option>
+                        <option value="serviced">Serviced apartment</option>
+                        <option value="furnished" selected>Furnished rental</option>
+                        <option value="unfurnished">Unfurnished rental</option>
+                        <option value="shared">Room in a shared flat</option>
+                    </select>
+                </label>
+                <label>Climate
+                    <select name="climate">
+                        <option value="">Not sure yet</option>
+                        <option value="tropical">Tropical</option>
+                        <option value="temperate">Temperate</option>
+                        <option value="cold">Cold</option>
+                        <option value="arid">Arid</option>
+                    </select>
+                </label>
+                <label>Style
+                    <select name="budget_style">
+                        <option value="frugal">Frugal</option>
+                        <option value="standard" selected>Standard</option>
+                        <option value="comfortable">Comfortable</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="reloc-form-actions">
+                <button type="submit" class="btn primary">Build the list</button>
+                <button type="button" class="btn" data-cancel hidden>Cancel</button>
+            </div>
+        </form>
+
+        <div id="reloc-plan"></div>
+        <div id="reloc-error"></div>
+    </section>
+</section>
+<script src="/static/relocation.js?v=1"></script>
+{{template "layout-foot" .}}
+{{end}}

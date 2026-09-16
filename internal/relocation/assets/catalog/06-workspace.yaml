@@ -1,0 +1,83 @@
+# The category that decides whether a stay works. Everything else is comfort;
+# this is whether you can do your job for three months without wrecking your back.
+- id: desk_check
+  category: workspace
+  name: A real desk at the right height
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 21}
+  commonly_forgotten: true
+  note: Confirm before booking, with a photo. "Workspace" in a listing is routinely a dining table or a kitchen counter. A dining table is 75cm; a desk you can type at is 72cm, and the difference is a shoulder injury by week three.
+
+- id: desk_chair
+  category: workspace
+  name: Chair you can sit in for eight hours
+  unit: chair
+  anchor_usd: 90
+  quantity: {base: 1}
+  when: {min_nights: 45, not_housing: [hotel]}
+  note: Buying a chair for a three-month stay sounds absurd until week two. Check second-hand listings; resell on the way out.
+
+- id: laptop_stand
+  category: workspace
+  name: Laptop stand
+  unit: stand
+  anchor_usd: 25
+  quantity: {base: 1}
+  when: {min_nights: 21}
+  note: Bring it. A stack of books works but you will not build one every day.
+
+- id: external_keyboard
+  category: workspace
+  name: External keyboard and mouse
+  unit: set
+  anchor_usd: 55
+  quantity: {base: 1}
+  when: {min_nights: 21}
+  note: Only useful together with a stand. One without the other is worse than neither.
+
+- id: power_strip
+  category: workspace
+  name: Power strip
+  unit: strip
+  anchor_usd: 12
+  quantity: {base: 1}
+  commonly_forgotten: true
+  note: One adapter plus a home-plug power strip beats carrying six adapters.
+
+- id: backup_data
+  category: workspace
+  name: Backup mobile data for calls
+  unit: month
+  anchor_usd: 15
+  quantity: {per_days: 30}
+  when: {min_nights: 21}
+  commonly_forgotten: true
+  note: Apartment wifi will fail during a call you cannot reschedule. Know how to tether before it happens, not during.
+
+- id: coworking
+  category: workspace
+  name: Co-working membership
+  unit: month
+  anchor_usd: 140
+  quantity: {per_days: 30, per_person: true}
+  when: {min_nights: 30, budget: [standard, comfortable]}
+  note: Compare honestly against café spending, which is usually higher than people think, and against the value of leaving the flat.
+
+- id: monitor
+  category: workspace
+  name: Portable monitor
+  unit: unit
+  anchor_usd: 160
+  quantity: {base: 1}
+  when: {min_nights: 60, budget: [comfortable]}
+
+- id: headphones
+  category: workspace
+  name: Noise-cancelling headphones
+  unit: unit
+  anchor_usd: 120
+  quantity: {base: 1}
+  when: {min_nights: 30, budget: [standard, comfortable]}
+  note: Renovation next door is a near-certainty somewhere in a three-month stay.

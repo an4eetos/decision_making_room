@@ -1,0 +1,21 @@
+{{define "memories.html"}}
+{{template "layout-head" .}}
+<section class="card">
+    <h1>Memories</h1>
+
+    <form id="memories-search-form" method="get" action="/memories" class="form inline-form">
+        <input id="search-q" name="q" type="text" placeholder="Semantic search..." value="{{.Query}}">
+        <select id="search-kind" name="kind">
+            <option value="">All kinds</option>
+            {{range .Kinds}}
+            <option value="{{.}}" {{if eq $.Kind (printf "%s" .)}}selected{{end}}>{{.}}</option>
+            {{end}}
+        </select>
+        <input id="search-tags" name="tags" type="text" placeholder="tags" value="{{.Tags}}">
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    <div id="memories-table"></div>
+</section>
+{{template "layout-foot" .}}
+{{end}}

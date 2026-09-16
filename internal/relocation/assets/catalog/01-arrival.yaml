@@ -1,0 +1,54 @@
+# The first 48 hours. Everything here is something you need before you have
+# found the good supermarket, and buying it at the airport costs triple.
+- id: local_sim
+  category: arrival
+  name: Local SIM or eSIM data plan
+  unit: plan
+  anchor_usd: 15
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 5}
+  note: Buy in the city, not at the airport. Airport kiosks charge two to three times the street price for the same plan.
+
+- id: arrival_cash
+  category: arrival
+  name: Local cash for the first two days
+  unit: withdrawal
+  anchor_usd: 100
+  quantity: {base: 1}
+  commonly_forgotten: true
+  note: Many taxis, markets and small landlords are cash-only even in card-heavy countries. Withdraw from a bank ATM, never a Euronet-style machine in a tourist area.
+
+- id: power_adapter
+  category: arrival
+  name: Power adapter for local sockets
+  unit: adapter
+  anchor_usd: 10
+  quantity: {base: 2}
+  commonly_forgotten: true
+  note: Two, not one. You will leave one plugged in behind a bed somewhere.
+
+- id: airport_transfer
+  category: arrival
+  name: Transport from the airport
+  unit: trip
+  anchor_usd: 25
+  quantity: {base: 1}
+  note: Agree the price or use the app before getting in. This is the most reliably overcharged transaction of any trip.
+
+- id: first_night_kit
+  category: arrival
+  name: Toilet paper, hand soap, bin bags
+  unit: set
+  anchor_usd: 8
+  quantity: {base: 1}
+  when: {not_housing: [hotel, serviced]}
+  commonly_forgotten: true
+  note: Arriving at 11pm to an apartment with no toilet paper is a specific kind of misery. Buy on the way from the airport.
+
+- id: first_groceries
+  category: arrival
+  name: First grocery run
+  unit: shop
+  anchor_usd: 45
+  quantity: {base: 1, per_person: true}
+  when: {not_housing: [hotel]}

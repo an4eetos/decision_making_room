@@ -1,0 +1,60 @@
+- id: medication_legality
+  title: Your medication may be controlled or banned where you are going
+  severity: critical
+  when: {}
+  body: >
+    Stimulants prescribed for ADHD, strong painkillers, some sleep aids and
+    certain antidepressants are restricted or illegal in countries that are
+    otherwise popular with remote workers — Japan, the UAE, Singapore, Indonesia
+    and others. Penalties range from confiscation at the border to arrest. Being
+    able to show a prescription helps in some of these places and in others makes
+    no difference at all.
+  action: >
+    Check the destination's embassy guidance for your specific drug by name, not
+    by category, before booking. If it is restricted, find out now whether an
+    import permit exists and how long it takes, or plan a legal alternative with
+    your doctor.
+
+- id: working_on_tourist_visa
+  title: Remote work is not permitted on most tourist visas
+  severity: critical
+  when: {min_nights: 21}
+  body: >
+    Widely done, widely tolerated, and still against the terms of entry in most
+    countries. The risk is not routine enforcement; it is what happens when you
+    have some other reason to interact with immigration, or when you say the
+    wrong thing at the border.
+  action: >
+    Find out whether the destination has a digital nomad or remote work visa, and
+    whether it is actually worth having. Decide deliberately what you say at the
+    border, and keep your answer consistent with everything else you have written
+    down.
+
+- id: schengen_90_180
+  title: The 90/180 rule is a rolling window, not a per-trip allowance
+  severity: critical
+  when:
+    min_nights: 14
+    # Scoped to the Schengen area. A warning that fires where it does not apply
+    # teaches you to skim the warnings.
+    countries: [AT, BE, BG, CH, CZ, DE, DK, EE, ES, FI, FR, GR, HR, HU, IS, IT,
+                LI, LT, LU, LV, MT, NL, NO, PL, PT, RO, SE, SI, SK]
+  body: >
+    In the Schengen area and several other blocs, you may stay 90 days within any
+    rolling 180-day period. People routinely miscount by treating each entry as a
+    fresh 90 days. Overstaying triggers fines and entry bans that follow you for
+    years.
+  action: >
+    Count backwards 180 days from your planned departure and add up every day
+    already spent in the zone. Do this before booking, and keep a running count
+    for the trip.
+
+- id: insurance_day_cap
+  title: Your insurance may quietly stop before your stay does
+  severity: critical
+  when: {min_nights: 60}
+  body: >
+    Many travel policies cap cover at 90 days per trip, or require that the trip
+    started in your home country, or exclude anything that looks like residence.
+    People discover this at the point of claim.
+  action: Read the trip-duration clause specifically and buy a policy that covers the full stay plus a buffer.

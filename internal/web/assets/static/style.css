@@ -1,0 +1,698 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f1419;
+    color: #e7ecf3;
+    line-height: 1.5;
+}
+
+a {
+    color: #7cb8ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #1a2332;
+    border-bottom: 1px solid #2a3544;
+}
+
+.nav .brand {
+    font-weight: 700;
+    color: #fff;
+    margin-right: auto;
+}
+
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.container--chat {
+    max-width: 1200px;
+}
+
+.card {
+    background: #1a2332;
+    border: 1px solid #2a3544;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+h1 {
+    margin-top: 0;
+}
+
+.muted {
+    color: #9aa8b8;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.inline-form {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+label {
+    font-size: 0.875rem;
+    color: #b8c5d6;
+    margin-top: 0.5rem;
+}
+
+input, select, textarea {
+    background: #0f1419;
+    border: 1px solid #2a3544;
+    border-radius: 8px;
+    color: #e7ecf3;
+    padding: 0.6rem 0.75rem;
+    font: inherit;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid #2a3544;
+    border-radius: 8px;
+    background: #243044;
+    color: #e7ecf3;
+    cursor: pointer;
+    font: inherit;
+}
+
+.btn.primary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+.btn:hover {
+    filter: brightness(1.1);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.success {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #14352a;
+    border: 1px solid #1f6b4f;
+    border-radius: 8px;
+    color: #8fe3c0;
+}
+
+.error {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #3a1f1f;
+    border: 1px solid #6b2f2f;
+    border-radius: 8px;
+    color: #f0a8a8;
+}
+
+.consult-result {
+    margin-top: 1.5rem;
+}
+
+.answer {
+    background: #0f1419;
+    border: 1px solid #2a3544;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.answer-body {
+    white-space: pre-wrap;
+}
+
+.sources {
+    margin-top: 1rem;
+}
+
+.sources ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sources li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #2a3544;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 0.6rem;
+    border-bottom: 1px solid #2a3544;
+}
+
+.preview {
+    color: #9aa8b8;
+    max-width: 300px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: #243044;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.chat-shell {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1rem;
+}
+
+.chat-sidebar,
+.chat-main {
+    min-height: 70vh;
+}
+
+.chat-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.chat-sidebar-header h2 {
+    margin: 0;
+}
+
+.chat-sessions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chat-session-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.4rem;
+    border-radius: 8px;
+}
+
+.chat-session-row.active .chat-session-item {
+    border-color: #3b82f6;
+    background: #162033;
+}
+
+.chat-session-item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    text-align: left;
+    background: #0f1419;
+    border: 1px solid #2a3544;
+    color: #e7ecf3;
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+.chat-session-meta {
+    font-size: 0.85rem;
+}
+
+.chat-session-delete {
+    flex-shrink: 0;
+    align-self: stretch;
+    min-width: 2.75rem;
+    padding: 0 0.55rem;
+    background: #241518;
+    border: 1px solid #7f1d1d;
+    color: #fca5a5;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.chat-session-delete:hover,
+.chat-session-delete:focus-visible {
+    color: #fff;
+    border-color: #ef4444;
+    background: #7f1d1d;
+    outline: none;
+}
+
+.chat-session-delete-icon {
+    pointer-events: none;
+}
+
+.chat-session-item.active {
+    border-color: #3b82f6;
+    background: #162033;
+}
+
+.chat-session-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.chat-message {
+    border: 1px solid #2a3544;
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    background: #111722;
+}
+
+.chat-message.user {
+    background: #162033;
+}
+
+.chat-message.pending {
+    opacity: 0.8;
+    border-style: dashed;
+}
+
+.chat-message-role {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #9aa8b8;
+    margin-bottom: 0.4rem;
+}
+
+.chat-message-body {
+    white-space: pre-wrap;
+}
+
+.chat-form {
+    margin-top: auto;
+}
+
+@media (max-width: 900px) {
+    .chat-shell {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- Relocation planner ---------- */
+
+.container--wide {
+    max-width: 1280px;
+}
+
+.reloc {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.reloc-sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.reloc-sidebar-head h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.reloc-plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.reloc-plan-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.reloc-plan-item:hover {
+    background: #222e40;
+}
+
+.reloc-plan-item.active {
+    background: #22334a;
+    border-color: #3b5b80;
+}
+
+.reloc-plan-dest {
+    font-weight: 600;
+}
+
+.reloc-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.reloc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+    margin: 1rem 0;
+}
+
+.reloc-grid .span-2 {
+    grid-column: span 2;
+}
+
+.reloc-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: #9aa8b8;
+}
+
+.reloc-grid input,
+.reloc-grid select {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid #2a3544;
+    border-radius: 8px;
+    background: #0f1419;
+    color: #e7ecf3;
+    font: inherit;
+}
+
+.reloc-form-actions {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.reloc-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.reloc-header h1 {
+    margin: 0 0 0.25rem;
+}
+
+.reloc-header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.reloc-budget-figures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.reloc-figure {
+    display: flex;
+    flex-direction: column;
+}
+
+.reloc-figure-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* The caveat is styled to be read, not skimmed past. It is the difference
+   between a budget you can act on and one that quietly misleads you. */
+.reloc-caveat {
+    margin: 1rem 0 0;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid #b8863b;
+    border-radius: 0 6px 6px 0;
+    background: #2a2416;
+    color: #e2d3ae;
+    font-size: 0.9rem;
+}
+
+.reloc-caveat.warn {
+    border-left-color: #c96a4a;
+    background: #2e1e18;
+    color: #f0cbbc;
+}
+
+.reloc-pitfalls h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+}
+
+.reloc-pitfall {
+    margin-top: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #2a3544;
+    border-left-width: 3px;
+    border-radius: 0 8px 8px 0;
+    background: #16202e;
+}
+
+.reloc-pitfall summary {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.reloc-pitfall.done {
+    opacity: 0.55;
+}
+
+.reloc-pitfall.sev-critical { border-left-color: #d9534f; }
+.reloc-pitfall.sev-costly   { border-left-color: #d9a441; }
+.reloc-pitfall.sev-annoying { border-left-color: #5b7fa6; }
+
+.reloc-sev {
+    flex-shrink: 0;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: #2a3544;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sev-critical .reloc-sev { background: #4a1f1e; color: #f3b3b1; }
+.sev-costly   .reloc-sev { background: #40331a; color: #f0d49a; }
+
+.reloc-pitfall-action {
+    margin-bottom: 0.4rem;
+}
+
+.reloc-ack {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #9aa8b8;
+}
+
+.reloc-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.reloc-group {
+    background: #1a2332;
+    border: 1px solid #2a3544;
+    border-radius: 12px;
+    padding: 0.9rem 1.1rem;
+}
+
+.reloc-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.reloc-group-head h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #9aa8b8;
+}
+
+.reloc-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.reloc-item {
+    display: grid;
+    grid-template-columns: 96px 1fr auto 130px;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.45rem 0;
+    border-top: 1px solid #222d3c;
+}
+
+.reloc-item:first-child {
+    border-top: none;
+}
+
+.reloc-item.status-have,
+.reloc-item.status-skipped {
+    opacity: 0.45;
+}
+
+.reloc-item.status-bought .reloc-item-name {
+    text-decoration: line-through;
+}
+
+.reloc-status,
+.reloc-price {
+    padding: 0.3rem 0.4rem;
+    border: 1px solid #2a3544;
+    border-radius: 6px;
+    background: #0f1419;
+    color: #e7ecf3;
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+.reloc-price {
+    width: 84px;
+    text-align: right;
+}
+
+.reloc-item-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.reloc-item-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.reloc-item-note {
+    font-size: 0.82rem;
+}
+
+.reloc-forgotten {
+    flex-shrink: 0;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: #33291a;
+    color: #e0bc7d;
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.reloc-qty {
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.reloc-cost {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+/* Estimated prices are visually marked everywhere they appear, so a guess never
+   reads as a fact. */
+.reloc-estimate {
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    background: #2a2416;
+    color: #d8b976;
+    font-size: 0.68rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .reloc {
+        grid-template-columns: 1fr;
+    }
+
+    .reloc-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .reloc-grid .span-2 {
+        grid-column: span 2;
+    }
+
+    .reloc-item {
+        grid-template-columns: 90px 1fr;
+        row-gap: 0.3rem;
+    }
+
+    .reloc-qty,
+    .reloc-cost {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
+}

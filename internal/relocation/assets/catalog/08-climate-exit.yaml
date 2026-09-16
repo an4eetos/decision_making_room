@@ -1,0 +1,105 @@
+- id: mosquito_plug
+  category: climate
+  name: Mosquito plug or net
+  unit: set
+  anchor_usd: 12
+  quantity: {base: 1}
+  when: {climate: [tropical], min_nights: 7}
+  commonly_forgotten: true
+
+- id: fan
+  category: climate
+  name: Fan
+  unit: unit
+  anchor_usd: 35
+  quantity: {base: 1}
+  when: {climate: [tropical, arid], min_nights: 30, not_housing: [hotel, serviced]}
+  note: Cheaper to run than aircon and quiet enough to sleep through.
+
+- id: dehumidifier
+  category: climate
+  name: Dehumidifier or moisture absorbers
+  unit: unit
+  anchor_usd: 40
+  quantity: {base: 1}
+  when: {climate: [tropical], min_nights: 45}
+  commonly_forgotten: true
+  note: Mould on clothes and leather in a humid flat is a question of weeks, not months.
+
+- id: heater
+  category: climate
+  name: Electric heater
+  unit: unit
+  anchor_usd: 45
+  quantity: {base: 1}
+  when: {climate: [cold], min_nights: 30, not_housing: [hotel, serviced]}
+  note: Check what the electricity actually costs first. In some places running one all winter costs more than the heater several times over.
+
+- id: humidifier
+  category: climate
+  name: Humidifier
+  unit: unit
+  anchor_usd: 35
+  quantity: {base: 1}
+  when: {climate: [cold, arid], min_nights: 45, budget: [standard, comfortable]}
+
+- id: rain_gear
+  category: climate
+  name: Rain jacket and quick-dry shoes
+  unit: set
+  anchor_usd: 60
+  quantity: {base: 1, per_person: true}
+  when: {climate: [tropical, temperate], min_nights: 30}
+
+- id: sun_kit
+  category: climate
+  name: Hat and sunglasses
+  unit: set
+  anchor_usd: 30
+  quantity: {base: 1, per_person: true}
+  when: {climate: [tropical, arid]}
+
+- id: deposit_terms
+  category: exit
+  name: Written deposit return terms
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 30, not_housing: [hotel]}
+  commonly_forgotten: true
+  note: Agreed in writing at the start, when you have leverage, not at the end when you have none. Photograph every existing scratch on the day you arrive.
+
+- id: notice_period
+  category: exit
+  name: Notice period and early-exit terms
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 60, not_housing: [hotel]}
+
+- id: final_meters
+  category: exit
+  name: Final utility meter readings
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 30, housing: [unfurnished, furnished]}
+  commonly_forgotten: true
+
+- id: cancel_subscriptions
+  category: exit
+  name: Cancel local subscriptions
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 30}
+  note: Gym, co-working, SIM, delivery apps. Several will auto-renew from a card you forget you registered.
+
+- id: sell_or_carry
+  category: exit
+  name: Decide what to sell, donate or carry
+  unit: check
+  anchor_usd: 0
+  quantity: {base: 1}
+  when: {min_nights: 60}
+  note: Selling the chair and the fan on the way out recovers a real share of what this list cost. Start a week before, not the night before.
