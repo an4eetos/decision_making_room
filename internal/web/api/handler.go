@@ -13,9 +13,11 @@ import (
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/service"
 	"github.com/an4eetos/decision-room/internal/memory/usecase"
+	modeport "github.com/an4eetos/decision-room/internal/modes/port"
 )
 
 type Handler struct {
+	modes     modeport.Registry
 	generals  genport.Registry
 	captureUC *journalusecase.Capture
 	ingestUC  *usecase.Ingest
@@ -31,8 +33,10 @@ func NewHandler(
 	chat *usecase.Chat,
 	capture *journalusecase.Capture,
 	generals genport.Registry,
+	modes modeport.Registry,
 ) *Handler {
 	return &Handler{
+		modes:     modes,
 		generals:  generals,
 		ingestUC:  ingest,
 		searchUC:  search,
@@ -48,6 +52,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/consult", h.consult)
 	mux.HandleFunc("POST /api/capture", h.capture)
 	mux.HandleFunc("GET /api/generals", h.listGenerals)
+	mux.HandleFunc("GET /api/modes", h.listModes)
 	mux.HandleFunc("GET /api/memories/search", h.searchMemories)
 	mux.HandleFunc("GET /api/chat/sessions", h.listChatSessions)
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
@@ -130,6 +135,26 @@ func (h *Handler) ingestAndRespond(w http.ResponseWriter, r *http.Request, kindR
 	writeJSON(w, http.StatusCreated, result)
 }
 
+// listModes serves the mode list for the chip's dropdown, grouped by family.
+func (h *Handler) listModes(w http.ResponseWriter, r *http.Request) {
+	type modeDTO struct {
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Family  string `json:"family"`
+		Summary string `json:"summary,omitempty"`
+	}
+
+	modes := h.modes.List()
+	out := make([]modeDTO, 0, len(modes))
+	for _, m := range modes {
+		out = append(out, modeDTO{
+			ID: m.ID, Name: m.Name, Family: string(m.Family), Summary: m.Summary,
+		})
+	}
+
+	writeJSON(w, http.StatusOK, out)
+}
+
 // listGenerals serves the roster for the picker. It deliberately omits the full
 // doctrine: that is several hundred KB across the roster and the UI shows the
 // card fields only.
@@ -182,6 +207,7 @@ func (h *Handler) consult(w http.ResponseWriter, r *http.Request) {
 		Tier     string   `json:"tier"`
 		TopK     int      `json:"top_k"`
 		Generals []string `json:"generals"`
+		Mode     string   `json:"mode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
@@ -193,6 +219,7 @@ func (h *Handler) consult(w http.ResponseWriter, r *http.Request) {
 		Tier:       req.Tier,
 		TopK:       req.TopK,
 		GeneralIDs: req.Generals,
+		ModeID:     req.Mode,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -279,6 +306,7 @@ func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
 		Content  string    `json:"content"`
 		Tier     string    `json:"tier"`
 		Generals *[]string `json:"generals"`
+		Mode     *string   `json:"mode"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
@@ -290,6 +318,7 @@ func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
 		Question:  req.Content,
 		Tier:      req.Tier,
 		Generals:  derefStrings(req.Generals),
+		Mode:      req.Mode,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

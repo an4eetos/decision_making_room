@@ -4,6 +4,10 @@ import (
 	genfs "github.com/an4eetos/decision-room/internal/generals/adapters/driven/fs"
 	"github.com/an4eetos/decision-room/internal/generals/assets"
 	genport "github.com/an4eetos/decision-room/internal/generals/port"
+	"github.com/an4eetos/decision-room/internal/memory/service"
+	modefs "github.com/an4eetos/decision-room/internal/modes/adapters/driven/fs"
+	modeassets "github.com/an4eetos/decision-room/internal/modes/assets"
+	modeservice "github.com/an4eetos/decision-room/internal/modes/service"
 	"testing"
 
 	"github.com/an4eetos/decision-room/internal/memory/domain"
@@ -12,7 +16,7 @@ import (
 func TestResolvePlanUsesDefaultTier(t *testing.T) {
 	t.Parallel()
 
-	plan := NewPlanResolver(testRegistry(t), domain.TierStandard, domain.TierDeep).
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep).
 		Resolve(ConsultInput{Question: "  what now?  "})
 
 	if plan.Tier.Tier != domain.TierStandard {
@@ -30,7 +34,7 @@ func TestResolvePlanUsesDefaultTier(t *testing.T) {
 func TestResolvePlanCapsAtMaxTier(t *testing.T) {
 	t.Parallel()
 
-	plan := NewPlanResolver(testRegistry(t), domain.TierStandard, domain.TierQuick).
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierQuick).
 		Resolve(ConsultInput{Question: "q", Tier: "deep"})
 
 	if plan.Tier.Tier != domain.TierQuick {
@@ -44,7 +48,7 @@ func TestResolvePlanCapsAtMaxTier(t *testing.T) {
 func TestResolvePlanExplicitTopKWins(t *testing.T) {
 	t.Parallel()
 
-	plan := NewPlanResolver(testRegistry(t), domain.TierStandard, domain.TierDeep).
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep).
 		Resolve(ConsultInput{Question: "q", Tier: "quick", TopK: 25})
 
 	if plan.Tier.TopK != 25 {
@@ -61,7 +65,7 @@ func TestResolvePlanExplicitTopKWins(t *testing.T) {
 func TestLensCountRisesWithTier(t *testing.T) {
 	t.Parallel()
 
-	resolver := NewPlanResolver(testRegistry(t), domain.TierStandard, domain.TierDeep)
+	resolver := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep)
 
 	quick := resolver.Resolve(ConsultInput{Question: "should I ship this?", Tier: "quick"})
 	deep := resolver.Resolve(ConsultInput{Question: "should I ship this?", Tier: "deep"})
@@ -77,7 +81,7 @@ func TestLensCountRisesWithTier(t *testing.T) {
 func TestExplicitGeneralsAreHonoured(t *testing.T) {
 	t.Parallel()
 
-	plan := NewPlanResolver(testRegistry(t), domain.TierStandard, domain.TierDeep).
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep).
 		Resolve(ConsultInput{Question: "anything", Tier: "deep", GeneralIDs: []string{"kutuzov", "patton"}})
 
 	if plan.GeneralsMethod != "explicit" {
@@ -92,7 +96,7 @@ func TestExplicitGeneralsAreHonoured(t *testing.T) {
 func TestNilRegistryDegradesGracefully(t *testing.T) {
 	t.Parallel()
 
-	plan := NewPlanResolver(nil, domain.TierStandard, domain.TierDeep).
+	plan := NewPlanResolver(nil, nil, domain.TierStandard, domain.TierDeep).
 		Resolve(ConsultInput{Question: "anything"})
 
 	if len(plan.Generals) != 0 {
@@ -110,4 +114,74 @@ func testRegistry(t *testing.T) genport.Registry {
 		t.Fatalf("load roster: %v", err)
 	}
 	return genfs.NewRegistry(roster)
+}
+
+// A mode both shapes the answer and biases retrieval toward the kinds of memory
+// that question needs.
+func TestModeDetectionFlowsIntoThePlan(t *testing.T) {
+	t.Parallel()
+
+	resolver := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep)
+	plan := resolver.Resolve(ConsultInput{Question: "How did today go?"})
+
+	if plan.Mode.ID != "debrief" {
+		t.Fatalf("mode = %q, want debrief", plan.Mode.ID)
+	}
+	if plan.ModeMethod != "keyword" {
+		t.Fatalf("method = %q, want keyword", plan.ModeMethod)
+	}
+	if bias := plan.RetrievalBias(); len(bias.Kinds) == 0 || bias.Kinds[0] != "daily_log" {
+		t.Fatalf("debrief should bias toward daily logs, got %v", bias.Kinds)
+	}
+	if len(plan.Styles) == 0 {
+		t.Fatal("debrief names working styles; none resolved")
+	}
+}
+
+// A debrief wants recency to dominate; a pre-mortem wants it nearly ignored.
+// Both must still produce comparable scores, so relevance absorbs the change.
+func TestModeRecencyWeightsStaySane(t *testing.T) {
+	t.Parallel()
+
+	resolver := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep)
+
+	debrief := resolver.Resolve(ConsultInput{Question: "how did today go"}).RerankWeights()
+	premortem := resolver.Resolve(ConsultInput{Question: "what could go wrong here"}).RerankWeights()
+
+	if debrief.Recency <= premortem.Recency {
+		t.Fatalf("debrief recency %v should exceed pre-mortem %v", debrief.Recency, premortem.Recency)
+	}
+	for name, w := range map[string]service.Weights{"debrief": debrief, "pre-mortem": premortem} {
+		total := w.Relevance + w.Recency + w.Kind
+		if total < 0.99 || total > 1.01 {
+			t.Fatalf("%s weights sum to %v, want 1", name, total)
+		}
+		if w.Relevance < 0 {
+			t.Fatalf("%s has negative relevance weight", name)
+		}
+	}
+}
+
+// An ordinary question must not be forced into a template.
+func TestOpenModeAddsNoTemplate(t *testing.T) {
+	t.Parallel()
+
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep).
+		Resolve(ConsultInput{Question: "what did I decide about the database"})
+
+	if plan.Mode.ID != "open" {
+		t.Fatalf("mode = %q, want open", plan.Mode.ID)
+	}
+	if plan.Mode.OutputPrompt != "" {
+		t.Fatal("the open mode must not impose an output template")
+	}
+}
+
+func testDetector(t *testing.T) *modeservice.Detector {
+	t.Helper()
+	reg, err := modefs.Load(modeassets.Modes(), "")
+	if err != nil {
+		t.Fatalf("load modes: %v", err)
+	}
+	return modeservice.NewDetector(modefs.NewRegistry(reg))
 }

@@ -25,24 +25,28 @@ type Chat struct {
 }
 
 type ChatSessionDTO struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	Summary   string    `json:"summary,omitempty"`
-	Tier      string    `json:"tier,omitempty"`
-	Generals  []string  `json:"generals"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	Title      string    `json:"title"`
+	Summary    string    `json:"summary,omitempty"`
+	Tier       string    `json:"tier,omitempty"`
+	Generals   []string  `json:"generals"`
+	Mode       string    `json:"mode,omitempty"`
+	ModeLocked bool      `json:"mode_locked"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type ChatMessageDTO struct {
-	ID        string          `json:"id"`
-	Role      string          `json:"role"`
-	Content   string          `json:"content"`
-	Sources   []ConsultSource `json:"sources,omitempty"`
-	Tier      string          `json:"tier,omitempty"`
-	Generals  []string        `json:"generals,omitempty"`
-	Method    string          `json:"generals_method,omitempty"`
-	CreatedAt time.Time       `json:"created_at"`
+	ID         string          `json:"id"`
+	Role       string          `json:"role"`
+	Content    string          `json:"content"`
+	Sources    []ConsultSource `json:"sources,omitempty"`
+	Tier       string          `json:"tier,omitempty"`
+	Generals   []string        `json:"generals,omitempty"`
+	Method     string          `json:"generals_method,omitempty"`
+	Mode       string          `json:"mode,omitempty"`
+	ModeMethod string          `json:"mode_method,omitempty"`
+	CreatedAt  time.Time       `json:"created_at"`
 }
 
 type ChatSessionDetail struct {
@@ -117,6 +121,9 @@ type SendMessageInput struct {
 	// Generals is the user's pick for this turn. Nil leaves the session's pick
 	// alone; an explicitly empty slice clears it back to auto-select.
 	Generals []string
+	// Mode set by hand for this turn. It locks the session to that mode; an
+	// empty string means "auto" and unlocks it.
+	Mode *string
 }
 
 func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessionDetail, error) {
@@ -178,6 +185,16 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		}
 	}
 
+	// Choosing a mode by hand locks the session to it, so detection cannot pull
+	// the conversation back out from under the user. Choosing "auto" unlocks it.
+	if in.Mode != nil {
+		session.ModeID = *in.Mode
+		session.ModeLocked = *in.Mode != ""
+		if err := c.repo.UpdateSession(ctx, session); err != nil {
+			return ChatSessionDetail{}, err
+		}
+	}
+
 	conversationHistory := buildChatHistory(session.Summary, messages[:len(messages)-1])
 	consultResult, err := c.consult.Execute(ctx, ConsultInput{
 		Question:       question,
@@ -185,6 +202,11 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		Tier:           tier,
 		GeneralIDs:     session.Generals,
 		RecentGenerals: recentGenerals(messages),
+		SessionMode:    session.ModeID,
+		ModeLocked:     session.ModeLocked,
+		// The user turn was already appended, so a fresh conversation has one
+		// message here and stickiness must not apply to it.
+		TurnIndex: len(messages) - 1,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
@@ -197,12 +219,22 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		Sources:      toChatSources(consultResult.Sources),
 		Tier:         consultResult.Tier,
 		Generals:     consultResult.Generals,
-		DetectMethod: consultResult.GeneralsMethod,
+		ModeID:       consultResult.Mode,
+		DetectMethod: consultResult.ModeMethod,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
 	}
 	messages = append(messages, assistantMessage)
+
+	// Remember the detected mode so the conversation stays in it, unless the
+	// user has locked one by hand.
+	if !session.ModeLocked && consultResult.Mode != "" && consultResult.Mode != session.ModeID {
+		session.ModeID = consultResult.Mode
+		if err := c.repo.UpdateSession(ctx, session); err != nil {
+			return ChatSessionDetail{}, err
+		}
+	}
 
 	if err := c.maybeSummarize(ctx, &session, messages); err != nil {
 		return ChatSessionDetail{}, err
@@ -309,13 +341,15 @@ func deriveChatTitle(question string) string {
 
 func toChatSessionDTO(session port.ChatSession) ChatSessionDTO {
 	return ChatSessionDTO{
-		ID:        session.ID.String(),
-		Title:     session.Title,
-		Summary:   session.Summary,
-		Tier:      session.Tier,
-		Generals:  nonNilIDs(session.Generals),
-		CreatedAt: session.CreatedAt,
-		UpdatedAt: session.UpdatedAt,
+		ID:         session.ID.String(),
+		Title:      session.Title,
+		Summary:    session.Summary,
+		Tier:       session.Tier,
+		Generals:   nonNilIDs(session.Generals),
+		Mode:       session.ModeID,
+		ModeLocked: session.ModeLocked,
+		CreatedAt:  session.CreatedAt,
+		UpdatedAt:  session.UpdatedAt,
 	}
 }
 
@@ -323,14 +357,15 @@ func toChatMessagesDTO(messages []port.ChatMessage) []ChatMessageDTO {
 	out := make([]ChatMessageDTO, len(messages))
 	for i, message := range messages {
 		out[i] = ChatMessageDTO{
-			ID:        message.ID.String(),
-			Role:      message.Role,
-			Content:   message.Content,
-			Sources:   fromChatSources(message.Sources),
-			Tier:      message.Tier,
-			Generals:  message.Generals,
-			Method:    message.DetectMethod,
-			CreatedAt: message.CreatedAt,
+			ID:         message.ID.String(),
+			Role:       message.Role,
+			Content:    message.Content,
+			Sources:    fromChatSources(message.Sources),
+			Tier:       message.Tier,
+			Generals:   message.Generals,
+			Mode:       message.ModeID,
+			ModeMethod: message.DetectMethod,
+			CreatedAt:  message.CreatedAt,
 		}
 	}
 	return out

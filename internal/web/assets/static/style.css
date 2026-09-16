@@ -1101,3 +1101,149 @@ textarea {
     font-size: 0.62rem;
     font-style: italic;
 }
+
+/* ---------- Mode chip ---------- */
+
+.mode-chip-wrap {
+    position: relative;
+}
+
+.mode-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid #2a3544;
+    border-radius: 999px;
+    background: #16202e;
+    color: #b6c3d2;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.mode-chip:hover {
+    border-color: #3b5b80;
+    color: #e7ecf3;
+}
+
+/* A pinned mode looks deliberate; a detected one looks provisional. */
+.mode-chip.pinned {
+    border-color: #3b5b80;
+    background: #22334a;
+    color: #fff;
+}
+
+.mode-chip-caret {
+    font-size: 0.7rem;
+    opacity: 0.7;
+}
+
+.mode-menu {
+    position: absolute;
+    right: 0;
+    z-index: 20;
+    width: 300px;
+    max-height: 60vh;
+    margin-top: 0.3rem;
+    padding: 0.3rem;
+    border: 1px solid #2a3544;
+    border-radius: 10px;
+    background: #16202e;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    overflow-y: auto;
+}
+
+.mode-group-head {
+    padding: 0.45rem 0.6rem 0.2rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6d7d90;
+}
+
+.mode-option {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border: none;
+    border-radius: 7px;
+    background: none;
+    color: #d5dee9;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mode-option:hover {
+    background: #1e2938;
+}
+
+.mode-option.on {
+    background: #22334a;
+}
+
+.mode-option.auto {
+    margin-bottom: 0.2rem;
+    border-bottom: 1px solid #222d3c;
+    border-radius: 7px 7px 0 0;
+}
+
+.mode-option-name {
+    font-size: 0.85rem;
+}
+
+.mode-option-summary {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    color: #8595a8;
+}
+
+.mode-badge {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: #1f2d40;
+    color: #9fb8d4;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+/* ---------- Waiting text ---------- */
+
+.waiting-text {
+    color: #9aa8b8;
+}
+
+/* Three dots that fill in and reset. Pure CSS so it cannot drift out of step
+   with the text swaps above it. */
+.waiting-dots::after {
+    content: "";
+    animation: waiting-dots 1.4s steps(4, end) infinite;
+}
+
+@keyframes waiting-dots {
+    0%   { content: ""; }
+    25%  { content: "."; }
+    50%  { content: ".."; }
+    75%  { content: "..."; }
+    100% { content: ""; }
+}
+
+.waiting-elapsed {
+    margin-left: 0.5rem;
+    color: #5d6b7d;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .waiting-dots::after {
+        content: "...";
+        animation: none;
+    }
+}

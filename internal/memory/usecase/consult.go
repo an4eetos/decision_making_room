@@ -12,6 +12,7 @@ import (
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/service"
+	modeservice "github.com/an4eetos/decision-room/internal/modes/service"
 )
 
 type ConsultInput struct {
@@ -27,6 +28,14 @@ type ConsultInput struct {
 	// RecentGenerals are the lenses used in the last couple of turns; they are
 	// demoted so one lens does not answer everything.
 	RecentGenerals []string
+
+	// ModeID is an explicit mode for this turn. SessionMode and ModeLocked are
+	// the conversation's current mode and whether the user set it by hand;
+	// TurnIndex gates stickiness so the first turn is always detected fresh.
+	ModeID      string
+	SessionMode string
+	ModeLocked  bool
+	TurnIndex   int
 }
 
 type ConsultSource struct {
@@ -46,6 +55,11 @@ type ConsultResult struct {
 	// they were picked by the user or selected automatically.
 	Generals       []string `json:"generals"`
 	GeneralsMethod string   `json:"generals_method,omitempty"`
+	// Mode is the conversation shape that produced this answer, ModeName is its
+	// display name, and ModeMethod is how it was arrived at.
+	Mode       string `json:"mode,omitempty"`
+	ModeName   string `json:"mode_name,omitempty"`
+	ModeMethod string `json:"mode_method,omitempty"`
 }
 
 type Consult struct {
@@ -65,6 +79,7 @@ func NewConsult(
 	initialContext port.InitialContextReader,
 	tools *MemoryToolExecutor,
 	registry genport.Registry,
+	detector *modeservice.Detector,
 	defaultTier, maxTier domain.Tier,
 ) *Consult {
 	// Without a tool-capable model there is no agent, so no tier can use tools
@@ -82,7 +97,7 @@ func NewConsult(
 		retriever:      retriever,
 		llm:            llm,
 		initialContext: initialContext,
-		resolver:       NewPlanResolver(registry, defaultTier, maxTier),
+		resolver:       NewPlanResolver(registry, detector, defaultTier, maxTier),
 	}
 }
 
@@ -137,7 +152,11 @@ func (u *Consult) gatherContext(ctx context.Context, plan ConsultPlan) ([]domain
 		TopK:           plan.Tier.TopK,
 		CandidateLimit: plan.Tier.CandidateLimit,
 		Filter:         port.SearchFilter{},
-		Rerank:         service.RerankOptions{Now: plan.Now},
+		Rerank: service.RerankOptions{
+			Now:     plan.Now,
+			Weights: plan.RerankWeights(),
+			Bias:    plan.RetrievalBias(),
+		},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("retrieve context: %w", err)
@@ -197,6 +216,9 @@ func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entri
 		Tier:           string(plan.Tier.Tier),
 		Generals:       plan.GeneralIDs(),
 		GeneralsMethod: plan.GeneralsMethod,
+		Mode:           plan.Mode.ID,
+		ModeName:       plan.Mode.Name,
+		ModeMethod:     plan.ModeMethod,
 	}, nil
 }
 
@@ -240,7 +262,18 @@ func retrievalQuery(plan ConsultPlan) string {
 // tier's length budget into one system message.
 func buildSystemPrompt(base string, plan ConsultPlan) string {
 	parts := []string{base}
-	if lenses := generalsPrompt(plan.Generals); lenses != "" {
+	// Mode before lenses: the mode decides the shape of the answer, the lenses
+	// decide the argument inside it.
+	if mode := modePrompt(plan.Mode); mode != "" {
+		parts = append(parts, mode)
+	}
+	if styles := stylesPrompt(plan.Styles); styles != "" {
+		parts = append(parts, styles)
+	}
+	// The mode decides the shape of the answer; the lenses decide the argument
+	// inside it. Passing that along stops the two imposing rival templates.
+	structured := strings.TrimSpace(plan.Mode.OutputPrompt) != ""
+	if lenses := generalsPrompt(plan.Generals, structured); lenses != "" {
 		parts = append(parts, lenses)
 	}
 	if budget := strings.TrimSpace(plan.Tier.AnswerBudget); budget != "" {

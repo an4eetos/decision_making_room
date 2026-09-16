@@ -12,7 +12,10 @@ import (
 // One model call, not one per general. N calls triple the latency, the per-general
 // answers cannot see each other, and "where they disagree" would then need a
 // fourth call that re-reads all of them.
-func generalsPrompt(lenses []gendomain.Lens) string {
+// structured reports whether the mode already imposes an output template. When
+// it does, the lenses must not add their own headings on top — two competing
+// structures get concatenated and the answer grows a second scaffold.
+func generalsPrompt(lenses []gendomain.Lens, structured bool) string {
 	if len(lenses) == 0 {
 		return ""
 	}
@@ -30,6 +33,17 @@ func generalsPrompt(lenses []gendomain.Lens) string {
 	if len(lenses) == 1 {
 		fmt.Fprintf(&b, "Answer in %s's frame throughout. Where that frame's blind spot "+
 			"applies to this question, say so in one line rather than hiding it.", lenses[0].Name)
+		return b.String()
+	}
+
+	if structured {
+		// The mode owns the headings. The lenses argue inside them.
+		b.WriteString("Keep the section structure given above — do not add sections for " +
+			"each lens. Use them as competing perspectives within that structure: where they " +
+			"would advise differently, surface the disagreement inside the section it bears on, " +
+			"name which lens you are siding with, and say what siding with it costs.\n\n")
+		b.WriteString("Do not soften disagreement into consensus. If two lenses would give " +
+			"opposite advice, say so plainly.")
 		return b.String()
 	}
 

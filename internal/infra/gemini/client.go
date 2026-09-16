@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -194,7 +195,10 @@ func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 }
 
 func (c *Client) post(ctx context.Context, url string, body []byte) ([]byte, error) {
-	var lastBody []byte
+	var (
+		lastBody   []byte
+		lastStatus int
+	)
 
 	for attempt := 0; attempt <= maxRateRetries; attempt++ {
 		respBody, status, err := c.doPost(ctx, url, body)
@@ -206,7 +210,7 @@ func (c *Client) post(ctx context.Context, url string, body []byte) ([]byte, err
 			return respBody, nil
 		}
 
-		lastBody = respBody
+		lastBody, lastStatus = respBody, status
 		if !isRetryableStatus(status) || attempt == maxRateRetries {
 			break
 		}
@@ -223,8 +227,26 @@ func (c *Client) post(ctx context.Context, url string, body []byte) ([]byte, err
 		}
 	}
 
-	return nil, fmt.Errorf("request failed: %s", formatAPIError(lastBody))
+	return nil, &apiError{status: lastStatus, message: formatAPIError(lastBody)}
 }
+
+// apiError carries the HTTP status alongside the message.
+//
+// Retry and failover decisions used to be made by substring-matching the
+// human-readable error text, which silently failed for quota exhaustion — the
+// message there is "You exceeded your current quota", containing none of the
+// markers being looked for, so the fallback model was never tried in the one
+// case it exists for. The status code was available the whole time.
+type apiError struct {
+	status  int
+	message string
+}
+
+func (e *apiError) Error() string {
+	return fmt.Sprintf("request failed (%d): %s", e.status, e.message)
+}
+
+func (e *apiError) Retryable() bool { return isRetryableStatus(e.status) }
 
 // isRetryableStatus covers more than rate limiting. Overload is reported as a
 // 500 or 503 with a "high demand" message, not a 429, so retrying only on 429
@@ -311,9 +333,17 @@ func formatAPIError(body []byte) string {
 	return string(body)
 }
 
+// isRetryableModelError reports whether failing over to the next model is worth
+// trying. It prefers the HTTP status and falls back to matching the message only
+// for errors that did not come from an API response.
 func isRetryableModelError(err error) bool {
 	if err == nil {
 		return false
+	}
+
+	var apiErr *apiError
+	if errors.As(err, &apiErr) {
+		return apiErr.Retryable()
 	}
 
 	message := strings.ToLower(err.Error())
@@ -324,7 +354,8 @@ func isRetryableModelError(err error) bool {
 		strings.Contains(message, "overloaded"),
 		strings.Contains(message, "temporarily unavailable"),
 		strings.Contains(message, "status 500"),
-		strings.Contains(message, "status 503"):
+		strings.Contains(message, "status 503"),
+		strings.Contains(message, "exceeded your current quota"):
 		return true
 	default:
 		return false

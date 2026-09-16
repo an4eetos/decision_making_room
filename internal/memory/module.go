@@ -13,6 +13,7 @@ import (
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/usecase"
+	modeservice "github.com/an4eetos/decision-room/internal/modes/service"
 )
 
 var Module = fx.Module("memory",
@@ -97,6 +98,7 @@ func provideConsult(
 	initialContext port.InitialContextReader,
 	tools *usecase.MemoryToolExecutor,
 	registry genport.Registry,
+	detector *modeservice.Detector,
 	cfg config.Config,
 ) *usecase.Consult {
 	return usecase.NewConsult(
@@ -107,6 +109,7 @@ func provideConsult(
 		initialContext,
 		tools,
 		registry,
+		detector,
 		domain.ParseTier(cfg.DefaultTier, domain.TierStandard),
 		domain.ParseTier(cfg.MaxTier, domain.TierDeep),
 	)

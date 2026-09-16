@@ -8,6 +8,7 @@ import (
 	httpserver "github.com/an4eetos/decision-room/internal/infra/http"
 	journalusecase "github.com/an4eetos/decision-room/internal/journal/usecase"
 	"github.com/an4eetos/decision-room/internal/memory/usecase"
+	modeport "github.com/an4eetos/decision-room/internal/modes/port"
 	relport "github.com/an4eetos/decision-room/internal/relocation/port"
 	relusecase "github.com/an4eetos/decision-room/internal/relocation/usecase"
 	"github.com/an4eetos/decision-room/internal/web/api"
@@ -41,8 +42,9 @@ func provideAPIHandler(
 	chat *usecase.Chat,
 	capture *journalusecase.Capture,
 	generals genport.Registry,
+	modes modeport.Registry,
 ) *api.Handler {
-	return api.NewHandler(ingest, search, consult, chat, capture, generals)
+	return api.NewHandler(ingest, search, consult, chat, capture, generals, modes)
 }
 
 func provideUIHandler(cfg config.Config) (*ui.Handler, error) {

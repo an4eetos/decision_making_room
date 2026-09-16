@@ -26,9 +26,13 @@ type ChatSession struct {
 	// deep stays deep without re-picking it every turn.
 	Tier string
 	// Generals is the session's pinned lens selection. Empty means auto-select.
-	Generals  []string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Generals []string
+	// ModeID is the conversation's current mode, and ModeLocked is whether the
+	// user set it by hand — a locked mode is never overridden by detection.
+	ModeID     string
+	ModeLocked bool
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type ChatMessage struct {
@@ -42,8 +46,9 @@ type ChatMessage struct {
 	// because it is what lets you compare answers later without adding telemetry.
 	Tier string
 	// Generals are the lenses this answer was written through, and DetectMethod
-	// is whether they were picked or auto-selected.
+	// is how the mode was arrived at.
 	Generals     []string
+	ModeID       string
 	DetectMethod string
 	CreatedAt    time.Time
 }
