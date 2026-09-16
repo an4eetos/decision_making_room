@@ -8,8 +8,9 @@ It is built around a simple idea: an assistant that has read everything you have
 written about your own work gives better advice than one that has not.
 
 > **Status:** early but usable. Retrieval, chat with depth tiers, the generals
-> roster, the journal watcher and the relocation planner all work today.
-> Conversation modes and proactive check-ins are next — see [the roadmap](#roadmap).
+> roster, conversation modes, the journal watcher and the relocation planner all
+> work today. Commitments and proactive check-ins are next — see
+> [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -71,6 +72,30 @@ depth that actually produced it.
 
 Set `DEFAULT_TIER` and `MAX_TIER` to bound this per deployment. `MAX_TIER=quick`
 turns off tool calling entirely.
+
+## Modes
+
+The room works out what kind of question you asked and answers in that shape.
+*"I've been avoiding this for a week"* becomes a **Stalled** answer that diagnoses
+which of five kinds of stuck this is before prescribing anything. *"Everything is
+urgent"* becomes **Overloaded**: a forced ranking, deferrals with dates, and a
+kill list.
+
+Fifteen modes across four families — plan, decide, unblock, review — plus **Open**,
+which imposes nothing, because not every question should be forced into a
+framework.
+
+The detected mode shows in a chip above the conversation along with why it was
+picked, and you can pin one. A conversation stays in its mode unless you clearly
+change the subject: switching the shape of the answer underneath you mid-thread
+is worse than being in a slightly wrong mode.
+
+Modes also bias retrieval. A debrief weights recency heavily; a pre-mortem almost
+ignores it, because a decision from a year ago is still the answer to a question
+about that decision.
+
+Write your own by dropping a markdown file in `MODES_DIR`. See
+[docs/modes.md](docs/modes.md).
 
 ## Generals
 
@@ -141,6 +166,8 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `MAX_TIER` | `deep` | ceiling a request cannot exceed |
 | `RELOCATION_CATALOG_DIR` | *(empty)* | overlay for the relocation catalogue |
 | `GENERALS_DIR` | *(empty)* | overlay for the generals roster |
+| `MODES_DIR` | *(empty)* | overlay for conversation modes |
+| `GEMINI_FALLBACK_MODEL` | `gemini-flash-lite-latest` | used when the main model is out of quota |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -169,6 +196,7 @@ server never imports a domain package.
 |---|---|---|
 | `GET` | `/health` | |
 | `GET` | `/api/generals` | the roster |
+| `GET` | `/api/modes` | conversation modes |
 | `POST` | `/api/capture` | append a line to today's note |
 | `POST` | `/api/memories` | ingest (JSON or multipart upload) |
 | `GET` | `/api/memories/search?q=&kind=&tags=` | hybrid search |
@@ -194,7 +222,7 @@ curl -X POST localhost:8080/api/consult \
 - [x] **Depth tiers** — quick, standard and deep answers
 - [x] Markdown rendering for answers
 - [x] **Generals** — pick up to three strategic lenses; they argue, then synthesise
-- [ ] **Modes** — plan a day, make a hard call, unstick a stalled task, debrief
+- [x] **Modes** — plan a day, make a hard call, unstick a stalled task, debrief
 - [x] **Relocation planner** — setup checklist, costs and pitfalls for a stay
 - [ ] **Commitments** — open loops tracked from your own conversations
 - [ ] **Check-ins** — it asks how the day is going, instead of waiting

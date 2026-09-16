@@ -17,6 +17,7 @@ import (
 	"github.com/an4eetos/decision-room/internal/infra/postgres"
 	"github.com/an4eetos/decision-room/internal/journal"
 	"github.com/an4eetos/decision-room/internal/memory"
+	"github.com/an4eetos/decision-room/internal/modes"
 	"github.com/an4eetos/decision-room/internal/relocation"
 	"github.com/an4eetos/decision-room/internal/web"
 )
@@ -28,6 +29,7 @@ var Module = fx.Module("app",
 		provideServer,
 	),
 	generals.Module,
+	modes.Module,
 	memory.Module,
 	journal.Module,
 	relocation.Module,

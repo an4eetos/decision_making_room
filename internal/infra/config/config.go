@@ -9,15 +9,20 @@ import (
 )
 
 type Config struct {
-	DatabaseURL         string
-	LLMProvider         string
-	OllamaBaseURL       string
-	OllamaChatModel     string
-	OllamaEmbedModel    string
-	GeminiAPIKey        string
-	GeminiBaseURL       string
-	GeminiChatModel     string
-	GeminiChatModels    []string
+	DatabaseURL      string
+	LLMProvider      string
+	OllamaBaseURL    string
+	OllamaChatModel  string
+	OllamaEmbedModel string
+	GeminiAPIKey     string
+	GeminiBaseURL    string
+	GeminiChatModel  string
+	GeminiChatModels []string
+	// GeminiFallbackModel is appended to the chat model list when no explicit
+	// failover chain is configured. Free-tier quota is per model, so a second
+	// model is the difference between a failed question and a slightly weaker
+	// answer. Set it empty to disable.
+	GeminiFallbackModel string
 	GeminiEmbedModel    string
 	HTTPAddr            string
 	RetrievalTopK       int
@@ -39,7 +44,9 @@ type Config struct {
 	RelocationCatalogDir string
 	// GeneralsDir optionally overlays the shipped roster. It holds generals/
 	// and styles/ subdirectories of markdown with YAML frontmatter.
-	GeneralsDir         string
+	GeneralsDir string
+	// ModesDir optionally overlays the shipped conversation modes.
+	ModesDir            string
 	JournalWatchDir     string
 	JournalWatchEnabled bool
 }
@@ -78,6 +85,7 @@ func Load() (Config, error) {
 		GeminiBaseURL:          envOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
 		GeminiChatModel:        envOrDefault("GEMINI_CHAT_MODEL", "gemini-flash-latest"),
 		GeminiChatModels:       parseCSVEnv("GEMINI_CHAT_MODELS"),
+		GeminiFallbackModel:    envOrDefault("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest"),
 		GeminiEmbedModel:       envOrDefault("GEMINI_EMBED_MODEL", "gemini-embedding-001"),
 		HTTPAddr:               envOrDefault("HTTP_ADDR", ":8080"),
 		RetrievalTopK:          topK,
@@ -90,6 +98,7 @@ func Load() (Config, error) {
 		WebRoot:                os.Getenv("WEB_ROOT"), // empty => assets embedded in the binary
 		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
 		GeneralsDir:            os.Getenv("GENERALS_DIR"),
+		ModesDir:               os.Getenv("MODES_DIR"),
 		JournalWatchDir:        journalDir,
 		JournalWatchEnabled:    envBoolOrDefault("JOURNAL_WATCH_ENABLED", journalDir != ""),
 	}
@@ -109,6 +118,9 @@ func Load() (Config, error) {
 	}
 	if len(cfg.GeminiChatModels) == 0 {
 		cfg.GeminiChatModels = []string{cfg.GeminiChatModel}
+		if fb := cfg.GeminiFallbackModel; fb != "" && fb != cfg.GeminiChatModel {
+			cfg.GeminiChatModels = append(cfg.GeminiChatModels, fb)
+		}
 	}
 
 	return cfg, nil

@@ -93,6 +93,9 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 				Tier:           string(plan.Tier.Tier),
 				Generals:       plan.GeneralIDs(),
 				GeneralsMethod: plan.GeneralsMethod,
+				Mode:           plan.Mode.ID,
+				ModeName:       plan.Mode.Name,
+				ModeMethod:     plan.ModeMethod,
 			}, nil
 		}
 
@@ -158,6 +161,9 @@ func (a *AgentConsult) fallbackAnswer(
 		Tier:           string(plan.Tier.Tier),
 		Generals:       plan.GeneralIDs(),
 		GeneralsMethod: plan.GeneralsMethod,
+		Mode:           plan.Mode.ID,
+		ModeName:       plan.Mode.Name,
+		ModeMethod:     plan.ModeMethod,
 	}, nil
 }
 

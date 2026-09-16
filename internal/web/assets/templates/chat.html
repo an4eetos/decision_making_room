@@ -12,7 +12,13 @@
     <section class="card chat-main">
         <header class="chat-head">
             <h1>Daily Consult</h1>
-            <p class="muted">Ask about anything you have written down.</p>
+            <div class="mode-chip-wrap">
+                <button id="mode-chip" type="button" class="mode-chip" aria-haspopup="listbox" aria-expanded="false">
+                    <span id="mode-chip-label">Open</span>
+                    <span class="mode-chip-caret" aria-hidden="true">▾</span>
+                </button>
+                <div id="mode-menu" class="mode-menu" role="listbox" hidden></div>
+            </div>
         </header>
 
         <form id="capture-form" class="capture" title="Appends a timestamped line to today's daily note">

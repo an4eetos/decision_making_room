@@ -2,8 +2,10 @@ package gemini
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -209,5 +211,86 @@ func TestPostGivesUpOnLongRetryDelays(t *testing.T) {
 	}
 	if got := atomic.LoadInt32(&calls); got != 1 {
 		t.Fatalf("expected a single attempt, got %d", got)
+	}
+}
+
+// Quota exhaustion is the most likely reason to need a second model, and it was
+// the one case failover did not fire: the message contains none of the markers
+// the old string matching looked for.
+func TestFailsOverToNextModelOnQuotaExhaustion(t *testing.T) {
+	t.Parallel()
+
+	var seen []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seen = append(seen, r.URL.Path)
+		if strings.Contains(r.URL.Path, "primary") {
+			w.WriteHeader(http.StatusTooManyRequests)
+			_, _ = w.Write([]byte(`{"error":{"code":429,"message":"You exceeded your current quota, please check your plan and billing details."}}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"candidates":[{"content":{"parts":[{"text":"from the fallback"}]}}]}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "key", []string{"primary", "fallback"}, "embed")
+	answer, err := client.Chat(context.Background(), []port.Message{{Role: "user", Content: "hi"}})
+	if err != nil {
+		t.Fatalf("chat: %v", err)
+	}
+	if answer != "from the fallback" {
+		t.Fatalf("answer = %q; expected the fallback model to be used", answer)
+	}
+	if len(seen) < 2 {
+		t.Fatalf("expected the fallback model to be tried, calls: %v", seen)
+	}
+}
+
+// A retired model will never come back, so trying the fallback is right but
+// retrying the same one is not.
+func TestDoesNotFailOverOnPermanentModelError(t *testing.T) {
+	t.Parallel()
+
+	var calls int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&calls, 1)
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":{"code":400,"message":"API key not valid"}}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "key", []string{"primary", "fallback"}, "embed")
+	if _, err := client.Chat(context.Background(), []port.Message{{Role: "user", Content: "hi"}}); err == nil {
+		t.Fatal("expected an error")
+	}
+	if got := atomic.LoadInt32(&calls); got != 1 {
+		t.Fatalf("a bad API key should not be retried or failed over; got %d calls", got)
+	}
+}
+
+// The status must survive into the error, since every retry decision keys off it.
+func TestAPIErrorCarriesStatus(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_, _ = w.Write([]byte(`{"error":{"message":"overloaded"}}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "key", []string{"only"}, "embed")
+	_, err := client.Chat(context.Background(), []port.Message{{Role: "user", Content: "hi"}})
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+
+	var apiErr *apiError
+	if !errors.As(err, &apiErr) {
+		t.Fatalf("expected an *apiError, got %T", err)
+	}
+	if apiErr.status != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want 503", apiErr.status)
+	}
+	if !apiErr.Retryable() {
+		t.Fatal("503 should be retryable")
 	}
 }

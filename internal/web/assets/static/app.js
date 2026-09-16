@@ -102,6 +102,13 @@ function lensName(id) {
     return lensNames[id] || String(id).replace(/_/g, " ");
 }
 
+// Set once the mode list loads, so badges show display names rather than ids.
+let modeNames = {};
+
+function modeChipName(id) {
+    return modeNames[id] || String(id).replace(/_/g, " ");
+}
+
 function renderChatMessages(container, messages) {
     if (messages === null) {
         container.innerHTML = '<p class="muted">Loading conversation...</p>';
@@ -128,6 +135,10 @@ function renderChatMessages(container, messages) {
 
         // Which lenses produced this answer, and whether you picked them. An
         // auto-selected lens should never look like one you chose.
+        const mode = isAssistant && message.mode && message.mode !== "open"
+            ? `<span class="mode-badge">${escapeHTML(modeChipName(message.mode))}</span>`
+            : "";
+
         const lenses = isAssistant && message.generals?.length
             ? `<span class="lens-badges">${message.generals.map((id) =>
                     `<span class="lens-badge">${escapeHTML(lensName(id))}</span>`).join("")}` +
@@ -138,6 +149,7 @@ function renderChatMessages(container, messages) {
         <div class="chat-message ${escapeHTML(message.role)}">
             <div class="chat-message-head">
                 <span class="chat-message-role">${escapeHTML(message.role)}</span>
+                ${mode}
                 ${tier}
                 ${lenses}
             </div>
@@ -276,6 +288,17 @@ function setupConsultForm() {
     // follows it rather than letting you choose three for a quick answer.
     const LENSES_PER_TIER = { quick: 1, standard: 2, deep: 3 };
 
+    const modeChip = setupModeChip({ onChange: () => {} });
+    modeChip?.load().then(async () => {
+        try {
+            modeNames = Object.fromEntries(
+                (await apiJSON("/api/modes")).map((m) => [m.id, m.name]),
+            );
+        } catch {
+            // Badges fall back to a tidied id.
+        }
+    });
+
     const generals = setupGeneralsPicker();
     generals?.load().then(() => {
         generals.setMax(LENSES_PER_TIER[selectedTier()] ?? 2);
@@ -354,6 +377,8 @@ function setupConsultForm() {
             applyTier(data.session?.tier);
             generals?.setMax(LENSES_PER_TIER[selectedTier()] ?? 2);
             generals?.set(data.session?.generals);
+            modeChip?.setPinned(data.session?.mode_locked ? data.session?.mode : null);
+            modeChip?.setDetected(data.session?.mode, "sticky");
             result.innerHTML = "";
         } catch (error) {
             if (token !== sessionLoadToken) {
@@ -388,6 +413,8 @@ function setupConsultForm() {
 
     function startNewChat() {
         generals?.set([]);
+        modeChip?.setPinned(null);
+        modeChip?.setDetected(null);
         activeSessionID = null;
         sessionLoadToken++;
         form.question.value = "";
@@ -509,12 +536,19 @@ function setupConsultForm() {
 
         const tier = selectedTier();
         appendOptimisticMessage(messages, "user", question, "chat-pending-user");
-        appendOptimisticMessage(
-            messages,
-            "assistant",
-            tier === "deep" ? "Digging through your notes..." : "Thinking...",
-            "chat-pending-assistant",
-        );
+        appendOptimisticMessage(messages, "assistant", "", "chat-pending-assistant");
+
+        // Narrate the wait using the lenses actually pinned. Auto-selected ones
+        // are unknown until the answer arrives, so those stay unnamed.
+        const pendingBody = document
+            .getElementById("chat-pending-assistant")
+            ?.querySelector(".chat-message-body");
+        const stopWaiting = pendingBody
+            ? startWaiting(pendingBody, {
+                tier,
+                lensNames: (generals?.selected() ?? []).map((id) => lensName(id)),
+            })
+            : () => {};
 
         try {
             const sessionID = await ensureSession();
@@ -525,6 +559,7 @@ function setupConsultForm() {
                     content: question,
                     tier,
                     generals: generals?.selected() ?? [],
+                    mode: modeChip ? (modeChip.pinned() ?? "") : undefined,
                 }),
                 timeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
             });
@@ -534,12 +569,19 @@ function setupConsultForm() {
             renderChatMessages(messages, data.messages);
             result.innerHTML = "";
 
+            // Show what the room actually decided this question was.
+            const answer = [...data.messages].reverse().find((m) => m.role === "assistant");
+            if (answer?.mode) {
+                modeChip?.setDetected(answer.mode, answer.mode_method);
+            }
+
             await refreshSessions();
         } catch (error) {
             document.getElementById("chat-pending-user")?.remove();
             document.getElementById("chat-pending-assistant")?.remove();
             showMessage(result, error.message, "error");
         } finally {
+            stopWaiting();
             document.getElementById("chat-pending-user")?.remove();
             document.getElementById("chat-pending-assistant")?.remove();
             button.disabled = false;
