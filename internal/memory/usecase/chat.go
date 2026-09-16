@@ -29,6 +29,7 @@ type ChatSessionDTO struct {
 	Title     string    `json:"title"`
 	Summary   string    `json:"summary,omitempty"`
 	Tier      string    `json:"tier,omitempty"`
+	Generals  []string  `json:"generals"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -39,6 +40,8 @@ type ChatMessageDTO struct {
 	Content   string          `json:"content"`
 	Sources   []ConsultSource `json:"sources,omitempty"`
 	Tier      string          `json:"tier,omitempty"`
+	Generals  []string        `json:"generals,omitempty"`
+	Method    string          `json:"generals_method,omitempty"`
 	CreatedAt time.Time       `json:"created_at"`
 }
 
@@ -111,6 +114,9 @@ type SendMessageInput struct {
 	SessionID string
 	Question  string
 	Tier      string
+	// Generals is the user's pick for this turn. Nil leaves the session's pick
+	// alone; an explicitly empty slice clears it back to auto-select.
+	Generals []string
 }
 
 func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessionDetail, error) {
@@ -164,22 +170,34 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		}
 	}
 
+	// A pick made this turn becomes the session's, the same way depth does.
+	if in.Generals != nil && !sameStrings(in.Generals, session.Generals) {
+		session.Generals = in.Generals
+		if err := c.repo.UpdateSession(ctx, session); err != nil {
+			return ChatSessionDetail{}, err
+		}
+	}
+
 	conversationHistory := buildChatHistory(session.Summary, messages[:len(messages)-1])
 	consultResult, err := c.consult.Execute(ctx, ConsultInput{
-		Question: question,
-		History:  conversationHistory,
-		Tier:     tier,
+		Question:       question,
+		History:        conversationHistory,
+		Tier:           tier,
+		GeneralIDs:     session.Generals,
+		RecentGenerals: recentGenerals(messages),
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
 	}
 
 	assistantMessage, err := c.repo.CreateMessage(ctx, port.ChatMessage{
-		SessionID: id,
-		Role:      "assistant",
-		Content:   consultResult.Answer,
-		Sources:   toChatSources(consultResult.Sources),
-		Tier:      consultResult.Tier,
+		SessionID:    id,
+		Role:         "assistant",
+		Content:      consultResult.Answer,
+		Sources:      toChatSources(consultResult.Sources),
+		Tier:         consultResult.Tier,
+		Generals:     consultResult.Generals,
+		DetectMethod: consultResult.GeneralsMethod,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
@@ -295,6 +313,7 @@ func toChatSessionDTO(session port.ChatSession) ChatSessionDTO {
 		Title:     session.Title,
 		Summary:   session.Summary,
 		Tier:      session.Tier,
+		Generals:  nonNilIDs(session.Generals),
 		CreatedAt: session.CreatedAt,
 		UpdatedAt: session.UpdatedAt,
 	}
@@ -309,6 +328,8 @@ func toChatMessagesDTO(messages []port.ChatMessage) []ChatMessageDTO {
 			Content:   message.Content,
 			Sources:   fromChatSources(message.Sources),
 			Tier:      message.Tier,
+			Generals:  message.Generals,
+			Method:    message.DetectMethod,
 			CreatedAt: message.CreatedAt,
 		}
 	}
@@ -339,4 +360,40 @@ func fromChatSources(sources []port.ChatSource) []ConsultSource {
 		}
 	}
 	return out
+}
+
+// recentGenerals collects the lenses used in the last two assistant turns, so
+// selection can demote them and one lens does not answer everything.
+func recentGenerals(messages []port.ChatMessage) []string {
+	var out []string
+	turns := 0
+	for i := len(messages) - 1; i >= 0 && turns < 2; i-- {
+		if messages[i].Role != "assistant" {
+			continue
+		}
+		turns++
+		out = append(out, messages[i].Generals...)
+	}
+	return out
+}
+
+func sameStrings(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// nonNilIDs keeps the JSON field an array rather than null, so the frontend can
+// treat "no pick" and "empty pick" the same way.
+func nonNilIDs(v []string) []string {
+	if v == nil {
+		return []string{}
+	}
+	return v
 }

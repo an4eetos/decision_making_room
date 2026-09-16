@@ -56,7 +56,7 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 
 	collected := append([]domain.MemoryEntry(nil), prefetch...)
 	messages := buildConsultMessages(
-		withBudget(agentSystemPrompt, plan.Tier.AnswerBudget),
+		buildSystemPrompt(agentSystemPrompt, plan),
 		aboutMe, plan.History,
 		formatContext(prefetch, plan.Tier.MaxBodyRunes),
 		plan.Question,
@@ -88,9 +88,11 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 				return ConsultResult{}, fmt.Errorf("model returned empty response")
 			}
 			return ConsultResult{
-				Answer:  turn.Content,
-				Sources: entriesToSources(collected),
-				Tier:    string(plan.Tier.Tier),
+				Answer:         turn.Content,
+				Sources:        entriesToSources(collected),
+				Tier:           string(plan.Tier.Tier),
+				Generals:       plan.GeneralIDs(),
+				GeneralsMethod: plan.GeneralsMethod,
 			}, nil
 		}
 
@@ -138,7 +140,7 @@ func (a *AgentConsult) fallbackAnswer(
 	collected []domain.MemoryEntry,
 ) (ConsultResult, error) {
 	finalMessages := buildConsultMessages(
-		withBudget(systemPrompt, plan.Tier.AnswerBudget),
+		buildSystemPrompt(systemPrompt, plan),
 		aboutMe, plan.History,
 		formatContext(collected, plan.Tier.MaxBodyRunes),
 		plan.Question,
@@ -151,9 +153,11 @@ func (a *AgentConsult) fallbackAnswer(
 		return ConsultResult{}, fmt.Errorf("agent could not produce an answer")
 	}
 	return ConsultResult{
-		Answer:  answer,
-		Sources: entriesToSources(collected),
-		Tier:    string(plan.Tier.Tier),
+		Answer:         answer,
+		Sources:        entriesToSources(collected),
+		Tier:           string(plan.Tier.Tier),
+		Generals:       plan.GeneralIDs(),
+		GeneralsMethod: plan.GeneralsMethod,
 	}, nil
 }
 

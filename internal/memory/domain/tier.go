@@ -33,6 +33,10 @@ type TierPolicy struct {
 	// MaxBodyRunes caps a memory body in the prompt.
 	MaxBodyRunes int
 
+	// MaxGenerals is how many planning lenses the answer is written through.
+	// More lenses means a longer, structured answer, so it rises with depth.
+	MaxGenerals int
+
 	// MaxToolRounds is how many rounds the model may call tools in. Zero means
 	// single-shot with no agent loop at all. The loop always gets one further
 	// round with tools withdrawn, so it can answer rather than stopping mid-dig.
@@ -55,6 +59,7 @@ func PolicyFor(t Tier) TierPolicy {
 			CandidateLimit: 20,
 			IncludeRecent:  0,
 			MaxBodyRunes:   900,
+			MaxGenerals:    1,
 			MaxToolRounds:  0,
 			AnswerBudget:   "Answer in under 120 words. Give one recommendation, not a survey.",
 		}
@@ -65,6 +70,7 @@ func PolicyFor(t Tier) TierPolicy {
 			CandidateLimit: 60,
 			IncludeRecent:  5,
 			MaxBodyRunes:   2000,
+			MaxGenerals:    3,
 			MaxToolRounds:  3,
 			AnswerBudget:   "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
 		}
@@ -75,6 +81,7 @@ func PolicyFor(t Tier) TierPolicy {
 			CandidateLimit: 30,
 			IncludeRecent:  3,
 			MaxBodyRunes:   2000,
+			MaxGenerals:    2,
 			MaxToolRounds:  1,
 		}
 	}

@@ -37,8 +37,11 @@ type Config struct {
 	// base. It holds catalog/ and pitfalls/ subdirectories; an entry replaces a
 	// shipped one by id, or is appended when the id is new.
 	RelocationCatalogDir string
-	JournalWatchDir      string
-	JournalWatchEnabled  bool
+	// GeneralsDir optionally overlays the shipped roster. It holds generals/
+	// and styles/ subdirectories of markdown with YAML frontmatter.
+	GeneralsDir         string
+	JournalWatchDir     string
+	JournalWatchEnabled bool
 }
 
 func Load() (Config, error) {
@@ -86,6 +89,7 @@ func Load() (Config, error) {
 		InitialContextMaxRunes: maxRunes,
 		WebRoot:                os.Getenv("WEB_ROOT"), // empty => assets embedded in the binary
 		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
+		GeneralsDir:            os.Getenv("GENERALS_DIR"),
 		JournalWatchDir:        journalDir,
 		JournalWatchEnabled:    envBoolOrDefault("JOURNAL_WATCH_ENABLED", journalDir != ""),
 	}

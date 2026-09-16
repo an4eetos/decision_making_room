@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	"github.com/an4eetos/decision-room/internal/generals"
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	httpserver "github.com/an4eetos/decision-room/internal/infra/http"
 	"github.com/an4eetos/decision-room/internal/infra/postgres"
@@ -26,6 +27,7 @@ var Module = fx.Module("app",
 		providePool,
 		provideServer,
 	),
+	generals.Module,
 	memory.Module,
 	journal.Module,
 	relocation.Module,
