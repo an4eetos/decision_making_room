@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	genport "github.com/an4eetos/decision-room/internal/generals/port"
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 	"github.com/an4eetos/decision-room/internal/memory/service"
@@ -25,10 +26,11 @@ const (
 type MemoryToolExecutor struct {
 	retriever *Retrieve
 	repo      port.MemoryRepository
+	generals  genport.Registry
 }
 
-func NewMemoryToolExecutor(retriever *Retrieve, repo port.MemoryRepository) *MemoryToolExecutor {
-	return &MemoryToolExecutor{retriever: retriever, repo: repo}
+func NewMemoryToolExecutor(retriever *Retrieve, repo port.MemoryRepository, generals genport.Registry) *MemoryToolExecutor {
+	return &MemoryToolExecutor{retriever: retriever, repo: repo, generals: generals}
 }
 
 type ToolExecutionResult struct {
@@ -42,6 +44,8 @@ func (e *MemoryToolExecutor) Execute(ctx context.Context, name string, args map[
 	switch name {
 	case "recall_memories":
 		return e.recallMemories(ctx, args, policy)
+	case "read_doctrine":
+		return e.readDoctrine(args)
 	default:
 		return ToolExecutionResult{}, fmt.Errorf("unknown tool: %s", name)
 	}
@@ -240,4 +244,28 @@ func mergeSourceEntries(existing []domain.MemoryEntry, added []domain.MemoryEntr
 		merged = append(merged, e)
 	}
 	return merged
+}
+
+func (e *MemoryToolExecutor) readDoctrine(args map[string]any) (ToolExecutionResult, error) {
+	id := strings.TrimSpace(stringArg(args, "general_id"))
+	if id == "" {
+		return ToolExecutionResult{}, fmt.Errorf("general_id is required")
+	}
+	if e.generals == nil {
+		return ToolExecutionResult{}, fmt.Errorf("no lens roster is loaded")
+	}
+
+	lens, ok := e.generals.Get(id)
+	if !ok {
+		return ToolExecutionResult{}, fmt.Errorf("unknown lens: %s", id)
+	}
+	if strings.TrimSpace(lens.Doctrine) == "" {
+		// The card is all there is. Returning it beats an error the model then
+		// has to reason about.
+		return ToolExecutionResult{Content: lens.Card()}, nil
+	}
+
+	return ToolExecutionResult{
+		Content: lens.Name + " — full doctrine\n\n" + lens.Doctrine,
+	}, nil
 }

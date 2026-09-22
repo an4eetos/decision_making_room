@@ -11,6 +11,7 @@ import (
 
 	"github.com/an4eetos/decision-room/internal/journal/service"
 	"github.com/an4eetos/decision-room/internal/memory/port"
+	memservice "github.com/an4eetos/decision-room/internal/memory/service"
 	memusecase "github.com/an4eetos/decision-room/internal/memory/usecase"
 )
 
@@ -151,7 +152,14 @@ func (u *SyncFile) relativeSourcePath(absPath string) (string, bool) {
 	return filepath.ToSlash(rel), true
 }
 
+// hashContent folds the ingest version into the hash so that improving the
+// chunker invalidates every stored file.
+//
+// Without it the short-circuit in SyncPath sees an unchanged file, skips it,
+// and the improvement is invisible on everything already saved — which looks
+// exactly like the improvement not working.
 func hashContent(body string) string {
-	sum := sha256.Sum256([]byte(body))
+	versioned := fmt.Sprintf("v%d\n%s", memservice.IngestVersion, body)
+	sum := sha256.Sum256([]byte(versioned))
 	return hex.EncodeToString(sum[:])
 }

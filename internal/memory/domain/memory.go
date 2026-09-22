@@ -25,14 +25,16 @@ func ParseMemoryKind(s string) (MemoryKind, bool) {
 }
 
 type MemoryEntry struct {
-	ID        uuid.UUID         `json:"id"`
-	Kind      MemoryKind        `json:"kind"`
-	Title     string            `json:"title"`
-	Body      string            `json:"body"`
-	Tags      []string          `json:"tags"`
-	Metadata  map[string]string `json:"metadata,omitempty"`
-	Embedding []float32         `json:"-"`
-	CreatedAt time.Time         `json:"created_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
-	Score     float64           `json:"score,omitempty"`
+	ID             uuid.UUID         `json:"id"`
+	Kind           MemoryKind        `json:"kind"`
+	Title          string            `json:"title"`
+	Body           string            `json:"body"`
+	Tags           []string          `json:"tags"`
+	Metadata       map[string]string `json:"metadata,omitempty"`
+	Embedding      []float32
+	EmbeddingModel string
+	EmbeddingDim   int       `json:"-"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Score          float64   `json:"score,omitempty"`
 }

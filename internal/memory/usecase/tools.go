@@ -40,3 +40,28 @@ func MemoryTools() []port.Tool {
 		},
 	}
 }
+
+// ReadDoctrineTool lets the model pull a general's full doctrine.
+//
+// This is the escape hatch that makes card-only injection safe: the cards are
+// deliberately compact, and when one is genuinely not enough the model can ask
+// for the rest rather than everyone paying for all of it on every question.
+// Offered at depth only, where an extra round is affordable.
+func ReadDoctrineTool(ids []string) port.Tool {
+	return port.Tool{
+		Name: "read_doctrine",
+		Description: "Read a planning lens's full doctrine when its summary card is not enough. " +
+			"Only for lenses already assigned to this answer.",
+		Parameters: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"general_id": map[string]any{
+					"type":        "string",
+					"description": "Which lens to read.",
+					"enum":        ids,
+				},
+			},
+			"required": []string{"general_id"},
+		},
+	}
+}

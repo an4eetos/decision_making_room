@@ -45,6 +45,17 @@ into `/ingest`. Chunked by markdown heading, embedded, and searched per question
 with hybrid retrieval: pgvector cosine similarity and Postgres full-text search,
 merged with reciprocal rank fusion, then reranked for recency and diversity.
 
+Chunks carry their heading path, so a chunk that says *"transactions mattered
+more than scale"* also carries *"Database choice > Why"* — into the embedding and
+the search index, not just the display. Oversized sections overlap, so a point
+made across a boundary is findable from both sides.
+
+Every vector records which model produced it. Switching embedding provider
+otherwise produces dimensionally valid, semantically meaningless comparisons
+that Postgres will never flag — instead, mismatched rows are excluded from
+search and the server says so loudly at startup. `POST /api/admin/reindex`
+re-embeds them, in resumable batches.
+
 ```
 journal/
   about-me.md     always injected
@@ -63,12 +74,19 @@ Every question runs at one of three depths, picked under the composer.
 |---|---|---|---|
 | **Quick** | top 3, no tools | none | "what's next" — seconds, one recommendation |
 | **Standard** | top 8, full hybrid search | one round if context is thin | the default |
-| **Deep** | top 12 from a pool of 60 | up to three rounds | a decision worth the wait |
+| **Deep** | question split into facets, pool of 60, model-reranked | up to three rounds | a decision worth the wait |
 
 A session remembers the depth you last used, so a conversation you took deep
 stays deep. If Quick retrieves nothing at all it escalates itself to Standard
 rather than answering from no context, and every answer is labelled with the
 depth that actually produced it.
+
+Deep adds three passes the cheaper tiers cannot justify: it breaks your question
+into separate searches and fuses the results, has the model re-rank what came
+back, and can pull a general's full doctrine when the summary is not enough.
+Each costs a model call, and **each degrades silently** — a failed decomposition
+searches the question as asked, a failed re-rank keeps the heuristic order.
+None of them can make an answer worse than not running them.
 
 Set `DEFAULT_TIER` and `MAX_TIER` to bound this per deployment. `MAX_TIER=quick`
 turns off tool calling entirely.
@@ -198,6 +216,7 @@ server never imports a domain package.
 | `GET` | `/api/generals` | the roster |
 | `GET` | `/api/modes` | conversation modes |
 | `POST` | `/api/capture` | append a line to today's note |
+| `POST` | `/api/admin/reindex?max=N` | re-embed memories after switching model |
 | `POST` | `/api/memories` | ingest (JSON or multipart upload) |
 | `GET` | `/api/memories/search?q=&kind=&tags=` | hybrid search |
 | `POST` | `/api/consult` | one-shot question |
@@ -224,6 +243,8 @@ curl -X POST localhost:8080/api/consult \
 - [x] **Generals** — pick up to three strategic lenses; they argue, then synthesise
 - [x] **Modes** — plan a day, make a hard call, unstick a stalled task, debrief
 - [x] **Relocation planner** — setup checklist, costs and pitfalls for a stay
+- [x] Deep retrieval: query decomposition, model re-ranking, doctrine lookup
+- [x] Chunk breadcrumbs, overlap, and embedding-model versioning
 - [ ] **Commitments** — open loops tracked from your own conversations
 - [ ] **Check-ins** — it asks how the day is going, instead of waiting
 

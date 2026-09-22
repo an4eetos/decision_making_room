@@ -43,8 +43,9 @@ func provideAPIHandler(
 	capture *journalusecase.Capture,
 	generals genport.Registry,
 	modes modeport.Registry,
+	reindex *usecase.Reindex,
 ) *api.Handler {
-	return api.NewHandler(ingest, search, consult, chat, capture, generals, modes)
+	return api.NewHandler(ingest, search, consult, chat, capture, generals, modes, reindex)
 }
 
 func provideUIHandler(cfg config.Config) (*ui.Handler, error) {

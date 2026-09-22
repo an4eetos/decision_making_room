@@ -2,11 +2,17 @@ package port
 
 import (
 	"context"
+	"github.com/google/uuid"
 
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 )
 
 type SearchFilter struct {
+	// EmbeddingModel restricts vector search to rows embedded by this model.
+	// Empty searches all of them, which is only correct when the table is known
+	// to be uniform.
+	EmbeddingModel string
+
 	Kind *domain.MemoryKind
 	Tags []string
 }
@@ -15,6 +21,12 @@ type MemoryRepository interface {
 	Save(ctx context.Context, entry domain.MemoryEntry) error
 	SearchSimilar(ctx context.Context, embedding []float32, limit int, filter SearchFilter) ([]domain.MemoryEntry, error)
 	SearchFullText(ctx context.Context, query TextQuery, limit int, filter SearchFilter) ([]domain.MemoryEntry, error)
+
+	// CountByEmbeddingModel and the reindex pair support switching embedding
+	// providers without silently corrupting search.
+	CountByEmbeddingModel(ctx context.Context) (map[string]int, error)
+	ListStale(ctx context.Context, currentModel string, limit int) ([]domain.MemoryEntry, error)
+	UpdateEmbedding(ctx context.Context, id uuid.UUID, embedding []float32, model string) error
 	ListRecent(ctx context.Context, limit int, filter SearchFilter) ([]domain.MemoryEntry, error)
 	DeleteBySourcePath(ctx context.Context, sourcePath string) error
 	SourceContentHash(ctx context.Context, sourcePath string) (string, bool, error)

@@ -7,6 +7,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
@@ -17,6 +18,8 @@ import (
 	"github.com/an4eetos/decision-room/internal/infra/postgres"
 	"github.com/an4eetos/decision-room/internal/journal"
 	"github.com/an4eetos/decision-room/internal/memory"
+	memport "github.com/an4eetos/decision-room/internal/memory/port"
+	memusecase "github.com/an4eetos/decision-room/internal/memory/usecase"
 	"github.com/an4eetos/decision-room/internal/modes"
 	"github.com/an4eetos/decision-room/internal/relocation"
 	"github.com/an4eetos/decision-room/internal/web"
@@ -35,6 +38,7 @@ var Module = fx.Module("app",
 	relocation.Module,
 	web.Module,
 	fx.Invoke(startServer),
+	fx.Invoke(warnOnMixedEmbeddings),
 )
 
 func provideConfig() (config.Config, error) {
@@ -91,4 +95,14 @@ func startServer(lc fx.Lifecycle, server *httpserver.Server) {
 			return server.Stop(ctx)
 		},
 	})
+}
+
+// warnOnMixedEmbeddings checks at startup whether the table holds vectors from a
+// different embedding model. It cannot be an error — the app is still usable —
+// but it must be loud, because the only other symptom is search quietly getting
+// worse.
+func warnOnMixedEmbeddings(repo memport.MemoryRepository, embedder memport.Embedder) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	memusecase.WarnOnMixedEmbeddings(ctx, repo, embedder)
 }

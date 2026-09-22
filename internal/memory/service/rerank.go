@@ -79,9 +79,13 @@ func (o RerankOptions) withDefaults() RerankOptions {
 	return o
 }
 
-// RerankCandidates scores candidates on relevance, recency and kind, then picks
-// topK with MMR so the result is not five chunks of the same document.
-func RerankCandidates(candidates []ScoredCandidate, opts RerankOptions) []domain.MemoryEntry {
+// ScoreCandidates assigns a final score to every candidate and sorts by it,
+// without selecting or truncating.
+//
+// Separate from RerankCandidates because a caller that intends to rerank the
+// list itself — the deep tier hands it to the model — must not be given a list
+// already cut down to topK.
+func ScoreCandidates(candidates []ScoredCandidate, opts RerankOptions) []ScoredCandidate {
 	if len(candidates) == 0 {
 		return nil
 	}
@@ -111,6 +115,22 @@ func RerankCandidates(candidates []ScoredCandidate, opts RerankOptions) []domain
 		}
 		return scored[i].Entry.ID.String() < scored[j].Entry.ID.String()
 	})
+
+	return scored
+}
+
+// RerankCandidates scores candidates, then picks topK with MMR so the result is
+// not five chunks of the same document.
+func RerankCandidates(candidates []ScoredCandidate, opts RerankOptions) []domain.MemoryEntry {
+	return SelectCandidates(ScoreCandidates(candidates, opts), opts)
+}
+
+// SelectCandidates applies MMR to an already-scored list and returns the entries.
+func SelectCandidates(scored []ScoredCandidate, opts RerankOptions) []domain.MemoryEntry {
+	if len(scored) == 0 {
+		return nil
+	}
+	opts = opts.withDefaults()
 
 	selected := mmrSelect(scored, opts.TopK)
 	result := make([]domain.MemoryEntry, len(selected))

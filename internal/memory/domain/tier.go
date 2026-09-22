@@ -33,6 +33,15 @@ type TierPolicy struct {
 	// MaxBodyRunes caps a memory body in the prompt.
 	MaxBodyRunes int
 
+	// Decompose splits the question into extra search queries before retrieving.
+	// LLMRerank has the model reorder the merged candidates. Both cost a model
+	// call and both degrade silently, so they are only worth it at depth.
+	Decompose bool
+	LLMRerank bool
+	// ReadDoctrine lets the model pull a general's full doctrine when the card
+	// is not enough.
+	ReadDoctrine bool
+
 	// MaxGenerals is how many planning lenses the answer is written through.
 	// More lenses means a longer, structured answer, so it rises with depth.
 	MaxGenerals int
@@ -72,6 +81,9 @@ func PolicyFor(t Tier) TierPolicy {
 			MaxBodyRunes:   2000,
 			MaxGenerals:    3,
 			MaxToolRounds:  3,
+			Decompose:      true,
+			LLMRerank:      true,
+			ReadDoctrine:   true,
 			AnswerBudget:   "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
 		}
 	default:

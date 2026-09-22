@@ -17,6 +17,9 @@ import (
 const (
 	defaultBaseURL   = "https://generativelanguage.googleapis.com/v1beta"
 	defaultChatModel = "gemini-flash-latest"
+	// embedDimensions matches the vector(768) column, and nomic-embed-text, so
+	// either provider can fill the same table shape.
+	embedDimensions = 768
 	// Transient overload is common on the free tier and lasts seconds. Failing a
 	// whole question because of it is worse than waiting.
 	maxRateRetries = 2
@@ -165,12 +168,18 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 	return parseModelTurn(result.Candidates[0].Content.Parts)
 }
 
+// ModelID includes the output dimensionality, because the same model truncated
+// to a different width produces vectors that are not comparable.
+func (c *Client) ModelID() string {
+	return fmt.Sprintf("gemini:%s@%d", normalizeModel(c.embedModel), embedDimensions)
+}
+
 func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 	body, err := json.Marshal(embedRequest{
 		Content: contentWire{
 			Parts: []partWire{{Text: text}},
 		},
-		OutputDimensionality: 768,
+		OutputDimensionality: embedDimensions,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("marshal embed request: %w", err)

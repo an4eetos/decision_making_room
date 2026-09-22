@@ -58,6 +58,18 @@ func (stubRepo) SearchSimilar(context.Context, []float32, int, port.SearchFilter
 		},
 	}, nil
 }
+func (stubRepo) CountByEmbeddingModel(context.Context) (map[string]int, error) {
+	return nil, nil
+}
+
+func (stubRepo) ListStale(context.Context, string, int) ([]domain.MemoryEntry, error) {
+	return nil, nil
+}
+
+func (stubRepo) UpdateEmbedding(context.Context, uuid.UUID, []float32, string) error {
+	return nil
+}
+
 func (stubRepo) SearchFullText(context.Context, port.TextQuery, int, port.SearchFilter) ([]domain.MemoryEntry, error) {
 	return nil, nil
 }
@@ -87,7 +99,7 @@ func TestAgentConsultAnswersFromPrefetchWithoutTools(t *testing.T) {
 	}}
 
 	retriever := &Retrieve{repo: stubRepo{}, embedder: stubEmbedder{}, candidateLimit: 8, defaultTopK: 8}
-	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}), stubInitialContext{content: "I lift"})
+	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}, nil), stubInitialContext{content: "I lift"})
 
 	result, err := agent.Execute(context.Background(), testPlan("How is my lifting?", 1), prefetch)
 	if err != nil {
@@ -119,7 +131,7 @@ func TestAgentConsultUsesRecallToolOnce(t *testing.T) {
 	}
 
 	retriever := &Retrieve{repo: stubRepo{}, embedder: stubEmbedder{}, candidateLimit: 8, defaultTopK: 8}
-	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}), stubInitialContext{content: "I lift"})
+	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}, nil), stubInitialContext{content: "I lift"})
 
 	result, err := agent.Execute(context.Background(), testPlan("How is my lifting?", 1), nil)
 	if err != nil {
@@ -137,6 +149,8 @@ func TestAgentConsultUsesRecallToolOnce(t *testing.T) {
 }
 
 type stubEmbedder struct{}
+
+func (stubEmbedder) ModelID() string { return "stub:test" }
 
 func (stubEmbedder) Embed(context.Context, string) ([]float32, error) {
 	return []float32{1, 0}, nil
