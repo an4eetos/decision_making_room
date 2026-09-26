@@ -120,6 +120,17 @@ func provideConsult(
 	)
 }
 
-func provideChat(repo port.ChatRepository, llm port.LLM, consult *usecase.Consult) *usecase.Chat {
-	return usecase.NewChat(repo, llm, consult)
+type chatParams struct {
+	fx.In
+
+	Repo      port.ChatRepository
+	LLM       port.LLM
+	Consult   *usecase.Consult
+	Observers []port.TurnObserver `group:"turn_observers"`
+}
+
+// provideChat collects every turn observer from the "turn_observers" group, so a
+// module can react to conversation without chat importing it.
+func provideChat(p chatParams) *usecase.Chat {
+	return usecase.NewChat(p.Repo, p.LLM, p.Consult, p.Observers...)
 }

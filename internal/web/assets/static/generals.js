@@ -7,13 +7,13 @@
 // that matters, which is telling them apart at a glance.
 
 const FAMILY_STYLE = {
-    contact:       { color: "#d9704f", label: "Contact" },
-    scouting:      { color: "#5b9bd5", label: "Scouting" },
-    endurance:     { color: "#7aa35c", label: "Endurance" },
-    adaptation:    { color: "#c8a24a", label: "Adaptation" },
-    systems:       { color: "#8d84c4", label: "Systems" },
-    concentration: { color: "#c25b7a", label: "Concentration" },
-    preservation:  { color: "#4fb0a5", label: "Preservation" },
+    contact:       { color: "#e5734b", label: "Contact" },
+    scouting:      { color: "#7fa7d6", label: "Scouting" },
+    endurance:     { color: "#8fb86a", label: "Endurance" },
+    adaptation:    { color: "#e3a33b", label: "Adaptation" },
+    systems:       { color: "#a99bd8", label: "Systems" },
+    concentration: { color: "#d4708f", label: "Concentration" },
+    preservation:  { color: "#5fb8a8", label: "Preservation" },
 };
 
 function familyStyle(family) {
@@ -32,19 +32,29 @@ function initials(name) {
     return (words[0][0] + words[1][0]).toUpperCase();
 }
 
-function emblem(general, size = 34) {
+// portrait draws a general's picture when there is one, and the monogram when
+// there is not. Every photo and painting goes through the same treatment —
+// greyscale, then the family colour laid over it — so twenty sources from two
+// centuries read as one set rather than a scrapbook.
+function portrait(general, size = 34, shape = "round") {
     const { color } = familyStyle(general.family);
-    const text = initials(general.name);
-    const fontSize = text.length > 1 ? size * 0.36 : size * 0.44;
+    const style = `--family:${color};width:${size}px;height:${shape === "tall" ? Math.round(size * 1.25) : size}px`;
 
-    return `
-    <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true" focusable="false">
-        <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - 1}"
-                fill="${color}22" stroke="${color}" stroke-width="1.5"/>
-        <text x="50%" y="50%" dy="0.36em" text-anchor="middle"
-              fill="${color}" font-size="${fontSize}" font-weight="700"
-              font-family="-apple-system, BlinkMacSystemFont, sans-serif">${escapeHTML(text)}</text>
-    </svg>`;
+    if (general.portrait) {
+        return `<span class="portrait ${shape}" style="${style}">
+            <img src="${escapeHTML(general.portrait)}" alt="" loading="lazy"
+                 onerror="this.parentElement.classList.add('failed')">
+            <span class="portrait-initials">${escapeHTML(initials(general.name))}</span>
+        </span>`;
+    }
+    return `<span class="portrait ${shape} failed" style="${style}">
+        <span class="portrait-initials">${escapeHTML(initials(general.name))}</span>
+    </span>`;
+}
+
+// emblem is kept as the old name so existing callers keep working.
+function emblem(general, size = 34) {
+    return portrait(general, size, "round");
 }
 
 function setupGeneralsPicker({ onChange } = {}) {
@@ -58,6 +68,8 @@ function setupGeneralsPicker({ onChange } = {}) {
     let selected = [];
     let max = 3;
 
+    const seats = document.getElementById("council-seats");
+
     function render() {
         strip.innerHTML = roster.map((g) => {
             const { label } = familyStyle(g.family);
@@ -70,18 +82,60 @@ function setupGeneralsPicker({ onChange } = {}) {
                     data-general-id="${escapeHTML(g.id)}"
                     ${atLimit ? "disabled" : ""}
                     aria-pressed="${isOn}"
-                    title="${escapeHTML(g.name)}${g.epithet ? " — " + escapeHTML(g.epithet) : ""}\n${escapeHTML(label)}\n\n${escapeHTML(g.job)}">
-                ${emblem(g)}
+                    title="${escapeHTML(g.name)}${g.epithet ? " — " + escapeHTML(g.epithet) : ""}\n${escapeHTML(label)}\n\n${escapeHTML(g.job)}${g.portrait_credit ? "\n\nPortrait: " + escapeHTML(g.portrait_credit) : ""}">
+                ${portrait(g, 40)}
                 <span class="general-name">${escapeHTML(g.name)}</span>
             </button>`;
         }).join("");
 
+        renderSeats();
+
         if (summary) {
             summary.textContent = selected.length === 0
-                ? `No lens picked — the room chooses, up to ${max}.`
-                : `${selected.length} of ${max} picked.`;
+                ? `auto · up to ${max}`
+                : `${selected.length} of ${max}`;
         }
     }
+
+    // The council is the generals you seated, shown large. With none seated the
+    // room picks per question, and the empty chairs say so rather than leaving
+    // a blank panel.
+    function renderSeats() {
+        if (!seats) {
+            return;
+        }
+
+        const chosen = selected.map((id) => roster.find((g) => g.id === id)).filter(Boolean);
+        const empty = Math.max(0, max - chosen.length);
+
+        seats.innerHTML = chosen.map((g) => {
+            const { label } = familyStyle(g.family);
+            return `
+            <div class="seat" style="--family:${familyStyle(g.family).color}">
+                ${portrait(g, 52, "tall")}
+                <div class="seat-text">
+                    <span class="seat-name">${escapeHTML(g.name)}</span>
+                    <span class="seat-epithet">${escapeHTML(g.epithet || label)}</span>
+                    <span class="seat-job">${escapeHTML(g.job)}</span>
+                </div>
+                <button type="button" class="seat-leave" data-general-id="${escapeHTML(g.id)}" aria-label="Unseat ${escapeHTML(g.name)}">×</button>
+            </div>`;
+        }).join("") + Array.from({ length: empty }, () => `
+            <div class="seat empty">
+                <span class="seat-chair" aria-hidden="true"></span>
+                <span class="seat-empty-text">${chosen.length === 0 ? "The room picks for each question" : "Open seat"}</span>
+            </div>`).join("");
+    }
+
+    seats?.addEventListener("click", (e) => {
+        const leave = e.target.closest(".seat-leave");
+        if (!leave) {
+            return;
+        }
+        selected = selected.filter((x) => x !== leave.dataset.generalId);
+        render();
+        onChange?.(selected);
+    });
 
     strip.addEventListener("click", (e) => {
         const button = e.target.closest("[data-general-id]");
@@ -129,6 +183,9 @@ function setupGeneralsPicker({ onChange } = {}) {
         },
         names() {
             return Object.fromEntries(roster.map((g) => [g.id, g.name]));
+        },
+        all() {
+            return roster;
         },
     };
 }

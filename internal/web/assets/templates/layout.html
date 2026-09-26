@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} — Decision Room</title>
-    <link rel="stylesheet" href="/static/style.css?v=2">
+    <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body>
     <nav class="nav">
         <a href="/" class="brand">Decision Room</a>
-        <a href="/">Consult</a>
+        <a href="/" class="nav-consult">Consult<span id="nav-checkin-badge" class="nav-badge" hidden title="Check-ins waiting"></span></a>
         <a href="/ingest">Ingest</a>
         <a href="/memories">Memories</a>
         <a href="/relocation">Relocation</a>
@@ -23,10 +23,14 @@
     <script src="/static/vendor/marked.min.js"></script>
     <script src="/static/vendor/purify.min.js"></script>
     <script src="/static/markdown.js?v=1"></script>
-    <script src="/static/generals.js?v=1"></script>
+    <script src="/static/generals.js?v=2"></script>
+    <script src="/static/briefing.js?v=1"></script>
+    <script src="/static/situation.js?v=1"></script>
     <script src="/static/waiting.js?v=1"></script>
     <script src="/static/modes.js?v=1"></script>
-    <script src="/static/app.js?v=3"></script>
+    <script src="/static/commitments.js?v=1"></script>
+    <script src="/static/checkins.js?v=1"></script>
+    <script src="/static/app.js?v=4"></script>
 </body>
 </html>
 {{end}}

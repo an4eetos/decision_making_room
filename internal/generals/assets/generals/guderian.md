@@ -16,6 +16,11 @@ sounds_like: One front. Everything into it until it gives. The others wait and t
 bias: Concentrates before the target is confirmed. Will drive hard at the wrong point with total conviction.
 routes:
   keywords: [focus, priorit, scattered, spread thin, too many, one thing, breakthrough, deep work, schwerpunkt]
+portrait:
+  file: guderian.jpg
+  credit: 'Bundesarchiv, Bild 101I-139-1112-17 / Knobloch, Ludwig / CC-BY-SA 3.0'
+  license: 'CC BY-SA 3.0 de'
+  source: https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_101I-139-1112-17,_Heinz_Guderian.jpg
 ---
 
 Concentration is the whole doctrine: force applied narrowly goes through, the

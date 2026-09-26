@@ -12,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	"github.com/an4eetos/decision-room/internal/checkin"
+	"github.com/an4eetos/decision-room/internal/commitments"
 	"github.com/an4eetos/decision-room/internal/generals"
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	httpserver "github.com/an4eetos/decision-room/internal/infra/http"
@@ -36,6 +38,8 @@ var Module = fx.Module("app",
 	memory.Module,
 	journal.Module,
 	relocation.Module,
+	commitments.Module,
+	checkin.Module,
 	web.Module,
 	fx.Invoke(startServer),
 	fx.Invoke(warnOnMixedEmbeddings),

@@ -17,6 +17,11 @@ sounds_like: Three attempts in twenty minutes. Ugly ones count. Come back with w
 bias: Treats speed as a universal good. Will push you to act on a decision that deserved another day.
 routes:
   keywords: [stuck, frozen, procrastinating, avoid, start, begin, momentum, paralysis, overthinking, "can't start", blank page]
+portrait:
+  file: patton.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:George_S._Patton_43.jpg
 ---
 
 Patton's value here is not aggression, it is the refusal to treat thinking as progress.

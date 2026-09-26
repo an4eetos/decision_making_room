@@ -61,4 +61,7 @@ type ChatRepository interface {
 	CreateMessage(ctx context.Context, message ChatMessage) (ChatMessage, error)
 	ListMessages(ctx context.Context, sessionID uuid.UUID) ([]ChatMessage, error)
 	DeleteSession(ctx context.Context, id uuid.UUID) error
+	// LastUserMessageAt is when you last wrote anything, or nil if you never
+	// have. The idle nudge keys off it.
+	LastUserMessageAt(ctx context.Context) (*time.Time, error)
 }

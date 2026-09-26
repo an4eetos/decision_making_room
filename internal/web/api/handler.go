@@ -195,15 +195,24 @@ func (h *Handler) listGenerals(w http.ResponseWriter, r *http.Request) {
 		Family  string `json:"family"`
 		Job     string `json:"job"`
 		Bias    string `json:"bias,omitempty"`
+		// Portrait is a URL when there is a picture, empty when the UI should
+		// draw the monogram instead.
+		Portrait string `json:"portrait,omitempty"`
+		Credit   string `json:"portrait_credit,omitempty"`
 	}
 
 	lenses := h.generals.Generals()
 	out := make([]generalDTO, 0, len(lenses))
 	for _, l := range lenses {
-		out = append(out, generalDTO{
+		dto := generalDTO{
 			ID: l.ID, Name: l.Name, Epithet: l.Epithet, Era: l.Era,
 			Family: string(l.Family), Job: l.Job, Bias: l.Bias,
-		})
+		}
+		if l.Portrait.File != "" {
+			dto.Portrait = "/static/portraits/" + l.Portrait.File
+			dto.Credit = strings.TrimSpace(l.Portrait.Credit + " · " + l.Portrait.License)
+		}
+		out = append(out, dto)
 	}
 
 	writeJSON(w, http.StatusOK, out)

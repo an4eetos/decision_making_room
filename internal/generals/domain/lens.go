@@ -60,10 +60,33 @@ type Lens struct {
 
 	Routes Routes `yaml:"routes"`
 
+	// Asks are the questions this lens always puts to a situation. They are
+	// what make a lens argue from its own ground instead of agreeing politely.
+	Asks []string `yaml:"asks"`
+	// ConcedesWhen names the conditions under which this lens yields. A lens
+	// that can never be wrong cannot take part in a real exchange.
+	ConcedesWhen []string `yaml:"concedes_when"`
+	// Rivals are ids of lenses it most naturally argues against. Selection
+	// uses them to seat opponents together, so an answer has a real fork in it.
+	Rivals []string `yaml:"rivals"`
+	// RivalNames is Rivals resolved to display names at load time.
+	RivalNames []string `yaml:"-"`
+
+	// Portrait is optional artwork, credited.
+	Portrait Portrait `yaml:"portrait"`
+
 	// Doctrine is the full body text. Retrievable, never injected by default.
 	Doctrine string `yaml:"-"`
 	// Source is "builtin" or the path it was overlaid from.
 	Source string `yaml:"-"`
+}
+
+// Portrait is a picture of the lens, with the credit its licence requires.
+type Portrait struct {
+	File    string `yaml:"file" json:"file,omitempty"`
+	Credit  string `yaml:"credit" json:"credit,omitempty"`
+	License string `yaml:"license" json:"license,omitempty"`
+	Source  string `yaml:"source" json:"source,omitempty"`
 }
 
 // Routes drive deterministic selection — no model call, no latency.
@@ -98,6 +121,15 @@ func (l Lens) Card() string {
 	}
 	if l.Bias != "" {
 		fmt.Fprintf(&b, "Blind spot: %s\n", l.Bias)
+	}
+	if len(l.Asks) > 0 {
+		fmt.Fprintf(&b, "Always asks: %s\n", strings.Join(l.Asks, " / "))
+	}
+	if len(l.ConcedesWhen) > 0 {
+		fmt.Fprintf(&b, "Concedes when: %s\n", strings.Join(l.ConcedesWhen, "; "))
+	}
+	if len(l.RivalNames) > 0 {
+		fmt.Fprintf(&b, "Argues most with: %s\n", strings.Join(l.RivalNames, ", "))
 	}
 
 	return strings.TrimRight(b.String(), "\n")

@@ -16,6 +16,11 @@ sounds_like: One block today, one tomorrow. Twenty minutes or the quota, whichev
 bias: Assumes persistence is the answer. Will have you grinding at something that needed cancelling.
 routes:
   keywords: [consistency, daily, every day, streak, grind, sustain, keep going, discipline, long, months, burnout]
+portrait:
+  file: zhukov.jpg
+  credit: 'Grigory Vayl'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:Zhukov-LIFE-1944-1945_cropped.jpg
 ---
 
 Zhukov's method was mass and return: accept that the cost is high, plan for it,

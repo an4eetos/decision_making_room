@@ -4,7 +4,7 @@ name: Konev
 epithet: The Hammer
 era: Soviet Union, Second World War
 family: concentration
-job: Sustained pressure on one chosen front. Not a sprint — a offensive that does not stop until the thing gives.
+job: Sustained pressure on one chosen front. Not a sprint — an offensive that does not stop until the thing gives.
 deploy_when:
   - the task is large, known, and will only yield to sustained effort
   - you have been making small uncommitted attempts at it for weeks
@@ -16,6 +16,11 @@ sounds_like: This front, every day, until it breaks. Not a burst. Stop checking 
 bias: Keeps pushing past the point of information. Will sustain an offensive that stopped paying weeks ago.
 routes:
   keywords: [push, sustained, campaign, big, hard, months, relentless, keep at it, major, finish it]
+portrait:
+  file: konev.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:IS_Konev_01.jpg
 ---
 
 Konev's offensives were characterised by relentlessness — continuous pressure

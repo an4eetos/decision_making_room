@@ -17,6 +17,26 @@ always-on context block, on every question, whether or not any of it was
 relevant. A single card costs about 260 tokens and three cost about 730 including
 the instructions that structure the answer.
 
+## The exchange
+
+When two or three generals answer together, they do not give parallel
+opinions. Each states an opening position, then **answers the strongest point
+another made** — not a weaker version of it — and **concedes** the one thing the
+other side has right, without a "but". The answer then names **the fork**, the
+real disagreement as a question you have to answer, and **the call**: who it
+sides with, what it takes from the others, and what siding costs.
+
+It is still one model call. What makes it work is that each general carries
+three extra fields into the prompt:
+
+- `asks` — the questions it always puts to a situation, which the others can
+  turn against it.
+- `concedes_when` — the conditions under which it yields. A lens that can never
+  be wrong cannot take part in a real exchange.
+- `rivals` — the generals it most naturally argues with. When there is room for
+  more than one lens, a rival of the leading lens is seated beside it, so the
+  answer has an actual fork in it.
+
 ## Selection
 
 If you pick generals in the UI, those are used. Otherwise selection is
@@ -62,6 +82,12 @@ Set `GENERALS_DIR` to a directory containing `generals/` and `styles/`
 subdirectories. A file whose `id` matches a shipped one replaces it; a new `id`
 is appended. Nothing needs recompiling and the repository does not need forking.
 
+Each file's body — never sent to the model unless it asks for it on the deep
+tier — has four sections: **Doctrine**, **The case against** (the strongest
+critique, written seriously), **Where it broke** (a real episode where the
+approach failed), and **Rivals** (how it argues with its opponents, and where
+they meet). See `kutuzov.md` for the full form.
+
 ```yaml
 ---
 id: brusilov
@@ -77,8 +103,18 @@ avoid_when:
   - when it is the wrong tool
 sounds_like: How an order in this voice actually sounds.
 bias: What it systematically gets wrong. Required.
+asks:
+  - A question it always asks
+concedes_when:
+  - A condition under which it yields
+rivals: [kutuzov]          # ids of generals it argues with
 routes:
   keywords: [words, "or phrases", that, route, here]
+portrait:                  # optional; file goes in internal/web/assets/static/portraits/
+  file: brusilov.jpg
+  credit: Photographer or painter
+  license: Public domain
+  source: https://commons.wikimedia.org/wiki/File:...
 ---
 
 Everything below the frontmatter is doctrine: stored, searchable, and never put
@@ -88,3 +124,13 @@ into a prompt by default.
 The roster is validated at startup and a malformed file aborts the boot. That is
 deliberate — a lens missing its job or its blind spot still renders a card, so
 nothing further down the stack could tell it had been silently degraded.
+
+## Portraits
+
+Nineteen of the twenty have portraits from Wikimedia Commons, stored at 400
+pixels wide in `internal/web/assets/static/portraits/`. Each general's file
+records the author, licence and source, and
+[docs/portrait-credits.md](portrait-credits.md) lists them together. Three are
+CC BY-SA and carry the attribution line the licence asks for. Boyd has no freely
+licensed portrait and shows a monogram, as does any general whose image fails to
+load.

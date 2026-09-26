@@ -286,3 +286,46 @@ func TestBackfillIsDeterministic(t *testing.T) {
 		}
 	}
 }
+
+// A lens with declared rivals gets one of them seated beside it, so the answer
+// has an actual fork instead of adjacent lenses nodding along.
+func TestRivalsAreSeatedTogether(t *testing.T) {
+	t.Parallel()
+
+	sel := service.Select(registry(t), service.SelectInput{
+		Question: "I want to wait on this and hold off a bit, there is pressure",
+		Max:      2,
+	})
+	got := ids(sel)
+	if len(got) != 2 || got[0] != "kutuzov" {
+		t.Fatalf("expected kutuzov to lead, got %v", got)
+	}
+	if got[1] != "patton" && got[1] != "konev" {
+		t.Fatalf("expected one of kutuzov's rivals seated beside him, got %v", got)
+	}
+}
+
+// A rival is seated on the strength of the pairing alone, so a lens with real
+// evidence from the question still outranks it.
+func TestKeywordEvidenceOutranksARival(t *testing.T) {
+	t.Parallel()
+
+	// "should I" and "decide" are Sun Tzu's; nothing here is Patton's or Konev's.
+	sel := service.Select(registry(t), service.SelectInput{
+		Question: "should I wait on this or hold off, I need to decide",
+		Max:      2,
+	})
+	if got := ids(sel); len(got) != 2 || got[1] != "sun_tzu" {
+		t.Fatalf("keyword evidence should beat a bare rival pairing, got %v", got)
+	}
+}
+
+// With a single slot there is no one to argue with, so no rival is pulled in.
+func TestRivalBonusNeedsRoomForTwo(t *testing.T) {
+	t.Parallel()
+
+	sel := service.Select(registry(t), service.SelectInput{Question: "should I wait on this", Max: 1})
+	if got := ids(sel); len(got) != 1 || got[0] != "kutuzov" {
+		t.Fatalf("got %v", got)
+	}
+}

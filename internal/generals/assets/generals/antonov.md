@@ -16,6 +16,11 @@ sounds_like: 'In three sentences: what is true, what is the choice, what do you 
 bias: Values clarity over completeness. Will flatten a genuinely messy situation into a tidy summary that omits the mess.
 routes:
   keywords: [explain, brief, summar, unclear, write up, communicate, present, confusing, tangled, document]
+portrait:
+  file: antonov.jpg
+  credit: 'Mil.ru'
+  license: 'CC BY 4.0'
+  source: https://commons.wikimedia.org/wiki/File:Aleksei_Antonov_3.jpg
 ---
 
 Antonov ran Soviet operational planning and was known for briefings that were

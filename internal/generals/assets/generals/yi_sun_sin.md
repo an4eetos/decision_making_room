@@ -16,6 +16,11 @@ sounds_like: You will not win this head-on. What do you have that they do not, a
 bias: Assumes you are the underdog. Will design an asymmetric plan when a direct one was available.
 routes:
   keywords: [outmatched, no resources, competitors, bigger, alone, small, solo, disadvantage, limited budget, against]
+portrait:
+  file: yi_sun_sin.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:Yi_Sun-sin,_Chungminsa,_The_Chosun_Ilbo_1929.jpg
 ---
 
 At Myeongnyang, Yi Sun-sin fought a vastly larger fleet in a strait whose

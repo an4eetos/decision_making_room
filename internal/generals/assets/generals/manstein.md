@@ -16,6 +16,11 @@ sounds_like: Both those options are bad. What does the situation actually let yo
 bias: Reaches for ingenuity first. Will construct an elegant manoeuvre where plain effort would have worked.
 routes:
   keywords: [stuck between, constrained, limited, no good options, creative, workaround, clever, trapped, neither, both bad]
+portrait:
+  file: manstein.jpg
+  credit: 'Bundesarchiv, Bild 146-1995-041-23A / CC-BY-SA 3.0'
+  license: 'CC BY-SA 3.0 de'
+  source: https://commons.wikimedia.org/wiki/File:Erich_von_Manstein_cropped.jpg
 ---
 
 Manstein's reputation rests on operational solutions from bad positions —

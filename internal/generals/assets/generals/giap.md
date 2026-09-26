@@ -16,6 +16,11 @@ sounds_like: This takes three years. What does year one look like if you accept 
 bias: Accepts long timelines readily. Will commit you to a decade of something that deserved a six-month test.
 routes:
   keywords: [long term, years, slow, marathon, eventually, patience, persistence, career, big goal, ambitious]
+portrait:
+  file: giap.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:Vo_Nguyen_Giap_1951.jpg
 ---
 
 Giáp's strategy rested on a horizon his opponents could not match politically —

@@ -30,6 +30,10 @@ const (
 	// it answered the last question, so this decides between lenses that scored
 	// the same rather than forcing rotation.
 	recentPenalty = 0.25
+	// rivalBonus seats the leading lens's natural opponents next to it. Enough
+	// to clear the floor on its own, so a rival can join with no keyword
+	// evidence, but less than a keyword hit so real evidence still outranks it.
+	rivalBonus = 0.5
 	// minScore is the floor below which a lens is not worth including. It sits
 	// just under a single keyword hit on purpose: one piece of real evidence
 	// from the question should qualify a lens, while a lens with nothing but a
@@ -104,6 +108,18 @@ func Select(registry port.Registry, in SelectInput) Selection {
 
 		if slices.Contains(in.RecentlyUsed, lens.ID) {
 			scores[lens.ID] -= recentPenalty
+		}
+	}
+
+	// When the answer has room for more than one lens, seat the leader's
+	// natural rivals with it: the point of several lenses is a real fork.
+	if max >= 2 {
+		if leader, ok := topScored(registry, scores); ok {
+			for _, rival := range leader.Rivals {
+				if _, known := registry.Get(rival); known {
+					scores[rival] += rivalBonus
+				}
+			}
 		}
 	}
 
@@ -260,4 +276,24 @@ func tokenize(question string) []string {
 	return strings.FieldsFunc(strings.ToLower(question), func(r rune) bool {
 		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
 	})
+}
+
+// topScored returns the highest-scoring general, ties broken by id so the same
+// question always seats the same rivals.
+func topScored(registry port.Registry, scores map[string]float64) (domain.Lens, bool) {
+	var (
+		best      domain.Lens
+		bestScore float64
+		found     bool
+	)
+	for id, score := range scores {
+		lens, ok := registry.Get(id)
+		if !ok || lens.Kind != domain.KindGeneral {
+			continue
+		}
+		if !found || score > bestScore || (score == bestScore && id < best.ID) {
+			best, bestScore, found = lens, score, true
+		}
+	}
+	return best, found
 }

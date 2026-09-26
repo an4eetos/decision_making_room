@@ -125,9 +125,12 @@ function renderChatMessages(container, messages) {
         // Only assistant answers are markdown. What you typed is shown exactly as
         // you typed it — rendering your own text would mangle anything containing
         // an asterisk or a hash.
-        const body = isAssistant
-            ? `<div class="chat-message-body markdown">${renderMarkdown(message.content)}</div>`
-            : `<div class="chat-message-body">${escapeHTML(message.content)}</div>`;
+        const briefing = isAssistant ? renderBriefing(message.content) : null;
+        const body = briefing
+            ? `<div class="chat-message-body">${briefing}</div>`
+            : isAssistant
+                ? `<div class="chat-message-body markdown">${renderMarkdown(message.content)}</div>`
+                : `<div class="chat-message-body">${escapeHTML(message.content)}</div>`;
 
         const tier = isAssistant && message.tier
             ? `<span class="tier-badge tier-${escapeHTML(message.tier)}">${escapeHTML(TIER_LABELS[message.tier] || message.tier)}</span>`
@@ -155,6 +158,7 @@ function renderChatMessages(container, messages) {
             </div>
             ${body}
             ${isAssistant ? renderChatSources(message.sources) : ""}
+            ${isAssistant && message.id ? `<button type="button" class="track-btn" data-track-message="${escapeHTML(message.id)}">Track something from this</button>` : ""}
         </div>`;
     }).join("");
     container.scrollTop = container.scrollHeight;
@@ -288,6 +292,8 @@ function setupConsultForm() {
     // follows it rather than letting you choose three for a quick answer.
     const LENSES_PER_TIER = { quick: 1, standard: 2, deep: 3 };
 
+    const loops = setupCommitments();
+
     const modeChip = setupModeChip({ onChange: () => {} });
     modeChip?.load().then(async () => {
         try {
@@ -303,6 +309,7 @@ function setupConsultForm() {
     generals?.load().then(() => {
         generals.setMax(LENSES_PER_TIER[selectedTier()] ?? 2);
         lensNames = generals.names();
+        setBriefingRoster(generals.all());
         // Any messages already on screen were rendered before the roster
         // arrived, so redraw them with proper names.
         if (activeSessionID) {
@@ -472,6 +479,40 @@ function setupConsultForm() {
         });
     }
 
+    // "Track something from this" asks what, rather than guessing a line from
+    // the answer: the answer is advice, and only you know which part you are
+    // actually committing to.
+    messages.addEventListener("click", async (e) => {
+        const button = e.target.closest("[data-track-message]");
+        if (!button || !loops) {
+            return;
+        }
+        const text = window.prompt("What are you committing to?");
+        if (!text || !text.trim()) {
+            return;
+        }
+        try {
+            await loops.track(text.trim(), activeSessionID, button.dataset.trackMessage);
+            button.textContent = "Tracked";
+            button.disabled = true;
+        } catch (error) {
+            showMessage(result, error.message, "error");
+        }
+    });
+
+    // A check-in's Reply opens its conversation here.
+    document.addEventListener("open-session", async (e) => {
+        const id = e.detail?.id;
+        if (!id || sendInFlight) {
+            return;
+        }
+        // Load first, then refresh: the sidebar highlights whatever is active
+        // at render time, so refreshing first left the previous chat selected.
+        await loadSession(id);
+        await refreshSessions();
+        form.question.focus();
+    });
+
     sessions.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".chat-session-delete");
         if (deleteBtn) {
@@ -568,6 +609,10 @@ function setupConsultForm() {
             persistActiveSession(data.session.id);
             renderChatMessages(messages, data.messages);
             result.innerHTML = "";
+
+            // Anything you committed to is extracted in the background; pick
+            // up the proposals when they land.
+            loops?.refreshSoon();
 
             // Show what the room actually decided this question was.
             const answer = [...data.messages].reverse().find((m) => m.role === "assistant");

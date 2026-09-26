@@ -22,7 +22,7 @@ func TestPagesRenderDistinctContent(t *testing.T) {
 		contain string
 		exclude string
 	}{
-		{"/", "Daily Consult", "Semantic search"},
+		{"/", "Briefing", "Semantic search"},
 		{"/ingest", "Ingest Memory", "consult-form"},
 		{"/memories", "Semantic search", "consult-form"},
 	}

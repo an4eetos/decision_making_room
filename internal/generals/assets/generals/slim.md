@@ -16,6 +16,11 @@ sounds_like: What is one thing you can finish today that proves the machine stil
 bias: Treats morale as the root cause. Will address how you feel about a problem that was purely logistical.
 routes:
   keywords: [demoralised, demoralized, burned out, failed, defeat, confidence, restart, comeback, lost, giving up, hopeless]
+portrait:
+  file: slim.jpg
+  credit: 'No 9 Army Film & Photographic Unit'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:British_Generals_1939-1945_IND3595.jpg
 ---
 
 Slim took the retreating Fourteenth Army — beaten, sick, written off — and rebuilt

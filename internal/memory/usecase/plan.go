@@ -40,6 +40,9 @@ type ConsultPlan struct {
 	// Styles are the working styles this mode leans on.
 	Styles []gendomain.Lens
 
+	// Plain drops the output template and lenses; see ConsultInput.Plain.
+	Plain bool
+
 	// Now is injected so recency scoring is testable rather than reading the
 	// wall clock three layers down.
 	Now time.Time
@@ -84,6 +87,7 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		History:  input.History,
 		Tier:     policy,
 		Now:      time.Now().UTC(),
+		Plain:    input.Plain,
 	}
 
 	var defaults []string
@@ -114,7 +118,7 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		}
 	}
 
-	if r.registry != nil {
+	if r.registry != nil && !plan.Plain {
 		selection := genservice.Select(r.registry, genservice.SelectInput{
 			Question:     plan.Question,
 			Explicit:     input.GeneralIDs,

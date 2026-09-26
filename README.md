@@ -8,9 +8,8 @@ It is built around a simple idea: an assistant that has read everything you have
 written about your own work gives better advice than one that has not.
 
 > **Status:** early but usable. Retrieval, chat with depth tiers, the generals
-> roster, conversation modes, the journal watcher and the relocation planner all
-> work today. Commitments and proactive check-ins are next — see
-> [the roadmap](#roadmap).
+> roster, conversation modes, open loops, check-ins, the journal watcher and the
+> relocation planner all work today. See [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -115,6 +114,40 @@ about that decision.
 Write your own by dropping a markdown file in `MODES_DIR`. See
 [docs/modes.md](docs/modes.md).
 
+## Open loops and check-ins
+
+Say *"I'll call the landlord tomorrow and finish the pricing by Wednesday"* in any
+conversation and both appear in the sidebar as **proposals** — resolved to real
+dates, waiting for you to keep or drop them. Nothing joins the list without your
+agreement: a list you never agreed to stops being trusted, then stops being read.
+Only what *you* wrote is extracted; the assistant's own suggestions are not your
+promises.
+
+Anything open and untouched for two weeks goes stale and leaves the check-ins.
+Reminding you about it after that is nagging.
+
+Turn on check-ins and the room starts the conversation:
+
+- **Morning** helps decide what today is for, **midday** checks you are on what
+  you meant to be on, **evening** asks what closed. Each names something specific
+  — an overdue commitment, a note from yesterday — and ends with one question.
+- **Quiet for a while** fires when you have written nothing for six hours during
+  the day, and names what was due.
+- **Gone quiet** fires once when something goes stale, asking whether you still
+  mean it.
+
+Replying to a check-in is just replying; it opens as a normal conversation. A
+check-in you never answer never clutters the chat list. There is also a *Check
+in now* button, which works whether or not scheduled ones are on.
+
+Slots are checked every minute against the database, so a laptop that slept
+through 08:00 gets its morning check-in on wake — and one that slept through the
+whole morning does not get it at 23:00. Everything shows up in the app; there is
+no push service. Set `CHECKIN_NOTIFY_CMD` for a desktop notification.
+
+Scheduled check-ins cost one quick model call each. Nudges cost nothing — they
+are written from what the database already knows.
+
 ## Generals
 
 Twenty strategic lenses. Pick up to three under the composer and they argue about
@@ -186,6 +219,10 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `GENERALS_DIR` | *(empty)* | overlay for the generals roster |
 | `MODES_DIR` | *(empty)* | overlay for conversation modes |
 | `GEMINI_FALLBACK_MODEL` | `gemini-flash-lite-latest` | used when the main model is out of quota |
+| `CHECKIN_ENABLED` | `false` | scheduled check-ins and nudges |
+| `CHECKIN_SLOTS` | `morning@08:00,midday@13:00,evening@21:00` | |
+| `CHECKIN_TZ` | *(machine's)* | e.g. `Asia/Almaty` |
+| `COMMITMENT_EXTRACTION_ENABLED` | `true` | propose open loops from what you write |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -217,6 +254,11 @@ server never imports a domain package.
 | `GET` | `/api/modes` | conversation modes |
 | `POST` | `/api/capture` | append a line to today's note |
 | `POST` | `/api/admin/reindex?max=N` | re-embed memories after switching model |
+| `GET` `POST` | `/api/commitments` | open loops |
+| `PATCH` | `/api/commitments/{id}` | keep, drop, done, reopen, edit |
+| `GET` | `/api/checkins/unseen` | waiting check-ins |
+| `POST` | `/api/checkins/now` | check in now |
+| `POST` | `/api/checkins/{id}/open` | reply — opens the conversation |
 | `POST` | `/api/memories` | ingest (JSON or multipart upload) |
 | `GET` | `/api/memories/search?q=&kind=&tags=` | hybrid search |
 | `POST` | `/api/consult` | one-shot question |
@@ -245,8 +287,9 @@ curl -X POST localhost:8080/api/consult \
 - [x] **Relocation planner** — setup checklist, costs and pitfalls for a stay
 - [x] Deep retrieval: query decomposition, model re-ranking, doctrine lookup
 - [x] Chunk breadcrumbs, overlap, and embedding-model versioning
-- [ ] **Commitments** — open loops tracked from your own conversations
-- [ ] **Check-ins** — it asks how the day is going, instead of waiting
+- [x] **Commitments** — open loops tracked from your own conversations
+- [x] **Check-ins** — it asks how the day is going, instead of waiting
+- [ ] Streaming answers
 
 ## Privacy
 

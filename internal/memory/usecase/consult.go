@@ -36,6 +36,12 @@ type ConsultInput struct {
 	SessionMode string
 	ModeLocked  bool
 	TurnIndex   int
+
+	// Plain keeps the mode's retrieval bias but drops its output template and
+	// the lenses. For messages the system writes to you, like check-ins, where a
+	// "**Blocks** / **Not today**" scaffold or a general's voice would get in the
+	// way of a short question.
+	Plain bool
 }
 
 type ConsultSource struct {
@@ -308,6 +314,14 @@ func retrievalQuery(plan ConsultPlan) string {
 // tier's length budget into one system message.
 func buildSystemPrompt(base string, plan ConsultPlan) string {
 	parts := []string{base}
+	if plan.Plain {
+		// Retrieval already used the mode's bias. Everything structural stays out.
+		if budget := strings.TrimSpace(plan.Tier.AnswerBudget); budget != "" {
+			parts = append(parts, budget)
+		}
+		return strings.Join(parts, "\n\n")
+	}
+
 	// Mode before lenses: the mode decides the shape of the answer, the lenses
 	// decide the argument inside it.
 	if mode := modePrompt(plan.Mode); mode != "" {

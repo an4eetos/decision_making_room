@@ -243,3 +243,13 @@ func nonNilStrings(v []string) []string {
 	}
 	return v
 }
+
+func (r *ChatRepository) LastUserMessageAt(ctx context.Context) (*time.Time, error) {
+	var at *time.Time
+	err := r.pool.QueryRow(ctx,
+		`SELECT max(created_at) FROM chat_messages WHERE role = 'user'`).Scan(&at)
+	if err != nil {
+		return nil, fmt.Errorf("last user message: %w", err)
+	}
+	return at, nil
+}
