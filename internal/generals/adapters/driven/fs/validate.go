@@ -65,5 +65,22 @@ func validate(r domain.Roster) error {
 		problems = append(problems, errors.New("roster has no generals"))
 	}
 
+	// A rival that does not exist would silently vanish from the card, and the
+	// pairing it was meant to force would never happen.
+	generalIDs := make(map[string]bool, len(r.Generals))
+	for _, g := range r.Generals {
+		generalIDs[g.ID] = true
+	}
+	for _, g := range r.Generals {
+		for _, rival := range g.Rivals {
+			switch {
+			case rival == g.ID:
+				problems = append(problems, fmt.Errorf("general %q: lists itself as a rival", g.ID))
+			case !generalIDs[rival]:
+				problems = append(problems, fmt.Errorf("general %q: rival %q is not a general", g.ID, rival))
+			}
+		}
+	}
+
 	return errors.Join(problems...)
 }

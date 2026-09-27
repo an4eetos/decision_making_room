@@ -63,6 +63,11 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 	)
 
 	toolDefs := MemoryTools()
+	// The doctrine tool is only offered when there are lenses to read and the
+	// tier can afford the extra round.
+	if plan.Tier.ReadDoctrine && len(plan.Generals) > 0 {
+		toolDefs = append(toolDefs, ReadDoctrineTool(plan.GeneralIDs()))
+	}
 	seenCallBatches := make(map[string]int)
 
 	// MaxToolRounds counts rounds where tools are offered; the extra iteration is

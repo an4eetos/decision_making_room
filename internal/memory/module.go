@@ -28,6 +28,7 @@ var Module = fx.Module("memory",
 		provideRetrieve,
 		provideMemoryTools,
 		provideIngest,
+		provideReindex,
 		provideSearch,
 		provideConsult,
 		provideChat,
@@ -78,6 +79,10 @@ func provideRetrieve(repo port.MemoryRepository, embedder port.Embedder, cfg con
 	return usecase.NewRetrieve(repo, embedder, cfg.RetrievalCandidates, cfg.RetrievalTopK)
 }
 
+func provideReindex(repo port.MemoryRepository, embedder port.Embedder) *usecase.Reindex {
+	return usecase.NewReindex(repo, embedder)
+}
+
 func provideIngest(repo port.MemoryRepository, embedder port.Embedder) *usecase.Ingest {
 	return usecase.NewIngest(repo, embedder)
 }
@@ -86,8 +91,8 @@ func provideSearch(repo port.MemoryRepository, retriever *usecase.Retrieve) *use
 	return usecase.NewSearch(repo, retriever)
 }
 
-func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository) *usecase.MemoryToolExecutor {
-	return usecase.NewMemoryToolExecutor(retriever, repo)
+func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository, generals genport.Registry) *usecase.MemoryToolExecutor {
+	return usecase.NewMemoryToolExecutor(retriever, repo, generals)
 }
 
 func provideConsult(
@@ -115,6 +120,17 @@ func provideConsult(
 	)
 }
 
-func provideChat(repo port.ChatRepository, llm port.LLM, consult *usecase.Consult) *usecase.Chat {
-	return usecase.NewChat(repo, llm, consult)
+type chatParams struct {
+	fx.In
+
+	Repo      port.ChatRepository
+	LLM       port.LLM
+	Consult   *usecase.Consult
+	Observers []port.TurnObserver `group:"turn_observers"`
+}
+
+// provideChat collects every turn observer from the "turn_observers" group, so a
+// module can react to conversation without chat importing it.
+func provideChat(p chatParams) *usecase.Chat {
+	return usecase.NewChat(p.Repo, p.LLM, p.Consult, p.Observers...)
 }

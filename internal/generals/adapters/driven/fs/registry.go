@@ -9,6 +9,21 @@ type Registry struct {
 }
 
 func NewRegistry(roster domain.Roster) *Registry {
+	names := make(map[string]string, len(roster.Generals))
+	for _, g := range roster.Generals {
+		names[g.ID] = g.Name
+	}
+	// Rivals are stored as ids and shown as names, resolved once here.
+	for i := range roster.Generals {
+		g := &roster.Generals[i]
+		g.RivalNames = g.RivalNames[:0]
+		for _, id := range g.Rivals {
+			if name, ok := names[id]; ok {
+				g.RivalNames = append(g.RivalNames, name)
+			}
+		}
+	}
+
 	byID := make(map[string]domain.Lens, len(roster.Generals)+len(roster.Styles))
 	for _, group := range [][]domain.Lens{roster.Generals, roster.Styles} {
 		for _, lens := range group {

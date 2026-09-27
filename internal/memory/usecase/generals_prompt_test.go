@@ -25,11 +25,12 @@ func TestGeneralsPromptStaysCheap(t *testing.T) {
 	t.Parallel()
 	lenses := roster(t)
 
-	// Roughly four characters per token.
-	if got := len(generalsPrompt(lenses[:1], false)); got > 1600 {
+	// Roughly four characters per token. Bounds include the debate protocol's
+	// instructions, which is most of what a single lens costs.
+	if got := len(generalsPrompt(lenses[:1], false)); got > 2000 {
 		t.Fatalf("one lens costs %d chars (~%d tokens); it should be a few hundred", got, got/4)
 	}
-	if got := len(generalsPrompt(lenses[:3], false)); got > 4000 {
+	if got := len(generalsPrompt(lenses[:3], false)); got > 6000 {
 		t.Fatalf("three lenses cost %d chars (~%d tokens)", got, got/4)
 	}
 
@@ -62,7 +63,7 @@ func TestMultiLensPromptDemandsDisagreement(t *testing.T) {
 	lenses := roster(t)
 
 	prompt := generalsPrompt(lenses[:3], false)
-	for _, want := range []string{"Where they disagree", "The call", "Do not soften disagreement"} {
+	for _, want := range []string{"## The fork", "## The call", "**Answers", "**Concedes:**", "Do not soften disagreement"} {
 		if !strings.Contains(prompt, want) {
 			t.Fatalf("multi-lens prompt missing %q", want)
 		}
@@ -79,7 +80,7 @@ func TestSingleLensPromptHasNoSections(t *testing.T) {
 	t.Parallel()
 
 	prompt := generalsPrompt(roster(t)[:1], false)
-	if strings.Contains(prompt, "Where they disagree") {
+	if strings.Contains(prompt, "The fork") {
 		t.Fatal("a single lens should not be asked to disagree with itself")
 	}
 	if !strings.Contains(prompt, "blind spot") {
@@ -116,8 +117,8 @@ func TestStructuredModeSuppressesLensSections(t *testing.T) {
 			t.Fatalf("lens sections leaked into a mode that owns its structure (%s)", lens.Name)
 		}
 	}
-	if strings.Contains(prompt, "Where they disagree") {
-		t.Fatal("a structured mode should not get its own disagreement section")
+	if strings.Contains(prompt, "## The fork") {
+		t.Fatal("a structured mode should not get its own fork section")
 	}
 	// The disagreement still has to happen, just inside the mode's sections.
 	if !strings.Contains(prompt, "Do not soften disagreement") {
@@ -125,5 +126,16 @@ func TestStructuredModeSuppressesLensSections(t *testing.T) {
 	}
 	if !strings.Contains(prompt, "Keep the section structure") {
 		t.Fatal("expected the lenses to be told to respect the mode's structure")
+	}
+}
+
+// The exchange has to be an exchange: each lens answers the strongest opposing
+// point and concedes something real, even inside a mode's own structure.
+func TestStructuredModeStillDemandsRebuttals(t *testing.T) {
+	t.Parallel()
+
+	prompt := generalsPrompt(roster(t)[:2], true)
+	if !strings.Contains(prompt, "strongest point") || !strings.Contains(prompt, "concession states what the other side gets right") {
+		t.Fatal("structured modes must still require rebuttals and real concessions")
 	}
 }

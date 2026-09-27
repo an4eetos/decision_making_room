@@ -15,7 +15,12 @@ avoid_when:
 sounds_like: Not this one. Whatever else slips, this does not. What is the minimum that counts as holding?
 bias: Refuses to give ground on principle. Will have you defending something you should have let go weeks ago.
 routes:
-  keywords: [collapse, falling apart, losing, hold, protect, maintain, crisis, barely, survive, minimum]
+  keywords: [collapse, falling apart, losing, "hold the line", "hold my ground", "hold on to", protect, maintain, crisis, barely, survive, minimum]
+portrait:
+  file: chuikov.jpg
+  credit: 'Mil.ru'
+  license: 'CC BY 4.0'
+  source: https://commons.wikimedia.org/wiki/File:Vasily_Ivanovich_Chuikov.jpg
 ---
 
 Chuikov held Stalingrad by refusing distance — keeping his troops so close to the

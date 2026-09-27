@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -46,7 +47,25 @@ type Config struct {
 	// and styles/ subdirectories of markdown with YAML frontmatter.
 	GeneralsDir string
 	// ModesDir optionally overlays the shipped conversation modes.
-	ModesDir            string
+	ModesDir string
+
+	// CommitmentExtraction proposes commitments from what you write in chat.
+	// Each qualifying turn costs one model call, gated by a free prefilter.
+	CommitmentExtraction bool
+	// CommitmentStaleAfter is how long an open commitment can go untouched
+	// before it is marked stale and drops out of check-ins.
+	CommitmentStaleAfter time.Duration
+
+	// Check-ins are off by default: a tool that starts messaging you unasked
+	// is one people uninstall. Slots are "name@HH:MM" pairs.
+	CheckinEnabled   bool
+	CheckinSlots     string
+	CheckinTimezone  string
+	CheckinGrace     time.Duration
+	CheckinIdleAfter time.Duration
+	// CheckinNotifyCmd runs on each check-in, with {title} and {body}
+	// substituted. Executed directly, never through a shell.
+	CheckinNotifyCmd    string
 	JournalWatchDir     string
 	JournalWatchEnabled bool
 }
@@ -99,8 +118,26 @@ func Load() (Config, error) {
 		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
 		GeneralsDir:            os.Getenv("GENERALS_DIR"),
 		ModesDir:               os.Getenv("MODES_DIR"),
+		CommitmentExtraction:   envBoolOrDefault("COMMITMENT_EXTRACTION_ENABLED", true),
+		CheckinEnabled:         envBoolOrDefault("CHECKIN_ENABLED", false),
+		CheckinSlots:           envOrDefault("CHECKIN_SLOTS", "morning@08:00,midday@13:00,evening@21:00"),
+		CheckinTimezone:        os.Getenv("CHECKIN_TZ"),
+		CheckinNotifyCmd:       os.Getenv("CHECKIN_NOTIFY_CMD"),
 		JournalWatchDir:        journalDir,
 		JournalWatchEnabled:    envBoolOrDefault("JOURNAL_WATCH_ENABLED", journalDir != ""),
+	}
+
+	staleAfter, err := time.ParseDuration(envOrDefault("COMMITMENT_STALE_AFTER", "336h"))
+	if err != nil {
+		return Config{}, fmt.Errorf("parse COMMITMENT_STALE_AFTER: %w", err)
+	}
+	cfg.CommitmentStaleAfter = staleAfter
+
+	if cfg.CheckinGrace, err = time.ParseDuration(envOrDefault("CHECKIN_GRACE", "90m")); err != nil {
+		return Config{}, fmt.Errorf("parse CHECKIN_GRACE: %w", err)
+	}
+	if cfg.CheckinIdleAfter, err = time.ParseDuration(envOrDefault("CHECKIN_IDLE_AFTER", "6h")); err != nil {
+		return Config{}, fmt.Errorf("parse CHECKIN_IDLE_AFTER: %w", err)
 	}
 
 	if cfg.DatabaseURL == "" {

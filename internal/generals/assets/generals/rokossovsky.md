@@ -16,6 +16,11 @@ sounds_like: Do not counterattack today. Work out what actually failed, then pic
 bias: Waits for a good moment. Will have you regrouping for a week when a day was enough.
 routes:
   keywords: [failed, setback, went wrong, mistake, broke, recover, regroup, bad day, debrief, postmortem, blew it]
+portrait:
+  file: rokossovsky.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:Konstanty_Rokossowski.jpg
 ---
 
 Rokossovsky's pattern was absorbing an attack, giving ground where it was cheap,

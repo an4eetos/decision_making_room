@@ -16,6 +16,11 @@ sounds_like: What do you know now that you did not when you decided this? Does i
 bias: Adapts too readily. Will rewrite a plan that only needed you to continue with it.
 routes:
   keywords: [changed, new information, adapt, adjust, pivot, revise, "not working", different, surprise, unexpected]
+portrait:
+  file: rommel.jpg
+  credit: 'Bundesarchiv, Bild 146-1973-012-43 / Unknown Unknown / CC-BY-SA 3.0'
+  license: 'CC BY-SA 3.0 de'
+  source: https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_146-1973-012-43,_Erwin_Rommel.jpg
 ---
 
 Rommel commanded forward, on the grounds that the situation at the front was

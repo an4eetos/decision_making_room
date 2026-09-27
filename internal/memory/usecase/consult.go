@@ -36,6 +36,12 @@ type ConsultInput struct {
 	SessionMode string
 	ModeLocked  bool
 	TurnIndex   int
+
+	// Plain keeps the mode's retrieval bias but drops its output template and
+	// the lenses. For messages the system writes to you, like check-ins, where a
+	// "**Blocks** / **Not today**" scaffold or a general's voice would get in the
+	// way of a short question.
+	Plain bool
 }
 
 type ConsultSource struct {
@@ -69,6 +75,7 @@ type Consult struct {
 	llm            port.LLM
 	initialContext port.InitialContextReader
 	resolver       *PlanResolver
+	deep           *Deep
 }
 
 func NewConsult(
@@ -93,6 +100,7 @@ func NewConsult(
 
 	return &Consult{
 		agent:          agent,
+		deep:           NewDeep(llm),
 		repo:           repo,
 		retriever:      retriever,
 		llm:            llm,
@@ -147,7 +155,7 @@ func (u *Consult) gatherContext(ctx context.Context, plan ConsultPlan) ([]domain
 		return nil, nil
 	}
 
-	retrieved, err := u.retriever.Execute(ctx, RetrieveInput{
+	input := RetrieveInput{
 		Query:          retrievalQuery(plan),
 		TopK:           plan.Tier.TopK,
 		CandidateLimit: plan.Tier.CandidateLimit,
@@ -157,9 +165,17 @@ func (u *Consult) gatherContext(ctx context.Context, plan ConsultPlan) ([]domain
 			Weights: plan.RerankWeights(),
 			Bias:    plan.RetrievalBias(),
 		},
-	})
+	}
+
+	// Breaking the question into facets finds rows that the question as asked
+	// ranks poorly. Costs a model call, so only at depth.
+	if plan.Tier.Decompose {
+		input.Queries = u.deep.SubQueries(ctx, plan.Question)
+	}
+
+	retrieved, err := u.retrieveFor(ctx, plan, input)
 	if err != nil {
-		return nil, fmt.Errorf("retrieve context: %w", err)
+		return nil, err
 	}
 
 	if plan.Tier.IncludeRecent <= 0 {
@@ -173,6 +189,42 @@ func (u *Consult) gatherContext(ctx context.Context, plan ConsultPlan) ([]domain
 
 	return mergeEntries(retrieved, recent, plan.Now), nil
 }
+
+// retrieveFor runs retrieval, adding the model reranking pass at depth. The
+// rerank operates on the full scored candidate list rather than the selected
+// top-K, because reordering a list that has already been cut is pointless.
+func (u *Consult) retrieveFor(ctx context.Context, plan ConsultPlan, input RetrieveInput) ([]domain.MemoryEntry, error) {
+	if !plan.Tier.LLMRerank {
+		entries, err := u.retriever.Execute(ctx, input)
+		if err != nil {
+			return nil, fmt.Errorf("retrieve context: %w", err)
+		}
+		return entries, nil
+	}
+
+	candidates, err := u.retriever.Candidates(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("retrieve context: %w", err)
+	}
+	if len(candidates) == 0 {
+		return nil, nil
+	}
+
+	// Cap what the model is asked to judge. Beyond this the prompt costs more
+	// than the reordering is worth.
+	if len(candidates) > maxRerankCandidates {
+		candidates = candidates[:maxRerankCandidates]
+	}
+
+	reranked := u.deep.Rerank(ctx, plan.Question, candidates, input.TopK)
+	opts := input.Rerank
+	opts.TopK = input.TopK
+	return service.SelectCandidates(reranked, opts), nil
+}
+
+// maxRerankCandidates bounds the rerank prompt. Sixty previews is a few thousand
+// tokens, which is affordable once per deep answer and not more often.
+const maxRerankCandidates = 60
 
 func skipRetrieval(question string) bool {
 	q := strings.ToLower(strings.TrimSpace(question))
@@ -262,6 +314,14 @@ func retrievalQuery(plan ConsultPlan) string {
 // tier's length budget into one system message.
 func buildSystemPrompt(base string, plan ConsultPlan) string {
 	parts := []string{base}
+	if plan.Plain {
+		// Retrieval already used the mode's bias. Everything structural stays out.
+		if budget := strings.TrimSpace(plan.Tier.AnswerBudget); budget != "" {
+			parts = append(parts, budget)
+		}
+		return strings.Join(parts, "\n\n")
+	}
+
 	// Mode before lenses: the mode decides the shape of the answer, the lenses
 	// decide the argument inside it.
 	if mode := modePrompt(plan.Mode); mode != "" {

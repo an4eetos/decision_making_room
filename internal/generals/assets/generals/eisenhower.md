@@ -16,6 +16,11 @@ sounds_like: Of these six, which are urgent and which are important? Do the impo
 bias: Optimises for keeping everyone moving. Will trade a decisive move for one that keeps the peace.
 routes:
   keywords: [urgent, important, delegate, busy, overloaded, meetings, others, blocked by, people, handoff, calendar]
+portrait:
+  file: eisenhower.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:General_of_the_Army_Dwight_D._Eisenhower_1947.jpg
 ---
 
 Eisenhower's command problem was not tactical — it was holding together allies

@@ -16,6 +16,11 @@ sounds_like: Which of these is waiting on which? Sequence them so nothing waits 
 bias: Sees coordination problems everywhere. Will build a schedule for two tasks that needed none.
 routes:
   keywords: [juggling, multiple, parallel, context switch, coordinate, dependencies, blocked, competing, week, schedule]
+portrait:
+  file: vasilevsky.jpg
+  credit: 'Mil.ru'
+  license: 'CC BY 4.0'
+  source: https://commons.wikimedia.org/wiki/File:Aleksandr_Vasilevsky_4.jpg
 ---
 
 Vasilevsky's work was holding several simultaneous offensives in one head and

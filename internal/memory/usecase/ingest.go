@@ -51,9 +51,12 @@ func (u *Ingest) Execute(ctx context.Context, input IngestInput) (IngestResult, 
 			title = fmt.Sprintf("%s (part %d/%d)", input.Title, i+1, len(chunks))
 		}
 
-		embedText := chunk
+		// The chunk text already carries its heading breadcrumb, so the embedded
+		// text is title plus breadcrumb plus body — the same string that becomes
+		// the stored body and therefore the full-text vector.
+		embedText := chunk.Text
 		if title != "" {
-			embedText = title + "\n\n" + chunk
+			embedText = title + "\n\n" + chunk.Text
 		}
 
 		embedding, err := u.embedder.Embed(ctx, embedText)
@@ -62,8 +65,12 @@ func (u *Ingest) Execute(ctx context.Context, input IngestInput) (IngestResult, 
 		}
 
 		metadata := map[string]string{
-			"chunk_index": fmt.Sprintf("%d", i+1),
-			"chunk_total": fmt.Sprintf("%d", len(chunks)),
+			"chunk_index":    fmt.Sprintf("%d", i+1),
+			"chunk_total":    fmt.Sprintf("%d", len(chunks)),
+			"ingest_version": fmt.Sprintf("%d", service.IngestVersion),
+		}
+		if chunk.Breadcrumb != "" {
+			metadata["breadcrumb"] = chunk.Breadcrumb
 		}
 		for key, value := range input.Metadata {
 			metadata[key] = value
@@ -72,10 +79,17 @@ func (u *Ingest) Execute(ctx context.Context, input IngestInput) (IngestResult, 
 		entry := domain.MemoryEntry{
 			Kind:      input.Kind,
 			Title:     title,
-			Body:      chunk,
+			Body:      chunk.Text,
 			Tags:      input.Tags,
 			Embedding: embedding,
 			Metadata:  metadata,
+
+			// Recording which model produced this vector is what makes switching
+			// providers detectable. Gemini is pinned to 768 dimensions to match
+			// nomic-embed-text, so a mixed table compares cleanly and means
+			// nothing — Postgres will never complain.
+			EmbeddingModel: u.embedder.ModelID(),
+			EmbeddingDim:   len(embedding),
 		}
 
 		if err := u.repo.Save(ctx, entry); err != nil {

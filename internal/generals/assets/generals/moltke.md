@@ -16,6 +16,11 @@ sounds_like: What is this for? Write that down. The steps after the first one ar
 bias: Comfortable with vagueness. Will leave a plan so open that nothing concrete happens tomorrow.
 routes:
   keywords: [plan, planning, uncertain, changing, delegate, intent, adapt, roadmap, unknowns, "what if"]
+portrait:
+  file: moltke.jpg
+  credit: 'Unknown author'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:Helmuth_von_Moltke_Photo_ca._1889.jpg
 ---
 
 Moltke is the source of the line that no plan survives contact with the enemy —

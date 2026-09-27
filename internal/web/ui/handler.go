@@ -63,8 +63,8 @@ func (h *Handler) Register(mux *http.ServeMux) {
 
 func (h *Handler) chatPage(w http.ResponseWriter, r *http.Request) {
 	h.render(w, "chat.html", map[string]any{
-		"Title":          "Consult",
-		"ContainerClass": "container--chat",
+		"Title":          "Briefing",
+		"ContainerClass": "container--chat container--war",
 	})
 }
 

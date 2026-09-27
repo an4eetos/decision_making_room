@@ -234,6 +234,10 @@ type embedResponse struct {
 	Embedding []float32 `json:"embedding"`
 }
 
+func (c *Client) ModelID() string {
+	return "ollama:" + c.embedModel
+}
+
 func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 	body, err := json.Marshal(embedRequest{
 		Model:  c.embedModel,

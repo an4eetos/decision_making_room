@@ -16,6 +16,11 @@ sounds_like: You have done this three times now. Write down the steps once, then
 bias: Systematises prematurely. Will have you building a template before you know the shape of the thing.
 routes:
   keywords: [template, system, process, checklist, repeat, again, standardise, standardize, workflow, setup, reusable]
+portrait:
+  file: shaposhnikov.jpg
+  credit: 'Mil.ru'
+  license: 'CC BY 4.0'
+  source: https://commons.wikimedia.org/wiki/File:Boris_Shaposhnikov_03.jpg
 ---
 
 Shaposhnikov's contribution was the staff apparatus itself — the institution that

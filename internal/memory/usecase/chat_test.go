@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -123,4 +124,8 @@ func TestBuildChatHistoryEmpty(t *testing.T) {
 	if len(history) != 0 {
 		t.Fatalf("expected empty history, got %d messages", len(history))
 	}
+}
+
+func (s *stubChatRepo) LastUserMessageAt(context.Context) (*time.Time, error) {
+	return nil, nil
 }

@@ -3,6 +3,7 @@ package fs_test
 import (
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -47,8 +48,10 @@ func TestCardsStaySmallAndDoctrineStaysOut(t *testing.T) {
 		if strings.Contains(card, lens.Doctrine) {
 			t.Fatalf("%s: full doctrine leaked into the card", lens.ID)
 		}
-		// Roughly four characters per token; 700 chars is about 175 tokens.
-		if len(card) > 700 {
+		// Roughly four characters per token; 1300 chars is about 325 tokens. The
+		// dialectical fields (asks, concedes, rivals) are what push a card past
+		// the original 700: worth it, but bounded.
+		if len(card) > 1300 {
 			t.Fatalf("%s: card is %d chars, too large to inject three of", lens.ID, len(card))
 		}
 		for _, want := range []string{lens.Name, "Job:", "Blind spot:"} {
@@ -63,12 +66,17 @@ func TestThreeCardsFitTheBudget(t *testing.T) {
 	t.Parallel()
 
 	roster := load(t, "")
-	block := domain.Cards(roster.Generals[:3])
+
+	// Measure the worst case — the three largest cards — not whichever three
+	// happen to sort first.
+	cards := append([]domain.Lens(nil), roster.Generals...)
+	sort.Slice(cards, func(i, j int) bool { return len(cards[i].Card()) > len(cards[j].Card()) })
+	block := domain.Cards(cards[:3])
 
 	// The original injected all nine generals in full on every question, about
-	// 19KB. Three cards must be a rounding error against that.
-	if len(block) > 2200 {
-		t.Fatalf("three cards are %d chars; the point was to be cheap", len(block))
+	// 19KB. Three cards must stay a small fraction of that.
+	if len(block) > 4000 {
+		t.Fatalf("the three largest cards are %d chars; the point was to be cheap", len(block))
 	}
 }
 

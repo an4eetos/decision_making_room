@@ -22,6 +22,8 @@ type Chat struct {
 	llm  port.LLM
 	// consult keeps RAG behavior in one place.
 	consult *Consult
+	// observers hear about each finished turn. They must return immediately.
+	observers []port.TurnObserver
 }
 
 type ChatSessionDTO struct {
@@ -54,8 +56,34 @@ type ChatSessionDetail struct {
 	Messages []ChatMessageDTO `json:"messages"`
 }
 
-func NewChat(repo port.ChatRepository, llm port.LLM, consult *Consult) *Chat {
-	return &Chat{repo: repo, llm: llm, consult: consult}
+func NewChat(repo port.ChatRepository, llm port.LLM, consult *Consult, observers ...port.TurnObserver) *Chat {
+	return &Chat{repo: repo, llm: llm, consult: consult, observers: observers}
+}
+
+// StartSession opens a conversation with an assistant message already in it.
+// Check-ins use it, so that answering one is just replying — there is no second
+// conversation mechanism to build or maintain.
+func (c *Chat) StartSession(ctx context.Context, title, content, modeID string) (ChatSessionDTO, error) {
+	title = strings.TrimSpace(title)
+	if title == "" {
+		title = "Check-in"
+	}
+
+	session, err := c.repo.CreateSession(ctx, port.ChatSession{Title: title, ModeID: modeID})
+	if err != nil {
+		return ChatSessionDTO{}, err
+	}
+
+	if _, err := c.repo.CreateMessage(ctx, port.ChatMessage{
+		SessionID: session.ID,
+		Role:      "assistant",
+		Content:   content,
+		ModeID:    modeID,
+	}); err != nil {
+		return ChatSessionDTO{}, err
+	}
+
+	return toChatSessionDTO(session), nil
 }
 
 func (c *Chat) CreateSession(ctx context.Context, title string) (ChatSessionDTO, error) {
@@ -226,6 +254,16 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		return ChatSessionDetail{}, err
 	}
 	messages = append(messages, assistantMessage)
+
+	for _, observer := range c.observers {
+		observer.ObserveTurn(port.Turn{
+			SessionID:     id,
+			MessageID:     assistantMessage.ID,
+			UserText:      question,
+			AssistantText: consultResult.Answer,
+			ModeID:        consultResult.Mode,
+		})
+	}
 
 	// Remember the detected mode so the conversation stays in it, unless the
 	// user has locked one by hand.

@@ -51,9 +51,11 @@ func (r *Repository) Save(ctx context.Context, entry domain.MemoryEntry) error {
 	}
 
 	_, err = r.pool.Exec(ctx, `
-		INSERT INTO memories (id, kind, title, body, tags, metadata, embedding, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-	`, entry.ID, string(entry.Kind), entry.Title, entry.Body, entry.Tags, metadata, embedding, entry.CreatedAt, entry.UpdatedAt)
+		INSERT INTO memories (id, kind, title, body, tags, metadata, embedding,
+		                      embedding_model, embedding_dim, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	`, entry.ID, string(entry.Kind), entry.Title, entry.Body, entry.Tags, metadata, embedding,
+		entry.EmbeddingModel, nullableDim(entry.EmbeddingDim), entry.CreatedAt, entry.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("insert memory: %w", err)
 	}
@@ -70,16 +72,16 @@ func (r *Repository) SearchSimilar(ctx context.Context, embedding []float32, lim
 	where := []string{"embedding IS NOT NULL"}
 	argIdx := 3
 
-	if filter.Kind != nil {
-		where = append(where, fmt.Sprintf("kind = $%d", argIdx))
-		args = append(args, string(*filter.Kind))
+	// Vectors from a different embedding model are excluded rather than ranked.
+	// They have the same width and compare without error, so including them
+	// silently mixes two incompatible spaces and quietly degrades every search.
+	if filter.EmbeddingModel != "" {
+		where = append(where, fmt.Sprintf("embedding_model = $%d", argIdx))
+		args = append(args, filter.EmbeddingModel)
 		argIdx++
 	}
 
-	if len(filter.Tags) > 0 {
-		where = append(where, fmt.Sprintf("tags && $%d", argIdx))
-		args = append(args, filter.Tags)
-	}
+	args, where = appendFilters(args, where, filter, argIdx)
 
 	query := fmt.Sprintf(`
 		SELECT id, kind, title, body, tags, metadata, created_at, updated_at,
@@ -328,4 +330,74 @@ func scanEntry(row scannable) (domain.MemoryEntry, error) {
 	}
 
 	return entry, nil
+}
+
+// CountByEmbeddingModel reports how many rows were embedded with each model, so
+// startup can warn when the table holds vectors the current model cannot be
+// compared against.
+func (r *Repository) CountByEmbeddingModel(ctx context.Context) (map[string]int, error) {
+	rows, err := r.pool.Query(ctx,
+		`SELECT embedding_model, count(*) FROM memories WHERE embedding IS NOT NULL GROUP BY embedding_model`)
+	if err != nil {
+		return nil, fmt.Errorf("count by embedding model: %w", err)
+	}
+	defer rows.Close()
+
+	out := make(map[string]int)
+	for rows.Next() {
+		var (
+			model string
+			n     int
+		)
+		if err := rows.Scan(&model, &n); err != nil {
+			return nil, err
+		}
+		out[model] = n
+	}
+	return out, rows.Err()
+}
+
+// ListStale returns entries whose vector came from a different model, oldest
+// first, in batches so a reindex is resumable rather than one enormous
+// transaction.
+func (r *Repository) ListStale(ctx context.Context, currentModel string, limit int) ([]domain.MemoryEntry, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+
+	rows, err := r.pool.Query(ctx, `
+		SELECT id, kind, title, body, tags, metadata, created_at, updated_at, 0::float8 AS score
+		FROM memories
+		WHERE embedding IS NULL OR embedding_model IS DISTINCT FROM $1
+		ORDER BY created_at
+		LIMIT $2
+	`, currentModel, limit)
+	if err != nil {
+		return nil, fmt.Errorf("list stale: %w", err)
+	}
+	defer rows.Close()
+
+	return scanEntries(rows)
+}
+
+// UpdateEmbedding replaces a row's vector in place, keeping its id so anything
+// referencing it stays valid.
+func (r *Repository) UpdateEmbedding(ctx context.Context, id uuid.UUID, embedding []float32, model string) error {
+	_, err := r.pool.Exec(ctx, `
+		UPDATE memories
+		SET embedding = $2, embedding_model = $3, embedding_dim = $4, updated_at = now()
+		WHERE id = $1
+	`, id, pgvector.NewVector(embedding), model, len(embedding))
+	if err != nil {
+		return fmt.Errorf("update embedding: %w", err)
+	}
+	return nil
+}
+
+// nullableDim keeps an unknown dimension NULL rather than storing zero.
+func nullableDim(dim int) any {
+	if dim <= 0 {
+		return nil
+	}
+	return dim
 }

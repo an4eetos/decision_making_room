@@ -16,6 +16,11 @@ sounds_like: Which of these do you actually have to fight? Cut two. Then we talk
 bias: Will always find another angle to consider. Given the chance, he analyses instead of committing.
 routes:
   keywords: [decide, decision, choose, priorit, strategy, options, trade-off, tradeoff, overwhelm, too many, "should i", "or stay", "or should", "instead of"]
+portrait:
+  file: sun_tzu.jpg
+  credit: '663highland'
+  license: 'CC BY 2.5'
+  source: https://commons.wikimedia.org/wiki/File:Enchoen27n3200.jpg
 ---
 
 The core claim is that most of a fight is decided before it starts, by choosing

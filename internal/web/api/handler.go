@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	genport "github.com/an4eetos/decision-room/internal/generals/port"
@@ -17,6 +18,7 @@ import (
 )
 
 type Handler struct {
+	reindexUC *usecase.Reindex
 	modes     modeport.Registry
 	generals  genport.Registry
 	captureUC *journalusecase.Capture
@@ -34,8 +36,10 @@ func NewHandler(
 	capture *journalusecase.Capture,
 	generals genport.Registry,
 	modes modeport.Registry,
+	reindex *usecase.Reindex,
 ) *Handler {
 	return &Handler{
+		reindexUC: reindex,
 		modes:     modes,
 		generals:  generals,
 		ingestUC:  ingest,
@@ -53,6 +57,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/capture", h.capture)
 	mux.HandleFunc("GET /api/generals", h.listGenerals)
 	mux.HandleFunc("GET /api/modes", h.listModes)
+	mux.HandleFunc("POST /api/admin/reindex", h.reindex)
 	mux.HandleFunc("GET /api/memories/search", h.searchMemories)
 	mux.HandleFunc("GET /api/chat/sessions", h.listChatSessions)
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
@@ -135,6 +140,29 @@ func (h *Handler) ingestAndRespond(w http.ResponseWriter, r *http.Request, kindR
 	writeJSON(w, http.StatusCreated, result)
 }
 
+// reindex re-embeds memories whose vectors came from a different model. It is
+// synchronous and bounded by ?max= so a large corpus can be worked through in
+// chunks rather than one request that runs for an hour.
+func (h *Handler) reindex(w http.ResponseWriter, r *http.Request) {
+	max := 0
+	if raw := r.URL.Query().Get("max"); raw != "" {
+		parsed, err := strconv.Atoi(raw)
+		if err != nil || parsed < 0 {
+			http.Error(w, "max must be a non-negative integer", http.StatusBadRequest)
+			return
+		}
+		max = parsed
+	}
+
+	result, err := h.reindexUC.Execute(r.Context(), max)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, result)
+}
+
 // listModes serves the mode list for the chip's dropdown, grouped by family.
 func (h *Handler) listModes(w http.ResponseWriter, r *http.Request) {
 	type modeDTO struct {
@@ -167,15 +195,24 @@ func (h *Handler) listGenerals(w http.ResponseWriter, r *http.Request) {
 		Family  string `json:"family"`
 		Job     string `json:"job"`
 		Bias    string `json:"bias,omitempty"`
+		// Portrait is a URL when there is a picture, empty when the UI should
+		// draw the monogram instead.
+		Portrait string `json:"portrait,omitempty"`
+		Credit   string `json:"portrait_credit,omitempty"`
 	}
 
 	lenses := h.generals.Generals()
 	out := make([]generalDTO, 0, len(lenses))
 	for _, l := range lenses {
-		out = append(out, generalDTO{
+		dto := generalDTO{
 			ID: l.ID, Name: l.Name, Epithet: l.Epithet, Era: l.Era,
 			Family: string(l.Family), Job: l.Job, Bias: l.Bias,
-		})
+		}
+		if l.Portrait.File != "" {
+			dto.Portrait = "/static/portraits/" + l.Portrait.File
+			dto.Credit = strings.TrimSpace(l.Portrait.Credit + " · " + l.Portrait.License)
+		}
+		out = append(out, dto)
 	}
 
 	writeJSON(w, http.StatusOK, out)

@@ -16,6 +16,11 @@ sounds_like: Hard in training, easy in battle. Do it badly twenty times until it
 bias: Over-invests in preparation. Will have you drilling a skill you only needed once.
 routes:
   keywords: [habit, routine, practice, practis, drill, repetition, skill, learn, training, consistency, reps]
+portrait:
+  file: suvorov.jpg
+  credit: 'Joseph Kreutzinger'
+  license: 'Public domain'
+  source: https://commons.wikimedia.org/wiki/File:Joseph_Kreutzinger_-_Portrait_of_Count_Alexander_Suvorov_-_WGA12281.jpg
 ---
 
 Suvorov's principle — *hard in training, easy in battle* — is about moving cost
