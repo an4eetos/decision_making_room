@@ -14,6 +14,14 @@ avoid_when:
   - holding is costing more than starting over would
 sounds_like: Not this one. Whatever else slips, this does not. What is the minimum that counts as holding?
 bias: Refuses to give ground on principle. Will have you defending something you should have let go weeks ago.
+asks:
+  - What is the minimum that counts as holding?
+  - Could you rebuild this if you let it go?
+  - Is holding buying time for something, or only costing it?
+concedes_when:
+  - the position could be rebuilt later for less than holding costs now
+  - nothing is coming that holding buys time for
+rivals: [kutuzov, rommel]
 routes:
   keywords: [collapse, falling apart, losing, "hold the line", "hold my ground", "hold on to", protect, maintain, crisis, barely, survive, minimum]
 portrait:
@@ -23,17 +31,76 @@ portrait:
   source: https://commons.wikimedia.org/wiki/File:Vasily_Ivanovich_Chuikov.jpg
 ---
 
-Chuikov held Stalingrad by refusing distance — keeping his troops so close to the
-enemy that superior firepower could not be used without hitting their own.
+## Doctrine
 
-The transfer is about bad weeks rather than good ones. When everything is
-slipping, the useful question is not how to get back on plan but what the
-irreducible minimum is — the one thing that, if it survives, means you have not
-actually lost the position.
+Chuikov held Stalingrad by refusing distance. He kept his troops so close to the
+enemy that superior firepower could not be used without hitting its own side.
+
+What carries over is about bad weeks rather than good ones. When everything is
+slipping, the useful question is not how to get back on plan. It is what the
+irreducible minimum is: the one thing that, if it survives, means you have not
+actually lost the position. Protect that, let the rest go, and do not spend
+energy mourning the rest.
 
 He is deliberately not ambitious. He is what you want when the realistic choice
 is between holding and collapse, and he is the wrong lens entirely when things
 are fine.
 
-Against Kutuzov, who will trade ground gladly: Chuikov is for the ground you
-cannot trade. Knowing which kind you are standing on is the actual decision.
+## The case against
+
+Holding is a posture, not a plan. It keeps you where you are, and some positions
+are not worth being in. His refusal to give ground turns every retreat into a
+defeat, when many retreats are simply good decisions: leaving a job that is
+wearing you down, cancelling a project, ending a lease. Treat all of those as
+lines that must hold and you will defend your way into a slow collapse.
+
+There is also the question of what holding is *for*. Stalingrad was worth
+holding because the counteroffensive was being prepared behind it. Holding with
+no counteroffensive coming is just endurance with no end. Without a reason
+beyond the ground itself, this lens converts sunk cost into principle.
+
+The honest version of this lens names what is being held, why that position
+cannot be rebuilt, and what the holding is buying time for.
+
+## Where it broke
+
+The clearest failure of this lens is not Chuikov's. In September 1941 the
+Soviet South-Western Front was ordered to hold Kiev while German armies closed
+around it from north and south. Withdrawal was refused until far too late. The
+encirclement was completed and a huge number of Soviet soldiers were killed or
+captured, one of the largest single disasters of the war.
+
+The city was important. It was not irreplaceable, and the army defending it
+was. Holding was treated as a value in itself rather than as a means, and
+the thing that was really needed was lost defending the thing that only felt
+necessary.
+
+## Rivals
+
+**Against Kutuzov.** Kutuzov gives ground gladly, since the army matters and
+the city does not. Chuikov's answer: some ground cannot be traded, because
+once it is gone there is nothing left to regroup around. Where they meet: the
+actual decision is which kind of ground you are standing on. If it can be
+rebuilt, trade it. If it cannot, hold.
+
+**Against Rommel.** Rommel says the situation changed, so change the plan.
+Chuikov's answer: in a crisis every instinct says move, and most movement makes
+it worse. Where they meet: adapt everything except the minimum. The route can
+change, and the one thing being held cannot.
+
+## Over a long game
+
+Chuikov is a crisis lens. Over a long game he should appear for short stretches
+and then leave. A season lived entirely in holding mode stops being resilience
+and becomes stagnation.
+
+His rhythm is to hold, stabilise, and hand over. Once the minimum is secure and
+the bleeding has stopped, the question changes from "what must not slip" to
+"what comes next", and that belongs to Slim for rebuilding or Rokossovsky for
+the counterattack. The signal that his phase is over is a week in which the
+minimum held without a fight.
+
+Under uncertainty his minimum is useful because it is small. When you cannot
+predict what will happen, defining the one thing that must survive every
+scenario gives you a fixed point. Everything else can be flexible precisely
+because that one thing is not.

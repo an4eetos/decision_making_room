@@ -14,6 +14,13 @@ avoid_when:
   - cleverness is how you avoid the dull correct answer
 sounds_like: Both those options are bad. What does the situation actually let you do that neither of them uses?
 bias: Reaches for ingenuity first. Will construct an elegant manoeuvre where plain effort would have worked.
+asks:
+  - What does the situation permit that neither option uses?
+  - Whose cooperation does the clever move depend on?
+concedes_when:
+  - a plain option exists and only feels boring
+  - the manoeuvre needs someone else to act and they will not
+rivals: [patton, zhukov]
 routes:
   keywords: [stuck between, constrained, limited, no good options, creative, workaround, clever, trapped, neither, both bad]
 portrait:
@@ -23,17 +30,77 @@ portrait:
   source: https://commons.wikimedia.org/wiki/File:Erich_von_Manstein_cropped.jpg
 ---
 
-Manstein's reputation rests on operational solutions from bad positions —
-finding a move the situation allowed that nobody had looked for.
+## Doctrine
 
-The transfer is the reframe: when both options are bad, the useful question is
-usually what the constraint set actually permits, rather than which of the two
+Manstein's reputation rests on operational solutions from bad positions:
+finding a move the situation allowed that nobody had looked for. The plan to go
+through the Ardennes in 1940 and the counterstroke at Kharkov in early 1943 both
+came from refusing the choice as it had been presented.
+
+What carries over is the reframe. When both options are bad, the useful question
+is usually what the constraint set actually permits, not which of the two
 presented losses is smaller. Most binary choices are artefacts of how the problem
-was stated.
+was stated. Take the constraints seriously, list what they actually forbid, and
+the space that remains is often larger than the two options suggested.
 
 He is an operational lens, not an endorsement. Manstein was convicted of war
-crimes; see `docs/generals.md`.
+crimes, and his memoir *Lost Victories* is widely read as self-serving. See
+`docs/generals.md`.
 
-His blind spot is the one to watch, because it flatters. Cleverness feels like
-progress. If the plain answer exists and you are looking for a better one, that
-is escapism with good branding — Patton's cue, not his.
+## The case against
+
+His blind spot flatters. Cleverness feels like progress, and finding the
+ingenious third option is more satisfying than doing the dull obvious thing. If
+the plain answer exists and you are looking for a better one, that is escapism
+with good branding.
+
+Clever manoeuvres are also fragile. They usually depend on several things going
+right at once: timing, other people's cooperation, the opponent not seeing it
+coming. A plain plan survives one failure. An elegant one often does not. The
+more moving parts in the manoeuvre, the more likely the real world breaks one of
+them.
+
+The honest version of this lens checks first whether a plain option exists,
+and then counts how many things the clever one needs to go right.
+
+## Where it broke
+
+In December 1942 Manstein planned Operation Winter Storm to relieve the German
+Sixth Army trapped at Stalingrad. The plan depended on a relief force breaking
+through from outside while Paulus broke out from inside to meet it. The relief
+force got within about fifty kilometres. The breakout never came. Paulus would
+not move without orders, the orders were not given, and the relief attack was
+driven back. The Sixth Army surrendered in early February.
+
+The manoeuvre was sound on paper and relied on a party who would not act. Its
+elegance did nothing about the plain fact that one of its two halves was not
+going to happen.
+
+## Rivals
+
+**Against Patton.** Patton says stop looking for a better plan and do the
+obvious thing now. Manstein's answer: the obvious thing is obvious to the other
+side as well, and in a bad position it walks you into the loss. Where they meet:
+if the obvious option is merely unattractive, take it. If it is genuinely
+losing, look for the third way, briefly.
+
+**Against Zhukov.** Zhukov says mass and return until the weight tells.
+Manstein's answer: weight you do not have is not a strategy, and a weak position
+must win by movement. Where they meet: if you have the resources for the plain
+approach, use them and skip the cleverness. Manoeuvre is for when you do not.
+
+## Over a long game
+
+Manstein is a lens for turning points: moments when the situation has boxed you
+in and the normal options have run out. Over a long game those moments come a
+few times, and he should come with them and then leave. A strategy made of
+continuous clever manoeuvres is exhausting and brittle.
+
+The useful habit over months is to turn his reframes into plain plans. Once the
+clever move has opened the new position, the work of holding and building on it
+belongs to Zhukov or Shaposhnikov. Keeping him in charge afterwards leads to
+manoeuvring for its own sake.
+
+Under uncertainty, prefer the version of the manoeuvre with the fewest
+dependencies. When you cannot predict how others will act, a plan that needs
+nobody else to move is worth more than a better plan that does.
