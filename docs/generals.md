@@ -83,10 +83,22 @@ subdirectories. A file whose `id` matches a shipped one replaces it; a new `id`
 is appended. Nothing needs recompiling and the repository does not need forking.
 
 Each file's body — never sent to the model unless it asks for it on the deep
-tier — has four sections: **Doctrine**, **The case against** (the strongest
+tier — has five sections: **Doctrine**, **The case against** (the strongest
 critique, written seriously), **Where it broke** (a real episode where the
-approach failed), and **Rivals** (how it argues with its opponents, and where
-they meet). See `kutuzov.md` for the full form.
+approach failed — someone else's, labelled as such, when the general's own
+record has none), **Rivals** (how it argues with its opponents, and where they
+meet), and **Over a long game** (which phase of a long effort the lens belongs
+to, the signal that its phase is over and who takes over, and how it behaves
+when the ground is uncertain). See `kutuzov.md` for the full form.
+
+A lens is a phase, not a policy. The last section exists because most real
+questions are not one decision but a sequence of them, and the lens that is
+right in month one is usually wrong by month six.
+
+A general's rivals must come from different families from each other and from
+the general itself. Selection seats all of them beside the leading lens, so two
+rivals from one family would crowd out the third perspective the exchange
+needs; a test enforces this for the shipped roster.
 
 ```yaml
 ---
@@ -107,7 +119,7 @@ asks:
   - A question it always asks
 concedes_when:
   - A condition under which it yields
-rivals: [kutuzov]          # ids of generals it argues with
+rivals: [kutuzov]          # ids of generals it argues with, distinct families
 routes:
   keywords: [words, "or phrases", that, route, here]
 portrait:                  # optional; file goes in internal/web/assets/static/portraits/

@@ -90,3 +90,22 @@ Kutuzov is.
 reorganise. Kutuzov's answer: pressure applied before you know where to push is
 just exhaustion. Where they meet: once the target is known and time is no longer
 on your side, stop waiting and hammer.
+
+## Over a long game
+
+Kutuzov's phase is the early and middle stretch of a long game, while the
+situation is still moving and each week of waiting buys real information or
+real attrition on the other side. His doctrine only works as a phase. A campaign
+of pure waiting never ends, and 1812 is remembered because the waiting was
+followed by a pursuit.
+
+The discipline over months is to make every wait conditional: waiting *for* a
+named thing, *until* a named date. At that date he has to show that the wait
+produced what it was for. If it did, the next phase belongs to Konev's pressure
+or Guderian's concentration. If it did not, the question passes to Sun Tzu, and
+the wait was avoidance.
+
+Under uncertainty he is at his best, because uncertainty is exactly when
+irreversible commitment is most expensive. His real skill there is not delay.
+It is keeping the force intact, meaning money, energy and options, so that when
+the picture clears there is still something to commit.

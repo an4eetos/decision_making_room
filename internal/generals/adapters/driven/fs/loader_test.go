@@ -33,6 +33,32 @@ func TestBuiltinRosterIsValid(t *testing.T) {
 	}
 }
 
+// Selection seats every rival of the leading lens. Two rivals from the same
+// family fill the slots backfill would have spent on a third family, and the
+// exchange loses the side it most needed.
+func TestBuiltinRivalsAreFromDistinctFamilies(t *testing.T) {
+	t.Parallel()
+
+	roster := load(t, "")
+	byID := make(map[string]domain.Lens, len(roster.Generals))
+	for _, g := range roster.Generals {
+		byID[g.ID] = g
+	}
+	for _, g := range roster.Generals {
+		if len(g.Rivals) == 0 || len(g.Asks) == 0 || len(g.ConcedesWhen) == 0 {
+			t.Fatalf("%s: shipped generals need asks, concedes_when and rivals", g.ID)
+		}
+		seen := map[domain.Family]string{g.Family: g.ID}
+		for _, id := range g.Rivals {
+			family := byID[id].Family
+			if prev, dup := seen[family]; dup {
+				t.Fatalf("%s: rival %s shares family %q with %s", g.ID, id, family, prev)
+			}
+			seen[family] = id
+		}
+	}
+}
+
 // The card is the whole reason this design exists: injecting every general's
 // full doctrine is what made the original cost thousands of tokens per question.
 func TestCardsStaySmallAndDoctrineStaysOut(t *testing.T) {
