@@ -20,6 +20,7 @@ asks:
 concedes_when:
   - the task changes shape each time you meet it
   - drilling has replaced the real attempt
+unknowns: 'Sorts unknowns into those that can be rehearsed and those that cannot. Drills the first until the unknown is familiar; uses surprise as a weapon, not a threat.'
 rivals: [boyd, rommel]
 routes:
   keywords: [habit, routine, practice, practis, drill, repetition, skill, learn, training, consistency, reps]
@@ -106,3 +107,32 @@ Under uncertainty, drill general capability rather than specific plays: the
 skills that are useful whatever happens, like writing, reading fast, staying
 calm and doing setup quickly. When you cannot predict the task, train what
 every version of it will need.
+
+## Facing the unknown
+
+**How he sorts it.** Suvorov sorts the unknown into what can be rehearsed and
+what cannot. Far more can be rehearsed than people think: the hard
+conversation, the first minutes of the performance, the response to the
+likely surprise. Only what is left after that is truly unknown.
+
+**Appetite.** High, and turned outward. His army was trained to move fast and
+strike where it was not expected. Surprise, for him, is a weapon to use on
+the other side, and he drilled for it so it would not be used on him. He
+wanted every soldier to understand his own manoeuvre, so no one would be lost
+when things changed.
+
+**What he asks.**
+- Which parts of this could you rehearse before they happen?
+- What surprise is most likely, and have you practised your response?
+- Do you understand the task well enough to improvise inside it?
+
+**Against the fear.** Drill makes the unknown familiar. Fear is at its worst
+when you do not know what you will do. When the body already knows, because
+you have done it twenty times in training, there is much less to fear. He
+trained in conditions harder than the real ones, so the real thing felt easier
+by comparison.
+
+**With an imperfect present.** He trains on imperfect conditions on purpose:
+bad weather, fatigue, missing pieces. A skill that works only under ideal
+conditions is not a skill. The present will not be perfect when the moment
+comes, so the practice should not be either.

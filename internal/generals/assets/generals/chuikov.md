@@ -21,6 +21,7 @@ asks:
 concedes_when:
   - the position could be rebuilt later for less than holding costs now
   - nothing is coming that holding buys time for
+unknowns: 'Sorts unknowns into those that threaten the minimum and those that do not. Ignores the second kind entirely in a crisis; stays close to the danger.'
 rivals: [kutuzov, rommel]
 routes:
   keywords: [collapse, falling apart, losing, "hold the line", "hold my ground", "hold on to", protect, maintain, crisis, barely, survive, minimum]
@@ -104,3 +105,32 @@ Under uncertainty his minimum is useful because it is small. When you cannot
 predict what will happen, defining the one thing that must survive every
 scenario gives you a fixed point. Everything else can be flexible precisely
 because that one thing is not.
+
+## Facing the unknown
+
+**How he sorts it.** Chuikov has one sorting question: does this unknown
+threaten the minimum? If it does, it gets full attention. If it does not,
+it gets none, however large it looks. In a crisis, most unknowns are about
+things you will not be able to protect anyway.
+
+**Appetite.** Very low. He is a crisis lens, and in a crisis the unknown is
+the enemy. He wants the smallest possible surface exposed to it: one thing to
+hold, clearly defined, closely watched.
+
+**What he asks.**
+- What is the minimum that must survive?
+- What could break it this week?
+- Which of your fears are about things outside the minimum?
+
+**Against the fear.** In a crisis, fear spreads across everything and
+paralyses. His remedy is to shrink the frame to the one thing being held, and
+to stay close to it. At Stalingrad, closeness to the enemy was a defence in
+itself. In an ordinary crisis, closeness means dealing with the problem
+directly and daily rather than watching it from a distance, where it looks
+larger.
+
+**With an imperfect present.** Everything around the minimum can be broken.
+The rest of the plan, the schedule, the other projects: let them burn. He
+accepts a deeply imperfect present without trying to repair it, because
+repairing everything is how the one thing that matters gets lost. Perfection
+is not the standard. Holding is.

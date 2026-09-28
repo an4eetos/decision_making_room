@@ -45,8 +45,8 @@ func TestBuiltinRivalsAreFromDistinctFamilies(t *testing.T) {
 		byID[g.ID] = g
 	}
 	for _, g := range roster.Generals {
-		if len(g.Rivals) == 0 || len(g.Asks) == 0 || len(g.ConcedesWhen) == 0 {
-			t.Fatalf("%s: shipped generals need asks, concedes_when and rivals", g.ID)
+		if len(g.Rivals) == 0 || len(g.Asks) == 0 || len(g.ConcedesWhen) == 0 || g.Unknowns == "" {
+			t.Fatalf("%s: shipped generals need asks, unknowns, concedes_when and rivals", g.ID)
 		}
 		seen := map[domain.Family]string{g.Family: g.ID}
 		for _, id := range g.Rivals {

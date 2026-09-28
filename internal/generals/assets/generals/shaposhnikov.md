@@ -21,6 +21,7 @@ asks:
 concedes_when:
   - the shape of the work still changes each time
   - the procedure is followed and the results still miss
+unknowns: 'Separates uncertainty from the world from uncertainty we create by being inconsistent. Removes the second with procedure, so only the real unknowns remain.'
 rivals: [moltke, slim]
 routes:
   keywords: [template, system, process, checklist, repeat, again, standardise, standardize, workflow, setup, reusable]
@@ -104,3 +105,31 @@ Under uncertainty he should codify less and hold it more loosely. Codify the
 parts of the work you control, such as setup, upkeep and recurring checks. Leave
 the parts that meet the unknown unwritten. A procedure for the unknown is a
 prediction dressed up as a system.
+
+## Facing the unknown
+
+**How he sorts it.** Shaposhnikov separates uncertainty from the world from
+uncertainty you create yourself. The world is genuinely unpredictable. But a
+great deal of what feels uncertain is self-inflicted: forgotten steps,
+inconsistent setup, work done differently each time. The first kind has to be
+lived with. The second can be removed.
+
+**Appetite.** Low. He wants the unknown shrunk to its true size, with the
+self-inflicted part taken away, so that attention goes only to the uncertainty
+that is really out there.
+
+**What he asks.**
+- Which of these unknowns come from the world, and which from how you work?
+- What has gone wrong more than once that a checklist would catch?
+- Which parts of the work are the same every time?
+
+**Against the fear.** A lot of the dread around a task is fear of forgetting
+something, missing something, getting it wrong in a way that was avoidable.
+Procedure removes that fear. When the routine parts are written down, there is
+no need to hold them in your head, and the mind is free for the parts that
+really are uncertain.
+
+**With an imperfect present.** An imperfect procedure beats none. The first
+version of any checklist is wrong in places, and that is fine: it gets
+corrected each time it runs. He treats the current state of the system as a
+version, not a verdict, and expects to improve it at every review.

@@ -21,6 +21,7 @@ concedes_when:
   - the neglected fronts start to collapse
   - the push has outrun what can sustain it
   - the point was chosen on a guess nobody tested
+unknowns: 'Splits unknowns into those at the point and those on the flanks. Tolerates huge flank uncertainty as the price of speed; tolerates little at the point.'
 rivals: [sun_tzu, eisenhower]
 routes:
   keywords: [focus, priorit, scattered, spread thin, too many, one thing, breakthrough, deep work, schwerpunkt]
@@ -107,3 +108,33 @@ gaining.
 Under uncertainty, concentrate on the point that teaches you the most rather
 than the one you are surest of. When you do not know which point matters, the
 first concentration is itself the reconnaissance.
+
+## Facing the unknown
+
+**How he sorts it.** Guderian splits the unknown into two places: at the
+point of effort and on the flanks. Uncertainty at the point matters, because
+that is where everything is committed. Uncertainty on the flanks is the price
+of concentration, accepted in advance and mostly ignored.
+
+**Appetite.** Split, like his categories. He accepts large unknowns on the
+flanks, more than most lenses would, because covering every flank means
+concentrating on nothing. At the point he wants as much certainty as he can
+get before committing, and then none of the doubt afterwards.
+
+**What he asks.**
+- What do you not know about the point you are about to push on?
+- What is the worst that could come from a neglected flank, and could you
+  survive it?
+- How long can the flank stay uncertain before it needs attention?
+
+**Against the fear.** His answer to fear is focus. When everything is
+uncertain, the fear spreads across everything. Pick one point, accept that the
+rest is unknown, and the fear narrows to something you can act on. Momentum
+does the rest: moving decisively leaves less room for dread. It is also
+exactly how this lens goes blind, so the flank risks should be written down
+before the push starts, not remembered afterwards.
+
+**With an imperfect present.** He accepts a messy, neglected state on every
+front but one. The emails pile up, the other projects stall, the upkeep slips.
+That imperfection is not a failure of the plan. It is the plan. The only
+imperfection he will not accept is a half-committed push at the chosen point.

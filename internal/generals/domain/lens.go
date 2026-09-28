@@ -63,6 +63,11 @@ type Lens struct {
 	// Asks are the questions this lens always puts to a situation. They are
 	// what make a lens argue from its own ground instead of agreeing politely.
 	Asks []string `yaml:"asks"`
+	// Unknowns is the lens's stance on uncertainty in one line: how it sorts
+	// what is not known and what it does about it. Lenses disagree about the
+	// unknown at least as much as about the known, and the card is the only
+	// place that disagreement can reach the prompt.
+	Unknowns string `yaml:"unknowns"`
 	// ConcedesWhen names the conditions under which this lens yields. A lens
 	// that can never be wrong cannot take part in a real exchange.
 	ConcedesWhen []string `yaml:"concedes_when"`
@@ -124,6 +129,9 @@ func (l Lens) Card() string {
 	}
 	if len(l.Asks) > 0 {
 		fmt.Fprintf(&b, "Always asks: %s\n", strings.Join(l.Asks, " / "))
+	}
+	if l.Unknowns != "" {
+		fmt.Fprintf(&b, "Facing the unknown: %s\n", l.Unknowns)
 	}
 	if len(l.ConcedesWhen) > 0 {
 		fmt.Fprintf(&b, "Concedes when: %s\n", strings.Join(l.ConcedesWhen, "; "))
