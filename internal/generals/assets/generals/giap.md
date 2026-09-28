@@ -21,6 +21,7 @@ concedes_when:
   - a cheap test could settle it in weeks
   - milestones keep slipping with no new reason
   - the cost is borne by someone who never agreed to it
+unknowns: 'Sorts unknowns by phase: what is unknowable now but knowable at the next stage. Endures long ambiguity; a long horizon makes each unknown small.'
 rivals: [boyd, patton]
 routes:
   keywords: [long term, years, slow, marathon, eventually, patience, persistence, career, big goal, ambitious]
@@ -110,3 +111,32 @@ Under uncertainty, his long horizon is an asset only if it carries checkpoints.
 Set a milestone for each phase and say in advance what would count as evidence
 that the whole approach is failing. Without those, patience cannot learn
 anything.
+
+## Facing the unknown
+
+**How he sorts it.** Giáp sorts the unknown by phase. Some things cannot be
+known in the building phase but will be obvious in the contest phase. Some
+questions belong to the end and are a waste of worry at the start. His main
+skill is placing each unknown in the stage where it will become answerable,
+and refusing to demand the answer earlier.
+
+**Appetite.** Patient. He can live with ambiguity for years, longer than
+almost any other lens. He does not seek out the unknown or flee it. He waits
+for the phase in which it resolves, and builds in the meantime.
+
+**What he asks.**
+- Which phase are you in, and which unknowns belong to this phase?
+- What must be true before you can move to the next one?
+- Which worry are you carrying that belongs to year three?
+
+**Against the fear.** A long horizon makes each unknown small. A bad month is
+frightening on a three-month plan and a detail on a five-year one. By stating
+the real timeline, he reduces the weight of any single uncertainty: nothing
+has to be decided by next week, and no single failure ends the game. That
+distance is his remedy for panic.
+
+**With an imperfect present.** The early phases of a long game are always
+weak. Few resources, little skill, small results. He does not treat that as a
+verdict. The force is built from what exists, and the question is not whether
+the current state is good enough to win, but whether it is good enough to
+build on. It usually is.

@@ -20,6 +20,7 @@ asks:
 concedes_when:
   - you actually have the resources for the direct route
   - refusing the bad ground costs more than fighting on it
+unknowns: 'Sorts unknowns into those both sides face and those only the other side faces. Removes his own through local knowledge and makes the fight happen in theirs.'
 rivals: [zhukov, konev]
 routes:
   keywords: [outmatched, no resources, competitors, bigger, alone, small, solo, disadvantage, limited budget, against]
@@ -102,3 +103,34 @@ Under uncertainty his instinct to prepare the ground before engaging is sound.
 When you cannot predict the contest, invest in the positions and skills that
 make many possible fights happen on your terms, rather than preparing for one
 battle that may never come.
+
+## Facing the unknown
+
+**How he sorts it.** Yi Sun-sin sorts the unknown by who faces it. Some
+uncertainties are shared by both sides. Others burden only the opponent,
+because you know something they do not: the currents, the local ground, a
+skill they lack. His strategy is to make the fight happen where the unknowns
+fall on the other side.
+
+**Appetite.** Low for his own unknowns, high for theirs. He removed his own
+through relentless preparation and local knowledge, and kept a detailed diary
+throughout the war. He sought out situations where the opponent would be
+fighting blind.
+
+**What he asks.**
+- What do you know here that they do not?
+- Where would the uncertainty fall on them rather than on you?
+- What unknown can you remove by preparing now?
+
+**Against the fear.** Before Myeongnyang, facing a vastly larger fleet with a
+handful of ships, he told his men in effect that those who fight expecting to
+die will live, and those who fight to save themselves will die. His method
+against fear is total commitment to a well-prepared position. Fear feeds on
+half-commitment and an unknown plan. It has less to work with when the ground
+is known and the choice is made.
+
+**With an imperfect present.** He began his most famous battle with around a
+dozen ships, after the rest of the fleet had been lost. His reported message
+to the court was that he still had ships, not that he had lost them. He treats
+the imperfect present as the material for the plan: count what you have
+honestly, and build the fight around it.

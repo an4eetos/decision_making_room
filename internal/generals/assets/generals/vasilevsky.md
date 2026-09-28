@@ -20,6 +20,7 @@ asks:
 concedes_when:
   - one front clearly decides the outcome
   - the schedule takes longer to keep than the work
+unknowns: 'Sorts unknowns by how far they spread: local to one front, or cascading to others. Resolves the cascading ones first and lets the local ones wait.'
 rivals: [guderian, konev]
 routes:
   keywords: [juggling, multiple, parallel, context switch, coordinate, dependencies, blocked, competing, week, schedule]
@@ -102,3 +103,30 @@ cheap.
 Under uncertainty, sequence for learning. Put the fronts whose outcome
 determines the others first, so that by the time you commit to the dependent
 work, the uncertainty it depended on has been resolved.
+
+## Facing the unknown
+
+**How he sorts it.** Vasilevsky sorts the unknown by how far it spreads. Some
+uncertainties are local: they affect one front and stay there. Others cascade.
+If they go wrong, several other things stop. The cascading ones deserve almost
+all the attention, and the local ones can mostly be left alone.
+
+**Appetite.** Targeted. He goes looking for the unknowns that sit on the
+dependency lines, and is happy to leave everything else unresolved for now.
+
+**What he asks.**
+- If this goes wrong, what else stops?
+- Which unknown is blocking the most other work?
+- What can move forward now, regardless of how this turns out?
+
+**Against the fear.** With several fronts running, the fear is usually vague:
+the sense that everything is at risk and something is about to slip. Mapping
+the dependencies turns that into a few specific risks. Once you know which two
+unknowns can cascade, the rest stop feeling dangerous. He replaces the vague
+fear of everything with a precise concern about a few things.
+
+**With an imperfect present.** Fronts are always at different stages, some
+ahead, some behind, some stalled. He accepts that unevenness as normal. The
+goal is not to have every front in good shape, but to make sure no front is
+stuck waiting on another. An imperfect present is fine as long as it is not
+blocked.

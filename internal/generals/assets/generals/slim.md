@@ -20,6 +20,7 @@ asks:
 concedes_when:
   - small wins keep coming and the slump does not lift
   - the cause is a concrete constraint, not confidence
+unknowns: 'Separates doubt about the situation from doubt about yourself; the second paralyses most. Answers it with evidence: small wins, chosen because they can be won.'
 rivals: [shaposhnikov, konev]
 routes:
   keywords: [demoralised, demoralized, burned out, failed, defeat, confidence, restart, comeback, lost, giving up, hopeless]
@@ -103,3 +104,32 @@ Under uncertainty his approach is useful because small wins are also cheap
 experiments. Each one tests whether something works while rebuilding the
 confidence to try the next. When you do not know what will work, prove
 something small works and build out from there.
+
+## Facing the unknown
+
+**How he sorts it.** Slim separates uncertainty about the situation from
+uncertainty about yourself. After a bad run, the most paralysing unknown is
+not what will happen. It is whether you can still do this at all. That second
+kind is the one he treats first, because until it is answered, nobody acts on
+the first.
+
+**Appetite.** Built up gradually. A beaten force should not be thrown at big
+unknowns. It gets small ones first, then larger, as confidence returns. His
+tolerance for uncertainty is something to rebuild, not something to demand.
+
+**What he asks.**
+- What do you know for certain you can still do?
+- What is the smallest win available this week?
+- Is the doubt about the task, or about yourself?
+
+**Against the fear.** Fear is answered by evidence, not by resolve. Telling
+yourself to be braver does not work. Finishing something small does, because
+it proves the machine still runs. Each small win shrinks the fear a little,
+and the fears that remain become specific enough to plan for. He also names
+problems plainly, because an honest account of a bad situation is less
+frightening than a vague sense that everything is wrong.
+
+**With an imperfect present.** The beaten state is the starting point, not a
+source of shame. He was candid about his own mistakes, and treats an honest
+inventory of what is broken as the first step to fixing it. The present does
+not need to be good. It needs to be accurately described.

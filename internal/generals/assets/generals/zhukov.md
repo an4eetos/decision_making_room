@@ -21,6 +21,7 @@ concedes_when:
   - months of returning have not compounded into anything
   - the front is not worth holding
   - a different approach would get there in far fewer blocks
+unknowns: 'Many unknowns (will I get good, will this work) are answered only by accumulation. Does not need them resolved to act; the daily block is his answer to dread.'
 rivals: [rommel, boyd]
 routes:
   keywords: [consistency, daily, every day, streak, grind, sustain, keep going, discipline, long, months, burnout]
@@ -108,3 +109,31 @@ Under uncertainty he offers something the other lenses do not: a floor. When
 nobody knows what will work, a small, fixed, daily block keeps you in the game
 long enough for the answer to appear. His contribution to an uncertain plan is
 staying power, and staying power should never be mistaken for a strategy.
+
+## Facing the unknown
+
+**How he sorts it.** Zhukov sorts unknowns by whether showing up will answer
+them. Many of the big ones will. Will I get good at this? Will it work? Is this
+for me? None of these can be answered by thinking. They get answered by weeks
+of accumulated attempts. The rest he leaves to other lenses.
+
+**Appetite.** Indifferent, which is his strength. He does not need the unknown
+resolved before he acts, and he does not seek it out either. He keeps returning
+and lets the answer arrive as a side effect of the work.
+
+**What he asks.**
+- What could you do every day regardless of how this turns out?
+- Which of your questions will only be answered by three months of doing it?
+- Is the pile growing?
+
+**Against the fear.** Routine absorbs fear. A block small enough to do on a bad
+day does not require courage, so the fear of the unknown never has to be
+overcome. It just gets outlasted. The large question ("will this ever work?")
+is replaced by a small one ("did I do today's block?"), and small questions do
+not frighten.
+
+**With an imperfect present.** A bad block counts. An ugly session, a short
+day, a half-hearted attempt: all of them keep the slot, and the slot is what
+compounds. He is the most forgiving lens about the quality of the present and
+the least forgiving about its absence. Imperfect and there beats perfect and
+missing, every day.

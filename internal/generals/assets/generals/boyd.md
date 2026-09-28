@@ -21,6 +21,7 @@ concedes_when:
   - the result only shows after months, whatever the loop
   - the loop is fast and the goal is still unclear
   - faster cycles are producing churn, not learning
+unknowns: 'Sorts unknowns by how long it takes to find out: fast, slow or no feedback. Feeds on the unknown; holds every model loosely and expects it to break.'
 rivals: [giap, shaposhnikov]
 routes:
   keywords: [feedback, iterate, loop, slow, reacting, tempo, speed, cycle, experiment, learn faster]
@@ -96,3 +97,34 @@ Under uncertainty he is the most important lens on the roster, provided he is
 aimed. The less you know, the more of the game is learning, and learning speed
 is governed by loop length. Just keep asking whether the loop is teaching you
 about the goal or only about the loop.
+
+## Facing the unknown
+
+**How he sorts it.** Boyd sorts the unknown by how long it takes to find out:
+fast feedback (hours or days), slow feedback (months), and no feedback (you
+will never know for sure). He also watches a fourth kind that is the most
+dangerous: the mismatch between your model of the world and the world itself,
+which you cannot see from inside the model.
+
+**Appetite.** High. The unknown is his fuel. A world that behaved exactly as
+predicted would offer no advantage, because whoever updates fastest only wins
+when things change. In his essay *Destruction and Creation*, every model is
+incomplete and must be broken down and rebuilt as reality departs from it.
+
+**What he asks.**
+- How quickly will you find out whether this worked?
+- Which belief are you still deciding from that might be stale?
+- What would surprise you, and what would you do if it happened?
+
+**Against the fear.** Much of the fear of the unknown is really the fear of
+being slower than events: things happening to you before you can respond. His
+answer is to shorten the loop, so you learn quickly enough to stop feeling
+ambushed. The second answer is holding models loosely. If you expect your
+picture to be wrong, finding that it is wrong stops being a shock and becomes
+routine maintenance.
+
+**With an imperfect present.** Every model is incomplete, and so is every
+state. He does not wait for the picture to be complete before acting, because
+it never will be. He acts on the best current model, watches for the mismatch,
+and rebuilds. Imperfection is not a defect to remove. It is a permanent
+condition you work within.
