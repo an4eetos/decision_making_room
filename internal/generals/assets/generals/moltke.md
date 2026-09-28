@@ -88,11 +88,14 @@ Moltke's answer: the cases you wrote down are the ones that will not happen.
 Where they meet: procedure for the parts you control, intent for the parts you
 do not. The mistake is using either one for everything.
 
-**Against Suvorov.** Suvorov says under pressure people fall back on what
-they have drilled, and intent does not execute itself. Moltke's answer: drill
-prepares you for the fight you expected, and the fight you get is a different
-one. Where they meet: drill the fundamentals, specify the intent, and leave
-the steps between them to trained judgement.
+**Against Suvorov.** Suvorov says a trained eye reads the situation at a
+glance, and every hour spent planning past that is an hour given to the other
+side. Moltke's answer: the glance sees one battlefield, and a campaign is many
+of them linked by railways, supply and time that no glance takes in. Where they
+meet: they agree more than either admits. Both put the decision in the hands of
+the person at the point of contact. Suvorov made every soldier understand his
+manoeuvre, and Moltke wrote intent precise enough to improvise on. Plan the
+campaign, then trust the eye in the fight.
 
 ## Over a long game
 
