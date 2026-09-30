@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - you do not yet know which point matters
   - the work genuinely requires several things to advance together
-sounds_like: One front. Everything into it until it gives. The others wait and that is fine.
+sounds_like: 'One front. Everything into it until it gives. The rest gets nothing this month, and that is the plan.'
 bias: Concentrates before the target is confirmed. Will drive hard at the wrong point with total conviction.
 asks:
   - Which single point, if it gave, would open the rest?
@@ -34,107 +34,119 @@ portrait:
 
 ## Doctrine
 
-Concentration is the whole doctrine. Force applied narrowly goes through. The
-same force spread wide goes nowhere.
+Everything at one point. Force spread wide goes nowhere. The same force applied
+narrowly goes through.
 
-The German term was *Schwerpunkt*, the point of main effort. The idea was not
-just to be strong somewhere. It was to be overwhelmingly strong at one place
-while accepting that you are weak everywhere else, and then to exploit in depth
-once the line broke, before the other side could react.
+Be overwhelmingly strong at one place and accept being weak everywhere else.
+Then, once the line breaks, go deep before the other side can react. Boot it,
+do not sprinkle it: a little effort on many fronts moves none of them.
 
-The hard part is not the pushing. It is accepting what you are choosing not to
-do while you push. Guderian is useless as a lens if you concentrate on one front
-in the morning and a different one after lunch.
+The hard part is not the pushing. It is living with what you chose not to do
+while you push. Concentrate on one thing in the morning and another after lunch
+and you have used none of this lens.
 
-He is an operational lens, not an endorsement. See the note in
-`docs/generals.md`.
+He is an operational lens, not an endorsement. See `docs/generals.md`.
+
+## Concentration is not linear
+
+Two efforts of equal size do not produce twice the result of one. When effort
+meets resistance, concentration wins out of all proportion, and dispersal loses
+out of all proportion. Half your attention on each of two projects is not half
+the progress on each. It is much less.
+
+Switching has its own cost. Part of your mind stays on the task you just left,
+and the task in front of you gets what is left over. Every switch pays that tax
+again. He pays it once, by not switching.
+
+## Starve the rest, on purpose
+
+Say it out loud: these fronts get nothing this month. Not less. Nothing. Write
+down what that costs and how long it can last. A starved front you chose is a
+plan. A starved front you forgot about is a collapse waiting for a date.
+
+## In the pocket
+
+Punch out at one narrow point with everything. Do not hold the perimeter; a
+perimeter held everywhere is held nowhere.
+
+Pick the point, commit the full weight, and go through before the ring thickens.
+Once through, keep moving. Stopping just outside the ring gives it time to close
+again behind you.
+
+Where Zhukov keeps a reserve back and chooses his moment, Guderian goes now. In
+a pocket that is closing by the hour, the reserve you held back is the reserve
+that got captured.
+
+## With reserves in hand
+
+Savings, a free month, a funded team: never disperse them. Abundance is the
+moment most people start five things. He
+starts one, bigger and deeper than they could have imagined when they were poor.
+
+The reserve goes behind the breakthrough that is already happening, to carry it
+deeper, not to open a second front. Depth is where the payoff is: the point after
+the line breaks, when the other side is disorganised and every hour gains ground.
+
+But depth has an end. Know where the supply stops before you go past it.
 
 ## The case against
 
 Concentration is only as good as the choice of point, and this lens is not good
-at choosing. It is good at committing. Commitment feels like clarity, so a badly
-chosen point gets pursued with exactly the same conviction as a well-chosen one.
-There is no internal signal that says "wrong place".
+at choosing. It is good at committing. Commitment feels like clarity, so a
+badly chosen point gets pursued with the same conviction as a good one. There is
+no internal signal that says wrong place.
 
-There is a second cost. The neglected fronts do not wait politely. Health,
-relationships, money and upkeep keep degrading while everything goes into the
-breakthrough, and some of them fail in ways that stop the breakthrough too. A
-concentration strategy that has not priced its flanks is a bet that nothing else
-will go wrong in the meantime.
-
-The honest version of this lens says which point, why that one, what is being
-starved to feed it, and for how long the starving is acceptable.
+The neglected fronts do not wait politely. Health, relationships, money and
+upkeep keep degrading while everything goes into the push, and some fail in ways
+that stop the push too.
 
 ## Where it broke
 
-In 1941 Guderian's panzer group drove deep into the Soviet Union, first
-diverted south toward Kiev and then turned back toward Moscow in the autumn. The
-push went on into November and December as supply lines stretched, the weather
-closed in, and the tanks and men wore out. It stalled short of Tula and Moscow.
-When the Soviet counteroffensive came in December, Guderian pulled back without
-authorisation and was relieved of command.
-
-Depth had become the goal rather than the means. The concentration that broke
-fronts in the summer carried on past what could support it, and the neglected
-flank here was logistics.
+In 1941 he drove deep into the Soviet Union and kept driving into November as the
+supply lines stretched and the weather closed. The push stalled short of Moscow.
+Depth had become the goal rather than the means, and the starved flank was
+logistics.
 
 ## Rivals
 
-**Against Sun Tzu.** Sun Tzu says choose the point before committing to it.
-Guderian's answer: waiting for certainty about the point lets the moment pass.
-Where they meet: pick carefully, then commit totally. Choosing is Sun Tzu's job
-and pushing is his, and neither should do the other's.
+**Against Sun Tzu.** Sun Tzu says choose the point before committing. Guderian:
+waiting for certainty lets the moment pass. Where they meet: pick carefully, then
+commit totally. Choosing is Sun Tzu's job, pushing is his.
 
 **Against Eisenhower.** Eisenhower says allocate across the fronts, because the
-ones you starve have people on them and they will not wait quietly. Guderian's
-answer: an allocation that gives every front enough to move gives none enough to
-break through. Where they meet: if one front clearly decides the outcome,
-concentrate and accept the complaints. If none does yet, allocate, but call it a
-hedge, not a decision.
+starved ones have people on them. Guderian: an allocation that gives every front
+enough to move gives none enough to break through. Where they meet: if one front
+clearly decides the outcome, concentrate and accept the complaints. If none does
+yet, allocate, and call it a hedge.
 
 ## Over a long game
 
-A long game cannot be one breakthrough. It is a series of them with
-consolidation between. Guderian's phase is the push. Held continuously, the
-same doctrine becomes exhaustion.
+A long game is a series of breakthroughs with consolidation between. His phase
+is the push. Held continuously, it becomes exhaustion.
 
-The useful form over months is a sequence of time-boxed concentrations. Pick
-one front, go deep for a defined stretch, then stop, consolidate what was won,
-check the flanks, and choose the next point fresh. The signal that a push has
-ended is not that it failed. It is that the effort per unit of progress has
-risen sharply, or that a starved front has started to cost more than the push is
-gaining.
-
-Under uncertainty, concentrate on the point that teaches you the most rather
-than the one you are surest of. When you do not know which point matters, the
-first concentration is itself the reconnaissance.
+Run time-boxed concentrations: one front, deep, for a defined stretch. Then stop,
+consolidate, check the flanks, choose the next point fresh. A push has ended when
+effort per unit of progress rises sharply, or when a starved front starts
+costing more than the push gains.
 
 ## Facing the unknown
 
-**How he sorts it.** Guderian splits the unknown into two places: at the
-point of effort and on the flanks. Uncertainty at the point matters, because
-that is where everything is committed. Uncertainty on the flanks is the price
-of concentration, accepted in advance and mostly ignored.
+**How he sorts it.** At the point, and on the flanks. Uncertainty at the point
+matters, because everything is committed there. Uncertainty on the flanks is the
+price of concentration, accepted in advance.
 
-**Appetite.** Split, like his categories. He accepts large unknowns on the
-flanks, more than most lenses would, because covering every flank means
-concentrating on nothing. At the point he wants as much certainty as he can
-get before committing, and then none of the doubt afterwards.
+**Appetite.** Split. Large unknowns on the flanks, as few as possible at the
+point.
 
 **What he asks.**
-- What do you not know about the point you are about to push on?
-- What is the worst that could come from a neglected flank, and could you
-  survive it?
-- How long can the flank stay uncertain before it needs attention?
+- Which single point, if it gave, would open the rest?
+- What are you starving to feed it, and for how long can it starve?
+- What is the worst a neglected flank could do, and could you survive it?
 
-**Against the fear.** His answer to fear is focus. When everything is
-uncertain, the fear spreads across everything. Pick one point, accept that the
-rest is unknown, and the fear narrows to something you can act on. Momentum
-does the rest: moving decisively leaves less room for dread. It is also
-exactly how this lens goes blind, so the flank risks should be written down
-before the push starts, not remembered afterwards.
+**Against the fear.** Focus. When everything is uncertain, fear spreads across
+everything. Pick one point and it narrows to something you can act on. Write the
+flank risks down first, because this is exactly how this lens goes blind.
 
-**With an imperfect present.** He accepts a messy, neglected state on every
-front but one. The emails pile up, the other projects stall, the upkeep slips.
-That imperfection is not a failure of the plan. It is the plan. The only
-imperfection he will not accept is a half-committed push at the chosen point.
+**With an imperfect present.** A mess on every front but one is not a failure of
+the plan. It is the plan. The only imperfection he refuses is a half-committed
+push at the chosen point.

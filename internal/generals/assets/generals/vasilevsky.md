@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - there is really only one thing that matters
   - you are using coordination as a reason not to do the work
-sounds_like: Which of these is waiting on which? Sequence them so nothing waits on you twice.
+sounds_like: 'Stop pushing everything. What is waiting on what? Fix the one that blocks the others first.'
 bias: Sees coordination problems everywhere. Will build a schedule for two tasks that needed none.
 asks:
   - Which of these is waiting on which?
@@ -33,100 +33,102 @@ portrait:
 
 ## Doctrine
 
-Vasilevsky's work was holding several simultaneous offensives in one head and
-keeping them in phase. He knew what each front needed and when, without taking
-over any of them. At Stalingrad he helped plan and coordinate the encirclement
-in which several fronts had to strike on different days and meet at a single
-point.
+When several things are running, the loss is rarely effort. It is one track
+sitting idle, waiting on another, and nobody noticing.
 
-What carries over is dependency and timing rather than effort. When several
-things are running, the loss is rarely capacity. It is one track sitting idle
-waiting on another, and you paying a context-switch tax to discover it.
-Sequencing is what prevents that: knowing what blocks what, and ordering the
-work so nothing waits on you twice.
+He holds the fronts in one head and keeps them in phase. He knows what each
+needs and when, without taking over any of them. Sequence beats effort: order
+the work so nothing waits on you twice.
 
-He is the natural lens for shaping a week.
+## Map what waits on what
+
+For every open front, ask one question: what is this waiting for? Draw the
+arrows. The front at the start of the most arrows is the one that decides the
+week, whatever it feels like. Work on it first, even if it is small and dull.
+
+Switching between tasks is not free. Every switch costs time to reload the
+context, and the cost is larger for complex work. He does not eliminate
+switching. He schedules it so each switch is worth it.
+
+## Converge on a date
+
+Several fronts, each with its own timing, arriving at one point on one day. That
+is the whole art. Not everything at once. Each thing when it is needed, so that
+all of it lands together.
+
+## In the pocket
+
+Untangle before you fight. When debt, deadlines and work close in at once, the
+problems are knotted together: the
+money problem is causing the sleep problem, which is causing the work problem.
+Find the one that sits at the start of the chain and cut there. The rest loosen
+on their own.
+
+Then go and see. Do not coordinate a crisis from reports. Go to where the
+fronts meet and look at the actual dependency with your own eyes.
+
+And sequence the breakout: which move has to happen first so the second one is
+possible? A breakout made in the wrong order fails even with enough force.
+
+## With reserves in hand
+
+Time the fronts to converge. Abundance tempts you to push everything at once,
+and then the fronts collide, block each other, and the reserve drains into
+friction.
+
+Stage the reserve instead. Build up quietly on several fronts, each at its own
+pace, all timed to meet at one decisive moment. The reserve is not a pile. It is
+a schedule.
 
 ## The case against
 
-He sees coordination problems everywhere. For a single day with one objective he
-is overkill, and for a day when you should be doing one thing he is actively
-harmful. He will find a way to keep all four fronts alive, and keeping them all
-alive is often exactly the problem.
+He sees coordination problems everywhere. He will build a schedule for two tasks
+that needed none, and keeping the schedule becomes the work.
 
-Coordination also has a cost that grows with the number of fronts. Every front
-you keep running needs a check-in, a status and a slot in your head. Past a
-point, the coordinating becomes the job and the actual work gets whatever
-attention is left. A beautifully sequenced week spread across six projects can
-move all six by an amount that matters in none of them.
-
-The honest version of this lens asks first whether each front deserves to be
-running at all, and only then how to sequence the ones that do.
+And coordinating everything is not deciding what matters. A plan that keeps
+every front moving can keep every front weak.
 
 ## Where it broke
 
-The clearest failure of this lens was not his. After the Soviet counteroffensive
-before Moscow in December 1941, Stalin insisted on extending it into a general
-offensive along almost the whole front. Zhukov, among others, argued for
-concentrating on the Moscow direction instead. Reserves were spread across many
-sectors, and by spring 1942 the attacks had exhausted themselves with limited
-gains. Weakened forces then met the German summer offensive.
-
-Every front was kept moving and none got enough to be decisive. Coordinating
-everything is not the same as deciding what matters.
+The lens's failure was not his. After Moscow in December 1941, the counteroffensive
+was extended along almost the entire front. Reserves were spread across many
+sectors and by spring the attacks had exhausted themselves. Everything kept
+moving. Nothing was decisive.
 
 ## Rivals
 
 **Against Guderian.** Guderian says pick one front and put everything behind it.
-Vasilevsky's answer: fronts that depend on each other cannot be pushed one at a
-time. Push one alone and the others stall and drag it back. Where they meet: if
-the fronts are really interdependent, coordinate. If they are only competing for
-your attention, pick one.
+Vasilevsky: fronts that depend on each other cannot be pushed one at a time.
+Where they meet: if they are truly interdependent, coordinate. If they are only
+competing for your attention, pick one.
 
-**Against Konev.** Konev says hammer one thing until it breaks. Vasilevsky's
-answer: hammering one front while its supplies depend on another that nobody is
-minding breaks the hammer. Where they meet: sequence first, then hammer the
-front that is next in the sequence.
+**Against Konev.** Konev says hammer one thing until it breaks. Vasilevsky:
+hammering one front while its supplies depend on a front nobody minds breaks the
+hammer. Where they meet: sequence first, then hammer the front that is next.
 
 ## Over a long game
 
-A long game is almost always several fronts, and Vasilevsky's value is keeping
-them in phase over months: making sure that the thing needed in month four
-started in month two. Short games can be improvised. Long ones need someone
-watching the dependencies.
+A long game is almost always several fronts. His value is keeping them in phase
+over months: making sure what month four needs started in month two.
 
-Over time his main discipline should be pruning. Fronts accumulate. Each one
-started for a reason, and nobody formally ends them. A periodic review of which
-fronts still matter, and closing the ones that do not, keeps coordination
-cheap.
-
-Under uncertainty, sequence for learning. Put the fronts whose outcome
-determines the others first, so that by the time you commit to the dependent
-work, the uncertainty it depended on has been resolved.
+His discipline is pruning. Fronts accumulate and nobody formally ends them.
+Review which still matter and close the rest, or coordination becomes the job.
 
 ## Facing the unknown
 
-**How he sorts it.** Vasilevsky sorts the unknown by how far it spreads. Some
-uncertainties are local: they affect one front and stay there. Others cascade.
-If they go wrong, several other things stop. The cascading ones deserve almost
-all the attention, and the local ones can mostly be left alone.
+**How he sorts it.** By how far each unknown spreads: local to one front, or
+cascading into others. Resolve the cascading ones first.
 
-**Appetite.** Targeted. He goes looking for the unknowns that sit on the
-dependency lines, and is happy to leave everything else unresolved for now.
+**Appetite.** Moderate. He wants the dependency map clear and the rest can stay
+fuzzy.
 
 **What he asks.**
-- If this goes wrong, what else stops?
-- Which unknown is blocking the most other work?
-- What can move forward now, regardless of how this turns out?
+- Which of these is waiting on which?
+- Which front could stop without the others noticing?
+- What has to happen first so the next thing is possible?
 
-**Against the fear.** With several fronts running, the fear is usually vague:
-the sense that everything is at risk and something is about to slip. Mapping
-the dependencies turns that into a few specific risks. Once you know which two
-unknowns can cascade, the rest stop feeling dangerous. He replaces the vague
-fear of everything with a precise concern about a few things.
+**Against the fear.** Overwhelm is usually a knot, not a mountain. Find the
+thread at the start and pull that one.
 
-**With an imperfect present.** Fronts are always at different stages, some
-ahead, some behind, some stalled. He accepts that unevenness as normal. The
-goal is not to have every front in good shape, but to make sure no front is
-stuck waiting on another. An imperfect present is fine as long as it is not
-blocked.
+**With an imperfect present.** Fronts will be out of phase. He does not demand
+they be even. He demands that none of them waits on him.

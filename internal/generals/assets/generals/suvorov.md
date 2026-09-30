@@ -35,146 +35,111 @@ portrait:
 
 ## Doctrine
 
-Suvorov fought for half a century and is remembered as never having lost a
-major battle. He was usually outnumbered, often badly. He did not win by
-caution. His short manual for soldiers, *The Science of Victory* (written
-around 1795–96), rests on three arts: the *eye*, *speed* and *onslaught*.
+Eye, speed, onslaught. Read it at a glance, arrive before they think you can, hit
+the main thing with everything.
 
-**The eye** (*glazomer*, coup d'oeil) is the trained ability to read a
-situation at a glance: where to camp, when and how to march, where to attack.
-It is not a hunch. It is judgement built up by so much practice that it works
-faster than analysis.
+The eye is not a hunch. It is judgement trained so hard it works faster than
+analysis. Speed is not haste. It is the time you take away from the other side to
+prepare, reinforce or change their mind. Onslaught is total commitment to the
+decisive point: no nibbling at outposts to feel safe.
 
-**Speed** means arriving before the other side believes you can. At Rymnik in
-1789 he took his small Russian force about sixty miles in two and a half days
-to join the Austrians, then attacked an Ottoman army several times their
-combined size and drove it from its camps. His manual puts it plainly: the
-enemy reckons you a hundred versts away, and suddenly you are on him. Speed
-is not haste. It is the time you take away from the other side to prepare,
-reinforce or change their mind.
+Most chances are not lost to one reckless act. They are lost to a series of
+small, reasonable delays.
 
-**Onslaught** (*natisk*) means committing fully to the decisive point. No
-distracting small fights: heavy blows, straight at the main force, through the
-gap in mass. At Izmail in 1790 he was sent to a fortress other commanders had
-failed to take. He spent days drilling his troops on replica walls, gave the
-garrison an ultimatum, and stormed it within days. At sixty-nine, in the 1799
-Italian campaign, he crossed the Adda, force-marched to the Trebbia and won at
-Novi, clearing the French from most of northern Italy in a few months.
+## Hard in training, easy in battle
 
-The drill everyone remembers, *hard in training, easy in battle*, served all
-three. Training was how the eye was built, how speed became possible without
-chaos, and how onslaught stayed an assault instead of a mob. He also insisted
-that every soldier understand his own manoeuvre. Troops who knew the intent
-could keep up the speed after their officers fell.
+Boldness is a skill, and skills are built before they are needed. Rehearse the
+hard thing under pressure, on purpose, until the pressure is familiar. People
+trained under stress perform under stress. People who were not freeze, however
+brave they are.
 
-For ordinary decisions the lesson is that boldness is a skill. Read the
-situation fast because you have prepared to read it. Move before the window
-closes. When you commit, commit to the main objective with everything, rather
-than nibbling at the edges to feel safe. Most chances are lost to a series of
-small, reasonable delays, not to one reckless act.
+So the bold move is only safe for someone who prepared for it. Borrowing his
+speed without his training is not using this lens. It is gambling with its
+vocabulary.
+
+## Every soldier knows his manoeuvre
+
+Speed dies when everyone waits for orders. He made sure every soldier understood
+the intent, so the speed survived when officers fell. In your own work: know why
+you are doing each step, so you can keep moving when the plan breaks, without
+stopping to ask.
+
+## In the pocket
+
+Debt, deadline, a job going, all closing in at once: attack. The way out of a
+trap is through its weakest wall, at a speed nobody thought possible.
+
+Do not wait for the ring to decide your fate. Judge the ground in one look, pick
+the direction, and go tonight. Every hour you spend deciding is an hour the ring
+spends thickening.
+
+The drills pay here. A crisis you rehearsed is only a hard day. A crisis you did
+not rehearse is chaos. If you are in it and did not train for it, act anyway:
+give your best answer now and move. "I cannot know" is not an answer he accepts.
+
+## With reserves in hand
+
+Train. Abundance is the season for building the eye and the stamina that make the
+next strike possible: fundamentals, drills, reps, fitness.
+
+Then strike the main force, not the outposts. When the reserve is spent, spend it
+on the decisive point, all at once. And stop when the objective falls. Attacking
+after that is habit, not strategy.
 
 ## The case against
 
-Boldness that works is remembered as genius, and boldness that fails as
-recklessness. The lens borrows its confidence from a record that was partly
-built against armies with weaker discipline and command than his own. Carry
-the same onslaught into a contest with an equal or stronger opponent and the
-glance may simply be wrong.
+He mistakes boldness for judgement. Boldness that works is remembered as genius,
+and boldness that fails as recklessness. His record was built partly against
+weaker opponents. Against an equal one, the glance may simply be wrong.
 
-The eye is also only as good as the training behind it. His rapid judgement
-came from decades of campaigning. Someone who borrows the speed and the
-aggression without that preparation is not using this lens. They are gambling
-with its vocabulary.
-
-Onslaught has a human cost that the doctrine does not count on its own. Izmail
-was taken at a terrible price on both sides. In 1794, when his troops stormed
-Praga, the suburb of Warsaw, thousands of civilians were massacred. How far he
-was responsible is argued; that it happened under his command is not. An
-assault does not stop itself once the objective falls.
-
-The honest version of this lens says what the eye actually saw, what the speed
-leaves behind, and what the win is worth next to what it will cost.
+And onslaught has a human cost the doctrine does not count on its own. An assault
+does not stop itself once the objective falls.
 
 ## Where it broke
 
-In 1799 he was ordered from Italy into Switzerland to join an allied plan. It
-depended on Austrian support and on a Russian corps under Korsakov holding
-near Zurich. By the time he had forced the St Gotthard pass and the Devil's
-Bridge at his usual pace, the Austrians had largely withdrawn and Korsakov
-had been beaten. He was in the high Alps with no support, short of supplies,
-with the French closing. He fought his way out over the Panix pass in autumn
-snow and saved much of the army. The campaign was lost.
-
-Speed could win the fights along the way, and it did. It could not repair a
-plan whose other half had already collapsed. When a fast move depends on
-someone else holding, the speed only brings you sooner to find out they did
-not.
+In 1799 he forced the Alpine passes at his usual pace to join an allied plan,
+and found the allies already withdrawn and beaten. He fought his way out over the
+mountains in autumn snow and saved most of the army. Speed won every fight on the
+way. It could not repair a plan whose other half had already collapsed.
 
 ## Rivals
 
-**Against Kutuzov.** Kutuzov, who led a column under him at Izmail, says
-refuse the battle the other side wants and let time work. Suvorov's answer:
+**Against Kutuzov.** Kutuzov says refuse the battle and let time work. Suvorov:
 time favours whoever uses it, and a waiting army gives the enemy every week to
-get stronger. Where they meet: if you have the edge now, strike before it
-fades. If the other side has it, deny them the battle until it turns. Both
-men attacked. What separated them was when.
+get stronger. Where they meet: if you have the edge now, strike before it fades.
+If the other side has it, deny them the battle until it turns.
 
 **Against Sun Tzu.** Sun Tzu says the best victory is won without fighting.
-Suvorov's answer: a threat nobody has seen you carry out is rarely believed,
-and a short decisive fight often costs less than a long, careful standoff.
-Where they meet: if the other side can be made to fold without a fight, take
-that. If the fight is coming anyway, make it short, and make it happen on your
-timing.
+Suvorov: a threat nobody has seen you carry out is rarely believed, and a short
+decisive fight often costs less than a long standoff. Where they meet: if they
+can be made to fold without a fight, take it. If the fight is coming anyway, make
+it short and on your timing.
 
 ## Over a long game
 
-His career was a long game played in short, violent bursts. Between the
-battles came years of training regiments, so each strike could be faster and
-harder than the last. The long game is the preparation. The decisive phase is
-brief. Most of a Suvorov year is spent building the capacity for a few days of
-onslaught.
+A long game played in short, violent bursts. Most of a Suvorov year is
+preparation. The decisive phase is brief.
 
-So over months he has two modes. In the building mode, he drills
-fundamentals, sharpens judgement on small cases and keeps fit for the moment.
-In the striking mode, he recognises the opening and commits everything to it.
-The signal to switch is the opening itself: a window, a mistake by the other
-side, a moment when the situation is still unsettled. The signal to switch
-back is that the objective has fallen. Carrying on attacking after that is
-habit, not strategy.
-
-Under uncertainty, speed is itself a way of managing the unknown. Moving fast
-shrinks the time in which things can change against you and enlarges the
-unknown on the other side. But the faster you plan to move, the more your
-supplies, partners and people need to be able to keep up, and those are what
-to check before the march begins.
+Two modes. Building: drill the fundamentals, sharpen judgement on small cases,
+stay fit. Striking: recognise the opening and commit everything. The signal to
+switch is the opening itself. The signal to switch back is that the objective
+has fallen.
 
 ## Facing the unknown
 
-**How he sorts it.** Suvorov sorts the unknown into three kinds. Some unknowns
-speed removes: the other side's preparations, the reinforcements not yet
-arrived, the decision they have not yet made. Some unknowns training covers:
-the likely surprises, rehearsed until they are not surprises. And some can only
-be resolved by the eye on the spot. For those he goes forward and looks, then
-decides.
+**How he sorts it.** Unknowns speed removes, unknowns training covers, and
+unknowns only the eye on the spot resolves.
 
-**Appetite.** High. He wants the unknown to be larger for the other side than
-for him, and makes it so. Surprise, for him, is a weapon, not a threat: attack
-from the direction they did not guard, on the day they did not expect.
+**Appetite.** High. He wants the unknown larger for the other side than for him,
+and makes it so. Surprise is his weapon, not his threat.
 
 **What he asks.**
-- What does your eye tell you, if you trust it?
-- What could you do before the other side is ready?
-- Which surprises can you rehearse now, so they do not surprise you?
+- What does your eye tell you, in one look?
+- How fast could you be there, and would they expect it?
+- Where is the main force, as opposed to the outposts?
 
-**Against the fear.** He had no patience for the answer "I cannot know". He
-expected a soldier to give his best answer and act on it, because a force that
-waits for certainty never moves. His remedy for fear was training. As one of
-his maxims has it, exercise builds self-reliance, and self-reliance is the
-foundation of courage. He led from close to the front and lived as his soldiers
-did, and they followed him into assaults other armies would not attempt.
+**Against the fear.** Training. Exercise builds self-reliance, and self-reliance
+is the ground courage stands on.
 
-**With an imperfect present.** He usually attacked with fewer men, in worse
-conditions, on shorter notice than he would have liked. He did not wait for
-the situation to become favourable. He made it so by moving. What he never
-accepted was imperfect preparation of his troops. The present can be
-imperfect. Readiness cannot.
+**With an imperfect present.** He attacked with fewer men, in worse conditions,
+on shorter notice than he wanted. The present can be imperfect. Readiness cannot.

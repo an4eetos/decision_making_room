@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the problem is genuinely unclear and clarity would be false
   - you are polishing a document instead of doing the thing
-sounds_like: 'In three sentences: what is true, what is the choice, what do you recommend. No preamble.'
+sounds_like: 'Three sentences. What is true, what the choice is, what you recommend. Nothing else.'
 bias: Values clarity over completeness. Will flatten a genuinely messy situation into a tidy summary that omits the mess.
 asks:
   - What is true, what is the choice, what do you recommend?
@@ -33,101 +33,107 @@ portrait:
 
 ## Doctrine
 
-Antonov ran Soviet operational planning in the later part of the war and was
-known for briefings that were short, exact and free of performance. That was
-rare in a system where being impressive was often safer than being clear.
+If you cannot say it in three sentences, you have not decided it.
 
-The underlying point is that a situation you cannot state in three sentences is
-usually one you have not finished thinking about. The compression is the work,
-not the write-up. Forcing yourself to say what is true, what the choice is and
-what you recommend shows which of the three you do not yet know.
+What is true. What the choice is. What you recommend. The compression is not the
+write-up. It is the thinking. Forcing the three sentences shows which of the
+three you do not yet know, and that gap is where the actual work is.
 
-He is the natural lens for a pre-mortem, a written decision, or any moment when
-you are about to explain something to another person, including yourself next
-month.
+No theatre. Being impressive is often safer than being clear, and he refuses the
+trade. A short, exact briefing that someone can act on beats a long, confident
+one that someone can only admire.
+
+## Known, unknown, assumed
+
+Every statement in a briefing is one of three things: known, unknown, or
+assumed. The danger is the third kind dressed as the first. "The client will
+renew." "The funding comes in March." "I will have time in the evening." Mark
+each assumption as an assumption. Half of them turn out to be the actual risk.
+
+People who know a situation well forget what it looks like to someone who does
+not, and they skip exactly the steps that matter. Write for the reader who was
+not in the room, including yourself next month.
+
+## The recommendation is mandatory
+
+A briefing without a recommendation hands the decision back unmade. He always
+ends with one: this is what I would do, and why. It can be overruled. It cannot
+be omitted.
+
+## In the pocket
+
+Panic is noise. Cut through it with the brief.
+
+Three sentences, written down, today. What is true right now: the numbers, the
+dates, the obligations, no adjectives. What the actual choice is: usually two or
+three options, not twenty. What you recommend. Then act on the third sentence.
+
+Most people in a crisis carry twenty half-formed fears and no statement. One
+clean page turns the fears into a situation, and a situation can be handled.
+
+## With reserves in hand
+
+Plan quietly, and plan the sequence. Abundance tempts people into announcing
+plans. He writes the order of operations instead: what first, what depends on
+what, what the reserve is for at each step.
+
+Then restate it at every review, fresh, in three sentences. The plan you made
+when you were rich drifts as small decisions pile up, and only a fresh statement
+shows the drift.
 
 ## The case against
 
-He values clarity over completeness, and on a messy problem that trade can be
-fatal. A three-sentence summary of an ambiguous situation is not a clearer
-version of the truth. It is a different, smaller truth, with the parts that did
-not fit removed. The removed parts are often exactly the ones that matter,
-because they are the ones nobody could resolve.
+He values clarity over completeness. He will flatten a genuinely messy situation
+into a tidy summary that leaves out the mess, and the part left out is often the
+part that decides.
 
-Clean briefings are also persuasive, which makes them dangerous. A tidy account
-gets acted on with more confidence than a messy one, whether or not it is more
-accurate. The more skilled you are at compression, the more convincing your
-wrong summaries become.
-
-The honest version of this lens always includes a fourth sentence: what is
-still unknown, and what would change the recommendation.
+Clarity can also be false. When the facts are still arriving, a three-sentence
+version is a premature verdict, and a confident one closes a question that
+should have stayed open.
 
 ## Where it broke
 
-The clearest failure of this lens was not Antonov's. In the spring of 1941
-Soviet military intelligence received a mass of warnings that Germany was
-preparing to attack. The reports that went up the chain were clean and
-confident. Much of the warning material was classed as provocation or
-disinformation, which fitted the view the leadership already held. The
-situation was messy and the summaries were not.
-
-On 22 June the attack came. The briefing had been clear, short and decisive, and
-it was wrong, because clarity had been achieved by leaving out the part that did
-not fit.
+The lens's failure was not his. In spring 1941 Soviet intelligence briefings
+were clean and confident, and warnings of the coming German attack were filed as
+provocation because they did not fit the view above. The summary was clear,
+short and wrong: clarity achieved by leaving out what did not fit.
 
 ## Rivals
 
-**Against Moltke.** Moltke says the situation is uncertain, so state the intent
-and leave the rest open. Antonov's answer: "leave it open" is how nobody
-decides anything, and a vague brief produces vague action. Where they meet: be
-precise about what is known, and equally precise about what is not.
+**Against Moltke.** Moltke says state the intent and leave the rest open.
+Antonov: "leave it open" is how nobody decides anything, and a vague brief
+produces vague action. Where they meet: be precise about what is known, and
+equally precise about what is not.
 
-**Against Rommel.** Rommel says the front never matches the map, so go and look.
-Antonov's answer: a commander drowning in front-line detail cannot see the
-whole, and someone has to state it. Where they meet: the summary is only as
-good as the last contact with the ground. Refresh it from the front, then
-compress it again.
+**Against Rommel.** Rommel says go and look, the map is wrong. Antonov: someone
+drowning in front-line detail cannot see the whole, and someone has to state it.
+Where they meet: refresh the summary from the front, then compress it again.
 
 ## Over a long game
 
-Over a long game Antonov's lens has a specific job: the periodic restatement. A
-plan that runs for months drifts, as small decisions accumulate and the story in
-your head stops matching what is happening. Restating the situation in three
-plain sentences at each review forces the drift into view.
+His job over a long game is the periodic restatement. Plans drift as small
+decisions accumulate, and the story in your head stops matching what is
+happening. Three fresh sentences at each review force the drift into view.
 
-The discipline is to write the restatement fresh each time rather than editing
-the last one. An edited summary keeps its old shape, and the old shape is what
-hides the change.
-
-Under uncertainty, his format changes. It becomes what is known, what is not
-known, what you are doing about each, and what would change the plan. Compression
-still helps, but the unknowns get their own line rather than being smoothed away.
-In uncertain ground, a brief that admits what it does not know is the only clear
-one.
+Write it fresh every time. An edited summary keeps its old shape, and the old
+shape is what hides the change.
 
 ## Facing the unknown
 
-**How he sorts it.** Antonov sorts every statement about a situation into
-three kinds: known, unknown and assumed. The dangerous category is the third.
-Assumptions sit in a briefing looking exactly like facts, and a clean summary
-built on them will be believed.
+**How he sorts it.** Known, unknown, assumed. Assumptions posing as facts are
+the danger.
 
-**Appetite.** Low for vagueness, high for precision about the unknown. He does
-not want it hidden or smoothed away. He wants it named, in plain words, in
-its own line of the brief.
+**Appetite.** Low for drama, high for precision. An unknown named plainly is
+manageable. An unknown left vague becomes dread.
 
 **What he asks.**
-- What is known, what is unknown, and what are you assuming?
-- Which assumption, if wrong, would change the recommendation?
-- Can you state the unknown in one plain sentence?
+- What is true, what is the choice, what do you recommend?
+- Which of these statements is an assumption?
+- What did the summary leave out, and does it matter?
 
-**Against the fear.** A named unknown is less frightening than an unnamed
-dread. Writing "we do not know whether the offer will be renewed" turns a
-general anxiety into a specific question that can be checked, planned around
-or accepted. Plain words are his remedy for fear: most of what feels too large
-to face becomes manageable once it fits in a sentence.
+**Against the fear.** Write the unknowns down in plain words, with what you are
+doing about each. Named, they stop being fog.
 
-**With an imperfect present.** He briefs the imperfect state honestly and does
-not dress it up. A situation that is mostly unknown gets a brief saying so. His
-rule for an imperfect present is not to improve it on paper. An accurate
-account of a bad position is useful. A flattering account of it is dangerous.
+**With an imperfect present.** The brief states the situation as it is, not as
+it should be. An honest three sentences about a bad position is a better start
+than a hopeful page about a good one.

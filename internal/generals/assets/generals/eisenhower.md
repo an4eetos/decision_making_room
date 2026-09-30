@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the work is genuinely yours alone
   - delegation is how you are avoiding it
-sounds_like: Of these six, which are urgent and which are important? Do the important ones and hand off the rest.
+sounds_like: 'Half of this is urgent and none of it is yours. Hand it off today. Now: what can only you decide?'
 bias: Optimises for keeping everyone moving. Will trade a decisive move for one that keeps the peace.
 asks:
   - What here can only you do?
@@ -33,109 +33,114 @@ portrait:
 
 ## Doctrine
 
-Eisenhower's command problem was not tactical. It was holding together allies
-with incompatible aims and large egos while keeping the whole thing pointed the
-same way.
+Urgent and important are different things. Most of your day is the first
+pretending to be the second.
 
-There are two lessons. The first is the distinction that carries his name:
-urgent and important are different axes, and a day full of
-urgent-but-not-important is the default state of anyone who is responsive. The
-second is delegation as a strategic act. Ask what genuinely requires you, and
-treat everything else as something to hand off, not something to feel guilty
-about handing off.
+The loudest task is rarely the one that matters. People pick the task with a
+deadline over the task with a bigger payoff, even when they can see the payoff
+is bigger, simply because the deadline is there. He separates the two axes
+before anything else: what is important, what is merely urgent, and who else
+could do the urgent part.
 
-Behind both is a view of leadership as allocation: of attention, of trust, of
-scarce resources among claimants who all have a case. He is the right lens for
-an overloaded week and for work that depends on other people.
+Leadership, for him, is allocation: of attention, of trust, of scarce resources
+among people who all have a case. And one rule above all: find what only you can
+do, and do only that.
+
+## Own the decision before you make it
+
+Deciding means accepting that it may fail. Most people cannot decide because
+they are still hoping for an option that cannot be blamed. There is none.
+
+So he takes the blame in advance. Before the big call, write down, for yourself,
+what you will say if it goes wrong, and put your name on it. Once the failure is
+owned, the decision is free to be made on its merits instead of on its
+defensibility.
+
+## Hand it off
+
+Every job you keep is one nobody else learns to do, and one that waits for you
+while you are busy with the next. Delegation is not a favour to yourself. It is
+how the whole thing stops depending on your calendar.
+
+Hand off the outcome, not the steps. Say what done looks like and let the
+person closest to the work decide how.
+
+## In the pocket
+
+Clear the calendar ruthlessly. In a crisis the urgent multiplies, and the
+urgent will eat every hour you have if you let it. Kill every meeting, reply and
+chore that does not bear on getting out.
+
+Then split the work. What only you can do: that is yours, today. Everything else
+goes to someone else, or waits. Hold the people around you together with one
+clear message about what matters now, because a coalition in a crisis falls
+apart through confusion before it falls apart through disagreement.
+
+And make the one decision that is yours. Own it in advance, and make it.
+
+## With reserves in hand
+
+Allocate, and say out loud that it is a hedge. Spreading resources across
+several fronts is right while you do not know which front decides the outcome.
+It becomes wrong the moment one front clearly does, and in abundance nobody
+notices that moment, because everyone is supplied and nobody is complaining.
+
+So set the dates when the allocation is reopened, and someone is allowed to
+lose. A standing compromise quietly becomes the plan.
 
 ## The case against
 
-His blind spot is consensus. He will find the option everyone can live with,
-which is not always the right one. Keeping a coalition together is a real
-achievement, but it tends to rank "nobody leaves" above "somebody wins", and in
-some situations only the second matters.
+He optimises for keeping everyone moving. He will trade the decisive move for
+the one that keeps the peace, and call it balance. A plan that satisfies every
+stakeholder usually satisfies them by not deciding anything.
 
-Delegation has a shadow as well. Handing off can be a way of not facing the hard
-part, or of spreading responsibility so thinly that nobody owns the result. And
-the urgent/important grid assumes you can tell the two apart, when the most
-dangerous items are important things that look urgent-and-trivial until they
-blow up.
-
-The honest version of this lens names the decisive question as well as the
-allocation, and says who is disappointed by the answer.
+Delegation can also be avoidance. Handing off the hard part of your own work to
+someone else, then calling it leadership, is the most respectable way of not
+doing it.
 
 ## Where it broke
 
-In the autumn of 1944, with Allied supply stretched thin after the breakout
-from Normandy, Eisenhower kept to a broad-front advance rather than giving full
-priority to either Montgomery in the north or Patton in the south. He did
-approve Market Garden, Montgomery's bid to cross the Rhine, and it failed at
-Arnhem. The broad front then stalled along the German frontier through the
-autumn and winter. Historians still argue whether a single thrust would have
-worked.
-
-The argument is contested and so is the verdict. The pattern is clear enough
-anyway: the allocation kept every commander supplied and none of them decisive.
-Keeping the coalition together was the priority, and a quick end to the war was
-the price.
+In autumn 1944 he kept a broad-front advance rather than backing one decisive
+thrust. Every commander stayed supplied, none became decisive, and the front
+stalled for the winter. Historians still argue the verdict. The pattern is
+plain: the allocation kept the coalition together and bought no decision.
 
 ## Rivals
 
-**Against Patton.** Patton says do it yourself, now, and learn from contact.
-Eisenhower's answer: you are the bottleneck, and every job you take personally
-is one nobody else learns to do. Where they meet: do the first one yourself to
-learn its shape, then hand it off.
+**Against Patton.** Patton says do it yourself, now. Eisenhower: you are the
+bottleneck, and every job you take personally is one nobody else learns. Where
+they meet: do the first one yourself to learn its shape, then hand it off.
 
-**Against Konev.** Konev says pick one front and keep up the pressure until it
-gives. Eisenhower's answer: the fronts you starve have people on them, and they
-will not wait quietly while you hammer. Where they meet: concentrate when one
-front clearly decides the outcome. When nothing clearly does, allocate. Just
-never pretend an allocation is a decision.
+**Against Konev.** Konev says pick one front and keep up the pressure.
+Eisenhower: the starved fronts have people on them, and they will not wait
+quietly. Where they meet: concentrate when one front clearly decides. When
+nothing does, allocate. Never pretend an allocation is a decision.
 
 ## Over a long game
 
-Over a long game Eisenhower's value is sustaining the people and systems around
-the work: the collaborators, the delegation structure, the relationships that
-long efforts depend on. Short games can run on one person's energy. Long ones
-cannot.
+His value in a long game is sustaining the people and systems around the work.
+Short games run on one person's energy. Long ones cannot.
 
-His risk also grows over time. A standing compromise gradually becomes the
-plan. Each allocation that kept the peace becomes the baseline for the next, and
-the moment for a decisive choice passes without anyone deciding to let it pass.
-A long game needs him to set explicit points at which the allocation is reopened
-and someone is allowed to lose.
-
-Under uncertainty his allocation instinct is an asset if it is deliberate.
-Spreading resources across several fronts is a hedge, and hedging is right
-while you do not know which front matters. Say so, and say what would tell you
-it is time to concentrate.
+His risk grows with time. Each allocation that kept the peace becomes the
+baseline for the next, and the moment for a decisive choice passes without
+anyone deciding to let it. Put reopening points in the calendar.
 
 ## Facing the unknown
 
-**How he sorts it.** Eisenhower sorts the unknown by who holds it. Some
-uncertainties are his to decide on. Others belong to the people he delegated
-to, and the right move is to let them carry it. A third kind is about people
-themselves: will the allies cooperate, will the team deliver, will the
-agreement hold.
+**How he sorts it.** By who owns each unknown and whether the people involved
+will cooperate. His own unknowns he researches. Other people's he delegates.
 
-**Appetite.** Moderate and practical. He does not seek out the unknown, but he
-does not flinch at deciding inside it. Before D-Day he chose to go on a
-forecast of a brief break in bad weather, after hearing the meteorologists
-out. He listened carefully and then decided, knowing he could be wrong.
+**Appetite.** Moderate. He listens to the experts, then decides, and accepts in
+advance that he may be wrong.
 
 **What he asks.**
-- Whose call is this, really?
-- Who knows the most about this unknown, and have you heard them?
-- If this fails, what will you say, and can you live with it?
+- What here can only you do?
+- Which of these is urgent, and which is important?
+- If this fails, what will you say, and can you say it now?
 
-**Against the fear.** Before the landings he wrote a short note to be released
-if they failed, taking the responsibility on himself. Accepting the failure in
-advance is his method against fear: once you have faced the worst outcome and
-decided you can own it, the fear loses its grip on the decision. It becomes
-possible to choose, not only to worry.
+**Against the fear.** The fear of deciding is mostly the fear of being blamed.
+Take the blame first. What remains is the decision.
 
-**With an imperfect present.** He is known for saying that plans are worthless
-but planning is everything. The current plan is always imperfect. What matters
-is that the planning prepared people to adapt when it broke. He manages an
-imperfect coalition, with imperfect allies and imperfect options, and treats
-that as normal rather than something to wait out.
+**With an imperfect present.** A coalition is always imperfect. He does not wait
+for everyone to agree. He keeps them moving in one direction and decides what
+only he can.

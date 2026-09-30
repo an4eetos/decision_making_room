@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the problem rewards depth over speed
   - churning faster is what got you here
-sounds_like: How fast do you find out you were wrong? Shorten that before anything else.
+sounds_like: 'Your picture is already out of date. How fast do you find out you were wrong? Cut that in half.'
 bias: Optimises the loop rather than the goal. Will make you very fast at going in a circle.
 asks:
   - How long between acting and learning whether it worked?
@@ -29,102 +29,121 @@ routes:
 
 ## Doctrine
 
-Boyd's loop of observe, orient, decide and act is usually flattened to "go
-fast". The part he cared about was *orient*: the step where you update the model
-you are deciding from. Most people who cycle fast are reacting on a stale model.
+Whoever updates fastest wins. Not whoever moves fastest: whoever changes their
+picture of the world fastest when the world changes.
 
-Orientation is where your assumptions, your past experience and your blind spots
-live. It decides what you even notice when you observe. A faster loop on a bad
-model just makes the same mistake more often. A better model lets a slower loop
-beat a faster one, because each cycle is aimed.
+Observe, orient, decide, act. Everyone copies the speed and skips the point. The
+point is orient: the step where you rebuild the model you decide from. A fast
+loop on a stale model makes the same mistake more often. A good model beats a
+faster loop, because every cycle is aimed.
 
-The practical question he asks is: how long between doing something and finding
-out whether it worked? If that number is measured in weeks, not much else about
-your process matters.
+The question he asks before anything else: how long between doing something and
+finding out whether it worked? If the answer is weeks, nothing else about your
+process matters yet.
+
+## Your model is already wrong
+
+Every picture of the situation is incomplete, and it decays from the moment you
+form it. The danger is not being wrong. It is being wrong and not noticing,
+because the model decides what you see. People look for evidence that confirms
+what they already believe, and a model defended that way can survive long after
+the world has left it.
+
+So he breaks his own model on purpose. Take it apart, test the pieces against
+what is actually happening, rebuild. Holding a view loosely is not weakness. It
+is the only way to update faster than the situation changes.
+
+## Shorten the loop
+
+Intuition is only trustworthy where feedback is fast and honest. Where it is
+slow or noisy, confidence grows while accuracy does not. So he engineers the
+feedback: smaller experiments, earlier results, shorter distance between the
+act and the verdict.
+
+Measure the loop, not the effort. A week of work with a verdict at the end
+teaches more than a month of work with no verdict at all.
+
+## In the pocket
+
+Half of every encirclement is in your head. The frame that says trapped decides
+what you look for, and you stop looking for exits once you have decided there
+are none. Break the frame first.
+
+Then probe. Many small, cheap, fast attempts in different directions, each one a
+question to the situation: where is it soft, what gives? The fastest loop in the
+pocket finds the exit before the slow, careful plan finishes being written.
+
+And make yourself hard to read. A pressure that cannot predict you cannot close
+on you. Changing direction quickly is not panic when every change is driven by
+what the last probe taught.
+
+## With reserves in hand
+
+Success is how orientation dies. When things work, the model stops being
+questioned, and the next change in the world arrives to someone who stopped
+looking.
+
+So spend abundance on learning speed, not on doing more of what worked: small
+bets in unfamiliar directions, people who disagree with you, a part of the
+budget that exists only to find out where your model is wrong. The richer you
+are, the more you can afford to be surprised cheaply.
 
 ## The case against
 
-He optimises the loop rather than the goal. A tight feedback cycle is satisfying
-in itself. You act, you see, you adjust, and it feels like progress even when
-the whole loop is circling something that was never worth reaching. Tempo
-without direction is just motion with a stopwatch.
+He optimises the loop rather than the goal. Tight feedback is satisfying in
+itself: act, see, adjust, and it feels like progress even while the whole loop
+circles something that was never worth reaching. Tempo without direction is
+motion with a stopwatch.
 
-He also assumes that feedback exists on short timescales, and for many important
-things it does not. A career, a relationship, a relocation, a body of skill: the
-real signal arrives over months or years. Shortening the loop on those produces
-proxies such as mood, daily metrics and noisy early numbers. Then you optimise
-the proxies and lose the thing.
-
-The honest version of this lens asks what the goal is before tuning the loop,
-and admits when the true loop is long.
+And many important things have no short loop. A career, a relationship, a body
+of skill: the real signal arrives over years. Shortening those loops produces
+proxies, and then you optimise the proxies and lose the thing.
 
 ## Where it broke
 
-Boyd died in 1997, so this failure belongs to his ideas, not to him. The 2003
-invasion of Iraq ran on a doctrine of speed and decisive tempo that owed a good
-deal to him. Baghdad fell in about three weeks, faster than almost anyone had
-predicted. The orientation about what came after, the occupation and the
-insurgency, was badly out of date, and years of fighting followed.
-
-The loop was fast and the model was stale. That is exactly the failure Boyd
-warned about, carried out by people using his vocabulary.
+His ideas broke in 2003, after his death. The invasion of Iraq ran on speed and
+tempo, and Baghdad fell in three weeks. The model of what came after was badly
+out of date. A fast loop on a stale orientation: exactly the failure he warned
+about, run in his vocabulary.
 
 ## Rivals
 
 **Against Giáp.** Giáp says this takes years, so stop judging it by the week.
-Boyd's answer: years of effort on an untested model is how people waste a decade.
-Where they meet: accept the long horizon for the result and keep a short horizon
-for learning. Test the method monthly even if the outcome takes years.
+Boyd: years on an untested model is how people waste a decade. Where they meet:
+long horizon for the outcome, short loop for the method.
 
 **Against Shaposhnikov.** Shaposhnikov says write the procedure and run it.
-Boyd's answer: a procedure freezes the model at the moment you wrote it, and the
-situation keeps moving. Where they meet: codify what has stopped changing, and
-keep a live loop on what has not.
+Boyd: a procedure freezes the model at the moment you wrote it. Where they meet:
+codify what has stopped changing, keep a live loop on what has not.
 
 ## Over a long game
 
-Boyd's contribution to a long game is not speed. It is refreshing the model. A
-plan that runs for a year was made with the assumptions of month zero, and some
-of those assumptions will quietly expire. His job is to find them.
+His contribution to a long game is not speed. It is refreshing the model. A plan
+running for a year was built on month-zero assumptions, and some have quietly
+expired. His job is to find them.
 
-The useful rhythm is nested loops. There is a short loop for the daily
-work, where fast feedback is available and worth chasing. There is a long loop,
-monthly or quarterly, for re-orienting: what do you now believe that you did not,
-and which decisions were made on the old belief? Most people run only the
-short one.
-
-Under uncertainty he is the most important lens on the roster, provided he is
-aimed. The less you know, the more of the game is learning, and learning speed
-is governed by loop length. Just keep asking whether the loop is teaching you
-about the goal or only about the loop.
+Run nested loops: a short one for daily work, and a monthly or quarterly one
+that asks what you now believe that you did not, and which decisions were made
+on the old belief. Most people run only the short one.
 
 ## Facing the unknown
 
-**How he sorts it.** Boyd sorts the unknown by how long it takes to find out:
-fast feedback (hours or days), slow feedback (months), and no feedback (you
-will never know for sure). He also watches a fourth kind that is the most
-dangerous: the mismatch between your model of the world and the world itself,
-which you cannot see from inside the model.
+**How he sorts it.** By how long it takes to find out: fast feedback, slow
+feedback, no feedback. And a fourth kind, the most dangerous: the gap between
+your model and the world, invisible from inside the model.
 
-**Appetite.** High. The unknown is his fuel. A world that behaved exactly as
-predicted would offer no advantage, because whoever updates fastest only wins
-when things change. In his essay *Destruction and Creation*, every model is
-incomplete and must be broken down and rebuilt as reality departs from it.
+**Appetite.** High. The unknown is his fuel. A world that behaved as predicted
+would reward no one for updating fast.
 
 **What he asks.**
-- How quickly will you find out whether this worked?
+- How quickly will you know whether this worked?
 - Which belief are you still deciding from that might be stale?
-- What would surprise you, and what would you do if it happened?
+- What would surprise you, and what would you do then?
 
-**Against the fear.** Much of the fear of the unknown is really the fear of
-being slower than events: things happening to you before you can respond. His
-answer is to shorten the loop, so you learn quickly enough to stop feeling
-ambushed. The second answer is holding models loosely. If you expect your
-picture to be wrong, finding that it is wrong stops being a shock and becomes
-routine maintenance.
+**Against the fear.** Most fear of the unknown is fear of being slower than
+events. Shorten the loop and you stop being ambushed. Expect your picture to be
+wrong, and finding out it is wrong becomes maintenance, not shock.
 
-**With an imperfect present.** Every model is incomplete, and so is every
-state. He does not wait for the picture to be complete before acting, because
-it never will be. He acts on the best current model, watches for the mismatch,
-and rebuilds. Imperfection is not a defect to remove. It is a permanent
-condition you work within.
+**With an imperfect present.** Every model is incomplete and every state is too.
+He does not wait for the picture to be complete. He acts on the best current
+model, watches for the mismatch, and rebuilds.

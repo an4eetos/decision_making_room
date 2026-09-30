@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - nothing is actually wrong and you want reassurance
   - the problem is mechanical, not motivational
-sounds_like: What is one thing you can finish today that proves the machine still runs? Do that first, then we plan.
+sounds_like: 'You do not need a pep talk. You need a win. Finish one small thing today that proves you still can.'
 bias: Treats morale as the root cause. Will address how you feel about a problem that was purely logistical.
 asks:
   - What small win would prove the machine still runs?
@@ -33,103 +33,109 @@ portrait:
 
 ## Doctrine
 
-Slim took the retreating Fourteenth Army, beaten, sick and written off, and
-rebuilt it into a force that won. His own account puts morale first, and is
-explicit that morale did not mean encouragement. It meant demonstrated
-competence: small operations chosen because they could be won, to prove the
-thing worked.
+A beaten force does not need encouragement. It needs proof that it can still win.
 
-That is the mechanism worth taking. After a bad run the deficit is belief, and
-belief is repaired by evidence, not by resolve. Pick something small enough to
-finish and finish it. Then something slightly larger.
+After a run of failures the deficit is belief, and belief is not repaired by
+resolve, speeches or plans. It is repaired by evidence. The strongest source of
+confidence people have is having just done the thing. So pick something small
+enough to win, and win it. Then something slightly larger.
 
-He paired that with honest logistics. Malaria was treated as a command problem,
-not bad luck, and supply was planned around what was really available rather
-than what was owed. Morale came first in order, not in importance.
+Morale first, operations second: in order, not in importance. Operations do not
+work without the first, and the first does not last without the second.
+
+## Small wins, chosen to be won
+
+The first win after a slump is not chosen for its value. It is chosen because it
+will succeed. Finish one task today that proves the machine still runs. Progress
+on meaningful work, even small, is what lifts people's days more than anything
+else, and a slump is precisely a run of days without it.
+
+Then raise the stakes one step at a time. Each win pays for the next attempt.
+
+## Honest logistics
+
+Belief built on a lie collapses at the first contact. He paired morale with
+brutal honesty about supply: plan around what is actually available, not what is
+owed or hoped for. Treat the grinding, unglamorous problem, sleep, health,
+money, as a command problem, not bad luck.
+
+## In the pocket
+
+Cut off is not beaten. Stand and hold.
+
+The old instinct in an encirclement is to retreat, and retreating through a
+closing ring is how units are destroyed. His rule reversed it: when cut off, form
+a box, dig in where you are, and hold, supplied from outside if you have to be,
+while the force outside comes to you.
+
+In a personal crisis the box is the small defended core: the routines, the
+people and the money that keep you functioning, held while help arrives or the
+pressure wears out. And inside the box, one small win a day, so that the people
+in it, including you, keep believing it will hold.
+
+## With reserves in hand
+
+Spend abundance on what makes the next slump shallower: health, training, supply,
+and the trust of the people around you. Morale is not a fixed resource. It
+drains with every unfinished task and every silent failure, and abundance is the
+time to fill the reservoir.
+
+And keep a supply of wins you can reliably finish, even small ones. A long plan
+that keeps producing proof keeps belief up, so there is less to rebuild later.
 
 ## The case against
 
-He treats morale as the root cause, and sometimes it is not. A project that
-keeps failing because of a missing skill, a broken tool or an impossible
-deadline will not be fixed by small wins. The small wins will feel good while the
-real constraint goes untouched. Morale-first can become a way of managing
-feelings about a problem instead of solving it.
+He treats morale as the root cause. He will address how you feel about a problem
+that was purely logistical, and a mechanical problem does not care how confident
+you are.
 
-He can also inflate an ordinary bad day into a slump. Not every setback needs a
-rebuilding programme, and treating a normal dip as a crisis teaches you that
-normal dips are crises.
-
-The honest version of this lens asks first whether the problem is belief or
-mechanics. It treats belief with evidence and mechanics with mechanics, and it
-does not confuse the two.
+And small wins can become a comfortable ceiling. A force that only takes fights
+it is sure of never takes the one that matters.
 
 ## Where it broke
 
-In March 1944, as the Japanese offensive toward Imphal began, Slim misjudged its
-timing. The order to withdraw the 17th Indian Division from Tiddim came late,
-and the division had to fight its way back along a single road through Japanese
-blocks. It got out, but narrowly. Slim wrote candidly afterwards that he had
-been caught off balance.
-
-The army he had rebuilt held. Its morale was not the issue. A rebuilt force
-still needs an accurate read of the enemy's timing, and confidence does not
-supply one.
+In 1944 he misjudged the timing of the Japanese offensive toward Imphal. The
+order to pull back a division came late, and it had to fight its way out along a
+single road. The rebuilt army held. Confidence was never the problem. An accurate
+read of the enemy's timing was.
 
 ## Rivals
 
-**Against Shaposhnikov.** Shaposhnikov says the failures are mechanical: fix
-the process and the results follow. Slim's answer: nobody runs a process they
-have stopped believing in. Where they meet: if the steps are being skipped out
-of despair, rebuild belief first. If they are being skipped because the steps
-are wrong, fix the steps.
+**Against Shaposhnikov.** Shaposhnikov says the failures are mechanical: fix the
+process. Slim: nobody runs a process they have stopped believing in. Where they
+meet: if steps are skipped out of despair, rebuild belief first. If they are
+skipped because they are wrong, fix the steps.
 
-**Against Konev.** Konev says push harder and do not stop. Slim's answer:
-pushing a demoralised force produces failures that deepen the demoralisation.
-Where they meet: once small wins have restored belief, hand over to sustained
-pressure. Before that, pressure breaks things.
+**Against Konev.** Konev says push harder and do not stop. Slim: pushing a
+demoralised force produces failures that deepen the demoralisation. Where they
+meet: once small wins have restored belief, hand over to sustained pressure.
+Before that, pressure breaks things.
 
 ## Over a long game
 
-Every long game has slumps, and Slim is the lens for the stretch after one. His
-phase has a clear arc: small wins, then slightly larger ones, then a return to
-normal operations. The signal that it is over is that ordinary tasks stop
-feeling heavy.
+Every long game has slumps, and he is the lens for the stretch after one. His
+phase has a clear arc: small wins, larger wins, normal operations. It is over
+when ordinary tasks stop feeling heavy.
 
-He also has a preventive role that is easy to miss. Over months, morale is not a
-fixed resource. It drains with every unfinished task and every silent failure.
-A long plan that keeps a few wins it can reliably finish, even small ones, keeps
-the balance up so there is less to rebuild later.
-
-Under uncertainty his approach is useful because small wins are also cheap
-experiments. Each one tests whether something works while rebuilding the
-confidence to try the next. When you do not know what will work, prove
-something small works and build out from there.
+His preventive role matters as much: keep wins flowing during the good months, so
+the bad months have a reserve of belief to draw on.
 
 ## Facing the unknown
 
-**How he sorts it.** Slim separates uncertainty about the situation from
-uncertainty about yourself. After a bad run, the most paralysing unknown is
-not what will happen. It is whether you can still do this at all. That second
-kind is the one he treats first, because until it is answered, nobody acts on
-the first.
+**How he sorts it.** Doubt about the situation, and doubt about yourself. The
+second paralyses most, and it is the one that evidence can fix.
 
-**Appetite.** Built up gradually. A beaten force should not be thrown at big
-unknowns. It gets small ones first, then larger, as confidence returns. His
-tolerance for uncertainty is something to rebuild, not something to demand.
+**Appetite.** Cautious. He tests the unknown with small operations that can be
+won before large ones that cannot.
 
 **What he asks.**
-- What do you know for certain you can still do?
-- What is the smallest win available this week?
-- Is the doubt about the task, or about yourself?
+- What small win would prove the machine still runs?
+- Is the problem belief, or something mechanical?
+- What is actually available, not owed?
 
-**Against the fear.** Fear is answered by evidence, not by resolve. Telling
-yourself to be braver does not work. Finishing something small does, because
-it proves the machine still runs. Each small win shrinks the fear a little,
-and the fears that remain become specific enough to plan for. He also names
-problems plainly, because an honest account of a bad situation is less
-frightening than a vague sense that everything is wrong.
+**Against the fear.** Fear feeds on a record of failure. Change the record, one
+small win at a time.
 
-**With an imperfect present.** The beaten state is the starting point, not a
-source of shame. He was candid about his own mistakes, and treats an honest
-inventory of what is broken as the first step to fixing it. The present does
-not need to be good. It needs to be accurately described.
+**With an imperfect present.** A beaten, sick, badly supplied force was his
+starting point. He did not wait for better material. He proved the material he
+had could still win.

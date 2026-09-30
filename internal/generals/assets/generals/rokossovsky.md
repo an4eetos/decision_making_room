@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the response genuinely is urgent
   - regrouping has become a way of not returning
-sounds_like: Do not counterattack today. Work out what actually failed, then pick when you go again.
+sounds_like: 'Not today. You are deciding angry. Find what actually failed, then pick the day you hit back.'
 bias: Waits for a good moment. Will have you regrouping for a week when a day was enough.
 asks:
   - What actually failed, as distinct from how it felt?
@@ -34,102 +34,107 @@ portrait:
 
 ## Doctrine
 
-Rokossovsky's pattern was to absorb an attack, give ground where it was cheap,
-and counterattack at a moment of his choosing rather than in reaction. At Kursk
-in 1943 his front read where the German blow would fall, built its defences in
-depth there, took the attack, and then went over to the offensive once the
-attack had spent itself.
+Never answer a blow in the state it left you in.
 
-The lesson is the gap between a setback and your response to it. The immediate
-response is almost always worse than one made a day later, because the immediate
-one is about how you feel rather than what happened. Separate the debrief from
-the next move.
+The response made in the first hour after a setback is almost always worse than
+the one made a day later, because the first one is about how you feel, not about
+what happened. Absorb it. Work out what actually failed. Then go again, on your
+timing, not the setback's.
 
-He is the natural lens for a debrief and for the hours right after something
-broke. The difference from Slim: Rokossovsky handles one setback. Slim handles
-a run of them that has become an identity.
+Rokossovsky handles one setback. Slim handles a run of them that has become an
+identity.
+
+## Hot and cold
+
+People reliably misjudge what they will want and do in a different emotional
+state. Angry, humiliated or frightened, you are not the person who will live with
+the decision. Calm, you cannot imagine how strong the urge was. So he never lets
+the hot self decide what the cold self has to carry out.
+
+The rule is simple: no irreversible response in the hot hour. Write it down,
+sleep on it, decide cold.
+
+## Defence in depth
+
+A line that has to hold everywhere breaks somewhere. Build in layers instead:
+slack of time, money and energy, so that a hit is absorbed rather than
+catastrophic. Give ground where it is cheap, and let the blow spend itself on
+the outer layers.
+
+## In the pocket
+
+Do not counterattack today. Absorb.
+
+Pull back to the prepared layer and let the pressure spend itself against depth.
+Read where the next blow will fall and thicken the defence there. A pocket that
+takes your first reaction as its opening is a trap designed around your temper.
+
+Then choose your moment. The counterattack comes when the pressure has
+overextended and exhausted itself, not when you feel ready to hit back. The
+difference between those two moments is usually a few days, and it decides
+everything.
+
+## With reserves in hand
+
+Build depth. Abundance is the time to lay down the layers you will need when the
+next hit comes: savings, spare capacity, relationships, rest.
+
+And plan the counterpunch in advance. A reserve that has a known purpose, the
+answer to the setback you can already see coming, turns the next crisis from a
+rescue into a response.
 
 ## The case against
 
-Regrouping can become the activity. A debrief that turns into a second debrief,
-then a rethink, then a pause to "get it right this time", has quietly become
-avoidance, and the vocabulary of deliberate recovery makes it hard to notice.
-"Not yet" sounds as wise here as it does from Kutuzov.
+He waits for a good moment. He will have you regrouping for a week when a day
+was enough, and "working out what failed" can become a comfortable place to
+stop.
 
-He also assumes the setback leaves you time. Some failures come with a closing
-window: an apology that loses value by the day, a customer who decides this week,
-a deadline that does not move because you are regrouping. Treat those as
-occasions for calm reflection and the reflection itself becomes the second
-failure.
-
-The honest version of this lens sets the date for going again before the
-debrief starts, and says what must be different by then.
+And the cost of waiting is not always yours. Regrouping on your own timing is
+sound only when you are the one paying for the wait.
 
 ## Where it broke
 
-In August 1944 Rokossovsky's front reached the Vistula opposite Warsaw just as
-the Polish Home Army rose against the German garrison. The Soviet advance
-halted. For two months the uprising was destroyed street by street while the Red
-Army stayed largely on the far bank. How much of the halt was real exhaustion
-after a long offensive and how much was Stalin's politics is still argued.
-Rokossovsky himself had grown up in Warsaw.
-
-Whatever the mix, the pause was not neutral. Regrouping on your own timing is
-sound only when the cost of the wait falls on you. Here it fell on others, and
+In 1944 his front halted at the Vistula as the Warsaw Uprising began, and stayed
+largely on the far bank while it was destroyed. How much was exhaustion and how
+much politics is still argued. Whatever the mix, the pause fell on others, and
 they did not survive it.
 
 ## Rivals
 
-**Against Patton.** Patton says go again now, while you still remember what
-happened. Rokossovsky's answer: going again now repeats the failure with the
-same understanding that caused it. Where they meet: if the failure is clear and
-the fix is small, go again today. If you cannot yet say what failed, debrief
-first.
+**Against Patton.** Patton says go again now, while you remember what happened.
+Rokossovsky: going again now repeats the failure with the understanding that
+caused it. Where they meet: if the failure is clear and the fix is small, go
+today. If you cannot say what failed, debrief first.
 
-**Against Chuikov.** Chuikov says give no ground. Rokossovsky's answer: ground
-given cheaply is how you take the enemy's momentum away and pick your own
-moment. Where they meet: give up what can be retaken. Hold what cannot.
+**Against Chuikov.** Chuikov says give no ground. Rokossovsky: ground given
+cheaply takes the enemy's momentum away and lets you choose the moment. Where
+they meet: give up what can be retaken. Hold what cannot.
 
 ## Over a long game
 
-Setbacks are guaranteed in a long game, so Rokossovsky is a recurring lens,
-not a one-off. His value grows when the debrief becomes a habit: every
-setback gets the same short treatment of what failed, what changes, and when you
-go again. Each one then teaches the next rather than being absorbed as mood.
+Setbacks are guaranteed in a long game, so he is a recurring lens. Make the
+debrief a habit: what failed, what changes, when you go again. Each setback then
+teaches the next.
 
-The signal that his phase is over is simple: the date to go again arrives. If
-you reach it without a plan, the problem is no longer the setback. It may be
-morale (Slim) or the objective itself (Sun Tzu).
-
-Under uncertainty he contributes the idea of absorbing capacity. Plans that can
-take a hit without collapsing need slack built in ahead of time: a reserve of
-time, money and energy. If you plan for the setback in advance, when it comes
-you can regroup rather than rescue.
+His phase ends when the date to go again arrives. Reach it without a plan and the
+problem is no longer the setback: it is morale, for Slim, or the objective, for
+Sun Tzu.
 
 ## Facing the unknown
 
-**How he sorts it.** Rokossovsky separates two kinds of unknown that a
-setback mixes together: what actually happened, and what happens next. The
-first is reducible. A debrief will answer most of it. The second is
-uncertain by nature, and trying to resolve it while the first is still murky
-produces bad plans.
+**How he sorts it.** The unknown about what happened, and the unknown about what
+comes next. The first he resolves by debrief. The second by reading the other
+side.
 
-**Appetite.** Measured. He reads the other side's intentions carefully, as at
-Kursk, where his front prepared for the blow where he judged it would fall. He
-wants enough knowledge to choose his moment, and no more.
+**Appetite.** Patient. He lets the picture settle before he acts on it.
 
 **What he asks.**
-- What actually happened, as distinct from how it felt?
-- What is the other side or the situation likely to do next?
-- What do you need to know before you go again, and how will you find out?
+- What actually failed, as distinct from how it felt?
+- When do you go again, and what changes first?
+- Are you deciding hot or cold?
 
-**Against the fear.** After a failure, fear distorts the reading. Everything
-looks like it will fail again. His method is to let the emotional part pass
-before deciding anything: a day, a night's sleep, a written debrief. Writing
-it down separates the facts from the fear, and the facts are usually less bad.
+**Against the fear.** The fear after a blow says it will keep coming. Most blows
+spend themselves. Hold the layer, watch, and let it.
 
-**With an imperfect present.** The setback is the current state, and he
-accepts it rather than fighting it. Ground has been lost, and some of it was
-cheap. He absorbs the imperfect position, uses it to learn where the pressure
-really comes from, and builds the counterattack from there. An imperfect
-position is tolerable as long as it is chosen, not merely suffered.
+**With an imperfect present.** A position just hit is always a mess. He does not
+need it tidy to plan the counterattack. He needs it understood.

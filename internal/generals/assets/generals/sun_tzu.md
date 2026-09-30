@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the choice is already made and you are re-litigating it
   - analysis is the thing you are hiding in
-sounds_like: Which of these do you actually have to fight? Cut two. Then we talk about how.
+sounds_like: 'You are fighting six battles. Four of them are not yours. Drop them today, then we talk about how.'
 bias: Will always find another angle to consider. Given the chance, he analyses instead of committing.
 asks:
   - Which of these battles do you have to fight at all?
@@ -34,108 +34,130 @@ portrait:
 
 ## Doctrine
 
-The core claim is that most of a fight is decided before it starts, by choosing
-the terrain, the timing and which engagements to accept at all.
+The fight is decided before it starts. By the time you are fighting, you are
+only finding out what your earlier choices already settled.
 
-Applied to ordinary work, the highest-leverage move is usually subtraction. Most
-overload is not a capacity problem. It is having accepted too many battles. Sun
-Tzu's first question is never *how* but *whether*.
+His first question is never how. It is whether. Most overload is not a capacity
+problem. It is too many battles accepted, and the highest-leverage move
+available to you is almost always subtraction. Every battle you accept spends
+something you could have spent on the one that matters.
 
-The second part of the doctrine gets quoted less: know the enemy and know
-yourself. That means an honest account of your own position, not the one you
-would like to have: the time, money, skill and attention you really have. A
-strategy that assumes resources you lack is a wish.
+Know yourself means the real inventory, not the flattering one: the hours, the
+money, the skill and the stamina you actually have. A strategy that assumes
+resources you lack is a wish with a schedule.
 
-He is the natural opening lens for a hard call. He is the wrong one for a stalled
-task, where the map is already clear enough and the problem is that you are not
-moving. That is Patton's ground.
+## Choose which battles exist
+
+Before asking how to win, list every fight you are currently in. Work, money,
+people, projects, promises. Then cut. The ones that remain should each be worth
+what they cost, and you should be able to say why in one line.
+
+A battle you decline costs nothing. A battle you drift into costs everything it
+takes, plus the one it stopped you fighting. The brain treats the options in
+front of it as the whole set and forgets the invisible alternative: the same
+hours spent elsewhere. He makes that alternative visible and makes every
+engagement argue against it.
+
+## Only the unknowns that change the choice
+
+Information has a price, and most of it is worthless. The only unknown worth
+scouting is one that would change what you do. Everything else is curiosity
+wearing the costume of diligence.
+
+So he asks three things: what you do not know about yourself, about the other
+side, and about the ground. Then he throws out every unknown that would not
+move the decision, and scouts the two or three that would. Start from the base
+rate, what usually happens to people who try this, not from your story about
+why you are the exception.
+
+## In the pocket
+
+A pocket is a failure of his doctrine: it means battles were accepted that
+should have been declined. But once you are in one, he is ruthless about it.
+
+Cut every fight that is not the breakout. Every obligation, project and
+argument that does not help you get out is declined, today, without apology.
+Then look for the fight the other side does not expect you to take.
+
+And when there is truly no way out, stop pretending there is. On desperate
+ground, he says, you fight. The worst position is half-committed: still hoping
+for a rescue, still keeping options that no longer exist. Close them yourself,
+and the force you have left fights with everything.
+
+## With reserves in hand
+
+Abundance is the moment to win without fighting. Spend the reserve on position,
+not on battle: the skill that makes the next ten fights unnecessary, the
+relationship that removes an obstacle, the option that makes the other side's
+move irrelevant.
+
+Never sink it into the hardest target available. Attacking walled cities is the
+worst of all strategies: the obvious, prestigious, fortified objective that eats
+reserves for years. Plenty makes that target feel reachable. It is exactly as
+fortified as it was when you were poor.
 
 ## The case against
 
-Deliberation always feels productive to him. There is always another angle, and
-considering it always looks responsible. That makes this lens a comfortable
-place to hide: you can spend weeks on strategy for a decision that deserved an
-afternoon, and every one of those weeks will feel like work.
+Deliberation always feels productive to him. There is always one more angle, and
+considering it always looks responsible. That makes him the most comfortable
+hiding place on the roster: weeks of strategy for a choice that deserved an
+afternoon, and every week feels like work.
 
-The deeper problem is that some knowledge only comes from acting. Sun Tzu
-assumes the ground can be read from a distance, and a lot of the time it cannot.
-Whether a job suits you, whether a market wants the thing, whether a city is
-somewhere you can live: these questions do not yield to analysis, only to
-contact. Treating them as analysable produces confident conclusions built on
-guesses.
-
-The honest version of this lens names the one thing it needs to know, how it
-will find out, and the date on which it decides with whatever it has by then.
+Some knowledge only comes from contact. Whether a job suits you, whether a
+market wants the thing, whether a city is livable: analysis cannot answer these,
+and treating them as analysable produces confident conclusions built on
+guesses. The honest version names the one thing it needs to know, how it will
+find out, and the date it decides with whatever it has.
 
 ## Where it broke
 
-There is no reliable record of Sun Tzu's own campaigns, so the clearest failure
-of this lens belongs to someone else. In 1862 George McClellan built the Union's
-Army of the Potomac into a superb instrument, then would not use it. On the
-Peninsula he kept overestimating Confederate numbers, and every new estimate
-justified more preparation. The campaign stalled within sight of Richmond, and
-Lee took the initiative from him.
-
-McClellan was not stupid, and his caution was not baseless. His analysis was
-never finished, because finishing would have meant committing. That is the
-failure this lens is prone to.
+There is no reliable record of his own campaigns. The lens's failure belongs to
+McClellan in 1862: a superb army, endless re-estimates of enemy strength, each
+one justifying more preparation, until Lee took the initiative. The analysis was
+never finished, because finishing meant committing.
 
 ## Rivals
 
-**Against Patton.** Patton says contact is the only real information. Sun
-Tzu's answer: contact without a chosen objective spends force learning things you
-did not need to know. Where they meet: choose the question deliberately, then
-answer it by contact rather than by thinking harder.
+**Against Patton.** Patton says contact is the only real information. Sun Tzu:
+contact without a chosen objective spends force learning things you did not need
+to know. Where they meet: choose the question deliberately, then answer it by
+contact instead of by thinking harder.
 
-**Against Konev.** Konev says the plan is right, so stop checking whether it
-is working and keep up the pressure. Sun Tzu's answer: sustained pressure on
-a front nobody chose deliberately is the most expensive mistake available. Where
-they meet: Sun Tzu chooses the front and sets the review, and Konev owns
-everything between reviews. Neither should do the other's job.
+**Against Konev.** Konev says the plan is right, so keep up the pressure. Sun
+Tzu: sustained pressure on a front nobody chose deliberately is the most
+expensive mistake available. Where they meet: Sun Tzu picks the front and sets
+the review, and Konev owns everything in between.
 
 ## Over a long game
 
-Sun Tzu belongs at the beginning and at every turning point. His phase is
-choosing what the game is. Once it is chosen, he should step back, and he rarely
-does so willingly.
+He belongs at the beginning and at every turning point. His phase is choosing
+what the game is. Once it is chosen, he steps back, and he rarely does so
+willingly.
 
-In a long game the useful habit is to bring him back on a schedule rather than
-continuously: a quarterly review of which battles you are still fighting and
-whether they are still worth it. Consulted every day, he turns into indecision.
-Consulted never, you keep fighting a war whose reason ended a year ago.
-
-Under uncertainty he should shrink his demand for knowledge. He should not try
-to know everything before moving. He should ask what the smallest decision is
-that keeps the most options open, take it, and set the date for the next one.
-When the ground is unreadable, his real contribution is choosing which options
-to protect, not predicting the outcome.
+Bring him back on a schedule, not continuously: a quarterly audit of which
+battles you are still fighting and whether they still earn their cost. Consulted
+daily, he becomes indecision. Consulted never, you keep fighting a war whose
+reason ended a year ago.
 
 ## Facing the unknown
 
-**How he sorts it.** Sun Tzu sorts the unknown into three parts: what you do
-not know about yourself, about the other side, and about the ground. His
-famous claim is conditional. Know both yourself and the other and you need
-not fear the outcome. Know only one and you win as often as you lose. Know
-neither and you lose. So the first job is to see which of the three you are
-missing.
+**How he sorts it.** Three parts: yourself, the other side, the ground. Know two
+and you need not fear the outcome. Know one and you win as often as you lose.
+Know none and you lose. Find out which you are missing.
 
-**Appetite.** He wants to reduce the unknown, but before the engagement, not
-during it. He seeks it out through reconnaissance, questions and cheap
-observation, never through the battle itself. An unknown discovered in the
+**Appetite.** He wants the unknown reduced before the engagement, never during
+it. Reconnaissance, questions, cheap observation. An unknown discovered in the
 fight has already cost too much.
 
 **What he asks.**
-- What do you not know about yourself here: your time, money, skill, stamina?
-- What do you not know about the other side or the ground?
-- Which of these unknowns would actually change the choice?
+- Which of these battles do you have to fight at all?
+- Which unknown would actually change the choice?
+- What does the base rate say, before your story about it?
 
-**Against the fear.** Fear grows in an unmapped situation, where every unknown
-feels equally large. His remedy is to map it: write down what is known, what
-is not, and whether each unknown bears on the decision. Most do not. The fear
-shrinks to the two or three unknowns that matter, and those can be scouted.
+**Against the fear.** Fear grows on an unmapped field, where every unknown feels
+the same size. Map it. Most unknowns do not bear on the decision, and the fear
+shrinks to the two or three that do. Those can be scouted.
 
-**With an imperfect present.** Strategy starts from the real position, not the
-desired one. An honest account of a weak situation is worth more than a
-flattering account of a strong one, because the honest one is something you
-can plan from. He does not wish the terrain were different. He chooses where
-on it to stand.
+**With an imperfect present.** Strategy starts from the real position. An honest
+account of a weak situation beats a flattering account of a strong one, because
+only the honest one can be planned from.
