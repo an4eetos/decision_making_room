@@ -41,6 +41,11 @@ type TierPolicy struct {
 	// ReadDoctrine lets the model pull a general's full doctrine when the card
 	// is not enough.
 	ReadDoctrine bool
+	// DoctrinePassages is how many doctrine passages per selected lens reach
+	// the prompt, chosen by relevance to the question. One is ~225 tokens, so a
+	// lens argues from its own doctrine on every tier, not only when the model
+	// thinks to ask for it.
+	DoctrinePassages int
 
 	// MaxGenerals is how many planning lenses the answer is written through.
 	// More lenses means a longer, structured answer, so it rises with depth.
@@ -70,7 +75,10 @@ func PolicyFor(t Tier) TierPolicy {
 			MaxBodyRunes:   900,
 			MaxGenerals:    1,
 			MaxToolRounds:  0,
-			AnswerBudget:   "Answer in under 120 words. Give one recommendation, not a survey.",
+			// One passage: the lens's answer to this question in its own words,
+			// for about the price of one more retrieved memory.
+			DoctrinePassages: 1,
+			AnswerBudget:     "Answer in under 120 words. Give one recommendation, not a survey.",
 		}
 	case TierDeep:
 		return TierPolicy{
@@ -84,17 +92,20 @@ func PolicyFor(t Tier) TierPolicy {
 			Decompose:      true,
 			LLMRerank:      true,
 			ReadDoctrine:   true,
-			AnswerBudget:   "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
+			// Two per lens, and read_doctrine stays for the rest.
+			DoctrinePassages: 2,
+			AnswerBudget:     "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
 		}
 	default:
 		return TierPolicy{
-			Tier:           TierStandard,
-			TopK:           8,
-			CandidateLimit: 30,
-			IncludeRecent:  3,
-			MaxBodyRunes:   2000,
-			MaxGenerals:    2,
-			MaxToolRounds:  1,
+			Tier:             TierStandard,
+			TopK:             8,
+			CandidateLimit:   30,
+			IncludeRecent:    3,
+			MaxBodyRunes:     2000,
+			MaxGenerals:      2,
+			MaxToolRounds:    1,
+			DoctrinePassages: 1,
 		}
 	}
 }

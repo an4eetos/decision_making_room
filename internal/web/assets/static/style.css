@@ -237,6 +237,32 @@ textarea {
     text-transform: uppercase;
 }
 
+.row-delete {
+    padding: 0.3rem 0.6rem;
+    background: var(--wr-red-soft);
+    border: 1px solid var(--wr-red-soft);
+    color: var(--wr-red-text);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.row-delete:hover,
+.row-delete:focus-visible {
+    color: var(--wr-text);
+    border-color: var(--wr-red);
+    background: var(--wr-red-soft);
+    outline: none;
+}
+
+.row-delete:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 .chat-shell {
     display: grid;
     grid-template-columns: 260px 1fr;

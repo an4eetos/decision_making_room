@@ -43,9 +43,9 @@ func MemoryTools() []port.Tool {
 
 // ReadDoctrineTool lets the model pull a general's full doctrine.
 //
-// This is the escape hatch that makes card-only injection safe: the cards are
-// deliberately compact, and when one is genuinely not enough the model can ask
-// for the rest rather than everyone paying for all of it on every question.
+// Every tier already gets the passages most relevant to the question; this is
+// for the rest, when the model needs a section that was not chosen, rather than
+// everyone paying for all of it on every question.
 // Offered at depth only, where an extra round is affordable.
 func ReadDoctrineTool(ids []string) port.Tool {
 	return port.Tool{

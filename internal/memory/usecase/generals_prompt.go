@@ -22,10 +22,12 @@ const debateRules = `Rules for the exchange:
 - Do not soften disagreement into consensus. If two lenses would give opposite advice, say so plainly.
 - Frames, not characters: no period voice, no invented biography or quotes.`
 
-// structured reports whether the mode already imposes an output template. When
-// it does, the lenses must not add their own headings on top — two competing
-// structures get concatenated and the answer grows a second scaffold.
-func generalsPrompt(lenses []gendomain.Lens, structured bool) string {
+// doctrine holds, by lens id, the passages chosen for this question; nil is
+// cards only. structured reports whether the mode already imposes an output
+// template. When it does, the lenses must not add their own headings on top —
+// two competing structures get concatenated and the answer grows a second
+// scaffold.
+func generalsPrompt(lenses []gendomain.Lens, doctrine map[string][]gendomain.Passage, structured bool) string {
 	if len(lenses) == 0 {
 		return ""
 	}
@@ -35,9 +37,23 @@ func generalsPrompt(lenses []gendomain.Lens, structured bool) string {
 	b.WriteString("You are answering through these planning lenses.\n")
 	b.WriteString("Each has a job it is good at and a blind spot it is bad at. ")
 	b.WriteString("Use them as frames for the advice, not as characters to perform — ")
-	b.WriteString("do not write in period voice or invent biography.\n\n")
+	b.WriteString("do not write in period voice or invent biography.\n")
+	// Frames, not characters, used to flatten every lens into the same polite
+	// advisor. The register is part of the frame: a lens built on pressure that
+	// arrives softened has lost the thing it was for.
+	b.WriteString("Each lens keeps the register of its \"Sounds like\" line in its own part of the answer. " +
+		"A blunt lens stays blunt and speaks to the person directly; do not soften it into neutral advice.\n\n")
 
-	b.WriteString(gendomain.Cards(lenses))
+	if len(doctrine) > 0 {
+		// Without this the model argues from what it remembers about the
+		// historical figure, which is exactly the generic version the doctrine
+		// was written to replace.
+		b.WriteString("Some lenses carry passages from their own doctrine, chosen for this question. ")
+		b.WriteString("Argue that lens from its passage: it is the lens's actual position on this kind of " +
+			"situation, and it outranks anything you know about the historical figure.\n\n")
+	}
+
+	b.WriteString(lensBlocks(lenses, doctrine))
 	b.WriteString("\n\n")
 
 	if len(lenses) == 1 {
@@ -72,4 +88,23 @@ func generalsPrompt(lenses []gendomain.Lens, structured bool) string {
 	b.WriteString(debateRules)
 
 	return b.String()
+}
+
+// lensBlocks renders each card with its doctrine passages directly beneath it,
+// so a passage is never read as belonging to the wrong lens.
+func lensBlocks(lenses []gendomain.Lens, doctrine map[string][]gendomain.Passage) string {
+	parts := make([]string, 0, len(lenses))
+	for _, lens := range lenses {
+		var b strings.Builder
+		b.WriteString(lens.Card())
+		for _, p := range doctrine[lens.ID] {
+			section := p.Section
+			if section == "" {
+				section = "doctrine"
+			}
+			fmt.Fprintf(&b, "\nFrom %s's doctrine — %s:\n%s", lens.Name, section, p.Text)
+		}
+		parts = append(parts, b.String())
+	}
+	return strings.Join(parts, "\n\n")
 }
