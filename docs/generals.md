@@ -110,25 +110,39 @@ Set `GENERALS_DIR` to a directory containing `generals/` and `styles/`
 subdirectories. A file whose `id` matches a shipped one replaces it; a new `id`
 is appended. Nothing needs recompiling and the repository does not need forking.
 
-Each file's body — sent to the model a passage at a time, as above — has six
-standard sections: **Doctrine**, **The case against** (the strongest
-critique, written seriously), **Where it broke** (a real episode where the
-approach failed — someone else's, labelled as such, when the general's own
-record has none), **Rivals** (how it argues with its opponents, and where they
-meet), and **Over a long game** (which phase of a long effort the lens belongs
-to, the signal that its phase is over and who takes over, and how it behaves
-when the ground is uncertain), and **Facing the unknown** (how it sorts
-uncertainty, how much it wants to engage it, the questions it asks, how it
-handles the fear of not knowing, and how it treats an imperfect present). See
-`kutuzov.md` for the full form.
+Each file's body — sent to the model a passage at a time, as above — has eight
+standard sections, and a test fails if any is missing:
 
-A general can carry more sections than these six, for situations its own
-record says something specific about. Zhukov has **In the pocket** (a crisis
-closing from several sides) and **With reserves in hand** (what to do once you
-finally have enough). Retrieval finds them like any other section; name them
-for the situation, because the heading is embedded with the text.
+- **Doctrine**: the core claim, as statements. What the lens believes and does.
+- **In the pocket**: how it behaves when pressure closes from several sides at
+  once. This is where the lenses differ most. Zhukov breaks out at the thinnest
+  point, Kutuzov gives up the city to save the army, Slim forms a box and
+  holds, Giáp dissolves, Yi Sun-sin retreats to the narrow water.
+- **With reserves in hand**: how it spends abundance: runway, savings, a free
+  season. Guderian never disperses, Kutuzov does not spend, Boyd buys learning
+  speed, Manstein drops the cleverness and takes the straight road.
+- **The case against**: the strongest critique, written seriously.
+- **Where it broke**: one short paragraph on a real failure (someone else's,
+  labelled as such, when the general's own record has none).
+- **Rivals**: how it argues with its opponents, and where they meet.
+- **Over a long game**: which phase of a long effort it owns, and who takes over.
+- **Facing the unknown**: how it sorts uncertainty, what it asks, and how it
+  handles fear and an imperfect present.
 
-A lens is a phase, not a policy. The last section exists because most real
+Between Doctrine and In the pocket, each general carries two or three
+**signature sections** named for the situation they address: Zhukov's *Bad news
+first*, Eisenhower's *Own the decision before you make it*, Rokossovsky's *Hot
+and cold*. Headings are embedded with the text, so name them for the situation
+a question would describe.
+
+Write statements, not history. A section says what the lens does and why it
+works, in the lens's own register: short, bold, and specific. History appears
+only where it proves a mechanism, in a clause, and mostly in Where it broke. Where
+decision research backs or limits a claim (action bias, loss aversion,
+checklists, threat-rigidity), use the finding plainly without turning the
+section into a literature review. See `zhukov.md` for the full form.
+
+A lens is a phase, not a policy. Over a long game exists because most real
 questions are not one decision but a sequence of them, and the lens that is
 right in month one is usually wrong by month six.
 

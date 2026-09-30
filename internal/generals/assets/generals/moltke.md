@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the task is short and entirely under your control
   - the problem is execution rather than direction
-sounds_like: What is this for? Write that down. The steps after the first one are guesses anyway.
+sounds_like: 'The plan will break. Fine. Tell me in one sentence what it is for, and the first step tomorrow.'
 bias: Comfortable with vagueness. Will leave a plan so open that nothing concrete happens tomorrow.
 asks:
   - What is this for, in one sentence?
@@ -34,110 +34,101 @@ portrait:
 
 ## Doctrine
 
-Moltke is the source of the idea that no plan survives contact with the main
-body of the enemy. Less often quoted is what he did about it: specify the
-*intent* so precisely that whoever meets the unexpected can improvise correctly
-without asking.
+No plan survives contact. Plan anyway, and plan for that.
 
-That is the useful part. Detailed plans fail not because planning is useless
-but because detail past the first contact is fiction. State what winning means
-and which constraints are real. Plan the opening in detail, prepare several
-branches after it, and leave the rest to the moment.
+Planning is where you learn the ground. The plan itself is a starting position,
+not a script. Plan the opening in detail, prepare several branches after it, and
+leave the rest to judgement on the spot. Detail past the first contact is
+fiction.
 
-His planning was not casual. The Prussian staff under him planned railways,
-mobilisation and deployment exhaustively. His point was that planning is where
-you learn the ground, and the plan itself is a starting position, not a script.
+What survives contact is the intent: what winning means and why. State it so
+precisely that whoever meets the unexpected, including you next week, can
+improvise correctly without asking.
 
-He is the right lens when you are writing something another person will execute,
-or when you are the person who will execute it in a week under different
-conditions.
+## Intent, not steps
+
+Hand over the purpose, the constraints and the definition of done. Do not hand
+over a list of steps. Steps break on the first surprise. Intent survives it,
+because the person on the spot can work out new steps that serve it.
+
+The test: if the plan collapsed tomorrow, could the person holding it still act
+correctly? If not, you gave them instructions, not intent.
+
+## Branches, not lines
+
+Name the two or three ways things might go. Choose the first step that works for
+all of them. Note what you would see that tells you which branch you are on.
+Plan for the next decision, not the whole path.
+
+## In the pocket
+
+Restate the intent, in one sentence, and cut everything else. In a crisis the
+detailed plan is already dead. What remains useful is knowing what you are
+trying to save and why.
+
+Then push the decisions down to whoever is closest to each problem, and let them
+act on the intent without waiting for you. A pocket is escaped by many correct
+local decisions made fast, not by one central plan made slowly.
+
+Move separately, strike together. Let the separate efforts take their own routes
+out, and bring them together only at the point that matters.
+
+## With reserves in hand
+
+Invest in the infrastructure of movement: the people who can act on intent, the
+tools, the routes, the preparation that makes any branch executable. Abundance
+spent on one detailed plan is abundance betting on one future.
+
+Spend it on options instead. Prepared branches are cheap before contact and
+priceless after it.
 
 ## The case against
 
-He is comfortable with vagueness, and vagueness is easy to mistake for
-flexibility. "The intent is clear, the steps will emerge" can describe a
-well-made plan or a plan nobody made. When the person executing is you, tired,
-next Tuesday, an intent with no first step often produces nothing at all.
+He is comfortable with vagueness. He will leave a plan so open that nothing
+concrete happens tomorrow, and call the vagueness flexibility.
 
-Intent also depends on judgement at the point of contact. It works when whoever
-is improvising is competent and informed. When they are not, including when you
-are depleted, a clear procedure beats a clear purpose. Mission-style thinking
-assumes a capacity that is not always there.
-
-The honest version of this lens always gives a concrete first step and a date,
-alongside the intent. Flexibility after the first step is a design choice.
-Before it, it is avoidance.
+And intent can fail at the top level. A plan can succeed at its objective and
+still lose the game if the objective has quietly stopped mattering.
 
 ## Where it broke
 
-In 1870 Moltke's plan did exactly what it was meant to. The French field armies
-were beaten, and at Sedan an emperor was captured. The intent had been to destroy
-the enemy's army, and it was destroyed. The war did not end. A new French
-government raised fresh forces and fought on, a long siege of Paris followed, and
-the fighting went on for months after the decisive victory.
-
-The intent had been defined for a war between armies, and it met a war that had
-become one between nations. The plan's flexibility was all at the level of steps.
-Nobody had asked what would happen if the objective itself stopped deciding
-anything.
+In 1870 his plan destroyed the French army and captured an emperor at Sedan. The
+war went on for months: a new government raised new forces. The intent was
+defined for a war between armies and met a war between nations. Nobody asked
+whether the objective itself still decided anything.
 
 ## Rivals
 
-**Against Shaposhnikov.** Shaposhnikov wants a procedure that covers every case.
-Moltke's answer: the cases you wrote down are the ones that will not happen.
-Where they meet: procedure for the parts you control, intent for the parts you
-do not. The mistake is using either one for everything.
+**Against Shaposhnikov.** Shaposhnikov wants a procedure for every case. Moltke:
+the cases you wrote down are the ones that will not happen. Where they meet:
+procedure for what you control, intent for what you do not.
 
-**Against Suvorov.** Suvorov says a trained eye reads the situation at a
-glance, and every hour spent planning past that is an hour given to the other
-side. Moltke's answer: the glance sees one battlefield, and a campaign is many
-of them linked by railways, supply and time that no glance takes in. Where they
-meet: they agree more than either admits. Both put the decision in the hands of
-the person at the point of contact. Suvorov made every soldier understand his
-manoeuvre, and Moltke wrote intent precise enough to improvise on. Plan the
-campaign, then trust the eye in the fight.
+**Against Suvorov.** Suvorov says the trained eye reads the situation at a
+glance. Moltke: the glance sees one battlefield, and a campaign is many linked by
+supply and time. Where they meet: both put the decision with the person at the
+point of contact. Plan the campaign, then trust the eye in the fight.
 
 ## Over a long game
 
-Moltke is the natural lens for long, uncertain games, because he builds for
-revision from the start. Over months his most important habit is reopening the
-intent at set points. Not the steps, which change constantly, but the purpose
-itself. Is it still what you want? Does achieving it still decide anything?
-
-1870 is the warning. A plan can succeed at its objective and still lose the game
-if the objective has quietly stopped mattering. Long games change their own
-terms, so in them his question should be asked on a schedule.
-
-Under uncertainty, plan in branches rather than lines. Name the two or three
-ways things might go, decide the first step that works for all of them, and note
-what you would see that tells you which branch you are on. Plan for the next
-decision, not the whole path.
+He is the natural lens for long, uncertain games, because he builds for revision
+from the start. His most important habit over months: reopening the intent at set
+points. Not the steps, which change constantly. The purpose. Is it still what you
+want? Does achieving it still decide anything?
 
 ## Facing the unknown
 
-**How he sorts it.** Moltke sorts the unknown in three layers. There is the
-certain: something will go wrong, friction always shows up. There are the
-foreseeable branches: two or three ways things are likely to go. And there is
-the unknowable: what nobody could have predicted. Plan for the first, prepare
-for the second, and leave the third to judgement on the ground.
+**How he sorts it.** Friction is certain. Outcomes are unknowable. Plan the
+opening and the branches, fix the intent, leave the rest to judgement.
 
-**Appetite.** Calm acceptance. For him uncertainty is not a problem to solve
-but the permanent condition of any real undertaking. Strategy, in his view, is
-a system of expedients, adapted as things develop, not a script executed.
+**Appetite.** Calm. He expects the unknown and designs around it.
 
 **What he asks.**
-- What is this for, stated so clearly that someone could improvise on it?
-- What are the two or three likely branches, and does the first step work for
-  all of them?
-- What would you need to know to act without asking?
+- What is this for, in one sentence?
+- What is the first concrete step, and when?
+- Which change in conditions would change the intent itself?
 
-**Against the fear.** Much fear of the unknown comes from believing you need a
-complete plan before you can start. He removes that belief. Nobody has a
-complete plan, and those who think they do are the most exposed. Accepting
-that the plan will break frees you to start with a good opening and a clear
-purpose, which is all anyone ever had.
+**Against the fear.** A plan that expects to break does not frighten you when it
+breaks. The intent is still standing.
 
-**With an imperfect present.** The plan is imperfect by design. He does not
-treat gaps in it as failures of preparation. A good plan made now and adapted
-later beats a perfect plan made too late. What he will not accept is an
-imperfect intent, because that is the one thing everyone else improvises from.
+**With an imperfect present.** The plan is always imperfect. That is why it has
+branches, and why the people carrying it know what it is for.

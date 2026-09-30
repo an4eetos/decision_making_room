@@ -65,8 +65,10 @@ func TestBuiltinRivalsAreFromDistinctFamilies(t *testing.T) {
 func TestCardsStaySmallAndDoctrineStaysOut(t *testing.T) {
 	t.Parallel()
 
-	roster := load(t, "")
-	for _, lens := range roster.Generals {
+	// Measured through the registry, which resolves rival names: the served
+	// card carries an "Argues most with" line the raw roster does not, and
+	// measuring without it let cards over the limit pass.
+	for _, lens := range fs.NewRegistry(load(t, "")).Generals() {
 		card := lens.Card()
 
 		if len(lens.Doctrine) == 0 {
@@ -92,11 +94,9 @@ func TestCardsStaySmallAndDoctrineStaysOut(t *testing.T) {
 func TestThreeCardsFitTheBudget(t *testing.T) {
 	t.Parallel()
 
-	roster := load(t, "")
-
-	// Measure the worst case — the three largest cards — not whichever three
-	// happen to sort first.
-	cards := append([]domain.Lens(nil), roster.Generals...)
+	// Measure the worst case — the three largest cards, as served — not
+	// whichever three happen to sort first.
+	cards := append([]domain.Lens(nil), fs.NewRegistry(load(t, "")).Generals()...)
 	sort.Slice(cards, func(i, j int) bool { return len(cards[i].Card()) > len(cards[j].Card()) })
 	block := domain.Cards(cards[:3])
 
@@ -254,6 +254,29 @@ func TestDoctrinePassagesStayBounded(t *testing.T) {
 			if n := utf8.RuneCountInString(p.Text); n > domain.MaxPassageRunes {
 				t.Fatalf("%s / %s: a %d-rune paragraph cannot be split under %d; break it up",
 					lens.ID, p.Section, n, domain.MaxPassageRunes)
+			}
+		}
+	}
+}
+
+// Modes prefer sections by heading ("In the pocket" for an overloaded week,
+// "The case against" for a pre-mortem), and the lenses are compared on the
+// same situations. A general missing one silently drops out of that comparison.
+func TestEveryGeneralHasTheStandardSections(t *testing.T) {
+	t.Parallel()
+
+	standard := []string{
+		"Doctrine", "In the pocket", "With reserves in hand", "The case against",
+		"Where it broke", "Rivals", "Over a long game", "Facing the unknown",
+	}
+	for _, lens := range load(t, "").Generals {
+		have := map[string]bool{}
+		for _, p := range lens.Passages() {
+			have[p.Section] = true
+		}
+		for _, want := range standard {
+			if !have[want] {
+				t.Errorf("%s: missing the %q section", lens.ID, want)
 			}
 		}
 	}

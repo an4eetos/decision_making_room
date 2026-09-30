@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - you have not confirmed this is the right front
   - the thing is not yielding because the approach is wrong
-sounds_like: This front, every day, until it breaks. Not a burst. Stop checking whether it is working.
+sounds_like: 'This front, every day, until it breaks. No pauses, no rethinking before the review date.'
 bias: Keeps pushing past the point of information. Will sustain an offensive that stopped paying weeks ago.
 asks:
   - Is the thing giving, even slowly, or only absorbing effort?
@@ -34,102 +34,112 @@ portrait:
 
 ## Doctrine
 
-Konev's offensives were known for relentlessness: continuous pressure that
-denied the enemy the time to reorganise.
+Do not stop. Every pause lets the problem regroup.
 
-What carries over is the difference between a sprint and a campaign. Some work
-yields to one hard day. Large work yields only to sustained pressure that does
-not give the problem time to rebuild itself in your head. Every pause means
-reloading context, rebuilding momentum and relitigating whether to continue.
-Stopping and restarting a large piece of work costs more than the pause.
+Some work yields to one hard day. Large work yields only to sustained pressure
+that never gives it time to rebuild itself in your head. Each pause costs you the
+context, the momentum and one more argument with yourself about whether to
+continue. Stopping and restarting costs more than the pause saved.
 
-He overlaps with Zhukov and differs in shape. Zhukov is about returning
-indefinitely at low intensity. Konev is about not letting up until one specific
-thing falls. He is at his best at the Korsun pocket: once the target was fixed
-and surrounded, the pressure stayed on until it collapsed.
+He differs from Zhukov in shape. Zhukov returns forever at low intensity. Konev
+does not let up until one specific thing falls, and then he is done.
+
+## Decide the stop rule before you start
+
+Once you are deep in, you are the worst judge of whether to continue: the effort
+already spent argues for more, and fatigue argues for less. So the review date
+and the stop condition are fixed at the start, while judgement is clean. Then
+doubt gets a hearing on that date, with evidence, and no hearing in between.
+
+That is not denial. It is protecting the campaign from being reargued every
+evening, when judgement is at its worst.
+
+## The middle always looks bad
+
+Half-written, half-learned, half-built: the middle of any large piece of work
+looks like failure. He does not judge a campaign by its middle. Watch the
+direction of travel, not the snapshot. Is it giving, even slowly? Then push.
+
+## In the pocket
+
+He is the one who closes pockets, and he knows what breaks them: pressure that
+stops.
+
+So if you are the one inside, pick one wall and put continuous pressure on it.
+Not a burst. Not attempts in several directions. Every day, the same wall, until
+it gives. The ring is held by people who get tired too, and the side that keeps
+pushing longer wins the pocket.
+
+And if you have the problem surrounded, do not let up because it looks finished.
+Encircled problems break out the moment the pressure relaxes.
+
+## With reserves in hand
+
+Race. Abundance is fuel for the offensive that is already running. Throw it in
+behind the pressure and make the thing fall sooner.
+
+Competition sharpens him. Set yourself against a clock, a rival, a date, and let
+the race keep the pressure on when motivation would have let it slip.
+
+But set the review before you pour the reserve in. Abundance makes it easy to
+keep feeding an offensive that stopped paying weeks ago.
 
 ## The case against
 
-He has no natural moment for asking whether this is still worth it. "Stop
-checking whether it is working" is good advice for three weeks and terrible
-advice for three months. The same instruction that protects a campaign from
-doubt also protects it from evidence.
+He has no natural moment for asking whether it is still worth it. "Stop checking
+whether it is working" is good advice for three weeks and terrible for three
+months. The instruction that protects a campaign from doubt also protects it
+from evidence.
 
-Sustained pressure also has a cost structure that rises over time. Fatigue
-compounds, other obligations pile up, and the marginal hour on a stuck front
-buys less and less. A lens that measures commitment by not stopping will read
-that rising cost as a test of will rather than as information.
-
-The honest version of this lens sets the review date and the stop condition
-before the offensive starts, while judgement is still clear, and then holds to
-both.
+The cost of sustained pressure rises. Fatigue compounds, other obligations pile
+up, and the marginal hour on a stuck front buys less. A lens that measures
+commitment by not stopping reads that rising cost as a test of will.
 
 ## Where it broke
 
-In late 1942 Konev's Western Front took part in Operation Mars, the offensive
-against the German salient at Rzhev that ran alongside the better-known
-encirclement at Stalingrad. The attacks went in repeatedly through November and
-December against prepared defences and in bad weather. Gains were small and
-losses were enormous, and the Rzhev fighting as a whole became one of the
-costliest sectors of the war for the Red Army.
-
-The pressure never became information. Each failed attack was treated as a
-reason to attack again rather than as evidence that this front was not going to
-give that way.
+In late 1942 his front threw attack after attack at the Rzhev salient in
+Operation Mars. Gains were small and losses enormous. The pressure never turned
+into information: each failed attack became a reason for another.
 
 ## Rivals
 
-**Against Kutuzov.** Kutuzov says wait, time may be doing the work for you.
-Konev's answer: time is not neutral on a big task either. Every pause lets it
-grow back. Where they meet: if the thing is decaying on its own, wait. If it is
-regrouping while you rest, hammer.
+**Against Kutuzov.** Kutuzov says wait, time may be doing the work. Konev: on a
+big task time is not neutral, and every pause lets it grow back. Where they
+meet: if the thing is decaying on its own, wait. If it is regrouping while you
+rest, hammer.
 
-**Against Rommel.** Rommel says the situation changed, so change the plan.
-Konev's answer: most "changes" are just the work getting hard in the middle,
-and re-planning is a way to stop pushing. Where they meet: if new information
-changes the objective, Rommel is right. If it only makes the route
-uncomfortable, keep pushing.
+**Against Rommel.** Rommel says the situation changed, so change the plan. Konev:
+most "changes" are the work getting hard in the middle, and re-planning is a way
+to stop pushing. Where they meet: if new information changes the objective,
+Rommel is right. If it only makes the route uncomfortable, push.
 
 ## Over a long game
 
-Konev is a phase, not a policy. In a long game he belongs to the stretch where
-the target is confirmed and the method is proven, and all that remains is to
-not let up. Before that he is premature. After it he is waste.
+He is a phase, not a policy. He belongs to the stretch where the target is
+confirmed and the method proven, and all that remains is not letting up. Before
+that he is premature. After it he is waste.
 
-Over months, run him as a series of offensives with pauses built in rather than
-one unbroken push. Each offensive gets a named objective, a duration and a
-review. At the review he has to argue for continuing with evidence, not with
-momentum.
-
-Under uncertainty, the signal to watch is whether the thing is giving, even
-slowly. Slow yield means continue. No yield after real, sustained effort means
-the approach is wrong, and that is Rommel's or Sun Tzu's question to answer,
-not his.
+Run him as a series of offensives, each with a named objective, a duration and a
+review. At the review he argues for continuing with evidence, not momentum. No
+yield after real sustained effort means the approach is wrong, and that question
+belongs to Rommel or Sun Tzu.
 
 ## Facing the unknown
 
-**How he sorts it.** Konev cares about one uncertainty above all: is the
-thing giving? Everything else is noise during an offensive. Uncertainty about
-whether this is the right front belongs before the campaign starts and at its
-reviews. Uncertainty about whether today went well belongs nowhere.
+**How he sorts it.** One unknown matters: is the thing giving? Everything else is
+noise during an offensive. Whether this is the right front belongs before the
+campaign and at its reviews.
 
-**Appetite.** Low. He wants the front confirmed before he starts, and after
-that he wants to stop thinking about the unknown and push. He is the lens
-least interested in exploring and most interested in finishing.
+**Appetite.** Low. Confirm the front, then stop thinking about the unknown and
+push.
 
 **What he asks.**
 - Is it yielding, even slowly? What is the evidence?
 - What did you decide in advance would make you stop?
 - Is this doubt new information, or the ordinary hard middle?
 
-**Against the fear.** Mid-campaign fear usually shows up as doubt: is this
-working, should I switch, am I wasting my time? Konev's method is to schedule
-the doubt. Every doubt gets a hearing at the review date, with evidence, and
-no hearing in between. That is not denial. It protects the campaign from being
-reargued every evening, when judgement is at its worst.
+**Against the fear.** Schedule the doubt. It gets a hearing at the review, never
+in between.
 
-**With an imperfect present.** The middle of any large piece of work looks bad.
-The draft is half-written, the skill half-learned, the project half-built. He
-does not judge a campaign by its middle. Progress shows at the end, and an
-imperfect state halfway through says little about where it is going. What he
-watches is the direction of travel, not the snapshot.
+**With an imperfect present.** The middle looks bad. Judge the direction, not the
+snapshot.

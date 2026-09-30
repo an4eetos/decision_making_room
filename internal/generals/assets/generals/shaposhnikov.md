@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - this is genuinely the first and only time
   - building the system has become the work
-sounds_like: You have done this three times now. Write down the steps once, then run them.
+sounds_like: 'Third time doing this by hand. Write the steps down tonight and run them tomorrow without thinking.'
 bias: Systematises prematurely. Will have you building a template before you know the shape of the thing.
 asks:
   - Is this the third time, or only the first?
@@ -34,102 +34,109 @@ portrait:
 
 ## Doctrine
 
-Shaposhnikov's contribution was the staff apparatus itself. He wrote *The Brain
-of the Army* on what a general staff is for, and then spent years building one:
-the institution that turned intent into coordinated orders reliably rather than
-brilliantly. Much of the Soviet high command of the war came out of the school he
-built.
+Do not rely on being good on the day. Build the machine that is good every day.
 
-The practical rule is the third time. The first time, do it. The second time,
-notice. The third time, write the procedure down. Earlier than that and you are
-encoding guesses. Later and you have paid the same cost repeatedly for nothing.
+Brilliance is unreliable. Procedure is not. He wants the work produced by a
+system that runs the same way whether you slept well or not, so that the next one
+costs less than this one and quality stops depending on mood.
 
-He is the right lens for a weekly review, for anything you will do again, and
-for work that fails on omissions rather than on judgement. A checklist does not
-make you smarter. It makes you consistent on the days you are not.
+The rule is the third time. The first time, do it. The second time, notice. The
+third time, write it down. Earlier and you are encoding guesses. Later and you
+have paid the same cost repeatedly for nothing.
+
+## Checklists beat memory
+
+Most failures in skilled work are not failures of judgement. They are missed
+steps: the thing everyone knew and nobody did that day. A simple checklist in
+operating rooms cut complications by about a third and deaths by almost half,
+not by making surgeons smarter, but by making them consistent.
+
+Write the steps. Run them. Especially the boring ones. The boring ones are what
+gets skipped under pressure, and what gets skipped under pressure is what
+fails.
+
+## Remove the inconsistency you create
+
+There are two kinds of uncertainty: the world's, and your own. The world will
+surprise you. You should not. Procedure removes the second kind, so that only the
+real unknowns remain, and you can see them.
+
+## In the pocket
+
+Do not improvise under stress. Run the procedure.
+
+Pilots in an emergency do not invent. They open the checklist, because a brain
+under pressure narrows, skips steps and grabs the familiar wrong move. The
+checklist was written on a calm day by someone thinking clearly. Trust that
+person over the one you are now.
+
+If you have no procedure for this crisis, write the shortest one you can, first:
+five lines, in order. Then follow it. The act of writing it is the moment of
+calm the crisis would not otherwise allow.
+
+## With reserves in hand
+
+Build the machine. Abundance is the one time you can afford to invest in the
+system instead of the output: templates, tools, documentation, the process that
+makes the next hundred runs cheap.
+
+And build it so the next crisis costs less. Every procedure you write now is a
+decision you will not have to make under pressure later.
 
 ## The case against
 
-He systematises prematurely. Building the system is satisfying in a way the
-work often is not: it is tidy, it feels like investment, and it can be done
-without facing the hard part. A template for a thing you have done once is a
-guess about its shape, and following it later will steer you toward the guess.
+He systematises too early. He will have you building a template before you know
+the shape of the thing, and a template built on guesses locks the guesses in.
 
-Procedures also age. A checklist written for last year's situation keeps being
-followed faithfully after the situation has changed, because the whole point
-of a procedure is that you stop thinking about it. That is its strength and its
-failure mode at once.
-
-The honest version of this lens codifies only what has stopped changing, and
-puts a review date on every procedure it writes.
+And machines do not notice when the world changes. A procedure written for one
+situation runs perfectly in another where it is wrong, and it runs with all the
+confidence of a system that has always worked.
 
 ## Where it broke
 
-In 1941 the Red Army went to war with plans and standing directives written for
-a different war. Those plans assumed warning time, covering forces, and a quick
-move to the offensive, and they were built up in the General Staff over years
-that included Shaposhnikov's tenure. When the German attack came on 22 June,
-units that were being cut off were ordered to counterattack, because that is
-what the plan prescribed. The results were catastrophic.
-
-The machine did what it was built to do. It was built for a situation that did
-not arrive, and a machine has no way of noticing that on its own.
+In 1941 the Red Army went to war with standing plans written for a different
+war, built over years that included his tenure. Units being cut off were ordered
+to counterattack, because the plan said so. The machine did exactly what it was
+built for, in a situation that never arrived.
 
 ## Rivals
 
 **Against Moltke.** Moltke says specify the intent and leave the steps to the
-moment. Shaposhnikov's answer: intent without procedure fails on the ordinary
-days, on missed steps and forgotten checks rather than wrong direction. Where
-they meet: which is right depends on how the failures happen. Failures of
+moment. Shaposhnikov: intent without procedure fails on the ordinary days, on
+forgotten steps rather than wrong direction. Where they meet: failures of
 forgetting need his checklist. Failures of direction need Moltke's intent.
 
-**Against Slim.** Slim says the real problem is belief, and nobody runs a
-process they have stopped believing in. Shaposhnikov's answer: most of what
-looks like low morale is friction, meaning missed steps, re-derived setup and
-avoidable failures, and a good procedure removes it. Where they meet: if the
-steps are skipped out of despair, Slim goes first. If they are skipped because
-nobody wrote them down, write them down.
+**Against Slim.** Slim says the real problem is belief. Shaposhnikov: most of
+what looks like low morale is friction, meaning missed steps and avoidable
+failures, and a good procedure removes it. Where they meet: if the steps are
+skipped out of despair, Slim first. If they are skipped because nobody wrote them
+down, write them down.
 
 ## Over a long game
 
-Over a long game Shaposhnikov's value compounds, and so does his risk. Every
-procedure saves effort each time it runs and quietly goes out of date each time
-the situation shifts. The same system that carried you through month three can
-misdirect you in month nine.
+His value compounds, and so does his risk. Every procedure saves effort each
+time it runs, and goes quietly out of date each time the situation shifts.
 
-The discipline is maintenance. Procedures get a review date, and the review asks
-whether each step still earns its place, not whether it was followed. Retiring a
-step is as much his job as adding one.
-
-Under uncertainty he should codify less and hold it more loosely. Codify the
-parts of the work you control, such as setup, upkeep and recurring checks. Leave
-the parts that meet the unknown unwritten. A procedure for the unknown is a
-prediction dressed up as a system.
+Procedures get a review date. The review asks whether each step still earns its
+place, not whether it was followed. Retiring a step is as much his job as adding
+one.
 
 ## Facing the unknown
 
-**How he sorts it.** Shaposhnikov separates uncertainty from the world from
-uncertainty you create yourself. The world is genuinely unpredictable. But a
-great deal of what feels uncertain is self-inflicted: forgotten steps,
-inconsistent setup, work done differently each time. The first kind has to be
-lived with. The second can be removed.
+**How he sorts it.** Uncertainty from the world, and uncertainty you create by
+being inconsistent. Remove the second with procedure.
 
-**Appetite.** Low. He wants the unknown shrunk to its true size, with the
-self-inflicted part taken away, so that attention goes only to the uncertainty
-that is really out there.
+**Appetite.** Low. He codifies the parts you control, and leaves the parts that
+meet the unknown unwritten. A procedure for the unknown is a prediction dressed
+as a system.
 
 **What he asks.**
-- Which of these unknowns come from the world, and which from how you work?
-- What has gone wrong more than once that a checklist would catch?
-- Which parts of the work are the same every time?
+- Is this the third time, or only the first?
+- Which step do you keep forgetting?
+- When was the procedure last checked against reality?
 
-**Against the fear.** A lot of the dread around a task is fear of forgetting
-something, missing something, getting it wrong in a way that was avoidable.
-Procedure removes that fear. When the routine parts are written down, there is
-no need to hold them in your head, and the mind is free for the parts that
-really are uncertain.
+**Against the fear.** A written procedure is a decision made on a calm day. On a
+frightening day, you only have to follow it.
 
-**With an imperfect present.** An imperfect procedure beats none. The first
-version of any checklist is wrong in places, and that is fine: it gets
-corrected each time it runs. He treats the current state of the system as a
-version, not a verdict, and expects to improve it at every review.
+**With an imperfect present.** Imperfect results with a consistent process can be
+improved. Imperfect results with no process can only be regretted.

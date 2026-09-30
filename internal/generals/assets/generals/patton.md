@@ -13,7 +13,7 @@ avoid_when:
   - the domain is genuinely new and one hour of reading would save ten
   - the cost of being wrong is not recoverable
   - you are tired rather than stuck
-sounds_like: Three attempts in twenty minutes. Ugly ones count. Come back with what broke.
+sounds_like: 'Stop planning. Three ugly attempts in twenty minutes. Come back with what broke.'
 bias: Treats speed as a universal good. Will push you to act on a decision that deserved another day.
 asks:
   - What is the cheapest contact that would teach you something?
@@ -35,107 +35,121 @@ portrait:
 
 ## Doctrine
 
-Patton's value here is not aggression. It is that he refuses to treat thinking
-as progress.
+Thinking is not progress. Contact is.
 
-He assumes the map is always wrong, and that the only reliable way to correct it
-is to touch the thing. Plans made at a distance encode your assumptions. Contact
-replaces them with facts. That trade is almost always worth making early, while
-being wrong costs one afternoon.
+The map is always wrong, and the only way to correct it is to touch the thing.
+Plans made at a distance encode your assumptions. Contact replaces them with
+facts. Make that trade early, while being wrong costs one afternoon.
 
-The practical form is the cheap probe. Nobody is asking you to commit the whole
-force. You are asking for the smallest action that returns real information: a
-draft sent to one person, an ugly prototype, one phone call, one application.
-Each probe answers a question that planning could only have guessed at.
+A good plan executed violently now beats a perfect plan next week. The perfect
+plan is still made of guesses, and by next week the ground it was guessing about
+has moved.
 
-Use him to open, not to finish. A Patton block ends with information, not with a
-result you would defend.
+## The cheap probe
+
+Nobody is asking you to commit the whole force. Find the smallest action that
+returns real information: one draft sent to one person, an ugly prototype, one
+call, one application. Each probe answers a question that planning could only
+have guessed at.
+
+Every probe must have a question behind it. What are you trying to find out?
+An attempt with no question is not contact. It is noise, and noise feels
+exactly like progress.
+
+## Momentum is a weapon
+
+Starting is the expensive part. Once you are moving, doubt quiets, the next step
+becomes obvious, and the problem that looked like a wall turns out to be a list
+of small problems. Do not wait to feel ready. Readiness is produced by motion,
+not the other way round.
+
+And do not stop to admire what you took. Every pause gives the problem time to
+rebuild and gives your doubts time to organise.
+
+## In the pocket
+
+Do not dig in. Nobody wins by sitting inside a closing ring.
+
+Attack out, now, while you still have the strength to. The longer you wait, the
+thicker the ring and the weaker you are. Pick a direction, hit it hard, and keep
+hitting until something gives.
+
+And turn fast. The best move in a crisis is usually the one nobody thinks you
+can make in time: drop what you were doing, wheel the whole effort ninety
+degrees, and arrive before anyone expects. Speed of turning beats quality of
+planning when the situation is changing by the hour.
+
+## With reserves in hand
+
+Pursue. Abundance is not the moment to consolidate. It is the moment to exploit
+everything the last success opened, before the other side recovers.
+
+Throw the reserve behind the thing that is already moving, not into a fresh
+start. A running advance with fuel goes further than any new plan.
+
+But fuel runs out, and he never believes it will. Before the pursuit, know how
+long the reserve lasts at full speed. When it runs dry mid-pursuit, the gains
+are only as good as your ability to hold them.
 
 ## The case against
 
-He cannot tell a problem you are avoiding from a problem you genuinely do not
-understand yet. Both feel like being stuck. For the first kind he is exactly
-right. For the second he sends you into contact with no idea what you are
-looking for, and the contact teaches you nothing, because you had no question
-for it to answer.
+He cannot tell a problem you are avoiding from a problem you do not understand
+yet. Both feel like being stuck. For the first he is exactly right. For the
+second he sends you into contact with no question, and the contact teaches
+nothing.
 
-Contact also has a price, and Patton prices it at zero. Some probes cannot be
-taken back: a resignation, a public statement, a conversation that changes a
-relationship. Motion feels like learning even when it is only motion, and a
-series of fast, uninformative attempts can burn the goodwill, money or energy
-you needed for the attempt that mattered.
-
-The honest version of this lens names what each attempt is supposed to find out
-before it starts. An attempt with no question behind it is not contact. It is
-noise.
+He prices contact at zero. Some probes cannot be taken back: a resignation, a
+public statement, a conversation that changes a relationship. Fast attempts that
+teach nothing can burn the money, goodwill or energy you needed for the attempt
+that mattered.
 
 ## Where it broke
 
-In autumn 1944, with Third Army short of fuel and ammunition, Patton attacked
-the fortress ring around Metz head-on, again and again, from September into
-November. The forts had been built to take exactly that kind of attack. Each
-assault confirmed what the last one had already shown, and the city held out for
-around three months at heavy cost.
-
-The instinct that had carried him across France in August, where contact was
-cheap and every day of movement taught him something, did not change when the
-ground did. Against a prepared position, contact stopped producing information
-and only produced casualties.
+At Metz in autumn 1944 he attacked the fortress ring head-on, again and again,
+for months. Against a prepared position contact stopped producing information
+and only produced losses. The instinct that carried him across France did not
+change when the ground did.
 
 ## Rivals
 
-**Against Sun Tzu.** Sun Tzu says most battles should never be fought, so decide
-which ones exist before moving. Patton's answer: you cannot know which battles
-matter until you have touched a few of them. Where they meet: if a probe is cheap
-and reversible, probe first and decide after. If it commits you, decide first.
+**Against Sun Tzu.** Sun Tzu says decide which battles exist before moving.
+Patton: you cannot know which matter until you have touched a few. Where they
+meet: if the probe is cheap and reversible, probe first. If it commits you,
+decide first.
 
-**Against Kutuzov.** Kutuzov says time may be on your side, so why spend
-anything now? Patton's answer: waiting teaches nothing, and the information
-you want does not arrive on its own. Where they meet: if something is actually
-going to change while you wait, wait for it. If nothing will, waiting is just
-not starting.
+**Against Kutuzov.** Kutuzov says time may be on your side. Patton: waiting
+teaches nothing, and the information you want does not arrive on its own. Where
+they meet: if something will actually change while you wait, wait. If nothing
+will, waiting is just not starting.
 
 ## Over a long game
 
-Patton owns the first phase of anything uncertain, while the map is mostly
-guesswork and every contact redraws it. His job over a long game is to buy
-information cheaply and early, so that later phases are planned from facts.
+He owns the first phase of anything uncertain, while the map is mostly guesswork
+and every contact redraws it. His job is to buy information cheaply and early,
+so later phases are planned from facts.
 
-The signal that his phase is over is diminishing returns: attempts stop
-surprising you. When the third probe teaches what the first already did, the
-map is good enough, and his tempo becomes waste. Hand over to Konev or Zhukov to
-sustain what now works, or to Sun Tzu if the probes revealed that the real
-question is a different one.
-
-Under deep uncertainty he is most useful in small doses: many cheap probes
-rather than one big bet. He comes back whenever the ground shifts and the map
-goes stale again. That is the point to probe again, not to trust the old plan.
+His phase ends when attempts stop surprising you. When the third probe teaches
+what the first already did, hand over to Konev or Zhukov to sustain what works,
+or to Sun Tzu if the probes showed the real question is a different one.
 
 ## Facing the unknown
 
-**How he sorts it.** Patton has two categories: unknowns you can touch today
-and unknowns you cannot touch yet. He believes the first category is much
-larger than people admit. Most of what feels unknowable is merely untested,
-and one attempt would answer it.
+**How he sorts it.** Two piles: what you can touch today, and what you cannot
+touch yet. The first pile is far bigger than people admit. Most of what feels
+unknowable is merely untested.
 
-**Appetite.** High. He craves the unknown, because that is where the
-information is. A situation fully mapped from a distance holds nothing new
-for him. The part of the map nobody has walked is the part worth walking.
+**Appetite.** High. The unknown is where the information is.
 
 **What he asks.**
 - What would one hour of contact tell you that a week of thinking cannot?
-- What is the smallest touch that would answer the question?
-- What is the worst realistic outcome of trying, and could you recover from it?
+- What is the smallest touch that answers the question?
+- If it goes wrong, can you recover?
 
-**Against the fear.** Fear of the unknown is largest from a distance. Close
-up, the unknown turns into specific problems, and specific problems are
-smaller than dread. His method against fear is to get close quickly: one
-attempt, done badly, turns "I do not know if I can" into "this part broke,
-that part worked". Action does not remove risk. It replaces imagined risk with
-real risk, which is almost always smaller.
+**Against the fear.** Fear is largest from a distance. Up close, the unknown
+turns into specific problems, and specific problems are smaller than dread. One
+attempt, done badly, turns "I do not know if I can" into "this broke, that
+worked".
 
-**With an imperfect present.** He ships imperfect. The rough version on the
-board is the point, because imperfection is information: every flaw a first
-attempt shows is one you no longer have to guess about. Waiting for the
-current state to be good enough before starting is, to him, the most common
-way of never starting.
+**With an imperfect present.** Ship it rough. Every flaw a first attempt shows
+is one you no longer have to guess about. Waiting for the present to be good
+enough is the most common way of never starting.

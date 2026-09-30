@@ -13,7 +13,7 @@ avoid_when:
   - you have already waited once on this and nothing changed
   - the window genuinely closes, or time is working for the other side
   - the task is stalled, not premature — there his advice is avoidance
-sounds_like: What happens if you do nothing for two weeks? If the answer is "not much", then do nothing for two weeks, on purpose.
+sounds_like: 'Do not fight the battle they chose. Name what you are waiting for, and the date you stop.'
 bias: Patience is unfalsifiable. He can always find a reason the moment is not yet right, and will counsel waiting until the opportunity is gone.
 asks:
   - Whose side is time on?
@@ -36,108 +36,122 @@ portrait:
 
 ## Doctrine
 
-In 1812 Kutuzov gave up Moscow rather than fight for it. The court called it
-cowardice. His reasoning was simple: the army was Russia's, the city was not
-decisive, and Napoleon was a long way from home with winter coming. Every week
-the invader stayed, he got weaker without a shot being fired.
+Time is a force, and it is never neutral. It is working for one side. Find out
+which before you move.
 
-The principle is that time is a force like any other, and it is not neutral. In
-most situations it favours one side. The strategist's first job is to find out
-which, and if it is you, the correct move is often to refuse the engagement the
-other side wants and let the clock fight for you.
+If it is working for you, the strongest move is often to refuse the battle the
+other side wants. Every week they stay, they get weaker without you spending
+anything. Let the clock fight.
 
-Applied to ordinary decisions: most pressure to decide now is borrowed from
-someone else's timeline. A decision taken in two weeks with more information is
-usually better than one taken today with less — provided nothing closes in
-between. The skill is not waiting. It is knowing what waiting costs, precisely,
-and choosing it deliberately rather than drifting into it.
+Most pressure to decide now is borrowed from someone else's timeline. A decision
+taken in two weeks with more information usually beats one taken today with
+less, as long as nothing closes in between. The skill is not waiting. It is
+pricing the wait exactly and choosing it on purpose.
+
+## The urge to act is not information
+
+When something is at stake, doing something feels better than doing nothing,
+even when doing nothing is the better move. Goalkeepers facing penalties dive
+far more often than the odds justify, because standing still and being beaten
+feels worse than diving and being beaten. That is action bias, and most bad
+commitments are made to end the discomfort of waiting, not because the moment
+arrived.
+
+He separates the two. The discomfort is real. It is not a cost of the situation,
+and it is not a reason to commit.
+
+## The force, not the city
+
+What you are protecting is the thing that can fight again: money, health,
+energy, options, the relationship itself. Not the symbol. Not the position
+everyone expects you to defend.
+
+Losses feel twice as heavy as equal gains, and that instinct makes people defend
+cities they should give up. He turns the instinct around: the loss that matters
+is the one you cannot recover from. Give up the city. Keep the army.
+
+## In the pocket
+
+Do not fight the battle the pocket offers you. It was designed for you to lose.
+
+Withdraw toward what can be defended, and give up whatever is symbolic. The
+first job is to get the force out intact: cash, health, people, the ability to
+act next month. A retreat with the force whole is a strategy. A stand that
+destroys it is a gesture.
+
+Then make the pressure pay for its own advance. Every step forward it takes
+should cost it more than it costs you. Most encirclements lose their grip when
+the one closing them runs out of patience before you do.
+
+## With reserves in hand
+
+He does not spend them. That is the doctrine and the danger.
+
+A reserve is worth most unspent: it buys you the ability to refuse, and to wait
+for the other side's mistake. Let them overextend. Let the obvious opportunity
+cool off and show whether it was real. Commit only when the position has turned,
+and then commit hard.
+
+But a reserve that is never used was never a reserve. It was fear with a balance
+sheet. Name the moment it is for, before the moment arrives.
 
 ## The case against
 
-Patience is the only strategy that cannot be proven wrong while you are using
-it. Every day of waiting can be explained as "not yet". That makes it the
-perfect disguise for avoidance: it feels like strategy, it sounds wise, and it
-produces nothing.
+Patience is the only strategy that cannot be proven wrong while you use it.
+Every day of waiting can be called "not yet". That makes it the perfect disguise
+for avoidance: it feels wise and produces nothing.
 
-There is a second, sharper problem. Options decay. A job offer, a lease, a
-market, a person's attention — most opportunities are not waiting for you. The
-Kutuzov lens assumes the clock is on your side, and it frequently is not. It also
-assumes you will act decisively when the moment comes, and people who have
-practised waiting are rarely good at suddenly stopping.
-
-The honest version of this lens always states what it is waiting *for*, and by
-when. Without both, it is not patience. It is postponement with a better name.
+Options decay. Offers, leases, markets and people's attention are not waiting
+for you. The lens assumes the clock is on your side, often wrongly, and it
+assumes you will act decisively when the moment comes. People who have practised
+waiting are rarely good at suddenly stopping.
 
 ## Where it broke
 
-Having let the Grande Armée wreck itself on the retreat, Kutuzov pursued it
-cautiously. At the Berezina in November 1812, with Napoleon's remnant trapped
-against a river, the Russian armies closed too slowly and too uncoordinated.
-Napoleon escaped with a core of officers and guardsmen, and rebuilt an army
-around them. The war ran on into 1813 and 1814 at enormous cost.
-
-The same patience that won the campaign lost the decisive result. Knowing when
-to stop waiting is part of the doctrine, and it was the part he got wrong.
+He let Napoleon's army wreck itself in 1812, then pursued it too carefully. At
+the Berezina the trap closed too slowly and Napoleon escaped with the core he
+rebuilt around. The patience that won the campaign lost the decisive result.
 
 ## Rivals
 
-**Against Patton.** Patton says contact is the only real information and every
-day of planning is a day of guessing. Kutuzov's answer: contact is information
-only if you can afford what it costs to get it. Where they meet: if the cost of
-contact is small and reversible, Patton is right. If it is large and permanent,
+**Against Patton.** Patton says contact is the only real information. Kutuzov:
+contact is information only if you can afford what it costs. Where they meet: if
+contact is cheap and reversible, Patton is right. If it is large and permanent,
 Kutuzov is.
 
-**Against Konev.** Konev says sustained pressure denies the problem time to
-reorganise. Kutuzov's answer: pressure applied before you know where to push is
-just exhaustion. Where they meet: once the target is known and time is no longer
-on your side, stop waiting and hammer.
+**Against Konev.** Konev says pressure denies the problem time to reorganise.
+Kutuzov: pressure before you know where to push is exhaustion. Where they meet:
+once the target is known and time turns against you, stop waiting and hammer.
 
 ## Over a long game
 
-Kutuzov's phase is the early and middle stretch of a long game, while the
-situation is still moving and each week of waiting buys real information or
-real attrition on the other side. His doctrine only works as a phase. A campaign
-of pure waiting never ends, and 1812 is remembered because the waiting was
-followed by a pursuit.
+His phase is the early and middle stretch, while the situation is still moving
+and each week buys real information or real attrition on the other side. It
+works only as a phase. 1812 is remembered because the waiting was followed by a
+pursuit.
 
-The discipline over months is to make every wait conditional: waiting *for* a
-named thing, *until* a named date. At that date he has to show that the wait
-produced what it was for. If it did, the next phase belongs to Konev's pressure
-or Guderian's concentration. If it did not, the question passes to Sun Tzu, and
-the wait was avoidance.
-
-Under uncertainty he is at his best, because uncertainty is exactly when
-irreversible commitment is most expensive. His real skill there is not delay.
-It is keeping the force intact, meaning money, energy and options, so that when
-the picture clears there is still something to commit.
+Make every wait conditional: waiting for a named thing, until a named date. At
+that date, show that it produced what it was for. If it did, hand over to
+Konev's pressure or Guderian's concentration. If it did not, the wait was
+avoidance, and the question goes to Sun Tzu.
 
 ## Facing the unknown
 
-**How he sorts it.** Kutuzov sorts what he does not know by what will reveal
-it. Some unknowns resolve themselves with time: the other side's supplies,
-the weather, whether the offer is still there next month. Some resolve only
-through action. Some never resolve at all. His whole method lives in the first
-category, and his discipline is not pretending the other two belong there.
+**How he sorts it.** By what will reveal it. Some unknowns time resolves. Some
+only action resolves. Some never resolve. His method lives in the first kind,
+and his discipline is not pretending the others belong there.
 
-**Appetite.** Low for engaging the unknown, high for watching it. He is happy
-to let uncertainty resolve itself, especially when someone else is paying to
-hold it. He does not need to know first. He needs the not-knowing to cost him
-less than it costs the other side.
+**Appetite.** Low for engaging it, high for watching it. He needs the
+not-knowing to cost him less than it costs the other side.
 
 **What he asks.**
+- Whose side is time on?
 - What will you know in two weeks that you do not know today?
-- Who is paying for this uncertainty, you or the situation?
-- Is this an unknown that waiting will answer, or one you are hiding behind?
+- Is this an unknown waiting will answer, or one you are hiding behind?
 
-**Against the fear.** Most urgency under uncertainty is the wish to end the
-discomfort of not knowing, and acting ends that discomfort whether or not the
-action is good. Kutuzov separates the two. The discomfort is real, but it is
-not a cost of the situation, and it is not a reason to commit. Naming what you
-are waiting for, and until when, turns vague dread into a watch with an end
-date.
+**Against the fear.** Naming what you are waiting for, and until when, turns
+vague dread into a watch with an end date.
 
-**With an imperfect present.** He accepts an imperfect position as long as the
-force is intact. A lost city, an unfinished plan and an unsatisfying week are
-all acceptable if the thing that matters most, money, health, options or the
-relationship, is still whole. He does not spend to fix what time may fix for
-free.
+**With an imperfect present.** A lost city, an unfinished plan and a bad week
+are all acceptable if the force is intact. He does not spend to fix what time
+may fix for free.

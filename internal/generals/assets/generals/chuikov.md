@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the position genuinely is not worth holding
   - holding is costing more than starting over would
-sounds_like: Not this one. Whatever else slips, this does not. What is the minimum that counts as holding?
+sounds_like: 'Not this one. Whatever else burns, this holds. Name the minimum and get close to the threat.'
 bias: Refuses to give ground on principle. Will have you defending something you should have let go weeks ago.
 asks:
   - What is the minimum that counts as holding?
@@ -34,103 +34,111 @@ portrait:
 
 ## Doctrine
 
-Chuikov held Stalingrad by refusing distance. He kept his troops so close to the
-enemy that superior firepower could not be used without hitting its own side.
+Some ground cannot be given. Find the one thing that, if it survives, means you
+have not lost, and hold it at any cost.
 
-What carries over is about bad weeks rather than good ones. When everything is
-slipping, the useful question is not how to get back on plan. It is what the
-irreducible minimum is: the one thing that, if it survives, means you have not
-actually lost the position. Protect that, let the rest go, and do not spend
-energy mourning the rest.
+When everything is slipping, the question is not how to get back on plan. It is
+what the irreducible minimum is. Protect that. Let the rest go without mourning
+it. Energy spent grieving what slipped is energy taken from what must not.
 
-He is deliberately not ambitious. He is what you want when the realistic choice
-is between holding and collapse, and he is the wrong lens entirely when things
-are fine.
+He is deliberately not ambitious. He is for the week when the realistic choice is
+holding or collapsing, and he is the wrong lens entirely when things are fine.
+
+## Avoid ruin first
+
+There are losses you recover from and losses you do not. Any strategy that risks
+the second kind, however good its average, eventually hits it. So the first rule
+is survival: never bet what cannot be rebuilt.
+
+That is why he is stubborn. Stubbornness is wrong about ordinary ground and right
+about the last ground.
+
+## Stay close to the threat
+
+Distance helps the stronger side. Its big weapons need room: a long timeline, a
+formal process, a battlefield where its advantages count. Close the distance and
+those weapons become unusable.
+
+In ordinary life: do not let the problem stay abstract and far away, where it can
+grow. Get close to it. Talk to the creditor this week. Open the file. Sit in the
+hard conversation. Up close, the threat has to fight on your terms.
+
+## In the pocket
+
+This is his native ground.
+
+Define the minimum, today: rent, the job, your health, one relationship, whatever
+losing would mean you cannot recover. Everything outside that line can burn.
+
+Hug the threat. Stay so close to the problem that it cannot use its full weight
+against you. Break the defence into small, self-sufficient pieces, each able to
+hold its own corner, so that one breach does not collapse the rest.
+
+And hold. Every day the minimum survives is a day the pressure spends against a
+position it cannot take, and a day closer to the help or the counterattack that
+ends it.
+
+## With reserves in hand
+
+He does not know what to do with them, and he should say so. Abundance is not his
+ground.
+
+His one rule for it: do not stay in crisis mode when the crisis is over. Holding
+as a way of life becomes stagnation. The moment the minimum is secure and the
+bleeding has stopped, hand over to someone who builds or someone who
+counterattacks.
 
 ## The case against
 
-Holding is a posture, not a plan. It keeps you where you are, and some positions
-are not worth being in. His refusal to give ground turns every retreat into a
-defeat, when many retreats are simply good decisions: leaving a job that is
-wearing you down, cancelling a project, ending a lease. Treat all of those as
-lines that must hold and you will defend your way into a slow collapse.
+He refuses to give ground on principle. He will have you defending something you
+should have let go weeks ago, and calling the stubbornness resilience.
 
-There is also the question of what holding is *for*. Stalingrad was worth
-holding because the counteroffensive was being prepared behind it. Holding with
-no counteroffensive coming is just endurance with no end. Without a reason
-beyond the ground itself, this lens converts sunk cost into principle.
-
-The honest version of this lens names what is being held, why that position
-cannot be rebuilt, and what the holding is buying time for.
+Holding also costs. Every day spent defending a position is a day not spent on
+anything else, and a position held past its value is a slow loss dressed as a
+stand.
 
 ## Where it broke
 
-The clearest failure of this lens is not Chuikov's. In September 1941 the
-Soviet South-Western Front was ordered to hold Kiev while German armies closed
-around it from north and south. Withdrawal was refused until far too late. The
-encirclement was completed and a huge number of Soviet soldiers were killed or
-captured, one of the largest single disasters of the war.
-
-The city was important. It was not irreplaceable, and the army defending it
-was. Holding was treated as a value in itself rather than as a means, and
-the thing that was really needed was lost defending the thing that only felt
+The lens's failure was not his. At Kiev in 1941 the order was to hold while the
+German pincers closed. Withdrawal was refused until far too late, and a huge
+army was lost defending a city. Holding became a value in itself, and the thing
+that could not be replaced, the army, was spent on the thing that only felt
 necessary.
 
 ## Rivals
 
-**Against Kutuzov.** Kutuzov gives ground gladly, since the army matters and
-the city does not. Chuikov's answer: some ground cannot be traded, because
-once it is gone there is nothing left to regroup around. Where they meet: the
-actual decision is which kind of ground you are standing on. If it can be
-rebuilt, trade it. If it cannot, hold.
+**Against Kutuzov.** Kutuzov gives ground gladly: the army matters, the city does
+not. Chuikov: some ground cannot be traded, because once it is gone there is
+nothing to regroup around. Where they meet: if it can be rebuilt, trade it. If it
+cannot, hold.
 
 **Against Rommel.** Rommel says the situation changed, so change the plan.
-Chuikov's answer: in a crisis every instinct says move, and most movement makes
-it worse. Where they meet: adapt everything except the minimum. The route can
-change, and the one thing being held cannot.
+Chuikov: in a crisis every instinct says move, and most movement makes it worse.
+Where they meet: adapt everything except the minimum.
 
 ## Over a long game
 
-Chuikov is a crisis lens. Over a long game he should appear for short stretches
-and then leave. A season lived entirely in holding mode stops being resilience
-and becomes stagnation.
+He is a crisis lens. He appears for short stretches and then leaves. A season
+lived in holding mode stops being resilience and becomes stagnation.
 
-His rhythm is to hold, stabilise, and hand over. Once the minimum is secure and
-the bleeding has stopped, the question changes from "what must not slip" to
-"what comes next", and that belongs to Slim for rebuilding or Rokossovsky for
-the counterattack. The signal that his phase is over is a week in which the
-minimum held without a fight.
-
-Under uncertainty his minimum is useful because it is small. When you cannot
-predict what will happen, defining the one thing that must survive every
-scenario gives you a fixed point. Everything else can be flexible precisely
-because that one thing is not.
+His rhythm: hold, stabilise, hand over, to Slim for rebuilding or Rokossovsky for
+the counterattack. His phase ends with a week in which the minimum held without
+a fight.
 
 ## Facing the unknown
 
-**How he sorts it.** Chuikov has one sorting question: does this unknown
-threaten the minimum? If it does, it gets full attention. If it does not,
-it gets none, however large it looks. In a crisis, most unknowns are about
-things you will not be able to protect anyway.
+**How he sorts it.** Unknowns that threaten the minimum, and unknowns that do not.
+In a crisis he ignores the second kind entirely.
 
-**Appetite.** Very low. He is a crisis lens, and in a crisis the unknown is
-the enemy. He wants the smallest possible surface exposed to it: one thing to
-hold, clearly defined, closely watched.
+**Appetite.** None for exploring. All of it for the one line that must hold.
 
 **What he asks.**
-- What is the minimum that must survive?
-- What could break it this week?
-- Which of your fears are about things outside the minimum?
+- What is the minimum that counts as holding?
+- Could you rebuild this if you let it go?
+- Is holding buying time for something, or only costing it?
 
-**Against the fear.** In a crisis, fear spreads across everything and
-paralyses. His remedy is to shrink the frame to the one thing being held, and
-to stay close to it. At Stalingrad, closeness to the enemy was a defence in
-itself. In an ordinary crisis, closeness means dealing with the problem
-directly and daily rather than watching it from a distance, where it looks
-larger.
+**Against the fear.** A crisis feels infinite until you draw the line. Once the
+minimum is defined, the fear has a border.
 
-**With an imperfect present.** Everything around the minimum can be broken.
-The rest of the plan, the schedule, the other projects: let them burn. He
-accepts a deeply imperfect present without trying to repair it, because
-repairing everything is how the one thing that matters gets lost. Perfection
-is not the standard. Holding is.
+**With an imperfect present.** Everything outside the minimum can be a mess. That
+is not failure. That is the price of the minimum, paid on purpose.

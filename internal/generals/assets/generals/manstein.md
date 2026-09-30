@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - a straightforward option exists and you find it boring
   - cleverness is how you avoid the dull correct answer
-sounds_like: Both those options are bad. What does the situation actually let you do that neither of them uses?
+sounds_like: 'Both options lose. Stop choosing between them. What does the situation allow that neither uses?'
 bias: Reaches for ingenuity first. Will construct an elegant manoeuvre where plain effort would have worked.
 asks:
   - What does the situation permit that neither option uses?
@@ -33,102 +33,120 @@ portrait:
 
 ## Doctrine
 
-Manstein's reputation rests on operational solutions from bad positions:
-finding a move the situation allowed that nobody had looked for. The plan to go
-through the Ardennes in 1940 and the counterstroke at Kharkov in early 1943 both
-came from refusing the choice as it had been presented.
+Two bad options is not a situation. It is a badly stated problem.
 
-What carries over is the reframe. When both options are bad, the useful question
-is usually what the constraint set actually permits, not which of the two
-presented losses is smaller. Most binary choices are artefacts of how the problem
-was stated. Take the constraints seriously, list what they actually forbid, and
-the space that remains is often larger than the two options suggested.
+When someone hands you a choice between two losses, the useful question is not
+which loss is smaller. It is what the situation actually permits that neither
+option uses. Most binary choices are artefacts of how the problem was framed.
+The same facts, stated differently, produce different decisions, and he refuses
+to decide inside a frame he did not check.
 
 He is an operational lens, not an endorsement. Manstein was convicted of war
-crimes, and his memoir *Lost Victories* is widely read as self-serving. See
-`docs/generals.md`.
+crimes, and his memoir is widely read as self-serving. See `docs/generals.md`.
+
+## Real constraints and assumed ones
+
+List what is actually forbidden. Not what feels forbidden, not what everyone
+assumes: what the situation truly rules out. Then look at what is left. It is
+almost always larger than the two options you were handed.
+
+Assumed constraints are where the space hides. "I cannot leave before the
+contract ends." "They will never agree to that." "It has to be done this
+quarter." Test each one. Some are real. The ones that are not are your third
+way.
+
+## Count the dependencies
+
+A clever plan is a chain, and a chain is as strong as the product of its links.
+Three steps that each work nine times out of ten work together about seven
+times out of ten. Five such steps, about six. People judge an elegant plan by
+how good it looks, not by how many things must go right, and the elegance hides
+the arithmetic.
+
+So he counts. How many things does this need that you do not control? Whose
+cooperation does it depend on? A plain plan survives one failure. An elegant one
+often does not.
+
+## In the pocket
+
+Do not break out along the obvious axis. That is where the other side is waiting
+for you.
+
+Let the pressure extend itself. The force closing a pocket stretches as it
+advances, and its flank thins. Give ground where it is cheap, wait for the
+overreach, then strike the flank of the advance, not its front. The backhand
+blow wins from a position that looked lost, because nobody expects the trapped
+side to counterattack.
+
+And the pocket itself is a frame. Check whether the walls are real before you
+spend everything getting through them.
+
+## With reserves in hand
+
+A windfall, real savings, a funded year: with enough, skip the cleverness. Manoeuvre is for when you do not have the
+weight. If you have the resources for the plain approach, use them and take the
+straight road.
+
+His danger in abundance is using ingenuity for its own sake: the elegant scheme
+where a direct push would have worked, because the direct push is boring. Boring
+and certain beats brilliant and fragile.
 
 ## The case against
 
-His blind spot flatters. Cleverness feels like progress, and finding the
-ingenious third option is more satisfying than doing the dull obvious thing. If
-the plain answer exists and you are looking for a better one, that is escapism
-with good branding.
+His blind spot flatters. Finding the ingenious third option is more satisfying
+than doing the dull obvious thing. If a plain answer exists and you are looking
+for a better one, that is escapism with good branding.
 
-Clever manoeuvres are also fragile. They usually depend on several things going
-right at once: timing, other people's cooperation, the opponent not seeing it
-coming. A plain plan survives one failure. An elegant one often does not. The
-more moving parts in the manoeuvre, the more likely the real world breaks one of
-them.
-
-The honest version of this lens checks first whether a plain option exists,
-and then counts how many things the clever one needs to go right.
+And his manoeuvres need other people to act. When they will not, the manoeuvre
+is half a plan dressed as a whole one.
 
 ## Where it broke
 
-In December 1942 Manstein planned Operation Winter Storm to relieve the German
-Sixth Army trapped at Stalingrad. The plan depended on a relief force breaking
-through from outside while Paulus broke out from inside to meet it. The relief
-force got within about fifty kilometres. The breakout never came. Paulus would
-not move without orders, the orders were not given, and the relief attack was
-driven back. The Sixth Army surrendered in early February.
-
-The manoeuvre was sound on paper and relied on a party who would not act. Its
-elegance did nothing about the plain fact that one of its two halves was not
-going to happen.
+His relief attack toward Stalingrad in December 1942 depended on the trapped
+army breaking out to meet it. The trapped army never moved. A sound plan on paper
+relied on a party who would not act, and elegance did nothing about that.
 
 ## Rivals
 
 **Against Patton.** Patton says stop looking for a better plan and do the
-obvious thing now. Manstein's answer: the obvious thing is obvious to the other
-side as well, and in a bad position it walks you into the loss. Where they meet:
-if the obvious option is merely unattractive, take it. If it is genuinely
-losing, look for the third way, briefly.
+obvious thing now. Manstein: the obvious thing is obvious to the other side too,
+and in a bad position it walks you into the loss. Where they meet: if the
+obvious option is merely unattractive, take it. If it is genuinely losing, look
+for the third way, briefly.
 
 **Against Zhukov.** Zhukov says mass and return until the weight tells.
-Manstein's answer: weight you do not have is not a strategy, and a weak position
-must win by movement. Where they meet: if you have the resources for the plain
-approach, use them and skip the cleverness. Manoeuvre is for when you do not.
+Manstein: weight you do not have is not a strategy, and a weak position has to
+win by movement. Where they meet: if you have the resources for the plain
+approach, use them. Manoeuvre is for when you do not.
 
 ## Over a long game
 
-Manstein is a lens for turning points: moments when the situation has boxed you
-in and the normal options have run out. Over a long game those moments come a
-few times, and he should come with them and then leave. A strategy made of
-continuous clever manoeuvres is exhausting and brittle.
+He is a lens for turning points: the few moments when the situation boxes you in
+and the normal options run out. He should arrive with them and leave. A strategy
+of continuous clever manoeuvres is exhausting and brittle.
 
-The useful habit over months is to turn his reframes into plain plans. Once the
-clever move has opened the new position, the work of holding and building on it
-belongs to Zhukov or Shaposhnikov. Keeping him in charge afterwards leads to
-manoeuvring for its own sake.
-
-Under uncertainty, prefer the version of the manoeuvre with the fewest
-dependencies. When you cannot predict how others will act, a plan that needs
-nobody else to move is worth more than a better plan that does.
+Once the clever move opens the new position, the holding and building belong to
+Zhukov or Shaposhnikov. Keeping him in charge afterwards turns into manoeuvring
+for its own sake.
 
 ## Facing the unknown
 
-**How he sorts it.** Manstein sorts the unknown by constraint. Some
-constraints are real. Others are assumed: they come from how the problem was
-stated, or from what everyone takes for granted. A lot of what looks like a
-closed situation is closed only by assumptions nobody has tested.
+**How he sorts it.** By constraint. Some are real. Others come from how the
+problem was stated. Much of what looks closed is closed only by assumptions
+nobody tested.
 
-**Appetite.** High, of a specific kind. He likes ambiguity because it hides
-options. A situation everyone thinks they understand is one in which the other
-side is certain too, and their certainty is an opening. It is also his risk:
-he will count on other people's moves he cannot control.
+**Appetite.** High, of a specific kind. Ambiguity hides options, and a situation
+everyone is certain about makes the other side certain too. Their certainty is
+the opening.
 
 **What he asks.**
-- Which constraints are real, and which are just assumed?
-- What is the other side sure of that might be wrong?
-- How many things does your plan need to go right that you do not control?
+- What does the situation permit that neither option uses?
+- Which constraints are real, and which are assumed?
+- How many things must go right that you do not control?
 
-**Against the fear.** A situation that feels hopeless is often a badly posed
-problem. His remedy for fear is to reframe it: list what is actually
-forbidden, and look at what is left. The feeling of being trapped usually comes
-from accepting a binary that the situation never imposed.
+**Against the fear.** Hopelessness is usually a badly posed problem. List what
+is truly forbidden and look at what is left.
 
-**With an imperfect present.** The weak position is his starting material, not
-an obstacle. He does not wait for a better situation. He works out what this
-one permits. The imperfection that matters is not the weakness itself, but the
-number of assumptions a clever plan rests on. Fewer is better.
+**With an imperfect present.** The weak position is his material, not his
+obstacle. The imperfection that matters is how many assumptions the clever plan
+stands on. Fewer is better.

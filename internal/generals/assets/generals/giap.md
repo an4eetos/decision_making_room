@@ -12,7 +12,7 @@ deploy_when:
 avoid_when:
   - the timeline is a story you tell to avoid a verdict
   - the thing could be tested in a week
-sounds_like: This takes three years. What does year one look like if you accept that, instead of pretending it takes six months?
+sounds_like: 'This takes three years. Stop grading it by the month. Which phase are you actually in?'
 bias: Accepts long timelines readily. Will commit you to a decade of something that deserved a six-month test.
 asks:
   - Which phase of the long game are you really in?
@@ -34,109 +34,111 @@ portrait:
 
 ## Doctrine
 
-Giáp's strategy rested on a horizon his opponents could not match politically: a
-willingness to accept cost over a span of time that made superior force
-irrelevant.
+Outlast, do not outgun. Make the timeline itself the weapon.
 
-The lesson for ordinary goals is about honest timelines. A great deal of
-frustration comes from holding a multi-year goal to a quarterly standard and
-concluding you are failing. Stating the real horizon changes what counts as
-being on track.
+A horizon the other side cannot match beats force they can. If you are willing
+to keep going for longer than they are willing to keep resisting, their
+advantages stop mattering. Most people lose long games by judging them on a
+short clock.
 
-The less quoted half of the doctrine is about phases. The protracted-war
-thinking he inherited divided a long struggle into stages: survive and build,
-then contest, then decide. Each stage has its own tempo and its own measure of
-success. Fighting a stage-three battle in stage one is how a long game gets lost
-early.
+State the real horizon. A multi-year goal held to a quarterly standard will look
+like failure every quarter, and people quit things that were working because the
+clock they used was wrong.
 
-He is the right lens for skill acquisition, career-scale goals and anything
-where the advantage available to you is simply not stopping.
+## Know which phase you are in
+
+A long struggle has stages: survive and build, then contest, then decide. Each
+has its own tempo and its own measure of success. Fighting a stage-three battle
+in stage one is how long games are lost early. Treating stage three as more
+building is how they are lost late.
+
+The hardest judgement he asks for is not patience. It is knowing, honestly,
+which stage you are in.
+
+## Present bias is the enemy
+
+The near always feels bigger than the far. A small reward now outweighs a larger
+one later, and a small cost today looks larger than a big cost next year. Long
+games are lost to that distortion one day at a time. He corrects it by making
+the long horizon concrete: what does the end of year one look like, if this
+works?
+
+## In the pocket
+
+Do not hold ground. Dissolve.
+
+A fixed position in a pocket is a target. Break up into smaller pieces, move,
+disappear into the terrain, and survive to fight later on ground you choose.
+Losing a position is nothing. Losing the force is everything.
+
+Then make the pressure pay over time. Every week it spends hunting something it
+cannot pin down is a week of its resources and its will, not yours. The pocket
+that cannot close on anything eventually gives up closing.
+
+## With reserves in hand
+
+Abundance tempts you to skip a phase. It feels like the moment for the decisive
+battle, because now you can afford one. It usually is not.
+
+Spend it on preparation for the right phase: supply lines, positions, the slow
+unglamorous work of hauling what you need to where it will matter, so that when
+the decisive moment comes it is overwhelming. Arrive with everything, at the
+phase that can support it.
 
 ## The case against
 
-"This takes years" cannot be proven wrong, which makes it comfortable. It
-explains away every missed milestone, and it is the perfect cover for something
-that should have been killed after six months. A long horizon without
-intermediate evidence is not a strategy. It is a hope with a timeline attached.
+He accepts long timelines too readily. He will commit you to a decade of
+something that deserved a six-month test, and "this takes years" is an excellent
+story for avoiding a verdict.
 
-His willingness to accept cost is also a hard thing to borrow. The cost of his
-long wars was paid in lives on a scale that should give anyone pause. In an
-ordinary life the same logic shows up when the goal is yours but the cost falls
-on a partner, a family or your own health, and gets accepted without their
-consent.
-
-The honest version of this lens names the phase you are in, what success in
-that phase looks like, and the point at which you will conclude the long game is
-not working.
+And the cost of a long game often falls on people who never agreed to it. A
+horizon you chose is patience. A horizon imposed on others is something else.
 
 ## Where it broke
 
-In 1951, believing the war against the French had reached its decisive phase,
-Giáp moved to large conventional attacks in the Red River Delta at Vĩnh Yên,
-Mạo Khê and along the Đáy River. The French under de Lattre, with firepower
-and air support, beat them badly and at great cost to the Việt Minh. Giáp pulled
-back to a slower, more patient approach, and that approach led to Điện Biên Phủ
-three years later.
-
-The long game was right, and the phase reading was wrong. He believed he was in
-the final stage when he was still in the middle one. Knowing which phase you are
-in is the hardest judgement this lens asks for.
+In 1951 he believed the decisive phase had come and threw large conventional
+attacks at the French in the Red River Delta. They were beaten badly. He went
+back to the slower approach, which led to Điện Biên Phủ three years later. The
+long game was right. The phase reading was wrong.
 
 ## Rivals
 
-**Against Boyd.** Boyd says shorten the loop, so you learn fast whether you are
-wrong. Giáp's answer: some outcomes do not exist on a short loop, and measuring
-them weekly makes you quit too early. Where they meet: long horizon for the
-outcome, short loop for the method. Keep checking that the method is still
-learning.
+**Against Boyd.** Boyd says shorten the loop so you learn fast whether you are
+wrong. Giáp: some outcomes do not exist on a short loop, and weekly measurement
+makes you quit too early. Where they meet: long horizon for the outcome, short
+loop for the method.
 
-**Against Patton.** Patton says act now, today, and learn from contact. Giáp's
-answer: a battle forced before its time can cost the whole war. Where they meet:
-make small, cheap contact constantly. Save the decisive engagement for the phase
-that can support it.
+**Against Patton.** Patton says act now and learn from contact. Giáp: a battle
+forced before its time can cost the whole war. Where they meet: make small,
+cheap contact constantly. Save the decisive engagement for the phase that can
+support it.
 
 ## Over a long game
 
-This is his home ground, and in it he is most useful for his phase discipline
-rather than his patience. A long game is not one uniform stretch of endurance.
-It is a sequence of stages, and each needs a different lens. Early on it is
-Zhukov's steady building and Patton's cheap probes. In the middle, Rommel's
-adaptation. At the end, Konev's pressure or Guderian's concentration.
+This is his home ground, and his value in it is phase discipline, not patience.
+Each stage needs a different lens: early, Zhukov's building and Patton's probes;
+in the middle, Rommel's adaptation; at the end, Konev's pressure or Guderian's
+concentration.
 
-Giáp's recurring question is which stage you are really in. The usual error runs
-in two directions: treating the building phase as the decisive one and burning
-out, or treating the decisive phase as more building and missing the window.
-
-Under uncertainty, his long horizon is an asset only if it carries checkpoints.
-Set a milestone for each phase and say in advance what would count as evidence
-that the whole approach is failing. Without those, patience cannot learn
-anything.
+Give every phase a milestone, and say in advance what would count as evidence
+that the whole approach is failing. Without that, patience cannot learn anything.
 
 ## Facing the unknown
 
-**How he sorts it.** Giáp sorts the unknown by phase. Some things cannot be
-known in the building phase but will be obvious in the contest phase. Some
-questions belong to the end and are a waste of worry at the start. His main
-skill is placing each unknown in the stage where it will become answerable,
-and refusing to demand the answer earlier.
+**How he sorts it.** By phase: what is unknowable now but knowable at the next
+stage.
 
-**Appetite.** Patient. He can live with ambiguity for years, longer than
-almost any other lens. He does not seek out the unknown or flee it. He waits
-for the phase in which it resolves, and builds in the meantime.
+**Appetite.** High tolerance for long ambiguity. A long horizon makes each
+unknown small.
 
 **What he asks.**
-- Which phase are you in, and which unknowns belong to this phase?
-- What must be true before you can move to the next one?
-- Which worry are you carrying that belongs to year three?
+- Which phase are you really in?
+- What would you see by year's end if this were working?
+- What would tell you, in advance, that it is not?
 
-**Against the fear.** A long horizon makes each unknown small. A bad month is
-frightening on a three-month plan and a detail on a five-year one. By stating
-the real timeline, he reduces the weight of any single uncertainty: nothing
-has to be decided by next week, and no single failure ends the game. That
-distance is his remedy for panic.
+**Against the fear.** The fear of the long road is mostly the fear of the next
+month looking like failure. Change the clock and the next month stops being a
+verdict.
 
-**With an imperfect present.** The early phases of a long game are always
-weak. Few resources, little skill, small results. He does not treat that as a
-verdict. The force is built from what exists, and the question is not whether
-the current state is good enough to win, but whether it is good enough to
-build on. It usually is.
+**With an imperfect present.** Stage one always looks weak. That is what stage
+one is. Judge it against stage one, not against the end.
