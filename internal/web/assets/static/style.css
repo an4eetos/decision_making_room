@@ -263,6 +263,72 @@ textarea {
     cursor: default;
 }
 
+.row-actions {
+    white-space: nowrap;
+}
+
+.row-edit {
+    padding: 0.3rem 0.6rem;
+    margin-right: 0.4rem;
+    background: var(--wr-panel-3);
+    border: 1px solid var(--wr-line);
+    color: var(--wr-text);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.row-edit:hover,
+.row-edit:focus-visible {
+    border-color: var(--wr-amber);
+    outline: none;
+}
+
+.row-edit:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.edit-form textarea {
+    min-height: 80px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-actions .btn,
+.edit-actions .btn-secondary {
+    margin-top: 0;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--wr-text-2);
+    cursor: pointer;
+    font: inherit;
+}
+
+.btn-secondary:hover {
+    color: var(--wr-text);
+    border-color: var(--wr-text-2);
+}
+
 .chat-shell {
     display: grid;
     grid-template-columns: 260px 1fr;

@@ -27,6 +27,7 @@ type Handler struct {
 	consultUC *usecase.Consult
 	chatUC    *usecase.Chat
 	deleteUC  *usecase.Delete
+	updateUC  *usecase.Update
 }
 
 func NewHandler(
@@ -39,6 +40,7 @@ func NewHandler(
 	modes modeport.Registry,
 	reindex *usecase.Reindex,
 	deleteMemory *usecase.Delete,
+	updateMemory *usecase.Update,
 ) *Handler {
 	return &Handler{
 		reindexUC: reindex,
@@ -50,6 +52,7 @@ func NewHandler(
 		chatUC:    chat,
 		captureUC: capture,
 		deleteUC:  deleteMemory,
+		updateUC:  updateMemory,
 	}
 }
 
@@ -63,6 +66,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/admin/reindex", h.reindex)
 	mux.HandleFunc("GET /api/memories/search", h.searchMemories)
 	mux.HandleFunc("DELETE /api/memories/{id}", h.deleteMemory)
+	mux.HandleFunc("PUT /api/memories/{id}", h.updateMemory)
 	mux.HandleFunc("GET /api/chat/sessions", h.listChatSessions)
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
 	mux.HandleFunc("GET /api/chat/sessions/{id}", h.getChatSession)
@@ -289,6 +293,48 @@ func (h *Handler) searchMemories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, entries)
+}
+
+type updateMemoryRequest struct {
+	Kind  string   `json:"kind"`
+	Title string   `json:"title"`
+	Body  string   `json:"body"`
+	Tags  []string `json:"tags"`
+}
+
+func (h *Handler) updateMemory(w http.ResponseWriter, r *http.Request) {
+	var req updateMemoryRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	kind, ok := domain.ParseMemoryKind(req.Kind)
+	if !ok {
+		http.Error(w, "invalid kind", http.StatusBadRequest)
+		return
+	}
+
+	err := h.updateUC.Execute(r.Context(), usecase.UpdateInput{
+		ID:    r.PathValue("id"),
+		Kind:  kind,
+		Title: req.Title,
+		Body:  req.Body,
+		Tags:  req.Tags,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "invalid memory id") || strings.Contains(err.Error(), "body is required") {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, port.ErrMemoryNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) deleteMemory(w http.ResponseWriter, r *http.Request) {

@@ -36,6 +36,11 @@ type MemoryRepository interface {
 	// DeleteByID returns ErrMemoryNotFound when no row matches, so callers can
 	// tell a no-op delete from a real one.
 	DeleteByID(ctx context.Context, id uuid.UUID) error
+	// UpdateByID overwrites kind, title, body, tags and embedding for an
+	// existing row, identified by entry.ID. It returns ErrMemoryNotFound when
+	// no row matches. Metadata (chunk info, source path, ...) is left alone —
+	// an edit changes content, not provenance.
+	UpdateByID(ctx context.Context, entry domain.MemoryEntry) error
 	SourceContentHash(ctx context.Context, sourcePath string) (string, bool, error)
 }
 
