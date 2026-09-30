@@ -165,6 +165,34 @@ func (r *Repository) DeleteByID(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+func (r *Repository) UpdateByID(ctx context.Context, entry domain.MemoryEntry) error {
+	if entry.Tags == nil {
+		entry.Tags = []string{}
+	}
+
+	var embedding any
+	if len(entry.Embedding) > 0 {
+		embedding = pgvector.NewVector(entry.Embedding)
+	}
+
+	var updatedID uuid.UUID
+	err := r.pool.QueryRow(ctx, `
+		UPDATE memories
+		SET kind = $2, title = $3, body = $4, tags = $5, embedding = $6,
+		    embedding_model = $7, embedding_dim = $8, updated_at = now()
+		WHERE id = $1
+		RETURNING id
+	`, entry.ID, string(entry.Kind), entry.Title, entry.Body, entry.Tags, embedding,
+		entry.EmbeddingModel, nullableDim(entry.EmbeddingDim)).Scan(&updatedID)
+	if err == pgx.ErrNoRows {
+		return port.ErrMemoryNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("update memory: %w", err)
+	}
+	return nil
+}
+
 func (r *Repository) SourceContentHash(ctx context.Context, sourcePath string) (string, bool, error) {
 	var hash string
 	err := r.pool.QueryRow(ctx, `

@@ -76,8 +76,9 @@ func (stubRepo) SearchFullText(context.Context, port.TextQuery, int, port.Search
 func (stubRepo) ListRecent(context.Context, int, port.SearchFilter) ([]domain.MemoryEntry, error) {
 	return nil, nil
 }
-func (stubRepo) DeleteBySourcePath(context.Context, string) error { return nil }
-func (stubRepo) DeleteByID(context.Context, uuid.UUID) error      { return nil }
+func (stubRepo) DeleteBySourcePath(context.Context, string) error     { return nil }
+func (stubRepo) DeleteByID(context.Context, uuid.UUID) error          { return nil }
+func (stubRepo) UpdateByID(context.Context, domain.MemoryEntry) error { return nil }
 func (stubRepo) SourceContentHash(context.Context, string) (string, bool, error) {
 	return "", false, nil
 }

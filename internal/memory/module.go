@@ -37,6 +37,7 @@ var Module = fx.Module("memory",
 		provideReindex,
 		provideSearch,
 		provideDelete,
+		provideUpdate,
 		provideConsult,
 		provideChat,
 	),
@@ -144,6 +145,10 @@ func provideSearch(repo port.MemoryRepository, retriever *usecase.Retrieve) *use
 
 func provideDelete(repo port.MemoryRepository) *usecase.Delete {
 	return usecase.NewDelete(repo)
+}
+
+func provideUpdate(repo port.MemoryRepository, embedder port.Embedder) *usecase.Update {
+	return usecase.NewUpdate(repo, embedder)
 }
 
 func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository, generals genport.Registry) *usecase.MemoryToolExecutor {

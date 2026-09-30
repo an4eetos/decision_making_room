@@ -191,6 +191,65 @@ function renderChatSessions(container, sessions, activeSessionID) {
     `).join("");
 }
 
+function memoryRowCellsHTML(entry) {
+    return `
+        <td>${escapeHTML(formatDate(entry.created_at))}</td>
+        <td><span class="badge">${escapeHTML(entry.kind)}</span></td>
+        <td>${escapeHTML(entry.title || "")}</td>
+        <td class="preview">${escapeHTML(truncate(entry.body, 120))}</td>
+        <td>${escapeHTML((entry.tags || []).join(", "))}</td>
+        <td class="row-actions">
+            <button
+                type="button"
+                class="row-edit"
+                data-memory-id="${escapeHTML(entry.id)}"
+                title="Edit memory"
+                aria-label="Edit memory">
+                Edit
+            </button>
+            <button
+                type="button"
+                class="row-delete"
+                data-memory-id="${escapeHTML(entry.id)}"
+                title="Delete memory"
+                aria-label="Delete memory">
+                Del
+            </button>
+        </td>
+    `;
+}
+
+// memoryKindOptionsHTML mirrors the search form's kind <select>, built server
+// side from domain.MemoryKind, so the edit form never hardcodes its own copy
+// of the kind list.
+function memoryKindOptionsHTML(selected) {
+    const source = document.getElementById("search-kind");
+    if (!source) {
+        return "";
+    }
+    return Array.from(source.options)
+        .filter((opt) => opt.value !== "")
+        .map((opt) => `<option value="${escapeHTML(opt.value)}" ${opt.value === selected ? "selected" : ""}>${escapeHTML(opt.textContent)}</option>`)
+        .join("");
+}
+
+function memoryEditRowHTML(entry) {
+    return `
+        <td colspan="6">
+            <div class="edit-form">
+                <select class="edit-kind">${memoryKindOptionsHTML(entry.kind)}</select>
+                <input class="edit-title" type="text" placeholder="Title" value="${escapeHTML(entry.title || "")}">
+                <textarea class="edit-body" rows="4">${escapeHTML(entry.body || "")}</textarea>
+                <input class="edit-tags" type="text" placeholder="tags, comma, separated" value="${escapeHTML((entry.tags || []).join(", "))}">
+                <div class="edit-actions">
+                    <button type="button" class="btn edit-save">Save</button>
+                    <button type="button" class="btn-secondary edit-cancel">Cancel</button>
+                </div>
+            </div>
+        </td>
+    `;
+}
+
 function renderMemoriesTable(container, entries) {
     if (!entries || entries.length === 0) {
         container.innerHTML = '<p class="muted">No memories yet. <a href="/ingest">Add your first entry</a>.</p>';
@@ -198,23 +257,7 @@ function renderMemoriesTable(container, entries) {
     }
 
     const rows = entries.map((entry) => `
-        <tr>
-            <td>${escapeHTML(formatDate(entry.created_at))}</td>
-            <td><span class="badge">${escapeHTML(entry.kind)}</span></td>
-            <td>${escapeHTML(entry.title || "")}</td>
-            <td class="preview">${escapeHTML(truncate(entry.body, 120))}</td>
-            <td>${escapeHTML((entry.tags || []).join(", "))}</td>
-            <td>
-                <button
-                    type="button"
-                    class="row-delete"
-                    data-memory-id="${escapeHTML(entry.id)}"
-                    title="Delete memory"
-                    aria-label="Delete memory">
-                    Del
-                </button>
-            </td>
-        </tr>
+        <tr data-memory-id="${escapeHTML(entry.id)}">${memoryRowCellsHTML(entry)}</tr>
     `).join("");
 
     container.innerHTML = `
@@ -681,62 +724,128 @@ function setupIngestForm() {
     });
 }
 
-async function loadMemoriesTable() {
-    const container = document.getElementById("memories-table");
-    if (!container) {
-        return;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const query = new URLSearchParams();
-    ["q", "kind", "tags"].forEach((key) => {
-        const value = params.get(key);
-        if (value) {
-            query.set(key, value);
-        }
-    });
-
-    container.innerHTML = '<p class="muted">Loading...</p>';
-
-    try {
-        const entries = await apiJSON(`/api/memories/search?${query.toString()}`);
-        renderMemoriesTable(container, entries);
-    } catch (error) {
-        showMessage(container, error.message, "error");
-    }
-}
-
-async function deleteMemory(container, deleteBtn) {
-    const memoryID = deleteBtn.dataset.memoryId;
-    if (!memoryID || !window.confirm("Delete this memory? This cannot be undone.")) {
-        return;
-    }
-
-    deleteBtn.disabled = true;
-    try {
-        await apiJSON(`/api/memories/${memoryID}`, { method: "DELETE" });
-        await loadMemoriesTable();
-    } catch (error) {
-        deleteBtn.disabled = false;
-        showMessage(container, error.message, "error");
-    }
-}
-
 function setupMemoriesTable() {
     const container = document.getElementById("memories-table");
     if (!container) {
         return;
     }
 
-    container.addEventListener("click", (e) => {
-        const deleteBtn = e.target.closest(".row-delete");
-        if (!deleteBtn) {
+    // Keyed by id so an edit click can pull the full entry (the table itself
+    // only shows a truncated preview) without a second round trip.
+    let entriesByID = new Map();
+
+    async function load() {
+        const params = new URLSearchParams(window.location.search);
+        const query = new URLSearchParams();
+        ["q", "kind", "tags"].forEach((key) => {
+            const value = params.get(key);
+            if (value) {
+                query.set(key, value);
+            }
+        });
+
+        container.innerHTML = '<p class="muted">Loading...</p>';
+
+        try {
+            const entries = await apiJSON(`/api/memories/search?${query.toString()}`);
+            entriesByID = new Map((entries || []).map((entry) => [entry.id, entry]));
+            renderMemoriesTable(container, entries);
+        } catch (error) {
+            showMessage(container, error.message, "error");
+        }
+    }
+
+    async function deleteMemory(deleteBtn) {
+        const memoryID = deleteBtn.dataset.memoryId;
+        if (!memoryID || !window.confirm("Delete this memory? This cannot be undone.")) {
             return;
         }
-        deleteMemory(container, deleteBtn);
+
+        deleteBtn.disabled = true;
+        try {
+            await apiJSON(`/api/memories/${memoryID}`, { method: "DELETE" });
+            await load();
+        } catch (error) {
+            deleteBtn.disabled = false;
+            showMessage(container, error.message, "error");
+        }
+    }
+
+    function startEdit(row, entry) {
+        row.innerHTML = memoryEditRowHTML(entry);
+    }
+
+    function cancelEdit(row, entry) {
+        row.innerHTML = memoryRowCellsHTML(entry);
+    }
+
+    async function saveEdit(row, entry) {
+        const kind = row.querySelector(".edit-kind").value;
+        const title = row.querySelector(".edit-title").value.trim();
+        const body = row.querySelector(".edit-body").value.trim();
+        const tags = row.querySelector(".edit-tags").value
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean);
+
+        if (!body) {
+            window.alert("Body is required.");
+            return;
+        }
+
+        const saveBtn = row.querySelector(".edit-save");
+        saveBtn.disabled = true;
+        try {
+            await apiJSON(`/api/memories/${entry.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ kind, title, body, tags }),
+            });
+            await load();
+        } catch (error) {
+            saveBtn.disabled = false;
+            window.alert(error.message);
+        }
+    }
+
+    container.addEventListener("click", (e) => {
+        const editBtn = e.target.closest(".row-edit");
+        if (editBtn) {
+            const row = editBtn.closest("tr");
+            const entry = entriesByID.get(editBtn.dataset.memoryId);
+            if (row && entry) {
+                startEdit(row, entry);
+            }
+            return;
+        }
+
+        const cancelBtn = e.target.closest(".edit-cancel");
+        if (cancelBtn) {
+            const row = cancelBtn.closest("tr");
+            const entry = row && entriesByID.get(row.dataset.memoryId);
+            if (row && entry) {
+                cancelEdit(row, entry);
+            }
+            return;
+        }
+
+        const saveBtn = e.target.closest(".edit-save");
+        if (saveBtn) {
+            const row = saveBtn.closest("tr");
+            const entry = row && entriesByID.get(row.dataset.memoryId);
+            if (row && entry) {
+                saveEdit(row, entry);
+            }
+            return;
+        }
+
+        const deleteBtn = e.target.closest(".row-delete");
+        if (deleteBtn) {
+            deleteMemory(deleteBtn);
+        }
     });
 
-    loadMemoriesTable();
+    load();
 }
 
 // Quick capture writes straight to today's daily note. It exists so the thought
