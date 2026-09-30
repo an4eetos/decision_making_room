@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [shaposhnikov, zhukov]
   max: 2
+  doctrine: ["Over a long game"]
 styles: [closer, pattern_collector]
 ---
 

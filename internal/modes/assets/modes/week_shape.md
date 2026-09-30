@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [sun_tzu, vasilevsky]
   max: 2
+  doctrine: ["Over a long game"]
 styles: [block_operator]
 ---
 

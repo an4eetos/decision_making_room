@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [sun_tzu, eisenhower]
   max: 2
+  doctrine: ["In the pocket"]
 styles: [coin_flipper, finisher]
 ---
 

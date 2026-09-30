@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [patton, suvorov]
   max: 2
+  doctrine: ["Facing the unknown"]
 styles: [fast_starter, faith_starter, contrarian_mover]
 ---
 

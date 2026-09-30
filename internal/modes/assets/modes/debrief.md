@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [rokossovsky, zhukov]
   max: 2
+  doctrine: ["Where it broke", "Over a long game"]
 styles: [closer, finisher]
 ---
 

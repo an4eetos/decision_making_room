@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [sun_tzu, manstein]
   max: 2
+  doctrine: ["Facing the unknown", "The case against"]
 styles: [gut_check, risk_mapper]
 ---
 
