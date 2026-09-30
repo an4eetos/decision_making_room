@@ -61,6 +61,8 @@ type ConsultResult struct {
 	// they were picked by the user or selected automatically.
 	Generals       []string `json:"generals"`
 	GeneralsMethod string   `json:"generals_method,omitempty"`
+	// Doctrine lists the doctrine passages the lenses argued from.
+	Doctrine []string `json:"doctrine,omitempty"`
 	// Mode is the conversation shape that produced this answer, ModeName is its
 	// display name, and ModeMethod is how it was arrived at.
 	Mode       string `json:"mode,omitempty"`
@@ -76,6 +78,7 @@ type Consult struct {
 	initialContext port.InitialContextReader
 	resolver       *PlanResolver
 	deep           *Deep
+	doctrine       *DoctrineIndex
 }
 
 func NewConsult(
@@ -87,6 +90,7 @@ func NewConsult(
 	tools *MemoryToolExecutor,
 	registry genport.Registry,
 	detector *modeservice.Detector,
+	doctrine *DoctrineIndex,
 	defaultTier, maxTier domain.Tier,
 ) *Consult {
 	// Without a tool-capable model there is no agent, so no tier can use tools
@@ -106,6 +110,7 @@ func NewConsult(
 		llm:            llm,
 		initialContext: initialContext,
 		resolver:       NewPlanResolver(registry, detector, defaultTier, maxTier),
+		doctrine:       doctrine,
 	}
 }
 
@@ -139,6 +144,12 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 		if context, err = u.gatherContext(ctx, plan); err != nil {
 			return ConsultResult{}, err
 		}
+	}
+
+	// After escalation, so the passage budget is the tier that actually runs.
+	// Skipped with retrieval: a greeting has nothing for doctrine to bear on.
+	if !skipRetrieval(plan.Question) {
+		plan.Doctrine = u.doctrine.Select(ctx, plan)
 	}
 
 	if plan.Tier.UsesTools() && u.agent != nil {
@@ -268,6 +279,7 @@ func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entri
 		Tier:           string(plan.Tier.Tier),
 		Generals:       plan.GeneralIDs(),
 		GeneralsMethod: plan.GeneralsMethod,
+		Doctrine:       plan.DoctrineRefs(),
 		Mode:           plan.Mode.ID,
 		ModeName:       plan.Mode.Name,
 		ModeMethod:     plan.ModeMethod,
@@ -333,7 +345,7 @@ func buildSystemPrompt(base string, plan ConsultPlan) string {
 	// The mode decides the shape of the answer; the lenses decide the argument
 	// inside it. Passing that along stops the two imposing rival templates.
 	structured := strings.TrimSpace(plan.Mode.OutputPrompt) != ""
-	if lenses := generalsPrompt(plan.Generals, structured); lenses != "" {
+	if lenses := generalsPrompt(plan.Generals, plan.Doctrine, structured); lenses != "" {
 		parts = append(parts, lenses)
 	}
 	if budget := strings.TrimSpace(plan.Tier.AnswerBudget); budget != "" {

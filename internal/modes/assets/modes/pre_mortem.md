@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [rokossovsky, antonov]
   max: 2
+  doctrine: ["The case against", "Where it broke"]
 styles: [risk_mapper]
 ---
 

@@ -77,7 +77,7 @@ var (
 )
 
 // parse splits YAML frontmatter from the markdown body. The body is the full
-// doctrine: stored, never injected into a prompt by default.
+// doctrine: never injected whole, only as passages chosen per question.
 func parse(data []byte, kind domain.Kind, source string) (domain.Lens, error) {
 	trimmed := bytes.TrimLeft(bytes.TrimPrefix(data, utf8BOM), " \t\r\n")
 	if !bytes.HasPrefix(trimmed, frontmatterFence) {

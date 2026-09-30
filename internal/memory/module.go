@@ -1,6 +1,10 @@
 package memory
 
 import (
+	"context"
+	"log"
+	"time"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
@@ -23,6 +27,8 @@ var Module = fx.Module("memory",
 		provideToolLLM,
 		provideEmbedder,
 		provideRepository,
+		provideDoctrineStore,
+		provideDoctrineIndex,
 		provideChatRepository,
 		provideInitialContext,
 		provideRetrieve,
@@ -30,6 +36,7 @@ var Module = fx.Module("memory",
 		provideIngest,
 		provideReindex,
 		provideSearch,
+		provideDelete,
 		provideConsult,
 		provideChat,
 	),
@@ -59,12 +66,56 @@ func provideAI(cfg config.Config) (aiBundle, error) {
 	}
 }
 
-func provideLLM(ai aiBundle) port.LLM           { return ai.LLM }
-func provideToolLLM(ai aiBundle) port.ToolLLM   { return ai.ToolLLM }
-func provideEmbedder(ai aiBundle) port.Embedder { return ai.Embedder }
+func provideLLM(ai aiBundle) port.LLM         { return ai.LLM }
+func provideToolLLM(ai aiBundle) port.ToolLLM { return ai.ToolLLM }
+
+// provideEmbedder memoises, so the doctrine index reuses the question vector
+// retrieval just computed instead of embedding the same text twice.
+func provideEmbedder(ai aiBundle) port.Embedder {
+	return usecase.NewMemoEmbedder(ai.Embedder, 32)
+}
 
 func provideRepository(pool *pgxpool.Pool) port.MemoryRepository {
 	return mempostgres.NewRepository(pool)
+}
+
+func provideDoctrineStore(pool *pgxpool.Pool) port.DoctrineVectorStore {
+	return mempostgres.NewDoctrineRepository(pool)
+}
+
+// doctrineBuildTimeout bounds the first-run embedding of the roster. Later
+// starts load from Postgres and finish in milliseconds.
+const doctrineBuildTimeout = 3 * time.Minute
+
+// provideDoctrineIndex builds in the background. Boot does not wait on a
+// hundred-odd embedding calls: until the vectors land, passage selection falls
+// back to word overlap and every answer still gets its doctrine.
+func provideDoctrineIndex(
+	lc fx.Lifecycle,
+	registry genport.Registry,
+	embedder port.Embedder,
+	store port.DoctrineVectorStore,
+) *usecase.DoctrineIndex {
+	index := usecase.NewDoctrineIndex(registry, embedder, store)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	lc.Append(fx.Hook{
+		OnStart: func(context.Context) error {
+			go func() {
+				buildCtx, done := context.WithTimeout(ctx, doctrineBuildTimeout)
+				defer done()
+				if err := index.Build(buildCtx); err != nil {
+					log.Printf("doctrine: %v", err)
+				}
+			}()
+			return nil
+		},
+		OnStop: func(context.Context) error {
+			cancel()
+			return nil
+		},
+	})
+	return index
 }
 
 func provideChatRepository(pool *pgxpool.Pool) port.ChatRepository {
@@ -91,6 +142,10 @@ func provideSearch(repo port.MemoryRepository, retriever *usecase.Retrieve) *use
 	return usecase.NewSearch(repo, retriever)
 }
 
+func provideDelete(repo port.MemoryRepository) *usecase.Delete {
+	return usecase.NewDelete(repo)
+}
+
 func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository, generals genport.Registry) *usecase.MemoryToolExecutor {
 	return usecase.NewMemoryToolExecutor(retriever, repo, generals)
 }
@@ -104,6 +159,7 @@ func provideConsult(
 	tools *usecase.MemoryToolExecutor,
 	registry genport.Registry,
 	detector *modeservice.Detector,
+	doctrine *usecase.DoctrineIndex,
 	cfg config.Config,
 ) *usecase.Consult {
 	return usecase.NewConsult(
@@ -115,6 +171,7 @@ func provideConsult(
 		tools,
 		registry,
 		detector,
+		doctrine,
 		domain.ParseTier(cfg.DefaultTier, domain.TierStandard),
 		domain.ParseTier(cfg.MaxTier, domain.TierDeep),
 	)

@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [manstein, rommel, konev]
   max: 3
+  doctrine: ["The case against", "Rivals"]
 styles: [risk_mapper, contrarian_mover]
 ---
 

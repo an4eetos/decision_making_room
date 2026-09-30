@@ -149,6 +149,22 @@ func (r *Repository) DeleteBySourcePath(ctx context.Context, sourcePath string) 
 	return nil
 }
 
+func (r *Repository) DeleteByID(ctx context.Context, id uuid.UUID) error {
+	var deletedID uuid.UUID
+	err := r.pool.QueryRow(ctx, `
+		DELETE FROM memories
+		WHERE id = $1
+		RETURNING id
+	`, id).Scan(&deletedID)
+	if err == pgx.ErrNoRows {
+		return port.ErrMemoryNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("delete memory: %w", err)
+	}
+	return nil
+}
+
 func (r *Repository) SourceContentHash(ctx context.Context, sourcePath string) (string, bool, error) {
 	var hash string
 	err := r.pool.QueryRow(ctx, `

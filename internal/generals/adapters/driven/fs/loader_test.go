@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/an4eetos/decision-room/internal/generals/adapters/driven/fs"
 	"github.com/an4eetos/decision-room/internal/generals/assets"
@@ -231,5 +232,29 @@ func TestParseRejectsMissingFrontmatter(t *testing.T) {
 
 	if _, err := fs.Load(assets.Generals(), assets.Styles(), dir); err == nil {
 		t.Fatal("expected a file without frontmatter to fail")
+	}
+}
+
+// A passage is the unit that reaches a prompt on every tier, so it is what a
+// doctrine costs. Long sections are fine; they split at paragraph breaks. A
+// single paragraph over the limit cannot split, and should be rewritten.
+func TestDoctrinePassagesStayBounded(t *testing.T) {
+	t.Parallel()
+
+	roster := load(t, "")
+	for _, lens := range roster.Generals {
+		passages := lens.Passages()
+		if len(passages) == 0 {
+			t.Fatalf("%s: doctrine produced no passages", lens.ID)
+		}
+		for _, p := range passages {
+			if p.Section == "" {
+				t.Fatalf("%s: text before the first ## heading has no section to be found by", lens.ID)
+			}
+			if n := utf8.RuneCountInString(p.Text); n > domain.MaxPassageRunes {
+				t.Fatalf("%s / %s: a %d-rune paragraph cannot be split under %d; break it up",
+					lens.ID, p.Section, n, domain.MaxPassageRunes)
+			}
+		}
 	}
 }

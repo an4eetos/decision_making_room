@@ -2,10 +2,14 @@ package port
 
 import (
 	"context"
+	"errors"
+
 	"github.com/google/uuid"
 
 	"github.com/an4eetos/decision-room/internal/memory/domain"
 )
+
+var ErrMemoryNotFound = errors.New("memory not found")
 
 type SearchFilter struct {
 	// EmbeddingModel restricts vector search to rows embedded by this model.
@@ -29,6 +33,9 @@ type MemoryRepository interface {
 	UpdateEmbedding(ctx context.Context, id uuid.UUID, embedding []float32, model string) error
 	ListRecent(ctx context.Context, limit int, filter SearchFilter) ([]domain.MemoryEntry, error)
 	DeleteBySourcePath(ctx context.Context, sourcePath string) error
+	// DeleteByID returns ErrMemoryNotFound when no row matches, so callers can
+	// tell a no-op delete from a real one.
+	DeleteByID(ctx context.Context, id uuid.UUID) error
 	SourceContentHash(ctx context.Context, sourcePath string) (string, bool, error)
 }
 

@@ -67,6 +67,10 @@ type Retrieval struct {
 type Generals struct {
 	Default []string `yaml:"default"`
 	Max     int      `yaml:"max"`
+	// Doctrine names the doctrine sections this mode leans on — a pre-mortem
+	// wants "The case against", not "Over a long game". Boosted, never filtered:
+	// a passage that matches the question still beats one that matches the mode.
+	Doctrine []string `yaml:"doctrine"`
 }
 
 // IsOpen reports the unstructured default, which applies no output template.

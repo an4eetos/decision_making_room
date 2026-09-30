@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [kutuzov, sun_tzu]
   max: 3
+  doctrine: ["Over a long game", "Facing the unknown"]
 styles: [risk_mapper, gut_check]
 ---
 

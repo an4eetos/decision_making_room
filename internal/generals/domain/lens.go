@@ -36,10 +36,11 @@ const (
 
 // Lens is one general or working style.
 //
-// Only the card reaches the prompt — see Card. The full Doctrine is retrievable
-// but never injected, because injecting every general's full text is what made
-// the original cost ~5,000 tokens on every single question regardless of what
-// was being asked.
+// The card always reaches the prompt — see Card. The Doctrine never reaches it
+// whole, because injecting every general's full text is what made the original
+// cost ~5,000 tokens on every single question regardless of what was being
+// asked. Instead it is split into Passages, and the one or two that bear on the
+// question ride along under the card.
 type Lens struct {
 	ID      string `yaml:"id"`
 	Kind    Kind   `yaml:"-"`
@@ -80,7 +81,8 @@ type Lens struct {
 	// Portrait is optional artwork, credited.
 	Portrait Portrait `yaml:"portrait"`
 
-	// Doctrine is the full body text. Retrievable, never injected by default.
+	// Doctrine is the full body text. Reaches a prompt only as Passages chosen
+	// for the question, or whole through the read_doctrine tool on deep.
 	Doctrine string `yaml:"-"`
 	// Source is "builtin" or the path it was overlaid from.
 	Source string `yaml:"-"`

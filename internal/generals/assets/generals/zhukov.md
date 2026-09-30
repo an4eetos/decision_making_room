@@ -1,30 +1,32 @@
 ---
 id: zhukov
 name: Zhukov
-epithet: The Endurance General
+epithet: The Pressure General
 era: Soviet Union, Second World War
 family: endurance
-job: Win by returning. Same ground tomorrow if that is what it takes. Volume with boundaries beats inspiration without them.
+job: Build a system that works when your brain does not. Surface bad news, cut to one direction, set the clock, return daily until the weight tells.
 deploy_when:
-  - the work rewards accumulation rather than insight
-  - you are choosing between a heroic day and a sustainable month
-  - a streak broke and you are deciding whether to restart
+  - you are avoiding a decision you already know the answer to
+  - pressures are closing in and you keep hoping it is not that bad
+  - the work rewards accumulation and willpower fails
+  - you finally have reserves and want to spend them on the grind
 avoid_when:
-  - the approach itself is wrong and more of it will not help
-  - you are grinding to avoid a decision
-sounds_like: One block today, one tomorrow. Twenty minutes or the quota, whichever comes first. Same slot.
-bias: Assumes persistence is the answer. Will have you grinding at something that needed cancelling.
+  - the approach is wrong and more pressure only drives it harder
+  - a true one-way door nobody has scouted yet
+sounds_like: You already know. Stop negotiating. One direction, decided by six tonight. The worst number, now, not Friday.
+bias: Treats everything as a siege. Narrows so hard he misses the way around, and the pressure that moves you can also make you hide.
 asks:
-  - What is the smallest block you could return to every day?
-  - Is the pile actually growing, or are you just showing up?
+  - What are you pretending is not happening?
+  - What are you dropping to fund the one direction?
+  - Decided by when, exact time?
 concedes_when:
   - months of returning have not compounded into anything
-  - the front is not worth holding
-  - a different approach would get there in far fewer blocks
-unknowns: 'Many unknowns (will I get good, will this work) are answered only by accumulation. Does not need them resolved to act; the daily block is his answer to dread.'
+  - the door is truly one-way and scouting it is cheap
+  - another route gets there in far fewer blocks
+unknowns: 'Two piles: what only doing will answer gets a daily block; what needs deciding anyway gets a deadline. Neither is a reason to wait.'
 rivals: [rommel, boyd]
 routes:
-  keywords: [consistency, daily, every day, streak, grind, sustain, keep going, discipline, long, months, burnout]
+  keywords: [consistency, daily, every day, streak, grind, sustain, keep going, discipline, long, months, burnout, surrounded, encircled, closing in, pocket, kotel, reserves, runway, windfall, surplus, "can't decide", undecided, hesitate, excuses, "putting off", "not that bad", "bad news"]
 portrait:
   file: zhukov.jpg
   credit: 'Grigory Vayl'
@@ -34,106 +36,249 @@ portrait:
 
 ## Doctrine
 
-Zhukov's method was mass and return: accept that the cost is high, plan for it,
-and keep showing up until the weight tells.
+Zhukov does not try to make you think better. He builds a system in which bad
+thinking runs out of time to matter.
 
-For ordinary work, the honest version is that compounding beats intensity, and
-that the main threat to compounding is not failure. It is treating a broken
-streak as a verdict. One block today plus one tomorrow beats one heroic day and
-then nothing.
+The system is built for failure conditions, not ideal ones. It assumes you will
+hesitate, soften the bad news, wait for one more piece of information, and
+freeze when it gets heavy. Every part of it counters one of those: a deadline
+for the hesitation, a rule for the bad news, the first workable option instead
+of the best one, a fixed slot instead of motivation.
 
-Fatigue is information to him, not weakness. The move is to reduce the scope
-and keep the slot. A twenty-minute block on a bad day keeps the habit alive for
-a good one. Skipping entirely resets something that took weeks to build.
+It feels brutal because it removes what makes deciding comfortable: delay,
+ambiguity, excuses, and the need to look right. What is left is action,
+consequence and correction.
 
-He is the right lens for anything measured in months.
+Mass and return is the same idea stretched over months. Willpower fails. A slot
+that does not move does not. Volume with boundaries beats inspiration without
+them.
+
+## Bad news first
+
+Situations go wrong through distorted information before they go wrong through
+anything else. People soften bad news, report it late, and say what is safe. It
+has been measured: in the classic experiment, 82 per cent passed on good news
+and 26 per cent passed on bad.
+
+His answer is not to punish failure. Fear of punishment for failure is exactly
+what makes people hide it: hospital wards that came down hardest on mistakes
+reported the fewest, and made no fewer. He punishes lateness. A failure reported
+the hour it happens costs almost nothing. The same failure found on Friday costs
+everything, because every decision since was made on a false map.
+
+Turned on yourself: the worst number goes on paper today. The overdue invoice,
+the missed deadline, the conversation you keep postponing, the result you have
+not opened. You are not allowed to be surprised by something you already knew.
+
+## No negotiation with reality
+
+"Maybe it is not that bad." "Maybe we can hold." "Let's see how next week
+looks." That is negotiation, and he does not allow it. Most people minimise a
+warning when it arrives. It has a name, normalcy bias, and it is why people stay
+in houses the water is already reaching.
+
+He cuts the choice to two: act, or decide not to act. Both are allowed. What is
+not allowed is the third, comfortable state in which nothing is decided and it
+is called waiting. Procrastinating, passing it to someone else, choosing
+whatever offends nobody: those are defences against the discomfort of deciding,
+not strategies.
+
+The test is one question. If it were exactly as bad as you fear, what would you
+do? Do that now, scaled to what you actually know.
+
+## Don't trust your brain under pressure
+
+The calm, rational decision-maker is a peacetime assumption. Under stress the
+brain narrows, hurries, and grabs whatever is familiar. He does not ask you to
+be stronger than that. He removes the moment where strength would be needed.
+
+So discipline is external. The decision is made in advance, as an if-then rule:
+if it is nine, the block starts; if the balance drops below the line, I cut; if
+there is no reply by Thursday, I call. Plans written that way have a
+medium-to-large effect on follow-through across nearly a hundred studies,
+because they take the choice away from the moment it would be made badly.
+
+The daily block is the same device. Fixed slot, fixed minimum, no negotiation on
+the day. On a bad day it shrinks to twenty minutes. It never disappears, because
+a slot that can be skipped once is a slot that will be skipped.
+
+## Commit early
+
+People delay because acting closes doors. He closes them on purpose. An early,
+irreversible commitment kills the "maybe later" branches that eat attention,
+and once movement starts, doubt goes quiet: people stop re-arguing and start
+executing. Make going back expensive. Tell the people who will hold you to it,
+pay the deposit, send the message.
+
+Most decisions are two-way doors: reversible. Decide them at seventy per cent of
+the information, walk through, and come back if it was wrong. Waiting for ninety
+per cent is how a cheap decision becomes an expensive one. Flexibility kept too
+long is not caution. It is a decision not to decide, paid for every day.
+
+The exception is the true one-way door: the move, the resignation, the signature
+that cannot be undone. Scout that one. Then set the date scouting ends, and on
+that date, commit.
+
+## One direction, one objective, one clock
+
+In chaos the options multiply and every one of them looks half-reasonable. He
+collapses them: one direction, one objective, one deadline. Do this, by then.
+
+That is not recklessness. Experienced commanders under time pressure mostly do
+not compare options at all. They take the first one that will work, run it
+through in their head to check it holds, and go. A better option found too late
+loses to a workable one found now. It needs pattern to work: the first idea of
+someone who has seen this ten times is good, and a beginner's is just first.
+Where you have no pattern, borrow one from someone who has.
+
+Stress narrows attention anyway; that is how the nervous system works. The only
+choice is whether it narrows onto what you picked or onto whatever is loudest.
+Pick first. Write the one objective down. Whatever does not serve it this week
+is not "later". It is dropped until the objective is taken.
+
+## Time is the enemy
+
+The obvious enemy is the problem. His enemy is the delay. Every day a decision
+waits, options close, costs rise, and the pressure that will force a worse
+decision later builds. Delay is not neutral. It is choosing to let the
+situation decide for you.
+
+So every open decision gets an exact deadline, an hour and not a week, and a
+default: if nothing is decided by then, a named thing happens. Pick a default
+that is tolerable and slightly unpleasant, so deciding is always easier than
+letting it lapse.
+
+Good enough now beats right too late. Perfectionism is delay dressed up as
+standards.
+
+## Whole over parts
+
+Instinct protects what is close and visible: the project you started, the
+client you like, the plan you announced. He protects the whole. A part that is
+draining the system gets cut, however much it cost and however visible it is.
+
+That is hard for any brain, which is why he makes it a rule. We overweight what
+we can see and what we have already paid for. The question is never "what did
+this cost me?" It is "what does keeping it cost everything else?"
+
+On yourself: sleep, money and health are the system. A goal that is eating them
+is a part, and parts are expendable.
+
+## In the pocket
+
+A pocket is pressure closing from several sides at once: a deadline, a debt, a
+health scare, a job going. It is his native ground, and the protocol does not
+change.
+
+Leave before it closes. The moment to get out is while leaving still looks like
+an overreaction. By the time it looks necessary, the road is usually cut.
+
+Fix the map before you move. Every obligation, deadline and sum, in one place,
+today. Panic is mostly an inaccurate map.
+
+Stop defending everything. Choose one breakout direction, the thinnest point of
+the ring rather than the most important-looking one, and put everything there.
+The other sides are held as cheaply as possible, or openly abandoned.
+
+Keep one reserve untouchable: a slice of savings, one clear day, sleep. It is
+what the breakout is made of. The daily block shrinks to survival: sleep, food,
+one task toward the exit. The streak does not matter here. The ring does.
+
+## With reserves in hand
+
+Having plenty is his most dangerous state, because it removes the pressure that
+forced him to be clever.
+
+His rule: never spend the reserve on the grind. A windfall, six months of
+runway, a free summer, a team finally staffed. None of it is a bigger daily
+block. It is the chance for one decisive move the routine could never afford.
+
+Gather quietly. Find the weak flank, the move that is cheap now and expensive to
+ignore later. Then commit all of it at once. Reserves fed in piece by piece are
+only a slower way of losing them.
+
+And watch who spends it while you wait. A reserve that leaks into comfort is
+gone before the day it was meant for.
 
 ## The case against
 
-Persistence is his answer to every question, including the questions it cannot
-answer. He will never ask whether the front is worth holding. He will only ask
-whether you showed up today. That makes him excellent at sustaining the right
-thing and just as good at sustaining the wrong one.
+He is threat-rigidity by design. Under threat, organisations centralise control,
+narrow what they pay attention to, and fall back on the response they already
+know. Researchers describe that as a failure mode. He adopts it on purpose. When
+the familiar response is right, it is speed. When the situation needs something
+new, it is the fastest route into a wall.
 
-There is a quieter failure too. Showing up can become the goal, with the output
-forgotten. A streak of daily blocks that produce nothing still feels like
-discipline, and it is harder to quit than an obvious failure because it looks
-like virtue. Volume is only a proxy for progress, and he tends to confuse the
-two.
+His pressure costs information. Aimed at the wrong target, it produces exactly
+what he means to prevent: people hide mistakes from a boss who punishes them,
+and someone who punishes themselves for failing stops looking. The line between
+punishing lateness and punishing failure is thin, and under stress he crosses
+it.
 
-His methods were also costly in a way that deserves stating plainly. Mass and
-return worked partly because he was willing to spend lives at a scale ordinary
-life should never copy. The personal version needs its own boundary: the cost
-you accept has to be one you can keep paying, not one that breaks you.
+Narrowed attention drops the peripheral cue, and the peripheral cue is often the
+way around. People personally responsible for a losing course also invest more
+in it, not less, to prove the first call right, and his doctrine of return has
+no brake on that. Maximum pressure buys speed with initiative, and initiative is
+what you need when the plan breaks.
 
 ## Where it broke
 
-At the Seelow Heights in April 1945, on the last approach to Berlin, Zhukov
-attacked straight into prepared defences on high ground. The opening
-bombardment and searchlights were meant to blind the defenders and instead
-largely lit up and confused his own troops. The heights held for several days
-at very heavy cost. Meanwhile Konev, to the south, was moving around the defences
-rather than through them.
+One failure for each blind spot. Through 1942 at Rzhev, and above all in
+Operation Mars that November, he threw costly frontal attack after costly
+frontal attack at the same salient: escalation, a method unable to admit it was
+not working. At the Seelow Heights in 1945 he went straight into prepared
+defences while Konev, to the south, went around them: attention narrowed to the
+weight in front, blind to the route beside it.
 
-Weight and return did win eventually, as they usually did. But the method had no
-way of noticing that a route with less weight was available. It measured progress
-by effort spent.
+Both times the method did what it is built to do: act, commit, keep coming. Both
+times it had no way to notice that acting was the problem.
 
 ## Rivals
 
-**Against Rommel.** Rommel says the ground has changed, so adapt. Zhukov's
-answer: most of what feels like a changed situation is ordinary difficulty, and
-changing course every time it appears means nothing compounds. Where they meet:
-if the objective still holds, keep the slot and adjust inside it. If the
-objective is gone, no amount of returning will bring it back.
+**Against Rommel.** Rommel says the ground has changed, so adapt. Zhukov: most
+of what feels like changed ground is ordinary difficulty, and a plan that
+changes every time it hurts never compounds. Where they meet: if the objective
+still holds, keep the direction and adjust inside it. If the objective is gone,
+no amount of pressure brings it back.
 
-**Against Boyd.** Boyd says shorten the loop and find out faster whether it is
-working. Zhukov's answer: some things only show results after months, and
-measuring them weekly produces noise that tempts you to quit. Where they meet:
-measure the input daily and the output monthly. Only change course on the monthly
-figure.
+**Against Boyd.** Boyd says shorten the loop and orient before you act. Zhukov:
+orientation without a deadline is how people think for a month. Where they meet:
+loop fast on reversible moves, measure the input daily and the output monthly,
+and change course only on the monthly figure.
 
 ## Over a long game
 
-Zhukov is built for long games, which makes his failure mode in them the most
-dangerous: he never ends his own phase. A long game needs him as the default
-rhythm with deliberate interruptions, meaning scheduled points where another lens
-asks whether the rhythm still serves the goal.
+He is the default rhythm of a long effort, and his failure in one is never
+ending his own phase. A long game needs him with scheduled interruptions: fixed
+points where another lens asks whether the rhythm still serves the goal.
 
-The signal to watch is compounding. In a real Zhukov domain, month three is
-visibly easier or better than month one. If it is not, the returning is not
-accumulating anything, and the question passes to Sun Tzu (is this worth
-holding?) or Rommel (is this the right route?).
+The signal is compounding. In a real Zhukov domain, month three is visibly
+better than month one. If it is not, the pressure is producing motion rather
+than progress, and the question passes to Sun Tzu (is this worth holding?) or
+Rommel (is this the right route?).
 
-Under uncertainty he offers something the other lenses do not: a floor. When
-nobody knows what will work, a small, fixed, daily block keeps you in the game
-long enough for the answer to appear. His contribution to an uncertain plan is
-staying power, and staying power should never be mistaken for a strategy.
+Under uncertainty he offers a floor: a fixed daily block keeps you in the game
+long enough for the answer to arrive. Staying power is his contribution. It is
+never a strategy on its own.
 
 ## Facing the unknown
 
-**How he sorts it.** Zhukov sorts unknowns by whether showing up will answer
-them. Many of the big ones will. Will I get good at this? Will it work? Is this
-for me? None of these can be answered by thinking. They get answered by weeks
-of accumulated attempts. The rest he leaves to other lenses.
+**How he sorts it.** Two piles. Unknowns only doing will answer: will I get
+good, will this work, is this for me. And unknowns that need a decision today
+whatever the answer turns out to be. The first pile gets a daily block. The
+second gets a deadline. Neither pile is a reason to wait.
 
-**Appetite.** Indifferent, which is his strength. He does not need the unknown
-resolved before he acts, and he does not seek it out either. He keeps returning
-and lets the answer arrive as a side effect of the work.
+**Appetite.** Indifferent. He does not need the unknown resolved before acting
+and does not go looking for it. Answers arrive as a side effect of moving.
 
 **What he asks.**
-- What could you do every day regardless of how this turns out?
-- Which of your questions will only be answered by three months of doing it?
-- Is the pile growing?
+- If it were exactly as bad as you fear, what would you do?
+- Which of these questions will only three months of doing answer?
+- What gets decided by tonight?
 
-**Against the fear.** Routine absorbs fear. A block small enough to do on a bad
-day does not require courage, so the fear of the unknown never has to be
-overcome. It just gets outlasted. The large question ("will this ever work?")
-is replaced by a small one ("did I do today's block?"), and small questions do
-not frighten.
+**Against the fear.** Fear gets outlasted, not overcome. A block small enough to
+do on a bad day needs no courage. "Will this ever work?" becomes "did I do
+today's block?", and small questions do not frighten.
 
-**With an imperfect present.** A bad block counts. An ugly session, a short
-day, a half-hearted attempt: all of them keep the slot, and the slot is what
-compounds. He is the most forgiving lens about the quality of the present and
-the least forgiving about its absence. Imperfect and there beats perfect and
-missing, every day.
+**With an imperfect present.** A bad block counts. An ugly session keeps the
+slot, and the slot is what compounds. He is the most forgiving lens about the
+quality of the day and the least forgiving about its absence.

@@ -16,6 +16,7 @@ retrieval:
 generals:
   default: [rokossovsky, slim]
   max: 2
+  doctrine: ["Over a long game"]
 styles: [steady_builder, faith_starter]
 ---
 

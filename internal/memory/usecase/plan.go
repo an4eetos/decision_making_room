@@ -26,9 +26,13 @@ type ConsultPlan struct {
 	History  []port.Message
 	Tier     domain.TierPolicy
 
-	// Generals are the lenses this answer is written through. Only their cards
-	// reach the prompt, never the full doctrine.
+	// Generals are the lenses this answer is written through. Their cards reach
+	// the prompt, plus the doctrine passages in Doctrine — never the full text.
 	Generals []gendomain.Lens
+	// Doctrine is, by lens id, the passages chosen for this question. Filled
+	// after retrieval, once the tier is final; empty on a greeting or a tier
+	// with no doctrine budget.
+	Doctrine map[string][]gendomain.Passage
 	// GeneralsMethod is "explicit" or "auto", so the UI can say which.
 	GeneralsMethod string
 
@@ -167,4 +171,20 @@ func (p ConsultPlan) GeneralIDs() []string {
 		ids = append(ids, lens.ID)
 	}
 	return ids
+}
+
+// DoctrineRefs names the passages used, as "zhukov: Facing the unknown", so the
+// interface can show what each lens actually argued from.
+func (p ConsultPlan) DoctrineRefs() []string {
+	var refs []string
+	for _, lens := range p.Generals {
+		for _, passage := range p.Doctrine[lens.ID] {
+			section := passage.Section
+			if section == "" {
+				section = "doctrine"
+			}
+			refs = append(refs, lens.ID+": "+section)
+		}
+	}
+	return refs
 }

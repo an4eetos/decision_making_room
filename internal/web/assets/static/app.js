@@ -204,6 +204,16 @@ function renderMemoriesTable(container, entries) {
             <td>${escapeHTML(entry.title || "")}</td>
             <td class="preview">${escapeHTML(truncate(entry.body, 120))}</td>
             <td>${escapeHTML((entry.tags || []).join(", "))}</td>
+            <td>
+                <button
+                    type="button"
+                    class="row-delete"
+                    data-memory-id="${escapeHTML(entry.id)}"
+                    title="Delete memory"
+                    aria-label="Delete memory">
+                    Del
+                </button>
+            </td>
         </tr>
     `).join("");
 
@@ -216,6 +226,7 @@ function renderMemoriesTable(container, entries) {
                     <th>Title</th>
                     <th>Preview</th>
                     <th>Tags</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -695,6 +706,39 @@ async function loadMemoriesTable() {
     }
 }
 
+async function deleteMemory(container, deleteBtn) {
+    const memoryID = deleteBtn.dataset.memoryId;
+    if (!memoryID || !window.confirm("Delete this memory? This cannot be undone.")) {
+        return;
+    }
+
+    deleteBtn.disabled = true;
+    try {
+        await apiJSON(`/api/memories/${memoryID}`, { method: "DELETE" });
+        await loadMemoriesTable();
+    } catch (error) {
+        deleteBtn.disabled = false;
+        showMessage(container, error.message, "error");
+    }
+}
+
+function setupMemoriesTable() {
+    const container = document.getElementById("memories-table");
+    if (!container) {
+        return;
+    }
+
+    container.addEventListener("click", (e) => {
+        const deleteBtn = e.target.closest(".row-delete");
+        if (!deleteBtn) {
+            return;
+        }
+        deleteMemory(container, deleteBtn);
+    });
+
+    loadMemoriesTable();
+}
+
 // Quick capture writes straight to today's daily note. It exists so the thought
 // you had at 3pm lands somewhere before it is gone, without starting a
 // conversation about it.
@@ -743,5 +787,5 @@ document.addEventListener("DOMContentLoaded", () => {
     setupConsultForm();
     setupCaptureForm();
     setupIngestForm();
-    loadMemoriesTable();
+    setupMemoriesTable();
 });

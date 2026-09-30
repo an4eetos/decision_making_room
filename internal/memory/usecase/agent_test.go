@@ -77,6 +77,7 @@ func (stubRepo) ListRecent(context.Context, int, port.SearchFilter) ([]domain.Me
 	return nil, nil
 }
 func (stubRepo) DeleteBySourcePath(context.Context, string) error { return nil }
+func (stubRepo) DeleteByID(context.Context, uuid.UUID) error      { return nil }
 func (stubRepo) SourceContentHash(context.Context, string) (string, bool, error) {
 	return "", false, nil
 }

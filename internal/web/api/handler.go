@@ -26,6 +26,7 @@ type Handler struct {
 	searchUC  *usecase.Search
 	consultUC *usecase.Consult
 	chatUC    *usecase.Chat
+	deleteUC  *usecase.Delete
 }
 
 func NewHandler(
@@ -37,6 +38,7 @@ func NewHandler(
 	generals genport.Registry,
 	modes modeport.Registry,
 	reindex *usecase.Reindex,
+	deleteMemory *usecase.Delete,
 ) *Handler {
 	return &Handler{
 		reindexUC: reindex,
@@ -47,6 +49,7 @@ func NewHandler(
 		consultUC: consult,
 		chatUC:    chat,
 		captureUC: capture,
+		deleteUC:  deleteMemory,
 	}
 }
 
@@ -59,6 +62,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/modes", h.listModes)
 	mux.HandleFunc("POST /api/admin/reindex", h.reindex)
 	mux.HandleFunc("GET /api/memories/search", h.searchMemories)
+	mux.HandleFunc("DELETE /api/memories/{id}", h.deleteMemory)
 	mux.HandleFunc("GET /api/chat/sessions", h.listChatSessions)
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
 	mux.HandleFunc("GET /api/chat/sessions/{id}", h.getChatSession)
@@ -285,6 +289,23 @@ func (h *Handler) searchMemories(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, entries)
+}
+
+func (h *Handler) deleteMemory(w http.ResponseWriter, r *http.Request) {
+	err := h.deleteUC.Execute(r.Context(), r.PathValue("id"))
+	if err != nil {
+		if strings.Contains(err.Error(), "invalid memory id") {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, port.ErrMemoryNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) listChatSessions(w http.ResponseWriter, r *http.Request) {
