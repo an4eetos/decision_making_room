@@ -42,6 +42,9 @@ type MemoryRepository interface {
 	// an edit changes content, not provenance.
 	UpdateByID(ctx context.Context, entry domain.MemoryEntry) error
 	SourceContentHash(ctx context.Context, sourcePath string) (string, bool, error)
+	// LockSourcePath holds a database-wide lock on one source path until unlock
+	// is called, so every process syncing the same journal serialises on it.
+	LockSourcePath(ctx context.Context, sourcePath string) (unlock func(), err error)
 }
 
 // TextQuery is a question already reduced to tsquery expressions. The repository
