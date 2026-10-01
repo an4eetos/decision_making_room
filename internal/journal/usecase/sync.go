@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/an4eetos/decision-room/internal/journal/service"
 	"github.com/an4eetos/decision-room/internal/memory/port"
@@ -20,36 +19,14 @@ type SyncFile struct {
 	repo   port.MemoryRepository
 	ingest *memusecase.Ingest
 	root   string
-
-	// pathLocks serialises SyncPath/RemovePath per source path. The startup
-	// SyncAll() walk and the debounced fsnotify watcher can both act on the
-	// same file concurrently (e.g. a capture lands mid-embedding of that same
-	// file's initial sync); without this, both goroutines can pass the
-	// content-hash guard in SyncPath before either commits its insert,
-	// producing two rows for one file.
-	mu        sync.Mutex
-	pathLocks map[string]*sync.Mutex
 }
 
 func NewSyncFile(repo port.MemoryRepository, ingest *memusecase.Ingest, root string) *SyncFile {
 	return &SyncFile{
-		repo:      repo,
-		ingest:    ingest,
-		root:      root,
-		pathLocks: make(map[string]*sync.Mutex),
+		repo:   repo,
+		ingest: ingest,
+		root:   root,
 	}
-}
-
-func (u *SyncFile) lockFor(sourcePath string) *sync.Mutex {
-	u.mu.Lock()
-	defer u.mu.Unlock()
-
-	l, ok := u.pathLocks[sourcePath]
-	if !ok {
-		l = &sync.Mutex{}
-		u.pathLocks[sourcePath] = l
-	}
-	return l
 }
 
 func (u *SyncFile) Root() string {
@@ -62,9 +39,14 @@ func (u *SyncFile) SyncPath(ctx context.Context, absPath string) error {
 		return nil
 	}
 
-	lock := u.lockFor(sourcePath)
-	lock.Lock()
-	defer lock.Unlock()
+	// The hash check below is check-then-act. Two syncs of one file — the
+	// startup walk racing the watcher, or two app instances sharing a journal
+	// and database — would otherwise both pass it and both insert.
+	unlock, err := u.repo.LockSourcePath(ctx, sourcePath)
+	if err != nil {
+		return err
+	}
+	defer unlock()
 
 	if service.IsExcludedFromJournalSync(sourcePath) {
 		return u.repo.DeleteBySourcePath(ctx, sourcePath)
@@ -120,9 +102,11 @@ func (u *SyncFile) RemovePath(ctx context.Context, absPath string) error {
 		return nil
 	}
 
-	lock := u.lockFor(sourcePath)
-	lock.Lock()
-	defer lock.Unlock()
+	unlock, err := u.repo.LockSourcePath(ctx, sourcePath)
+	if err != nil {
+		return err
+	}
+	defer unlock()
 
 	if err := u.repo.DeleteBySourcePath(ctx, sourcePath); err != nil {
 		return fmt.Errorf("remove journal file %s: %w", sourcePath, err)

@@ -39,6 +39,15 @@ const (
 	// from the question should qualify a lens, while a lens with nothing but a
 	// family nudge (0.3) should not.
 	minScore = 0.5
+	// challengeGain is the keyword evidence a lens off the bench needs before it
+	// may unseat a sitting one: two distinct routing phrases, the most a lens can
+	// earn. One stray word in a follow-up is not a change of situation.
+	challengeGain = maxKeywordGain
+	// challengeMargin is how clearly the challenger must outscore the weakest
+	// sitting lens on this question. A full keyword hit, so a sitting lens the
+	// mode prefers (seedScore) holds against a challenger with only a little
+	// more evidence than it.
+	challengeMargin = keywordHit
 )
 
 type SelectInput struct {
@@ -51,6 +60,11 @@ type SelectInput struct {
 	Families []domain.Family
 	// RecentlyUsed are lenses from the last couple of turns.
 	RecentlyUsed []string
+	// Seated is the roster already answering in this conversation. Non-empty,
+	// it is kept for this question unless a lens off the bench makes a strong
+	// case; empty means pick fresh. The caller clears it when the situation
+	// changes enough to warrant a fresh pick, such as a mode switch.
+	Seated []string
 	// Max caps how many come back. Zero means one.
 	Max int
 }
@@ -59,7 +73,8 @@ type SelectInput struct {
 // silently applying a lens the user did not ask for.
 type Selection struct {
 	Lenses []domain.Lens
-	// Method is "explicit" or "auto".
+	// Method is "explicit", "auto", or "sticky" when the conversation's
+	// roster was kept unchanged.
 	Method string
 }
 
@@ -81,31 +96,12 @@ func Select(registry port.Registry, in SelectInput) Selection {
 		}
 	}
 
-	tokens := tokenize(in.Question)
-	scores := make(map[string]float64)
-
-	for _, id := range in.Defaults {
-		scores[id] = seedScore
+	if seated := generalsOnly(registry.Resolve(in.Seated)); len(seated) > 0 {
+		return hold(registry, in, seated, max)
 	}
 
+	scores, _ := score(registry, in)
 	for _, lens := range registry.Generals() {
-		gain := 0.0
-		for _, phrase := range lens.Routes.Keywords {
-			if matches(tokens, in.Question, phrase) {
-				gain += keywordHit
-			}
-		}
-		if gain > maxKeywordGain {
-			gain = maxKeywordGain
-		}
-		if gain > 0 {
-			scores[lens.ID] += gain
-		}
-
-		if len(in.Families) > 0 && slices.Contains(in.Families, lens.Family) {
-			scores[lens.ID] += familyAffinity
-		}
-
 		if slices.Contains(in.RecentlyUsed, lens.ID) {
 			scores[lens.ID] -= recentPenalty
 		}
@@ -171,6 +167,113 @@ func Select(registry port.Registry, in SelectInput) Selection {
 	}
 
 	return Selection{Lenses: out, Method: "auto"}
+}
+
+// hold keeps the conversation's roster for this question. Generals answering
+// the same conversation turn after turn give it a consistent argument; a new
+// face every message reads as noise. A lens off the bench takes a seat only on
+// strong evidence, and then from the weakest sitting lens, not the whole
+// roster.
+func hold(registry port.Registry, in SelectInput, seated []domain.Lens, max int) Selection {
+	scores, gains := score(registry, in)
+
+	if len(seated) > max {
+		seated = seated[:max]
+	}
+	roster := slices.Clone(seated)
+	method := "sticky"
+
+	taken := make(map[string]bool, len(roster))
+	for _, lens := range roster {
+		taken[lens.ID] = true
+	}
+
+	var challengers []domain.Lens
+	for _, lens := range registry.Generals() {
+		if !taken[lens.ID] && gains[lens.ID] >= challengeGain {
+			challengers = append(challengers, lens)
+		}
+	}
+	sort.SliceStable(challengers, func(i, j int) bool {
+		a, b := challengers[i], challengers[j]
+		if scores[a.ID] != scores[b.ID] {
+			return scores[a.ID] > scores[b.ID]
+		}
+		return a.ID < b.ID
+	})
+
+	// A lens that just took a seat is not unseated by the next challenger.
+	fresh := make(map[string]bool)
+	for _, challenger := range challengers {
+		weakest := -1
+		for i, lens := range roster {
+			if fresh[lens.ID] {
+				continue
+			}
+			if weakest < 0 || scores[lens.ID] <= scores[roster[weakest].ID] {
+				weakest = i
+			}
+		}
+		if weakest < 0 || scores[challenger.ID] < scores[roster[weakest].ID]+challengeMargin {
+			break
+		}
+		roster[weakest] = challenger
+		fresh[challenger.ID] = true
+		method = "auto"
+	}
+
+	// The depth may have gone up since the roster was seated.
+	if len(roster) < max {
+		roster = backfill(registry, roster, scores, max)
+		method = "auto"
+	}
+
+	return Selection{Lenses: roster, Method: method}
+}
+
+// score rates every general against the question, returning the total and the
+// keyword evidence alone, which is what decides whether a lens may challenge a
+// sitting roster.
+func score(registry port.Registry, in SelectInput) (scores, gains map[string]float64) {
+	tokens := tokenize(in.Question)
+	scores = make(map[string]float64)
+	gains = make(map[string]float64)
+
+	for _, id := range in.Defaults {
+		scores[id] = seedScore
+	}
+
+	for _, lens := range registry.Generals() {
+		gain := 0.0
+		for _, phrase := range lens.Routes.Keywords {
+			if matches(tokens, in.Question, phrase) {
+				gain += keywordHit
+			}
+		}
+		if gain > maxKeywordGain {
+			gain = maxKeywordGain
+		}
+		if gain > 0 {
+			scores[lens.ID] += gain
+			gains[lens.ID] = gain
+		}
+
+		if len(in.Families) > 0 && slices.Contains(in.Families, lens.Family) {
+			scores[lens.ID] += familyAffinity
+		}
+	}
+
+	return scores, gains
+}
+
+func generalsOnly(lenses []domain.Lens) []domain.Lens {
+	out := lenses[:0:0]
+	for _, lens := range lenses {
+		if lens.Kind == domain.KindGeneral {
+			out = append(out, lens)
+		}
+	}
+	return out
 }
 
 // complements maps a family to the families that argue most usefully against it.

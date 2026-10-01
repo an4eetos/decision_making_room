@@ -213,6 +213,31 @@ func (r *Repository) SourceContentHash(ctx context.Context, sourcePath string) (
 	return hash, true, nil
 }
 
+// LockSourcePath takes a session-level advisory lock on a dedicated connection.
+// Session-level rather than transaction-level because the sync it guards embeds
+// over the network and saves through other pool connections.
+func (r *Repository) LockSourcePath(ctx context.Context, sourcePath string) (func(), error) {
+	conn, err := r.pool.Acquire(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("acquire lock connection: %w", err)
+	}
+
+	if _, err := conn.Exec(ctx, `SELECT pg_advisory_lock(hashtextextended('memories.source_path:' || $1, 0))`, sourcePath); err != nil {
+		conn.Release()
+		return nil, fmt.Errorf("lock source path: %w", err)
+	}
+
+	return func() {
+		// Background, not ctx: a cancelled sync must still give the lock back
+		// before its connection returns to the pool.
+		if _, err := conn.Exec(context.Background(), `SELECT pg_advisory_unlock(hashtextextended('memories.source_path:' || $1, 0))`, sourcePath); err != nil {
+			// A connection that may still hold the lock must not be reused.
+			conn.Conn().Close(context.Background())
+		}
+		conn.Release()
+	}, nil
+}
+
 func (r *Repository) SearchFullText(ctx context.Context, query port.TextQuery, limit int, filter port.SearchFilter) ([]domain.MemoryEntry, error) {
 	if query.IsZero() {
 		return nil, nil

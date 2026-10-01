@@ -82,6 +82,7 @@ func (stubRepo) UpdateByID(context.Context, domain.MemoryEntry) error { return n
 func (stubRepo) SourceContentHash(context.Context, string) (string, bool, error) {
 	return "", false, nil
 }
+func (stubRepo) LockSourcePath(context.Context, string) (func(), error) { return func() {}, nil }
 
 func TestAgentConsultAnswersFromPrefetchWithoutTools(t *testing.T) {
 	t.Parallel()

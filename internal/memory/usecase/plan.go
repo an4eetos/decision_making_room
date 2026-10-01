@@ -33,7 +33,7 @@ type ConsultPlan struct {
 	// after retrieval, once the tier is final; empty on a greeting or a tier
 	// with no doctrine budget.
 	Doctrine map[string][]gendomain.Passage
-	// GeneralsMethod is "explicit" or "auto", so the UI can say which.
+	// GeneralsMethod is "explicit", "auto" or "sticky", so the UI can say which.
 	GeneralsMethod string
 
 	// Mode is the conversation shape, and ModeMethod is how it was arrived at:
@@ -95,6 +95,8 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 	}
 
 	var defaults []string
+	// The conversation's roster stays seated unless the situation changes.
+	seated := input.SeatedGenerals
 	if r.detector != nil {
 		detection := r.detector.Detect(modeservice.Input{
 			Question:    plan.Question,
@@ -105,6 +107,13 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		})
 		plan.Mode = detection.Mode
 		plan.ModeMethod = string(detection.Method)
+
+		// A mode switch is the clearest sign the situation changed: the bar to
+		// leave a mode is already set high, so it clearing earns a fresh pick of
+		// generals too.
+		if input.SessionMode != "" && detection.Mode.ID != input.SessionMode {
+			seated = nil
+		}
 
 		// The mode supplies preferred lenses and can raise or lower how many an
 		// answer is written through, within what the tier allows.
@@ -128,6 +137,7 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 			Explicit:     input.GeneralIDs,
 			Defaults:     defaults,
 			RecentlyUsed: input.RecentGenerals,
+			Seated:       seated,
 			Max:          plan.Tier.MaxGenerals,
 		})
 		plan.Generals = selection.Lenses

@@ -26,8 +26,11 @@ type ConsultInput struct {
 	// auto-select.
 	GeneralIDs []string
 	// RecentGenerals are the lenses used in the last couple of turns; they are
-	// demoted so one lens does not answer everything.
+	// demoted when a fresh roster is picked.
 	RecentGenerals []string
+	// SeatedGenerals is the roster that answered the conversation's last turn.
+	// It is kept for this turn unless the situation changes; empty picks fresh.
+	SeatedGenerals []string
 
 	// ModeID is an explicit mode for this turn. SessionMode and ModeLocked are
 	// the conversation's current mode and whether the user set it by hand;
