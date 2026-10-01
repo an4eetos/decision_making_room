@@ -329,3 +329,94 @@ func TestRivalBonusNeedsRoomForTwo(t *testing.T) {
 		t.Fatalf("got %v", got)
 	}
 }
+
+// A follow-up in the same conversation keeps the generals already answering it,
+// even when its wording would route elsewhere on a fresh pick.
+func TestSeatedRosterHoldsOnAnOrdinaryFollowUp(t *testing.T) {
+	t.Parallel()
+	reg := registry(t)
+
+	got := service.Select(reg, service.SelectInput{
+		Question: "What would I do first, though? I feel some pressure here.",
+		Seated:   []string{"patton", "eisenhower"},
+		Max:      2,
+	})
+
+	if got.Method != "sticky" {
+		t.Fatalf("method = %q, want sticky", got.Method)
+	}
+	if ids := ids(got); len(ids) != 2 || ids[0] != "patton" || ids[1] != "eisenhower" {
+		t.Fatalf("roster changed on an ordinary follow-up: %v", ids)
+	}
+}
+
+// Strong evidence for a lens off the bench unseats the weakest sitting lens,
+// and only that one.
+func TestStrongEvidenceUnseatsTheWeakestLens(t *testing.T) {
+	t.Parallel()
+	reg := registry(t)
+
+	got := service.Select(reg, service.SelectInput{
+		Question: "Everything is urgent, I'm overloaded and drowning in meetings",
+		Seated:   []string{"kutuzov", "patton"},
+		Max:      2,
+	})
+
+	if got.Method != "auto" {
+		t.Fatalf("method = %q, want auto after a swap", got.Method)
+	}
+	ids := ids(got)
+	if len(ids) != 2 || ids[1] != "eisenhower" || ids[0] != "kutuzov" {
+		t.Fatalf("want eisenhower in patton's seat, kutuzov kept: %v", ids)
+	}
+}
+
+// A mode's preferred lens holds its seat against a challenger with only a
+// little more evidence.
+func TestModeDefaultHoldsItsSeat(t *testing.T) {
+	t.Parallel()
+	reg := registry(t)
+
+	got := service.Select(reg, service.SelectInput{
+		Question: "Everything is urgent, I'm overloaded and drowning in meetings",
+		Seated:   []string{"patton"},
+		Defaults: []string{"patton"},
+		Max:      1,
+	})
+
+	if ids := ids(got); len(ids) != 1 || ids[0] != "patton" {
+		t.Fatalf("mode default lost its seat: %v", ids)
+	}
+}
+
+// Going deeper mid-conversation adds seats around the sitting roster.
+func TestSeatedRosterGrowsWithDepth(t *testing.T) {
+	t.Parallel()
+	reg := registry(t)
+
+	got := ids(service.Select(reg, service.SelectInput{
+		Question: "Go on",
+		Seated:   []string{"patton"},
+		Max:      3,
+	}))
+
+	if len(got) != 3 || got[0] != "patton" {
+		t.Fatalf("want patton kept plus two more, got %v", got)
+	}
+}
+
+// A seated id that is a working style, or no longer exists, is not kept.
+func TestSeatedIgnoresStylesAndUnknownIds(t *testing.T) {
+	t.Parallel()
+	reg := registry(t)
+
+	got := ids(service.Select(reg, service.SelectInput{
+		Question: "Go on",
+		Seated:   []string{"isolator", "nobody", "kutuzov"},
+		Max:      1,
+	}))
+
+	if len(got) != 1 || got[0] != "kutuzov" {
+		t.Fatalf("got %v, want only kutuzov", got)
+	}
+}

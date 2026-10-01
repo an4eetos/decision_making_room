@@ -230,6 +230,7 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		Tier:           tier,
 		GeneralIDs:     session.Generals,
 		RecentGenerals: recentGenerals(messages),
+		SeatedGenerals: seatedGenerals(messages),
 		SessionMode:    session.ModeID,
 		ModeLocked:     session.ModeLocked,
 		// The user turn was already appended, so a fresh conversation has one
@@ -448,6 +449,17 @@ func recentGenerals(messages []port.ChatMessage) []string {
 		out = append(out, messages[i].Generals...)
 	}
 	return out
+}
+
+// seatedGenerals is the roster of the latest answer that had one. Answers
+// written without lenses, like check-ins, do not empty the bench.
+func seatedGenerals(messages []port.ChatMessage) []string {
+	for i := len(messages) - 1; i >= 0; i-- {
+		if messages[i].Role == "assistant" && len(messages[i].Generals) > 0 {
+			return messages[i].Generals
+		}
+	}
+	return nil
 }
 
 func sameStrings(a, b []string) bool {

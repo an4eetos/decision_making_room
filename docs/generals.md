@@ -72,6 +72,17 @@ deterministic — keyword routing over the question, a nudge toward families tha
 suit it, and a penalty for lenses used in the last two turns so one lens does not
 answer everything.
 
+Within a conversation the roster is sticky. Once generals have answered, they
+keep answering the follow-ups, shown as **auto · kept**. Like a mode, the roster
+only changes when the situation does:
+
+- **The mode switches.** The bar to leave a mode is already high, so clearing it
+  earns a fresh pick of generals as well.
+- **A general off the bench makes a strong case.** It needs two distinct routing
+  phrases in the question and must outscore the weakest sitting general by a
+  full keyword hit. It then takes that one seat, not the whole roster.
+- **The depth goes up.** The extra seats are filled around the sitting roster.
+
 There is no model call in this path. An LLM router would add latency to every
 turn to make a choice that keyword routing usually gets right, that you can
 override in one click, and that the interface shows you either way.

@@ -185,3 +185,38 @@ func testDetector(t *testing.T) *modeservice.Detector {
 	}
 	return modeservice.NewDetector(modefs.NewRegistry(reg))
 }
+
+// Within one conversation the roster stays seated while the mode does.
+func TestSeatedGeneralsCarryAcrossTurns(t *testing.T) {
+	t.Parallel()
+
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep).
+		Resolve(ConsultInput{Question: "and then what?", SeatedGenerals: []string{"kutuzov", "patton"}, TurnIndex: 2})
+
+	if plan.GeneralsMethod != "sticky" {
+		t.Fatalf("method = %q, want sticky", plan.GeneralsMethod)
+	}
+	if got := plan.GeneralIDs(); len(got) == 0 || got[0] != "kutuzov" {
+		t.Fatalf("seated general not kept: %v", got)
+	}
+}
+
+// A mode switch is a changed situation, so the generals are picked fresh.
+func TestModeSwitchReseatsGenerals(t *testing.T) {
+	t.Parallel()
+
+	plan := NewPlanResolver(testRegistry(t), testDetector(t), domain.TierStandard, domain.TierDeep).
+		Resolve(ConsultInput{
+			Question:       "How did today go?",
+			SeatedGenerals: []string{"kutuzov"},
+			SessionMode:    "open",
+			TurnIndex:      2,
+		})
+
+	if plan.Mode.ID == "open" {
+		t.Fatal("test needs a mode switch; detection stayed in open")
+	}
+	if plan.GeneralsMethod == "sticky" {
+		t.Fatalf("roster kept across a mode switch: %v", plan.GeneralIDs())
+	}
+}

@@ -145,7 +145,8 @@ function renderChatMessages(container, messages) {
         const lenses = isAssistant && message.generals?.length
             ? `<span class="lens-badges">${message.generals.map((id) =>
                     `<span class="lens-badge">${escapeHTML(lensName(id))}</span>`).join("")}` +
-              `${message.generals_method === "auto" ? '<span class="lens-auto" title="Chosen for you">auto</span>' : ""}</span>`
+              `${message.generals_method === "auto" ? '<span class="lens-auto" title="Chosen for you">auto</span>' : ""}` +
+              `${message.generals_method === "sticky" ? '<span class="lens-auto" title="Kept from earlier in this conversation">auto · kept</span>' : ""}</span>`
             : "";
 
         return `
