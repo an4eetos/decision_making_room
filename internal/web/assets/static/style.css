@@ -430,6 +430,11 @@ textarea {
     pointer-events: none;
 }
 
+/* A conversation still answering in the background. */
+.chat-session-busy {
+    color: var(--wr-amber);
+}
+
 .chat-session-item.active {
     border-color: var(--wr-amber);
     background: var(--wr-panel);
