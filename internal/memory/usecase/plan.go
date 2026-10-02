@@ -47,6 +47,9 @@ type ConsultPlan struct {
 	// Plain drops the output template and lenses; see ConsultInput.Plain.
 	Plain bool
 
+	// Progress is carried from the input; see ConsultInput.Progress.
+	Progress *Progress
+
 	// Now is injected so recency scoring is testable rather than reading the
 	// wall clock three layers down.
 	Now time.Time
@@ -92,6 +95,7 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		Tier:     policy,
 		Now:      time.Now().UTC(),
 		Plain:    input.Plain,
+		Progress: input.Progress,
 	}
 
 	var defaults []string

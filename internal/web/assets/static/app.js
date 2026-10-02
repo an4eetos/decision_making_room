@@ -52,6 +52,77 @@ async function apiJSON(url, options) {
     return response.json();
 }
 
+// apiStream posts JSON and reads the response as server-sent events, calling
+// onEvent(name, data) for each. EventSource cannot be used: it only does GET, and
+// the question goes in the body.
+//
+// The timeout is for silence, not for the whole answer. A deep answer that is
+// visibly arriving should never be cut off because it is long; one that has
+// said nothing for that long has stalled.
+async function apiStream(url, { body, idleTimeoutMs = 90000, onEvent }) {
+    const controller = new AbortController();
+    let timeout = null;
+    const arm = () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => controller.abort(), idleTimeoutMs);
+    };
+
+    arm();
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || response.statusText);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        for (;;) {
+            const { value, done } = await reader.read();
+            if (done) {
+                break;
+            }
+            arm();
+            buffer += decoder.decode(value, { stream: true });
+
+            // Events end with a blank line; anything after the last one is a
+            // partial event still on the wire.
+            let end;
+            while ((end = buffer.indexOf("\n\n")) !== -1) {
+                const frame = buffer.slice(0, end);
+                buffer = buffer.slice(end + 2);
+
+                let name = "message";
+                const data = [];
+                for (const line of frame.split("\n")) {
+                    if (line.startsWith("event:")) {
+                        name = line.slice(6).trim();
+                    } else if (line.startsWith("data:")) {
+                        data.push(line.slice(5).trimStart());
+                    }
+                }
+                if (data.length > 0) {
+                    onEvent(name, JSON.parse(data.join("\n")));
+                }
+            }
+        }
+    } catch (error) {
+        if (error && error.name === "AbortError") {
+            throw new Error("The answer stalled. Try a shallower depth, or switch to another Gemini model.");
+        }
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
 const TIER_LABELS = { quick: "Quick", standard: "Standard", deep: "Deep" };
 
 // How long a tier is allowed to take. Deep runs several tool rounds against a
@@ -91,7 +162,7 @@ function renderChatSources(sources) {
         return `<li><span class="badge">${escapeHTML(source.kind)}</span> ${escapeHTML(source.title || "(untitled)")}${score}</li>`;
     }).join("");
 
-    return `<div class="sources"><ul>${items}</ul></div>`;
+    return `<div class="sources"><span class="sources-label">Sources <button type="button" class="hint" data-hint="sources"></button></span><ul>${items}</ul></div>`;
 }
 
 // Messages store lens ids; the roster has the display names. Falls back to a
@@ -120,49 +191,53 @@ function renderChatMessages(container, messages) {
         return;
     }
 
-    container.innerHTML = messages.map((message) => {
-        const isAssistant = message.role === "assistant";
-        // Only assistant answers are markdown. What you typed is shown exactly as
-        // you typed it — rendering your own text would mangle anything containing
-        // an asterisk or a hash.
-        const briefing = isAssistant ? renderBriefing(message.content) : null;
-        const body = briefing
-            ? `<div class="chat-message-body">${briefing}</div>`
-            : isAssistant
-                ? `<div class="chat-message-body markdown">${renderMarkdown(message.content)}</div>`
-                : `<div class="chat-message-body">${escapeHTML(message.content)}</div>`;
-
-        const tier = isAssistant && message.tier
-            ? `<span class="tier-badge tier-${escapeHTML(message.tier)}">${escapeHTML(TIER_LABELS[message.tier] || message.tier)}</span>`
-            : "";
-
-        // Which lenses produced this answer, and whether you picked them. An
-        // auto-selected lens should never look like one you chose.
-        const mode = isAssistant && message.mode && message.mode !== "open"
-            ? `<span class="mode-badge">${escapeHTML(modeChipName(message.mode))}</span>`
-            : "";
-
-        const lenses = isAssistant && message.generals?.length
-            ? `<span class="lens-badges">${message.generals.map((id) =>
-                    `<span class="lens-badge">${escapeHTML(lensName(id))}</span>`).join("")}` +
-              `${message.generals_method === "auto" ? '<span class="lens-auto" title="Chosen for you">auto</span>' : ""}` +
-              `${message.generals_method === "sticky" ? '<span class="lens-auto" title="Kept from earlier in this conversation">auto · kept</span>' : ""}</span>`
-            : "";
-
-        return `
-        <div class="chat-message ${escapeHTML(message.role)}">
-            <div class="chat-message-head">
-                <span class="chat-message-role">${escapeHTML(message.role)}</span>
-                ${mode}
-                ${tier}
-                ${lenses}
-            </div>
-            ${body}
-            ${isAssistant ? renderChatSources(message.sources) : ""}
-            ${isAssistant && message.id ? `<button type="button" class="track-btn" data-track-message="${escapeHTML(message.id)}">Track something from this</button>` : ""}
-        </div>`;
-    }).join("");
+    container.innerHTML = messages.map(chatMessageHTML).join("");
     container.scrollTop = container.scrollHeight;
+}
+
+// chatMessageHTML renders one stored message. Split out so a streamed answer can
+// be swapped for its finished form the moment it is saved.
+function chatMessageHTML(message) {
+    const isAssistant = message.role === "assistant";
+    // Only assistant answers are markdown. What you typed is shown exactly as
+    // you typed it — rendering your own text would mangle anything containing
+    // an asterisk or a hash.
+    const briefing = isAssistant ? renderBriefing(message.content) : null;
+    const body = briefing
+        ? `<div class="chat-message-body">${briefing}</div>`
+        : isAssistant
+            ? `<div class="chat-message-body markdown">${renderMarkdown(message.content)}</div>`
+            : `<div class="chat-message-body">${escapeHTML(message.content)}</div>`;
+
+    const tier = isAssistant && message.tier
+        ? `<span class="tier-badge tier-${escapeHTML(message.tier)}">${escapeHTML(TIER_LABELS[message.tier] || message.tier)}</span>`
+        : "";
+
+    // Which lenses produced this answer, and whether you picked them. An
+    // auto-selected lens should never look like one you chose.
+    const mode = isAssistant && message.mode && message.mode !== "open"
+        ? `<span class="mode-badge">${escapeHTML(modeChipName(message.mode))}</span>`
+        : "";
+
+    const lenses = isAssistant && message.generals?.length
+        ? `<span class="lens-badges">${message.generals.map((id) =>
+                `<span class="lens-badge">${escapeHTML(lensName(id))}</span>`).join("")}` +
+          `${message.generals_method === "auto" ? '<span class="lens-auto" title="Chosen for you">auto</span>' : ""}` +
+          `${message.generals_method === "sticky" ? '<span class="lens-auto" title="Kept from earlier in this conversation">auto · kept</span>' : ""}</span>`
+        : "";
+
+    return `
+    <div class="chat-message ${escapeHTML(message.role)}">
+        <div class="chat-message-head">
+            <span class="chat-message-role">${escapeHTML(message.role)}</span>
+            ${mode}
+            ${tier}
+            ${lenses}
+        </div>
+        ${body}
+        ${isAssistant ? renderChatSources(message.sources) : ""}
+        ${isAssistant && message.id ? `<button type="button" class="track-btn" data-track-message="${escapeHTML(message.id)}">Track something from this</button>` : ""}
+    </div>`;
 }
 
 function renderChatSessions(container, sessions, activeSessionID) {
@@ -635,30 +710,126 @@ function setupConsultForm() {
         appendOptimisticMessage(messages, "assistant", "", "chat-pending-assistant");
 
         // Narrate the wait using the lenses actually pinned. Auto-selected ones
-        // are unknown until the answer arrives, so those stay unnamed.
-        const pendingBody = document
-            .getElementById("chat-pending-assistant")
-            ?.querySelector(".chat-message-body");
-        const stopWaiting = pendingBody
+        // are named once the server says which it chose.
+        const pending = document.getElementById("chat-pending-assistant");
+        const pendingBody = pending?.querySelector(".chat-message-body");
+        const waiting = pendingBody
             ? startWaiting(pendingBody, {
                 tier,
                 lensNames: (generals?.selected() ?? []).map((id) => lensName(id)),
             })
-            : () => {};
+            : { stage() {}, setLenses() {}, stop() {} };
+
+        // Streamed text is re-rendered as markdown at most once a frame: parsing
+        // the whole answer per token would be quadratic on a long one.
+        let streamed = "";
+        let frame = 0;
+        let writing = false;
+        // finished is the "done" payload; answered is whether the answer was
+        // saved, which decides what an error after that point should undo.
+        let finished = null;
+        let answered = false;
+
+        function nearBottom() {
+            return messages.scrollHeight - messages.scrollTop - messages.clientHeight < 80;
+        }
+
+        function paint() {
+            frame = 0;
+            if (!pendingBody) {
+                return;
+            }
+            // Follow the answer down only if you were already at the bottom;
+            // scrolling up to reread something should not be yanked back.
+            const follow = nearBottom();
+            pendingBody.innerHTML = renderMarkdown(streamed);
+            if (follow) {
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        function onEvent(name, data) {
+            switch (name) {
+            case "stage":
+                if (!writing) {
+                    waiting.stage(data.stage, data.detail);
+                }
+                break;
+            case "plan": {
+                if (data.generals?.length) {
+                    waiting.setLenses(data.generals.map((id) => lensName(id)));
+                }
+                // Badges go up before the answer, so you know who is talking.
+                const head = pending?.querySelector(".chat-message-head");
+                if (head) {
+                    const shell = document.createElement("div");
+                    shell.innerHTML = chatMessageHTML({ ...data, role: "assistant", content: "" });
+                    head.innerHTML = shell.querySelector(".chat-message-head")?.innerHTML ?? head.innerHTML;
+                }
+                if (data.mode) {
+                    modeChip?.setDetected(data.mode, data.mode_method);
+                }
+                break;
+            }
+            case "delta":
+                if (!writing) {
+                    writing = true;
+                    waiting.stop();
+                    pendingBody?.classList.add("markdown");
+                }
+                streamed += data.text;
+                frame ||= requestAnimationFrame(paint);
+                break;
+            case "reset":
+                // The model wrote a little, then went to look something up
+                // instead. That text was not the answer.
+                streamed = "";
+                writing = false;
+                cancelAnimationFrame(frame);
+                frame = 0;
+                pendingBody?.classList.remove("markdown");
+                waiting.stage("digging");
+                break;
+            case "answer": {
+                // Saved. Show it finished — sources, badges, the track button —
+                // while the server tidies up the conversation summary.
+                cancelAnimationFrame(frame);
+                frame = 0;
+                answered = true;
+                waiting.stop();
+                const follow = nearBottom();
+                pending?.insertAdjacentHTML("afterend", chatMessageHTML(data));
+                pending?.remove();
+                document.getElementById("chat-pending-user")?.classList.remove("pending");
+                if (follow) {
+                    messages.scrollTop = messages.scrollHeight;
+                }
+                break;
+            }
+            case "done":
+                finished = data;
+                break;
+            case "error":
+                throw new Error(data.message || "The answer failed.");
+            }
+        }
 
         try {
             const sessionID = await ensureSession();
-            const data = await apiJSON(`/api/chat/sessions/${sessionID}/messages`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+            await apiStream(`/api/chat/sessions/${sessionID}/messages/stream`, {
+                body: {
                     content: question,
                     tier,
                     generals: generals?.selected() ?? [],
                     mode: modeChip ? (modeChip.pinned() ?? "") : undefined,
-                }),
-                timeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
+                },
+                idleTimeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
+                onEvent,
             });
+            if (!finished) {
+                throw new Error("The connection closed before the answer was saved.");
+            }
+            const data = finished;
 
             activeSessionID = data.session.id;
             persistActiveSession(data.session.id);
@@ -680,8 +851,14 @@ function setupConsultForm() {
             document.getElementById("chat-pending-user")?.remove();
             document.getElementById("chat-pending-assistant")?.remove();
             showMessage(result, error.message, "error");
+            // The answer is stored even though something after it failed, so
+            // show the conversation as the server has it.
+            if (answered && activeSessionID) {
+                loadSession(activeSessionID).then(() => showMessage(result, error.message, "error"));
+            }
         } finally {
-            stopWaiting();
+            waiting.stop();
+            cancelAnimationFrame(frame);
             document.getElementById("chat-pending-user")?.remove();
             document.getElementById("chat-pending-assistant")?.remove();
             button.disabled = false;

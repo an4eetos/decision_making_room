@@ -2285,3 +2285,155 @@ body {
 .briefing {
     white-space: normal;
 }
+
+/* ---------- Hints ----------
+   A small "?" beside a feature that opens a short explainer: what it is, how
+   what you put in it gets used, and what people get wrong about it. Quiet by
+   default so twenty of them do not turn the room into a help page. */
+
+.hint {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin: 0 0 0 0.3rem;
+    padding: 0;
+    border: 1px solid var(--wr-line);
+    border-radius: 50%;
+    background: none;
+    color: var(--wr-faint);
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    font-style: normal;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: none;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: color 0.12s, border-color 0.12s;
+}
+
+/* The visible circle is small; the tap target is not. */
+.hint::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+}
+
+.hint:hover,
+.hint[aria-expanded="true"] {
+    border-color: var(--wr-amber-line);
+    color: var(--wr-amber-text);
+}
+
+.hint:focus-visible {
+    outline: 2px solid var(--wr-amber);
+    outline-offset: 2px;
+}
+
+.capture .hint,
+.sit-chips .hint {
+    align-self: center;
+}
+
+/* Keeps the depth hint beside the picker rather than floating mid-row. */
+.chat-form-controls .hint {
+    margin-left: -0.6rem;
+    margin-right: auto;
+}
+
+.sources-label {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--wr-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-faint);
+}
+
+.hint-pop {
+    position: fixed;
+    z-index: 1000;
+    width: min(360px, calc(100vw - 24px));
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
+    padding: 14px 16px 12px;
+    border: 1px solid var(--wr-line);
+    border-radius: 10px;
+    background: var(--wr-panel-2);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    color: var(--wr-text-2);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.hint-pop-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.hint-pop h3 {
+    margin: 0 0 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--wr-text);
+}
+
+.hint-pop-close {
+    padding: 0 4px;
+    border: none;
+    background: none;
+    color: var(--wr-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.hint-pop-close:hover {
+    color: var(--wr-text);
+}
+
+.hint-pop p {
+    margin: 0;
+}
+
+.hint-pop h4 {
+    margin: 12px 0 4px;
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-muted);
+}
+
+.hint-pop ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.hint-pop li + li {
+    margin-top: 4px;
+}
+
+.hint-pop strong {
+    color: var(--wr-text);
+    font-weight: 600;
+}
+
+.hint-pop code {
+    padding: 0 3px;
+    border-radius: 4px;
+    background: var(--wr-panel-3);
+    color: var(--wr-amber-text);
+    font-family: var(--wr-mono);
+    font-size: 0.78rem;
+    word-break: break-word;
+}

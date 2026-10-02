@@ -1,6 +1,7 @@
 package gemini
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -116,10 +117,22 @@ func (c *Client) ChatTools(ctx context.Context, messages []port.Message, tools [
 	return c.chat(ctx, messages, tools)
 }
 
-func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port.Tool) (port.ChatTurn, error) {
+func (c *Client) ChatStream(ctx context.Context, messages []port.Message, onDelta func(string)) (string, error) {
+	turn, err := c.chatStream(ctx, messages, nil, onDelta)
+	if err != nil {
+		return "", err
+	}
+	return turn.Content, nil
+}
+
+func (c *Client) ChatToolsStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
+	return c.chatStream(ctx, messages, tools, onDelta)
+}
+
+func (c *Client) generateBody(messages []port.Message, tools []port.Tool) ([]byte, error) {
 	systemInstruction, contents, err := toWireContents(messages)
 	if err != nil {
-		return port.ChatTurn{}, err
+		return nil, err
 	}
 
 	body, err := json.Marshal(generateRequest{
@@ -128,18 +141,142 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 		Tools:             toWireTools(tools),
 	})
 	if err != nil {
-		return port.ChatTurn{}, fmt.Errorf("marshal generate request: %w", err)
+		return nil, fmt.Errorf("marshal generate request: %w", err)
+	}
+	return body, nil
+}
+
+func (c *Client) models() []string {
+	if len(c.chatModels) == 0 {
+		// An alias rather than a pinned version: pinned ones get retired, and the
+		// app then fails every question with "this model is no longer available".
+		return []string{defaultChatModel}
+	}
+	return c.chatModels
+}
+
+// chatStream has the same retry and failover as chat, but only until the first
+// byte of a successful response: once text has reached the reader it cannot be
+// taken back, so a failure mid-stream is returned rather than retried.
+func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
+	body, err := c.generateBody(messages, tools)
+	if err != nil {
+		return port.ChatTurn{}, err
+	}
+
+	var resp *http.Response
+	var errOut error
+	for _, model := range c.models() {
+		url := fmt.Sprintf("%s/models/%s:streamGenerateContent?alt=sse&key=%s", c.baseURL, normalizeModel(model), c.apiKey)
+		resp, errOut = c.send(ctx, url, body)
+		if errOut == nil {
+			break
+		}
+		if !isRetryableModelError(errOut) {
+			return port.ChatTurn{}, errOut
+		}
+	}
+	if errOut != nil {
+		return port.ChatTurn{}, errOut
+	}
+	defer resp.Body.Close()
+
+	return readStream(resp.Body, onDelta)
+}
+
+// maxStreamLine bounds one SSE event. A chunk carrying a large tool call can
+// run well past bufio's 64KB default.
+const maxStreamLine = 4 << 20
+
+type streamChunk struct {
+	generateResponse
+	Error *struct {
+		Message string `json:"message"`
+	} `json:"error"`
+}
+
+// readStream consumes a streamGenerateContent SSE body. Text is handed to
+// onDelta as it arrives; the parts are reassembled into one turn so the result
+// is interchangeable with the non-streaming call's.
+func readStream(r io.Reader, onDelta func(string)) (port.ChatTurn, error) {
+	scanner := bufio.NewScanner(r)
+	scanner.Buffer(make([]byte, 0, 64<<10), maxStreamLine)
+
+	var parts []partWire
+	for scanner.Scan() {
+		line := scanner.Text()
+		data, ok := strings.CutPrefix(line, "data:")
+		if !ok {
+			continue
+		}
+		data = strings.TrimSpace(data)
+		if data == "" {
+			continue
+		}
+
+		var chunk streamChunk
+		if err := json.Unmarshal([]byte(data), &chunk); err != nil {
+			return port.ChatTurn{}, fmt.Errorf("unmarshal stream chunk: %w", err)
+		}
+		if chunk.Error != nil {
+			return port.ChatTurn{}, fmt.Errorf("stream failed: %s", chunk.Error.Message)
+		}
+		if len(chunk.Candidates) == 0 {
+			continue
+		}
+
+		for _, part := range chunk.Candidates[0].Content.Parts {
+			if part.Text != "" && onDelta != nil {
+				onDelta(part.Text)
+			}
+			parts = appendStreamPart(parts, part)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return port.ChatTurn{}, fmt.Errorf("read stream: %w", err)
+	}
+
+	if len(parts) == 0 {
+		return port.ChatTurn{}, fmt.Errorf("empty generate response")
+	}
+	return parseModelTurn(parts)
+}
+
+// appendStreamPart folds a streamed part into the turn. Text arrives a few words
+// per chunk and is joined back into one part; a thought signature can arrive on
+// its own in a trailing empty part and belongs to the text before it. Function
+// calls always stand alone.
+func appendStreamPart(parts []partWire, part partWire) []partWire {
+	if part.FunctionCall != nil {
+		return append(parts, part)
+	}
+
+	var last *partWire
+	if n := len(parts); n > 0 && parts[n-1].FunctionCall == nil && parts[n-1].ThoughtSignature == "" {
+		last = &parts[n-1]
+	}
+
+	switch {
+	case part.Text != "" && last != nil:
+		last.Text += part.Text
+		last.ThoughtSignature = part.ThoughtSignature
+	case part.Text == "" && part.ThoughtSignature != "" && last != nil:
+		last.ThoughtSignature = part.ThoughtSignature
+	case part.Text != "" || part.ThoughtSignature != "":
+		parts = append(parts, part)
+	}
+	return parts
+}
+
+func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port.Tool) (port.ChatTurn, error) {
+	body, err := c.generateBody(messages, tools)
+	if err != nil {
+		return port.ChatTurn{}, err
 	}
 
 	var respBody []byte
 	var errOut error
-	models := c.chatModels
-	if len(models) == 0 {
-		// An alias rather than a pinned version: pinned ones get retired, and the
-		// app then fails every question with "this model is no longer available".
-		models = []string{defaultChatModel}
-	}
-	for _, model := range models {
+	for _, model := range c.models() {
 		url := fmt.Sprintf("%s/models/%s:generateContent?key=%s", c.baseURL, normalizeModel(model), c.apiKey)
 		// Retries within a model first, then falls over to the next one. Chat used
 		// to skip retrying entirely, so a momentary spike killed the request even
@@ -204,23 +341,46 @@ func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 }
 
 func (c *Client) post(ctx context.Context, url string, body []byte) ([]byte, error) {
+	resp, err := c.send(ctx, url, body)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+	return respBody, nil
+}
+
+// send posts with retries and returns the open body of the first 200. The
+// caller closes it. Split from post so a stream can be read as it arrives
+// while sharing the same retry behaviour.
+func (c *Client) send(ctx context.Context, url string, body []byte) (*http.Response, error) {
 	var (
 		lastBody   []byte
 		lastStatus int
 	)
 
 	for attempt := 0; attempt <= maxRateRetries; attempt++ {
-		respBody, status, err := c.doPost(ctx, url, body)
+		resp, err := c.doPost(ctx, url, body)
 		if err != nil {
 			return nil, err
 		}
 
-		if status == http.StatusOK {
-			return respBody, nil
+		if resp.StatusCode == http.StatusOK {
+			return resp, nil
 		}
 
-		lastBody, lastStatus = respBody, status
-		if !isRetryableStatus(status) || attempt == maxRateRetries {
+		respBody, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return nil, fmt.Errorf("read response: %w", err)
+		}
+
+		lastBody, lastStatus = respBody, resp.StatusCode
+		if !isRetryableStatus(resp.StatusCode) || attempt == maxRateRetries {
 			break
 		}
 
@@ -285,25 +445,18 @@ func retryDelayFor(respBody []byte, attempt int) time.Duration {
 	return time.Duration(1<<attempt) * time.Second
 }
 
-func (c *Client) doPost(ctx context.Context, url string, body []byte) ([]byte, int, error) {
+func (c *Client) doPost(ctx context.Context, url string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
-		return nil, 0, fmt.Errorf("create request: %w", err)
+		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, 0, fmt.Errorf("request: %w", err)
+		return nil, fmt.Errorf("request: %w", err)
 	}
-	defer resp.Body.Close()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, 0, fmt.Errorf("read response: %w", err)
-	}
-
-	return respBody, resp.StatusCode, nil
+	return resp, nil
 }
 
 type apiErrorResponse struct {

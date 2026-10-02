@@ -83,7 +83,10 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 			toolsForRound = nil
 		}
 
-		turn, err := a.toolLLM.ChatTools(ctx, messages, toolsForRound)
+		// Every round streams: the one that answers is only known once it ends,
+		// and a round that turns into tool calls retracts what it wrote.
+		plan.Progress.stage(StageThinking, "")
+		turn, err := streamChatTools(ctx, a.toolLLM, messages, toolsForRound, plan.Progress)
 		if err != nil {
 			return ConsultResult{}, fmt.Errorf("agent chat round %d: %w", round+1, err)
 		}
@@ -123,6 +126,7 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 		})
 
 		for _, call := range turn.ToolCalls {
+			plan.Progress.stage(StageDigging, toolStageDetail(call))
 			result, err := a.tools.Execute(ctx, call.Name, call.Arguments, plan.Tier)
 			if err != nil {
 				result = ToolExecutionResult{Content: "tool error: " + err.Error()}
@@ -154,7 +158,8 @@ func (a *AgentConsult) fallbackAnswer(
 		formatContext(collected, plan.Tier.MaxBodyRunes),
 		plan.Question,
 	)
-	answer, err := a.toolLLM.Chat(ctx, finalMessages)
+	plan.Progress.stage(StageThinking, "")
+	answer, err := streamChat(ctx, a.toolLLM, finalMessages, plan.Progress)
 	if err != nil {
 		return ConsultResult{}, fmt.Errorf("agent fallback llm chat: %w", err)
 	}

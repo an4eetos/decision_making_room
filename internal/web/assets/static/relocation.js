@@ -173,7 +173,7 @@ function setupRelocation() {
             <div class="reloc-budget-figures">
                 <div class="reloc-figure">
                     <span class="reloc-figure-value">${money(budget.total, budget.currency)}</span>
-                    <span class="muted">setup cost</span>
+                    <span class="muted">setup cost <button type="button" class="hint" data-hint="budget"></button></span>
                 </div>
                 <div class="reloc-figure">
                     <span class="reloc-figure-value">${budget.items_needed}</span>
@@ -202,7 +202,7 @@ function setupRelocation() {
 
         return `
         <section class="card reloc-pitfalls">
-            <h2>Worth checking before you commit</h2>
+            <h2>Worth checking before you commit <button type="button" class="hint" data-hint="pitfalls"></button></h2>
             <p class="muted">Only the ones that apply to this stay.${done ? ` ${done} handled.` : ""}</p>
             ${pitfalls.map((p) => `
                 <details class="reloc-pitfall sev-${escapeHTML(p.severity)} ${p.acknowledged ? "done" : ""}">

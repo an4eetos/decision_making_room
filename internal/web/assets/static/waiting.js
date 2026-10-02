@@ -2,9 +2,10 @@
 //
 // The sequence mirrors what the server actually does — embed the question,
 // search, read what came back, argue between lenses, write — so the wait is
-// informative rather than decorative. The timings are estimates, not progress:
-// nothing streams back, so this cannot claim to know which stage is running.
-// Lines are phrased accordingly, and none of them assert completion.
+// informative rather than decorative. A streamed answer reports its real stages
+// and those replace the timed plan the moment the first one arrives; until then,
+// and for anything not streamed, the timings are estimates and the lines are
+// phrased so that none of them assert completion.
 
 const WAITING_LINES = {
     searching: [
@@ -88,28 +89,38 @@ function lensLine(lensNames) {
     return `${lensNames.slice(0, -1).join(", ")} and ${last} are arguing`;
 }
 
-// startWaiting swaps text into an element on a schedule and returns a stop
-// function. The caller owns the element.
+// startWaiting swaps text into an element and returns a controller. The caller
+// owns the element.
+//
+// Without further input it walks the timed plan for the tier. stage() switches
+// to what the server says is actually happening and stops the timer for good: a
+// guessed line arriving after a real one would contradict it. setLenses() names
+// lenses that were auto-selected, once the server has said which they are.
 function startWaiting(element, { tier = "standard", lensNames = [] } = {}) {
     const plan = WAITING_PLANS[tier] ?? WAITING_PLANS.standard;
     const started = Date.now();
-    const lens = lensLine(lensNames);
+    let lens = lensLine(lensNames);
+    let usedLens = false;
 
     let previous = null;
     let index = -1;
     let timer = null;
+    let stopped = false;
 
-    function textFor(stage) {
+    function textFor(key) {
         // Substitute the named-lens line for one generic "thinking" step, so the
         // personalised version appears without crowding out the rest.
-        if (lens && stage.key === "thinking" && !textFor.usedLens) {
-            textFor.usedLens = true;
+        if (lens && key === "thinking" && !usedLens) {
+            usedLens = true;
             return lens;
         }
-        return pick(WAITING_LINES[stage.key], previous);
+        return pick(WAITING_LINES[key] ?? WAITING_LINES.thinking, previous);
     }
 
     function render(text) {
+        if (stopped) {
+            return;
+        }
         const elapsed = Date.now() - started;
         const suffix = elapsed > SHOW_ELAPSED_AFTER
             ? ` <span class="waiting-elapsed">${Math.round(elapsed / 1000)}s</span>`
@@ -121,7 +132,7 @@ function startWaiting(element, { tier = "standard", lensNames = [] } = {}) {
     function advance() {
         index += 1;
         const stage = plan[Math.min(index, plan.length - 1)];
-        render(textFor(stage));
+        render(textFor(stage.key));
 
         // Past the end of the plan, keep cycling the last stage rather than
         // freezing — an answer that overruns the estimate is still coming.
@@ -139,8 +150,21 @@ function startWaiting(element, { tier = "standard", lensNames = [] } = {}) {
         }
     }, 1000);
 
-    return function stop() {
-        clearTimeout(timer);
-        clearInterval(ticker);
+    return {
+        stage(key, detail) {
+            clearTimeout(timer);
+            timer = null;
+            render(detail || textFor(key));
+        },
+        setLenses(names) {
+            if (!usedLens) {
+                lens = lensLine(names);
+            }
+        },
+        stop() {
+            stopped = true;
+            clearTimeout(timer);
+            clearInterval(ticker);
+        },
     };
 }
