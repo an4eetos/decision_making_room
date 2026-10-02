@@ -9,7 +9,9 @@ written about your own work gives better advice than one that has not.
 
 > **Status:** early but usable. Retrieval, chat with depth tiers, the generals
 > roster, conversation modes, open loops, check-ins, the journal watcher and the
-> relocation planner all work today. See [the roadmap](#roadmap).
+> relocation planner all work today. Next is v2, **the Campaign**: everything the
+> room knows about your goals and problems, drawn as one living map. See
+> [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -278,6 +280,8 @@ curl -X POST localhost:8080/api/consult \
 
 ## Roadmap
 
+### v1 — shipped
+
 - [x] Hybrid retrieval, chat with history and summarisation, journal watcher
 - [x] Retrieval fixes: relevance/recency rebalance, full-text query rewriting
 - [x] **Depth tiers** — quick, standard and deep answers
@@ -289,7 +293,79 @@ curl -X POST localhost:8080/api/consult \
 - [x] Chunk breadcrumbs, overlap, and embedding-model versioning
 - [x] **Commitments** — open loops tracked from your own conversations
 - [x] **Check-ins** — it asks how the day is going, instead of waiting
-- [ ] Streaming answers
+
+Streaming answers did not make v1 and opens v2.
+
+### v2 — The Campaign
+
+v1 is a set of good tools that do not see each other. A commitment does not know
+which goal it serves, a check-in does not know what is blocking you, and no
+screen shows the whole situation at once.
+
+v2 draws it as a theatre map. Your goals are objectives to take. Your problems
+are the opposition, dug in between you and them. Your commitments are orders,
+your time and energy are supply, and the twenty generals stop being lenses you
+pick and become a staff that reads the map with you. The map moves as you work:
+close a loop and the front line advances; let a front go quiet and it shows.
+
+The map is a view of what you already wrote, not a second app to maintain. If
+you never open it, the room answers exactly as it does today.
+
+| In your life | On the map |
+|---|---|
+| Goals | **Objectives** — positions to take, proposed from what you write, kept only if you agree |
+| Problems, blockers, fears | **Opposition** — enemy positions, typed by the five kinds of stuck from the Stalled mode |
+| What you do not know yet | **Fog of war** — lifted by reconnaissance: a question answered, a small test run |
+| Areas of life and work | **Fronts** |
+| Commitments | **Orders** — assigned to a front, aimed at an objective or an enemy position |
+| Focus blocks | **Sorties** |
+| Time, energy, money, attention | **Supply** — a front with more orders than supply is overextended |
+| Stale loops | **Units out of contact** — "gone quiet" asks: reinforce or withdraw? |
+| Dropping a goal | **Orderly withdrawal** — a legitimate order, not a loss |
+| Generals | **The staff** — each reads the map through its own doctrine and its declared blind spot |
+| Modes | **Operation types** — planning, decision, breakthrough, after-action |
+| Check-ins | **Sitreps** — morning orders, midday contact report, evening gains and losses |
+| Debriefs and pre-mortems | **After-action reports**, and predictions that get scored later |
+| Relocation planner | **Deployment to a new theatre** — logistics for a forward base |
+| Journal | **Field dispatches** — the map's only source of truth |
+
+**Rules of engagement.** Gamification usually rewards activity and punishes rest,
+which is how productivity apps end up nagging people into lying to them. The
+campaign keeps the rules v1 already follows:
+
+- Nothing goes on the map without your agreement — the same rule as open loops.
+- Intelligence is labelled. An enemy's strength, a front's cost, a supply estimate
+  is marked `est` until something tests it, exactly as relocation prices are.
+- Outcomes and calibration are scored, never activity. No streaks, no XP, no
+  penalty for a day off.
+- Withdrawal is a valid order, and the staff will recommend it when it is the
+  right one. Kutuzov gave up Moscow.
+- Every layer degrades to v1. No map data means no map, not a worse answer.
+- Deterministic where it can be, a model call only where judgment is needed.
+
+**Milestones**
+
+- [ ] **v2.0 Groundwork** — streaming answers; fronts; objectives as proposals you
+  keep or drop; commitments linked to the objective they serve
+- [ ] **v2.1 Opposition and intel** — obstacles extracted from what you write,
+  typed by kind of stuck, strength estimated then confirmed; fog of war over
+  what is unknown; reconnaissance as a kind of order
+- [ ] **v2.2 The theatre map** — server-rendered SVG of fronts, objectives and the
+  opposition, with a front line that moves as loops close; a daily snapshot and a
+  timelapse of the campaign so far
+- [ ] **v2.3 The staff** — generals appraise the map, not just the question: where
+  the point of main effort is, where to yield ground, what is overextended.
+  Check-ins become sitreps drawn from map state. **Red team**: one general takes
+  command of the opposition and attacks your plan
+- [ ] **v2.4 Logistics** — supply per front: hours from your sorties, energy you
+  report in one tap at the evening check-in (never inferred from your writing),
+  money; overextension warnings before a front collapses; relocation as a
+  deployment with its own supply line
+- [ ] **v2.5 Campaign record** — campaigns by quarter, from planning through
+  operations to an after-action review; pre-mortem predictions scored at the
+  debrief, with calibration as the one number worth watching; commendations for
+  what actually matters — an objective taken, an honest withdrawal, a pre-mortem
+  that called it
 
 ## Privacy
 
