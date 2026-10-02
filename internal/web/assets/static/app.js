@@ -240,7 +240,9 @@ function chatMessageHTML(message) {
     </div>`;
 }
 
-function renderChatSessions(container, sessions, activeSessionID) {
+// busyIDs are conversations still waiting on an answer, marked so a send left
+// running in the background can be found again.
+function renderChatSessions(container, sessions, activeSessionID, busyIDs = new Set()) {
     if (!sessions || sessions.length === 0) {
         container.innerHTML = '<p class="muted">No chats yet.</p>';
         return;
@@ -253,7 +255,9 @@ function renderChatSessions(container, sessions, activeSessionID) {
                 class="chat-session-item"
                 data-session-id="${escapeHTML(session.id)}">
                 <span class="chat-session-title">${escapeHTML(session.title || "New chat")}</span>
-                <span class="chat-session-meta muted">${escapeHTML(formatDate(session.updated_at))}</span>
+                <span class="chat-session-meta muted">${busyIDs.has(session.id)
+                    ? '<span class="chat-session-busy">Thinking<span class="waiting-dots"></span></span>'
+                    : escapeHTML(formatDate(session.updated_at))}</span>
             </button>
             <button
                 type="button"
@@ -389,21 +393,32 @@ function resolveActiveSessionID(sessions) {
     return null;
 }
 
-function appendOptimisticMessage(container, role, content, id) {
-    const placeholder = container.querySelector(".muted");
-    if (placeholder && placeholder.textContent === "Start a conversation.") {
-        container.innerHTML = "";
-    }
+function elementFromHTML(html) {
+    const shell = document.createElement("div");
+    shell.innerHTML = html.trim();
+    return shell.firstElementChild;
+}
 
-    container.insertAdjacentHTML("beforeend", `
-        <div id="${id}" class="chat-message ${role} pending">
+// optimisticMessageElement builds a message that is not stored yet. It is an
+// element rather than markup so a send can keep writing into it while another
+// conversation is on screen, and be put back when you return to its own.
+function optimisticMessageElement(role, content) {
+    return elementFromHTML(`
+        <div class="chat-message ${escapeHTML(role)} pending">
             <div class="chat-message-head">
                 <span class="chat-message-role">${escapeHTML(role)}</span>
             </div>
             <div class="chat-message-body">${escapeHTML(content)}</div>
         </div>
     `);
-    container.scrollTop = container.scrollHeight;
+}
+
+function appendToConversation(container, ...elements) {
+    const placeholder = container.querySelector(".muted");
+    if (placeholder && placeholder.textContent === "Start a conversation.") {
+        container.innerHTML = "";
+    }
+    container.append(...elements);
 }
 
 function setupConsultForm() {
@@ -469,26 +484,84 @@ function setupConsultForm() {
     }
 
     let activeSessionID = null;
-    let sendInFlight = false;
-    let sessionsRefreshInFlight = false;
     let sessionLoadToken = 0;
-    let sessionCreationPromise = null;
     let cachedSessions = [];
+    let sessionsRefresh = null;
+    let sessionsRefreshAgain = false;
 
-    async function refreshSessions() {
-        if (sessionsRefreshInFlight) {
-            return cachedSessions;
+    // Sends still waiting on an answer, by session. Switching away does not
+    // stop one: the request stays open, so the server finishes and saves the
+    // answer, and its elements are put back if you return before it lands.
+    const runs = new Map();
+    // A send from a new chat has no session until the server creates one;
+    // draftRun is that send while its new chat is still the one on screen.
+    let draftRun = null;
+    // Errors from sends that failed while you were looking at another
+    // conversation, shown when you open the one they belong to.
+    const failures = new Map();
+
+    function currentRun() {
+        return activeSessionID ? (runs.get(activeSessionID) ?? null) : draftRun;
+    }
+
+    function isShown(run) {
+        return run.sessionID ? run.sessionID === activeSessionID : run === draftRun;
+    }
+
+    // One question at a time per conversation, not per page.
+    function syncSendButton() {
+        const button = form.querySelector("button[type=submit]");
+        if (button) {
+            button.disabled = currentRun() !== null;
         }
-        sessionsRefreshInFlight = true;
-        try {
-            sessions.innerHTML = '<p class="muted">Loading chats...</p>';
-            const data = await apiJSON("/api/chat/sessions");
-            cachedSessions = data;
-            renderChatSessions(sessions, data, activeSessionID);
-            return data;
-        } finally {
-            sessionsRefreshInFlight = false;
+    }
+
+    function renderSessionList() {
+        renderChatSessions(sessions, cachedSessions, activeSessionID, new Set(runs.keys()));
+    }
+
+    // A refresh asked for while one is running runs once more after it, rather
+    // than being dropped: with sends finishing in the background, a skipped
+    // refresh would leave a conversation marked as thinking.
+    function refreshSessions() {
+        if (sessionsRefresh) {
+            sessionsRefreshAgain = true;
+            return sessionsRefresh;
         }
+        sessionsRefresh = (async () => {
+            try {
+                do {
+                    sessionsRefreshAgain = false;
+                    if (cachedSessions.length === 0) {
+                        sessions.innerHTML = '<p class="muted">Loading chats...</p>';
+                    }
+                    cachedSessions = await apiJSON("/api/chat/sessions");
+                    renderSessionList();
+                } while (sessionsRefreshAgain);
+                return cachedSessions;
+            } finally {
+                sessionsRefresh = null;
+            }
+        })();
+        return sessionsRefresh;
+    }
+
+    // showRun puts a send's own elements back under the stored conversation.
+    // The question is saved before the answer starts and the answer the moment
+    // it is written, so either may already be in what was just loaded.
+    function showRun(run, stored) {
+        if (run.answerID && stored.some((m) => m.id === run.answerID)) {
+            return;
+        }
+        const last = stored[stored.length - 1];
+        const questionStored = run.answerID
+            || (last?.role === "user" && last.content === run.question);
+        if (questionStored) {
+            appendToConversation(messages, run.assistantEl);
+        } else {
+            appendToConversation(messages, run.userEl, run.assistantEl);
+        }
+        messages.scrollTop = messages.scrollHeight;
     }
 
     async function loadSession(sessionID) {
@@ -499,6 +572,12 @@ function setupConsultForm() {
         }
 
         const token = ++sessionLoadToken;
+        // Switch over now, not once loaded, so a send still running for the
+        // previous conversation stops drawing into this one straight away.
+        activeSessionID = sessionID;
+        draftRun = null;
+        persistActiveSession(sessionID);
+        syncSendButton();
         renderChatMessages(messages, null);
 
         try {
@@ -506,9 +585,11 @@ function setupConsultForm() {
             if (token !== sessionLoadToken) {
                 return;
             }
-            activeSessionID = sessionID;
-            persistActiveSession(sessionID);
             renderChatMessages(messages, data.messages);
+            const run = runs.get(sessionID);
+            if (run) {
+                showRun(run, data.messages ?? []);
+            }
             // A session remembers the depth and the lenses it was last used
             // with, so reopening a conversation does not silently reset either.
             applyTier(data.session?.tier);
@@ -517,6 +598,11 @@ function setupConsultForm() {
             modeChip?.setPinned(data.session?.mode_locked ? data.session?.mode : null);
             modeChip?.setDetected(data.session?.mode, "sticky");
             result.innerHTML = "";
+            const failure = failures.get(sessionID);
+            if (failure) {
+                failures.delete(sessionID);
+                showMessage(result, failure, "error");
+            }
         } catch (error) {
             if (token !== sessionLoadToken) {
                 return;
@@ -525,27 +611,15 @@ function setupConsultForm() {
         }
     }
 
-    async function ensureSession() {
-        if (activeSessionID) {
-            return activeSessionID;
-        }
-
-        if (!sessionCreationPromise) {
-            sessionCreationPromise = apiJSON("/api/chat/sessions", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title: "New chat" }),
-            }).then(async (session) => {
-                activeSessionID = session.id;
-                persistActiveSession(session.id);
-                await refreshSessions();
-                return session.id;
-            }).finally(() => {
-                sessionCreationPromise = null;
-            });
-        }
-
-        return sessionCreationPromise;
+    // createSession only creates: whether the new conversation goes on screen
+    // is up to the send, since you may have moved on while it was created.
+    async function createSession() {
+        const session = await apiJSON("/api/chat/sessions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: "New chat" }),
+        });
+        return session.id;
     }
 
     function startNewChat() {
@@ -553,16 +627,23 @@ function setupConsultForm() {
         modeChip?.setPinned(null);
         modeChip?.setDetected(null);
         activeSessionID = null;
+        // A send from the previous new chat carries on in the background.
+        draftRun = null;
         sessionLoadToken++;
         form.question.value = "";
         result.innerHTML = "";
         renderChatMessages(messages, []);
         persistActiveSession(null);
+        syncSendButton();
         refreshSessions();
     }
 
     async function deleteSession(sessionID) {
-        if (!sessionID || sendInFlight) {
+        if (!sessionID) {
+            return;
+        }
+        if (runs.has(sessionID)) {
+            showMessage(result, "This chat is still answering. Delete it once the answer is in.", "error");
             return;
         }
         if (!window.confirm("Delete this chat? This cannot be undone.")) {
@@ -577,6 +658,7 @@ function setupConsultForm() {
                 renderChatMessages(messages, []);
                 result.innerHTML = "";
                 persistActiveSession(null);
+                syncSendButton();
             }
 
             const remaining = await refreshSessions();
@@ -601,12 +683,7 @@ function setupConsultForm() {
     }
 
     if (newChatButton) {
-        newChatButton.addEventListener("click", () => {
-            if (sendInFlight) {
-                return;
-            }
-            startNewChat();
-        });
+        newChatButton.addEventListener("click", startNewChat);
     }
 
     // "Track something from this" asks what, rather than guessing a line from
@@ -633,7 +710,7 @@ function setupConsultForm() {
     // A check-in's Reply opens its conversation here.
     document.addEventListener("open-session", async (e) => {
         const id = e.detail?.id;
-        if (!id || sendInFlight) {
+        if (!id) {
             return;
         }
         // Load first, then refresh: the sidebar highlights whatever is active
@@ -660,19 +737,13 @@ function setupConsultForm() {
         if (!id || id === activeSessionID) {
             return;
         }
-        activeSessionID = id;
-        persistActiveSession(id);
         await loadSession(id);
         await refreshSessions();
     });
 
     window.addEventListener("popstate", () => {
-        if (sendInFlight) {
-            return;
-        }
         const sessionID = getSessionFromURL();
         if (sessionID && cachedSessions.some((s) => s.id === sessionID)) {
-            activeSessionID = sessionID;
             loadSession(sessionID);
             refreshSessions();
             return;
@@ -688,37 +759,41 @@ function setupConsultForm() {
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const button = form.querySelector("button[type=submit]");
-        if (!button) {
-            return;
-        }
         const question = form.question.value.trim();
-        if (!question) {
+        if (!question || currentRun()) {
             return;
         }
-
-        if (sendInFlight) {
-            return;
-        }
-
-        button.disabled = true;
-        sendInFlight = true;
         form.question.value = "";
 
         const tier = selectedTier();
-        appendOptimisticMessage(messages, "user", question, "chat-pending-user");
-        appendOptimisticMessage(messages, "assistant", "", "chat-pending-assistant");
+
+        // Everything this send touches hangs off run, never off "whatever is on
+        // screen": you can open another conversation, or start a new one, while
+        // it is still thinking.
+        const run = {
+            sessionID: activeSessionID,
+            question,
+            answerID: null,
+            userEl: optimisticMessageElement("user", question),
+            assistantEl: optimisticMessageElement("assistant", ""),
+        };
+        if (run.sessionID) {
+            runs.set(run.sessionID, run);
+        } else {
+            draftRun = run;
+        }
+        syncSendButton();
+        renderSessionList();
+        appendToConversation(messages, run.userEl, run.assistantEl);
+        messages.scrollTop = messages.scrollHeight;
 
         // Narrate the wait using the lenses actually pinned. Auto-selected ones
         // are named once the server says which it chose.
-        const pending = document.getElementById("chat-pending-assistant");
-        const pendingBody = pending?.querySelector(".chat-message-body");
-        const waiting = pendingBody
-            ? startWaiting(pendingBody, {
-                tier,
-                lensNames: (generals?.selected() ?? []).map((id) => lensName(id)),
-            })
-            : { stage() {}, setLenses() {}, stop() {} };
+        const pendingBody = run.assistantEl.querySelector(".chat-message-body");
+        const waiting = startWaiting(pendingBody, {
+            tier,
+            lensNames: (generals?.selected() ?? []).map((id) => lensName(id)),
+        });
 
         // Streamed text is re-rendered as markdown at most once a frame: parsing
         // the whole answer per token would be quadratic on a long one.
@@ -730,18 +805,19 @@ function setupConsultForm() {
         let finished = null;
         let answered = false;
 
-        function nearBottom() {
-            return messages.scrollHeight - messages.scrollTop - messages.clientHeight < 80;
+        // Only when this send's answer is the one on screen. Scrolling for a
+        // send running in the background would yank the conversation you
+        // switched to.
+        function followsAnswer() {
+            return run.assistantEl.isConnected
+                && messages.scrollHeight - messages.scrollTop - messages.clientHeight < 80;
         }
 
         function paint() {
             frame = 0;
-            if (!pendingBody) {
-                return;
-            }
             // Follow the answer down only if you were already at the bottom;
             // scrolling up to reread something should not be yanked back.
-            const follow = nearBottom();
+            const follow = followsAnswer();
             pendingBody.innerHTML = renderMarkdown(streamed);
             if (follow) {
                 messages.scrollTop = messages.scrollHeight;
@@ -760,13 +836,10 @@ function setupConsultForm() {
                     waiting.setLenses(data.generals.map((id) => lensName(id)));
                 }
                 // Badges go up before the answer, so you know who is talking.
-                const head = pending?.querySelector(".chat-message-head");
-                if (head) {
-                    const shell = document.createElement("div");
-                    shell.innerHTML = chatMessageHTML({ ...data, role: "assistant", content: "" });
-                    head.innerHTML = shell.querySelector(".chat-message-head")?.innerHTML ?? head.innerHTML;
-                }
-                if (data.mode) {
+                const head = run.assistantEl.querySelector(".chat-message-head");
+                const planned = elementFromHTML(chatMessageHTML({ ...data, role: "assistant", content: "" }));
+                head.innerHTML = planned.querySelector(".chat-message-head")?.innerHTML ?? head.innerHTML;
+                if (data.mode && isShown(run)) {
                     modeChip?.setDetected(data.mode, data.mode_method);
                 }
                 break;
@@ -775,7 +848,7 @@ function setupConsultForm() {
                 if (!writing) {
                     writing = true;
                     waiting.stop();
-                    pendingBody?.classList.add("markdown");
+                    pendingBody.classList.add("markdown");
                 }
                 streamed += data.text;
                 frame ||= requestAnimationFrame(paint);
@@ -787,7 +860,7 @@ function setupConsultForm() {
                 writing = false;
                 cancelAnimationFrame(frame);
                 frame = 0;
-                pendingBody?.classList.remove("markdown");
+                pendingBody.classList.remove("markdown");
                 waiting.stage("digging");
                 break;
             case "answer": {
@@ -796,11 +869,15 @@ function setupConsultForm() {
                 cancelAnimationFrame(frame);
                 frame = 0;
                 answered = true;
+                run.answerID = data.id;
                 waiting.stop();
-                const follow = nearBottom();
-                pending?.insertAdjacentHTML("afterend", chatMessageHTML(data));
-                pending?.remove();
-                document.getElementById("chat-pending-user")?.classList.remove("pending");
+                const follow = followsAnswer();
+                const answerEl = elementFromHTML(chatMessageHTML(data));
+                // A no-op when this conversation is not on screen; showRun
+                // puts the finished answer back if you return before "done".
+                run.assistantEl.replaceWith(answerEl);
+                run.assistantEl = answerEl;
+                run.userEl.classList.remove("pending");
                 if (follow) {
                     messages.scrollTop = messages.scrollHeight;
                 }
@@ -815,8 +892,21 @@ function setupConsultForm() {
         }
 
         try {
-            const sessionID = await ensureSession();
-            await apiStream(`/api/chat/sessions/${sessionID}/messages/stream`, {
+            if (!run.sessionID) {
+                run.sessionID = await createSession();
+                runs.set(run.sessionID, run);
+                // Still looking at the new chat: it becomes this conversation.
+                // Otherwise it carries on in the background and shows up in
+                // the list.
+                if (draftRun === run) {
+                    draftRun = null;
+                    activeSessionID = run.sessionID;
+                    persistActiveSession(run.sessionID);
+                }
+                refreshSessions().catch(() => {});
+            }
+
+            await apiStream(`/api/chat/sessions/${run.sessionID}/messages/stream`, {
                 body: {
                     content: question,
                     tier,
@@ -831,38 +921,46 @@ function setupConsultForm() {
             }
             const data = finished;
 
-            activeSessionID = data.session.id;
-            persistActiveSession(data.session.id);
-            renderChatMessages(messages, data.messages);
-            result.innerHTML = "";
+            if (isShown(run)) {
+                renderChatMessages(messages, data.messages);
+                result.innerHTML = "";
+
+                // Show what the room actually decided this question was.
+                const answer = [...data.messages].reverse().find((m) => m.role === "assistant");
+                if (answer?.mode) {
+                    modeChip?.setDetected(answer.mode, answer.mode_method);
+                }
+            }
 
             // Anything you committed to is extracted in the background; pick
             // up the proposals when they land.
             loops?.refreshSoon();
-
-            // Show what the room actually decided this question was.
-            const answer = [...data.messages].reverse().find((m) => m.role === "assistant");
-            if (answer?.mode) {
-                modeChip?.setDetected(answer.mode, answer.mode_method);
-            }
-
-            await refreshSessions();
         } catch (error) {
-            document.getElementById("chat-pending-user")?.remove();
-            document.getElementById("chat-pending-assistant")?.remove();
-            showMessage(result, error.message, "error");
-            // The answer is stored even though something after it failed, so
-            // show the conversation as the server has it.
-            if (answered && activeSessionID) {
-                loadSession(activeSessionID).then(() => showMessage(result, error.message, "error"));
+            run.userEl.remove();
+            run.assistantEl.remove();
+            if (isShown(run)) {
+                showMessage(result, error.message, "error");
+                // The answer is stored even though something after it failed,
+                // so show the conversation as the server has it.
+                if (answered) {
+                    loadSession(run.sessionID).then(() => showMessage(result, error.message, "error"));
+                }
+            } else if (run.sessionID) {
+                failures.set(run.sessionID, error.message);
             }
         } finally {
             waiting.stop();
             cancelAnimationFrame(frame);
-            document.getElementById("chat-pending-user")?.remove();
-            document.getElementById("chat-pending-assistant")?.remove();
-            button.disabled = false;
-            sendInFlight = false;
+            run.userEl.remove();
+            run.assistantEl.remove();
+            if (run.sessionID && runs.get(run.sessionID) === run) {
+                runs.delete(run.sessionID);
+            }
+            if (draftRun === run) {
+                draftRun = null;
+            }
+            syncSendButton();
+            refreshSessions().catch((error) => showMessage(result, error.message, "error"));
         }
     });
 }
