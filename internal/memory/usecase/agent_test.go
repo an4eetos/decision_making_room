@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -167,5 +168,60 @@ func testPlan(question string, toolRounds int) ConsultPlan {
 		Question: question,
 		Tier:     policy,
 		Now:      time.Date(2026, 9, 16, 12, 0, 0, 0, time.UTC),
+	}
+}
+
+// streamingToolLLM streams each scripted turn's content as one delta.
+type streamingToolLLM struct {
+	stubToolLLM
+}
+
+func (s *streamingToolLLM) ChatStream(ctx context.Context, messages []port.Message, onDelta func(string)) (string, error) {
+	answer, err := s.Chat(ctx, messages)
+	onDelta(answer)
+	return answer, err
+}
+
+func (s *streamingToolLLM) ChatToolsStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
+	turn, err := s.ChatTools(ctx, messages, tools)
+	onDelta(turn.Content)
+	return turn, err
+}
+
+func TestAgentConsultStreamRetractsTextBeforeToolCall(t *testing.T) {
+	t.Parallel()
+
+	llm := &streamingToolLLM{stubToolLLM{
+		turns: []port.ChatTurn{
+			{
+				Content:   "Let me check.",
+				ToolCalls: []port.ToolCall{{Name: "recall_memories", Arguments: map[string]any{"query": "bench press"}}},
+			},
+			{Content: "You benched 60kg recently."},
+		},
+	}}
+
+	var screen string
+	var stages []string
+	plan := testPlan("How is my lifting?", 1)
+	plan.Progress = &Progress{
+		OnStage: func(stage, detail string) { stages = append(stages, stage+":"+detail) },
+		OnDelta: func(text string) { screen += text },
+		OnReset: func() { screen = "" },
+	}
+
+	retriever := &Retrieve{repo: stubRepo{}, embedder: stubEmbedder{}, candidateLimit: 8, defaultTopK: 8}
+	agent := NewAgentConsult(llm, NewMemoryToolExecutor(retriever, stubRepo{}, nil), stubInitialContext{content: "I lift"})
+
+	result, err := agent.Execute(context.Background(), plan, nil)
+	if err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	if screen != result.Answer {
+		t.Fatalf("screen = %q, answer = %q", screen, result.Answer)
+	}
+	want := "thinking:|digging:Searching again: bench press|thinking:"
+	if got := strings.Join(stages, "|"); got != want {
+		t.Fatalf("stages = %q, want %q", got, want)
 	}
 }

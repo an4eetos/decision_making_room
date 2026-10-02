@@ -1,11 +1,11 @@
 {{define "ingest.html"}}
 {{template "layout-head" .}}
 <section class="card">
-    <h1>Ingest Memory</h1>
+    <h1>Ingest Memory <button type="button" class="hint" data-hint="ingest"></button></h1>
     <p class="muted">Add decisions, plans, notes, or daily logs. Long text is chunked automatically.</p>
 
     <form id="ingest-form" enctype="multipart/form-data" class="form">
-        <label for="kind">Kind</label>
+        <label for="kind">Kind <button type="button" class="hint" data-hint="kind"></button></label>
         <select id="kind" name="kind" required>
             {{range .Kinds}}
             <option value="{{.}}">{{.}}</option>

@@ -1,12 +1,14 @@
 package ollama
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/an4eetos/decision-room/internal/memory/port"
@@ -66,6 +68,8 @@ type toolFunctionWire struct {
 
 type chatResponse struct {
 	Message chatMessage `json:"message"`
+	Done    bool        `json:"done"`
+	Error   string      `json:"error,omitempty"`
 }
 
 func (c *Client) Chat(ctx context.Context, messages []port.Message) (string, error) {
@@ -80,41 +84,28 @@ func (c *Client) ChatTools(ctx context.Context, messages []port.Message, tools [
 	return c.chat(ctx, messages, tools)
 }
 
+func (c *Client) ChatStream(ctx context.Context, messages []port.Message, onDelta func(string)) (string, error) {
+	turn, err := c.chatStream(ctx, messages, nil, onDelta)
+	if err != nil {
+		return "", err
+	}
+	return turn.Content, nil
+}
+
+func (c *Client) ChatToolsStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
+	return c.chatStream(ctx, messages, tools, onDelta)
+}
+
 func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port.Tool) (port.ChatTurn, error) {
-	reqMessages, err := toWireMessages(messages)
+	resp, err := c.openChat(ctx, messages, tools, false)
 	if err != nil {
 		return port.ChatTurn{}, err
-	}
-
-	body, err := json.Marshal(chatRequest{
-		Model:    c.chatModel,
-		Messages: reqMessages,
-		Stream:   false,
-		Tools:    toWireTools(tools),
-	})
-	if err != nil {
-		return port.ChatTurn{}, fmt.Errorf("marshal chat request: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/chat", bytes.NewReader(body))
-	if err != nil {
-		return port.ChatTurn{}, fmt.Errorf("create chat request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return port.ChatTurn{}, fmt.Errorf("chat request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return port.ChatTurn{}, fmt.Errorf("read chat response: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return port.ChatTurn{}, fmt.Errorf("chat failed: status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	var result chatResponse
@@ -131,6 +122,100 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 		Content:   result.Message.Content,
 		ToolCalls: toolCalls,
 	}, nil
+}
+
+// maxStreamLine bounds one NDJSON line, which can carry a whole tool call.
+const maxStreamLine = 4 << 20
+
+// chatStream reads Ollama's newline-delimited stream. Each line is a partial
+// message; content is concatenated and tool calls collected across lines.
+func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
+	resp, err := c.openChat(ctx, messages, tools, true)
+	if err != nil {
+		return port.ChatTurn{}, err
+	}
+	defer resp.Body.Close()
+
+	scanner := bufio.NewScanner(resp.Body)
+	scanner.Buffer(make([]byte, 0, 64<<10), maxStreamLine)
+
+	var content strings.Builder
+	var wireCalls []toolCallWire
+	for scanner.Scan() {
+		line := bytes.TrimSpace(scanner.Bytes())
+		if len(line) == 0 {
+			continue
+		}
+
+		var chunk chatResponse
+		if err := json.Unmarshal(line, &chunk); err != nil {
+			return port.ChatTurn{}, fmt.Errorf("unmarshal chat stream: %w", err)
+		}
+		if chunk.Error != "" {
+			return port.ChatTurn{}, fmt.Errorf("chat stream failed: %s", chunk.Error)
+		}
+
+		if text := chunk.Message.Content; text != "" {
+			content.WriteString(text)
+			if onDelta != nil {
+				onDelta(text)
+			}
+		}
+		wireCalls = append(wireCalls, chunk.Message.ToolCalls...)
+		if chunk.Done {
+			break
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return port.ChatTurn{}, fmt.Errorf("read chat stream: %w", err)
+	}
+
+	toolCalls, err := parseToolCalls(wireCalls)
+	if err != nil {
+		return port.ChatTurn{}, err
+	}
+
+	return port.ChatTurn{
+		Content:   content.String(),
+		ToolCalls: toolCalls,
+	}, nil
+}
+
+// openChat sends the request and returns the open body of a 200. The caller
+// closes it.
+func (c *Client) openChat(ctx context.Context, messages []port.Message, tools []port.Tool, stream bool) (*http.Response, error) {
+	reqMessages, err := toWireMessages(messages)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := json.Marshal(chatRequest{
+		Model:    c.chatModel,
+		Messages: reqMessages,
+		Stream:   stream,
+		Tools:    toWireTools(tools),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("marshal chat request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/chat", bytes.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("create chat request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("chat request: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		defer resp.Body.Close()
+		respBody, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("chat failed: status %d: %s", resp.StatusCode, string(respBody))
+	}
+	return resp, nil
 }
 
 func toWireMessages(messages []port.Message) ([]chatMessage, error) {

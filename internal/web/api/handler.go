@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -72,6 +73,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/chat/sessions/{id}", h.getChatSession)
 	mux.HandleFunc("DELETE /api/chat/sessions/{id}", h.deleteChatSession)
 	mux.HandleFunc("POST /api/chat/sessions/{id}/messages", h.sendChatMessage)
+	mux.HandleFunc("POST /api/chat/sessions/{id}/messages/stream", h.streamChatMessage)
 }
 
 func (h *Handler) health(w http.ResponseWriter, _ *http.Request) {
@@ -405,30 +407,98 @@ func (h *Handler) deleteChatSession(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Content  string    `json:"content"`
-		Tier     string    `json:"tier"`
-		Generals *[]string `json:"generals"`
-		Mode     *string   `json:"mode"`
+type sendChatMessageRequest struct {
+	Content  string    `json:"content"`
+	Tier     string    `json:"tier"`
+	Generals *[]string `json:"generals"`
+	Mode     *string   `json:"mode"`
+}
+
+func (req sendChatMessageRequest) input(sessionID string) usecase.SendMessageInput {
+	return usecase.SendMessageInput{
+		SessionID: sessionID,
+		Question:  req.Content,
+		Tier:      req.Tier,
+		Generals:  derefStrings(req.Generals),
+		Mode:      req.Mode,
 	}
+}
+
+func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
+	var req sendChatMessageRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "invalid json", http.StatusBadRequest)
 		return
 	}
 
-	detail, err := h.chatUC.SendMessage(r.Context(), usecase.SendMessageInput{
-		SessionID: r.PathValue("id"),
-		Question:  req.Content,
-		Tier:      req.Tier,
-		Generals:  derefStrings(req.Generals),
-		Mode:      req.Mode,
-	})
+	detail, err := h.chatUC.SendMessage(r.Context(), req.input(r.PathValue("id")))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	writeJSON(w, http.StatusOK, detail)
+}
+
+// streamChatMessage is sendChatMessage as server-sent events, so a deep answer
+// shows up as it is written instead of after half a minute of nothing.
+//
+// Events, in order: "stage" and "plan" while it works, "delta" for each piece
+// of text, "reset" if text already sent should be discarded, "answer" with the
+// stored message, then "done" with the full session — or "error" at any point.
+// It is a POST rather than an EventSource GET because the question is a body.
+func (h *Handler) streamChatMessage(w http.ResponseWriter, r *http.Request) {
+	var req sendChatMessageRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	// Tells nginx and similar not to buffer the stream into one late response.
+	w.Header().Set("X-Accel-Buffering", "no")
+	w.WriteHeader(http.StatusOK)
+
+	sse := &sseWriter{w: w, rc: http.NewResponseController(w)}
+
+	in := req.input(r.PathValue("id"))
+	in.Progress = &usecase.Progress{
+		OnStage: func(stage, detail string) {
+			sse.send("stage", map[string]string{"stage": stage, "detail": detail})
+		},
+		OnPlan:   func(info usecase.PlanInfo) { sse.send("plan", info) },
+		OnDelta:  func(text string) { sse.send("delta", map[string]string{"text": text}) },
+		OnReset:  func() { sse.send("reset", struct{}{}) },
+		OnAnswer: func(message usecase.ChatMessageDTO) { sse.send("answer", message) },
+	}
+
+	detail, err := h.chatUC.SendMessage(r.Context(), in)
+	if err != nil {
+		sse.send("error", map[string]string{"message": err.Error()})
+		return
+	}
+	sse.send("done", detail)
+}
+
+// sseWriter writes one event per call and flushes it straight away. Write errors
+// mean the client has gone; the request context is cancelled in that case too,
+// so the consult stops on its own and there is nothing useful to do here.
+type sseWriter struct {
+	w  http.ResponseWriter
+	rc *http.ResponseController
+}
+
+func (s *sseWriter) send(event string, v any) {
+	data, err := json.Marshal(v)
+	if err != nil {
+		data, _ = json.Marshal(map[string]string{"message": "encode event: " + err.Error()})
+		event = "error"
+	}
+	// JSON never contains a raw newline, so one data line is always enough.
+	if _, err := fmt.Fprintf(s.w, "event: %s\ndata: %s\n\n", event, data); err != nil {
+		return
+	}
+	_ = s.rc.Flush()
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {

@@ -1,7 +1,7 @@
 {{define "memories.html"}}
 {{template "layout-head" .}}
 <section class="card">
-    <h1>Memories</h1>
+    <h1>Memories <button type="button" class="hint" data-hint="memories"></button></h1>
 
     <form id="memories-search-form" method="get" action="/memories" class="form inline-form">
         <input id="search-q" name="q" type="text" placeholder="Semantic search..." value="{{.Query}}">

@@ -3,7 +3,7 @@
 <section class="reloc">
     <aside class="card reloc-sidebar">
         <div class="reloc-sidebar-head">
-            <h2>Stays</h2>
+            <h2>Stays <button type="button" class="hint" data-hint="stays"></button></h2>
             <button id="reloc-new" type="button" class="btn">New</button>
         </div>
         <div id="reloc-plans" class="reloc-plan-list"></div>
@@ -11,7 +11,7 @@
 
     <section class="reloc-main">
         <form id="reloc-form" class="card reloc-form" hidden>
-            <h1>Where are you going?</h1>
+            <h1>Where are you going? <button type="button" class="hint" data-hint="reloc-form"></button></h1>
             <p class="muted">
                 Everything below adapts the checklist. Leave a field blank and the list
                 widens rather than guessing.
@@ -76,6 +76,6 @@
         <div id="reloc-error"></div>
     </section>
 </section>
-<script src="/static/relocation.js?v=1"></script>
+<script src="/static/relocation.js?v=2"></script>
 {{template "layout-foot" .}}
 {{end}}

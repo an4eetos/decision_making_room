@@ -3,7 +3,7 @@
 <section class="war-room">
     <aside class="wr-rail wr-rail-left">
         <div class="wr-rail-head">
-            <h2 class="wr-label">Operations</h2>
+            <h2 class="wr-label">Operations <button type="button" class="hint" data-hint="operations"></button></h2>
             <button id="new-chat-button" type="button" class="wr-mini-btn" title="Start a new conversation">
                 <span aria-hidden="true">+</span> New
             </button>
@@ -12,7 +12,7 @@
 
         <section id="loops" class="loops">
             <div class="loops-head">
-                <h2 class="wr-label">Open loops <span id="loops-count" class="loops-count"></span></h2>
+                <h2 class="wr-label">Open loops <span id="loops-count" class="loops-count"></span> <button type="button" class="hint" data-hint="loops"></button></h2>
             </div>
             <ul id="loops-list" class="loops-list"></ul>
             <form id="loops-add" class="loops-add">
@@ -30,6 +30,7 @@
                 <span id="sit-loops" class="sit-chip warn" hidden></span>
                 <span id="sit-next" class="sit-chip" hidden></span>
                 <button id="checkin-now" type="button" class="sit-chip action" title="Ask me how it's going, now">Check in now</button>
+                <button type="button" class="hint" data-hint="checkins"></button>
                 <span class="mode-chip-wrap">
                     <button id="mode-chip" type="button" class="mode-chip" aria-haspopup="listbox" aria-expanded="false">
                         <span id="mode-chip-label">Open</span>
@@ -37,6 +38,7 @@
                     </button>
                     <div id="mode-menu" class="mode-menu" role="listbox" hidden></div>
                 </span>
+                <button type="button" class="hint" data-hint="mode"></button>
             </span>
         </header>
 
@@ -44,6 +46,7 @@
             <input id="capture-input" name="text" type="text" autocomplete="off"
                    placeholder="Log a line to today's note — no chat, no answer">
             <button type="submit" class="wr-mini-btn">Log</button>
+            <button type="button" class="hint" data-hint="capture"></button>
         </form>
         <div id="capture-result" class="capture-result"></div>
 
@@ -67,6 +70,7 @@
                         <input type="radio" name="tier" value="deep"><span>Deep</span>
                     </label>
                 </fieldset>
+                <button type="button" class="hint" data-hint="depth"></button>
 
                 <button type="submit" class="btn primary">Brief me</button>
             </div>
@@ -77,13 +81,13 @@
 
     <aside class="wr-rail wr-rail-right" aria-label="Council">
         <div class="wr-rail-head">
-            <h2 class="wr-label">Council</h2>
+            <h2 class="wr-label">Council <button type="button" class="hint" data-hint="council"></button></h2>
             <span id="generals-summary" class="wr-hint"></span>
         </div>
         <div id="council-seats" class="council-seats"></div>
 
         <div class="wr-rail-head roster-head">
-            <h2 class="wr-label">Roster</h2>
+            <h2 class="wr-label">Roster <button type="button" class="hint" data-hint="roster"></button></h2>
         </div>
         <div id="generals-strip" class="roster"></div>
         <p class="wr-footnote">

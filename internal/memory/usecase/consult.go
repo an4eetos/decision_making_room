@@ -45,6 +45,10 @@ type ConsultInput struct {
 	// "**Blocks** / **Not today**" scaffold or a general's voice would get in the
 	// way of a short question.
 	Plain bool
+
+	// Progress, when set, hears about the consult as it runs and receives the
+	// answer as it is written. Nil means the caller only wants the result.
+	Progress *Progress
 }
 
 type ConsultSource struct {
@@ -128,6 +132,9 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 		return ConsultResult{}, fmt.Errorf("question is required")
 	}
 
+	if !skipRetrieval(plan.Question) {
+		plan.Progress.stage(StageSearching, "")
+	}
 	context, err := u.gatherContext(ctx, plan)
 	if err != nil {
 		return ConsultResult{}, err
@@ -153,7 +160,18 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	// Skipped with retrieval: a greeting has nothing for doctrine to bear on.
 	if !skipRetrieval(plan.Question) {
 		plan.Doctrine = u.doctrine.Select(ctx, plan)
+		plan.Progress.stage(StageReading, "")
 	}
+
+	// Lenses and mode are final from here, so the interface can name them while
+	// the answer is still being written.
+	plan.Progress.plan(PlanInfo{
+		Tier:           string(plan.Tier.Tier),
+		Generals:       plan.GeneralIDs(),
+		GeneralsMethod: plan.GeneralsMethod,
+		Mode:           plan.Mode.ID,
+		ModeMethod:     plan.ModeMethod,
+	})
 
 	if plan.Tier.UsesTools() && u.agent != nil {
 		return u.agent.Execute(ctx, plan, context)
@@ -271,7 +289,8 @@ func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entri
 		plan.Question,
 	)
 
-	answer, err := u.llm.Chat(ctx, messages)
+	plan.Progress.stage(StageThinking, "")
+	answer, err := streamChat(ctx, u.llm, messages, plan.Progress)
 	if err != nil {
 		return ConsultResult{}, fmt.Errorf("llm chat: %w", err)
 	}

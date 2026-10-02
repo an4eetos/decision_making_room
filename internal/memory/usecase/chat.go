@@ -152,6 +152,8 @@ type SendMessageInput struct {
 	// Mode set by hand for this turn. It locks the session to that mode; an
 	// empty string means "auto" and unlocks it.
 	Mode *string
+	// Progress, when set, receives the answer as it is written; see Progress.
+	Progress *Progress
 }
 
 func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessionDetail, error) {
@@ -236,6 +238,7 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		// The user turn was already appended, so a fresh conversation has one
 		// message here and stickiness must not apply to it.
 		TurnIndex: len(messages) - 1,
+		Progress:  in.Progress,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
@@ -255,6 +258,11 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		return ChatSessionDetail{}, err
 	}
 	messages = append(messages, assistantMessage)
+	if in.Progress != nil {
+		answer := toChatMessagesDTO([]port.ChatMessage{assistantMessage})[0]
+		answer.Method = consultResult.GeneralsMethod
+		in.Progress.answer(answer)
+	}
 
 	for _, observer := range c.observers {
 		observer.ObserveTurn(port.Turn{
