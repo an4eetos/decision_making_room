@@ -4,6 +4,7 @@
   unit: set
   anchor_usd: 12
   quantity: {base: 1}
+  comfort: {dimension: sleep, weight: important}
   when: {climate: [tropical], min_nights: 7}
   commonly_forgotten: true
 
@@ -13,6 +14,7 @@
   unit: unit
   anchor_usd: 35
   quantity: {base: 1}
+  comfort: {dimension: climate, weight: critical}
   when: {climate: [tropical, arid], min_nights: 30, not_housing: [hotel, serviced]}
   note: Cheaper to run than aircon and quiet enough to sleep through.
 
@@ -22,6 +24,7 @@
   unit: unit
   anchor_usd: 40
   quantity: {base: 1}
+  comfort: {dimension: climate, weight: important}
   when: {climate: [tropical], min_nights: 45}
   commonly_forgotten: true
   note: Mould on clothes and leather in a humid flat is a question of weeks, not months.
@@ -32,6 +35,7 @@
   unit: unit
   anchor_usd: 45
   quantity: {base: 1}
+  comfort: {dimension: climate, weight: critical}
   when: {climate: [cold], min_nights: 30, not_housing: [hotel, serviced]}
   note: Check what the electricity actually costs first. In some places running one all winter costs more than the heater several times over.
 
@@ -41,6 +45,7 @@
   unit: unit
   anchor_usd: 35
   quantity: {base: 1}
+  comfort: {dimension: climate, weight: nice}
   when: {climate: [cold, arid], min_nights: 45, budget: [standard, comfortable]}
 
 - id: rain_gear
@@ -49,6 +54,7 @@
   unit: set
   anchor_usd: 60
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: climate, weight: nice}
   when: {climate: [tropical, temperate], min_nights: 30}
 
 - id: sun_kit
@@ -57,6 +63,7 @@
   unit: set
   anchor_usd: 30
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: health, weight: nice}
   when: {climate: [tropical, arid]}
 
 - id: deposit_terms

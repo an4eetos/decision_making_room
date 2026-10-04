@@ -6,6 +6,7 @@
   unit: plan
   anchor_usd: 15
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: connected, weight: critical, arrival: true}
   when: {min_nights: 5}
   note: Buy in the city, not at the airport. Airport kiosks charge two to three times the street price for the same plan.
 
@@ -24,6 +25,7 @@
   unit: adapter
   anchor_usd: 10
   quantity: {base: 2}
+  comfort: {dimension: connected, weight: critical, arrival: true}
   commonly_forgotten: true
   note: Two, not one. You will leave one plugged in behind a bed somewhere.
 
@@ -41,6 +43,7 @@
   unit: set
   anchor_usd: 8
   quantity: {base: 1}
+  comfort: {dimension: hygiene, weight: critical, arrival: true}
   when: {not_housing: [hotel, serviced]}
   commonly_forgotten: true
   note: Arriving at 11pm to an apartment with no toilet paper is a specific kind of misery. Buy on the way from the airport.
@@ -51,4 +54,16 @@
   unit: shop
   anchor_usd: 45
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: food, weight: important, arrival: true}
   when: {not_housing: [hotel]}
+
+- id: spare_charger
+  category: arrival
+  name: Spare phone charger and cable
+  unit: set
+  anchor_usd: 15
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 7}
+  comfort: {dimension: connected, weight: important, arrival: true}
+  commonly_forgotten: true
+  note: The one you brought lives by the bed. The phone dies at the desk, on the way back from somewhere, with the map open.

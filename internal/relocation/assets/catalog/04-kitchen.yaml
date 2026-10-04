@@ -4,6 +4,7 @@
   unit: knife
   anchor_usd: 15
   quantity: {base: 1}
+  comfort: {dimension: food, weight: important}
   when: {min_nights: 21, housing: [furnished, unfurnished, shared]}
   commonly_forgotten: true
   note: Every furnished flat has four blunt knives. One sharp knife changes whether you cook at all, which changes your food budget more than any other purchase here.
@@ -14,6 +15,7 @@
   unit: board
   anchor_usd: 8
   quantity: {base: 1}
+  comfort: {dimension: food, weight: important}
   when: {min_nights: 21, housing: [furnished, unfurnished, shared]}
 
 - id: frying_pan
@@ -22,6 +24,7 @@
   unit: pan
   anchor_usd: 18
   quantity: {base: 1}
+  comfort: {dimension: food, weight: critical}
   when: {min_nights: 30, housing: [unfurnished]}
 
 - id: saucepan
@@ -30,6 +33,7 @@
   unit: pan
   anchor_usd: 14
   quantity: {base: 1}
+  comfort: {dimension: food, weight: important}
   when: {min_nights: 30, housing: [unfurnished]}
 
 - id: tableware
@@ -38,6 +42,7 @@
   unit: set
   anchor_usd: 20
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: food, weight: critical}
   when: {min_nights: 30, housing: [unfurnished]}
 
 - id: kettle
@@ -46,6 +51,7 @@
   unit: unit
   anchor_usd: 20
   quantity: {base: 1}
+  comfort: {dimension: food, weight: important}
   when: {min_nights: 30, housing: [unfurnished]}
 
 - id: pantry_basics
@@ -54,6 +60,7 @@
   unit: set
   anchor_usd: 18
   quantity: {base: 1}
+  comfort: {dimension: food, weight: important}
   when: {min_nights: 14, housing: [furnished, unfurnished, shared]}
   commonly_forgotten: true
   note: Rebuying a whole pantry from zero is the hidden cost of every move. Budget for it once and use it up before you leave.
@@ -64,6 +71,7 @@
   unit: set
   anchor_usd: 12
   quantity: {base: 1}
+  comfort: {dimension: food, weight: nice}
   when: {min_nights: 30, housing: [furnished, unfurnished, shared]}
 
 - id: dish_soap
@@ -72,6 +80,7 @@
   unit: set
   anchor_usd: 9
   quantity: {per_days: 45}
+  comfort: {dimension: food, weight: important}
   when: {housing: [furnished, unfurnished, shared]}
 
 - id: water_plan
@@ -80,6 +89,7 @@
   unit: month
   anchor_usd: 12
   quantity: {per_days: 30, per_person: true}
+  comfort: {dimension: food, weight: critical}
   when: {min_nights: 14}
   note: Check whether the tap water is drinkable before assuming either way. Buying single bottles daily is the expensive answer to a cheap problem.
 
@@ -89,5 +99,26 @@
   unit: set
   anchor_usd: 25
   quantity: {base: 1}
+  comfort: {dimension: food, weight: nice}
   when: {min_nights: 30, budget: [standard, comfortable], housing: [furnished, unfurnished, shared]}
   note: A month of daily café coffee costs more than the equipment.
+
+- id: dish_sponge
+  category: kitchen
+  name: Dish sponges and a cloth
+  unit: pack
+  anchor_usd: 4
+  quantity: {per_days: 30}
+  when: {housing: [furnished, unfurnished, shared]}
+  comfort: {dimension: food, weight: important}
+  note: The one by the sink belongs to whoever was here before you.
+
+- id: openers
+  category: kitchen
+  name: Can opener and bottle opener
+  unit: set
+  anchor_usd: 6
+  quantity: {base: 1}
+  when: {min_nights: 21, housing: [furnished, unfurnished]}
+  comfort: {dimension: food, weight: nice}
+  note: Found missing at exactly the moment the tin is already on the counter.

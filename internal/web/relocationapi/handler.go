@@ -11,6 +11,7 @@ import (
 
 	"github.com/an4eetos/decision-room/internal/relocation/domain"
 	"github.com/an4eetos/decision-room/internal/relocation/port"
+	"github.com/an4eetos/decision-room/internal/relocation/service"
 	"github.com/an4eetos/decision-room/internal/relocation/usecase"
 )
 
@@ -18,10 +19,17 @@ type Handler struct {
 	plans  port.PlanRepository
 	prices port.PriceRepository
 	build  *usecase.Build
+	// comfort is indexed once: the catalogue is immutable after startup.
+	comfort map[string]domain.ComfortRule
 }
 
-func NewHandler(plans port.PlanRepository, prices port.PriceRepository, build *usecase.Build) *Handler {
-	return &Handler{plans: plans, prices: prices, build: build}
+func NewHandler(plans port.PlanRepository, prices port.PriceRepository, build *usecase.Build, catalog port.CatalogReader) *Handler {
+	return &Handler{
+		plans:   plans,
+		prices:  prices,
+		build:   build,
+		comfort: service.ComfortRules(catalog.Catalog()),
+	}
 }
 
 func (h *Handler) Register(mux *http.ServeMux) {
@@ -89,7 +97,7 @@ func (h *Handler) createPlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, toPlanResponse(built))
+	writeJSON(w, http.StatusCreated, h.planResponse(built))
 }
 
 func (h *Handler) updatePlan(w http.ResponseWriter, r *http.Request) {
@@ -122,7 +130,7 @@ func (h *Handler) updatePlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, toPlanResponse(rebuilt))
+	writeJSON(w, http.StatusOK, h.planResponse(rebuilt))
 }
 
 func applyPlanRequest(plan *domain.Plan, req planRequest) {
@@ -193,7 +201,7 @@ func (h *Handler) getPlan(w http.ResponseWriter, r *http.Request) {
 	if respondRepoError(w, err) {
 		return
 	}
-	writeJSON(w, http.StatusOK, toPlanResponse(plan))
+	writeJSON(w, http.StatusOK, h.planResponse(plan))
 }
 
 func (h *Handler) deletePlan(w http.ResponseWriter, r *http.Request) {
@@ -218,7 +226,7 @@ func (h *Handler) buildPlan(w http.ResponseWriter, r *http.Request) {
 	if respondRepoError(w, err) {
 		return
 	}
-	writeJSON(w, http.StatusOK, toPlanResponse(plan))
+	writeJSON(w, http.StatusOK, h.planResponse(plan))
 }
 
 type itemRequest struct {

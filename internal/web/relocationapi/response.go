@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/an4eetos/decision-room/internal/relocation/domain"
+	"github.com/an4eetos/decision-room/internal/relocation/service"
 )
 
 type planSummary struct {
@@ -85,6 +86,7 @@ type planResponse struct {
 	BudgetStyle string            `json:"budget_style"`
 	Notes       string            `json:"notes,omitempty"`
 	Budget      budget            `json:"budget"`
+	Comfort     comfortResponse   `json:"comfort"`
 	Items       []itemResponse    `json:"items"`
 	Pitfalls    []pitfallResponse `json:"pitfalls"`
 }
@@ -109,7 +111,7 @@ func toItemResponse(item domain.Item) itemResponse {
 	}
 }
 
-func toPlanResponse(plan domain.Plan) planResponse {
+func (h *Handler) planResponse(plan domain.Plan) planResponse {
 	items := make([]itemResponse, 0, len(plan.Items))
 	for _, item := range plan.Items {
 		items = append(items, toItemResponse(item))
@@ -145,9 +147,82 @@ func toPlanResponse(plan domain.Plan) planResponse {
 		BudgetStyle: string(plan.BudgetStyle),
 		Notes:       plan.Notes,
 		Budget:      computeBudget(plan),
+		Comfort:     toComfortResponse(service.Comfort(plan.Items, h.comfort), h.comfort),
 		Items:       items,
 		Pitfalls:    pitfalls,
 	}
+}
+
+// comfortResponse is the deterministic comfort reading. Nothing in it comes from
+// a model, so unlike prices it carries no estimate flag; the radar's costs do,
+// because they are line prices.
+type comfortResponse struct {
+	Score        *int               `json:"score"`
+	Label        string             `json:"label,omitempty"`
+	Arrival      *int               `json:"arrival"`
+	ArrivalLabel string             `json:"arrival_label,omitempty"`
+	Dimensions   []comfortDimension `json:"dimensions"`
+	Radar        []comfortRadarStep `json:"radar"`
+}
+
+type comfortDimension struct {
+	Dimension string        `json:"dimension"`
+	Score     int           `json:"score"`
+	Missing   []comfortItem `json:"missing"`
+}
+
+type comfortItem struct {
+	ID     uuid.UUID `json:"id"`
+	Name   string    `json:"name"`
+	Weight string    `json:"weight"`
+}
+
+type comfortRadarStep struct {
+	comfortItem
+	Dimension  string   `json:"dimension"`
+	ScoreAfter int      `json:"score_after"`
+	Cost       *float64 `json:"cost"`
+	Currency   string   `json:"currency"`
+	Estimated  bool     `json:"estimated"`
+}
+
+func toComfortResponse(r service.ComfortReport, rules map[string]domain.ComfortRule) comfortResponse {
+	out := comfortResponse{
+		Score:        r.Score,
+		Label:        r.Label,
+		Arrival:      r.Arrival,
+		ArrivalLabel: r.ArrivalLabel,
+		Dimensions:   make([]comfortDimension, 0, len(r.Dimensions)),
+		Radar:        make([]comfortRadarStep, 0, len(r.Radar)),
+	}
+
+	for _, d := range r.Dimensions {
+		dim := comfortDimension{
+			Dimension: string(d.Dimension),
+			Score:     d.Score,
+			Missing:   make([]comfortItem, 0, len(d.Missing)),
+		}
+		for _, item := range d.Missing {
+			dim.Missing = append(dim.Missing, comfortItem{
+				ID:     item.ID,
+				Name:   item.Name,
+				Weight: string(rules[item.CatalogID].Weight),
+			})
+		}
+		out.Dimensions = append(out.Dimensions, dim)
+	}
+
+	for _, step := range r.Radar {
+		out.Radar = append(out.Radar, comfortRadarStep{
+			comfortItem: comfortItem{ID: step.Item.ID, Name: step.Item.Name, Weight: string(step.Weight)},
+			Dimension:   string(step.Dimension),
+			ScoreAfter:  step.ScoreAfter,
+			Cost:        step.Item.LineTotal(),
+			Currency:    step.Item.Currency,
+			Estimated:   !step.Item.Source.Trustworthy(),
+		})
+	}
+	return out
 }
 
 func computeBudget(plan domain.Plan) budget {

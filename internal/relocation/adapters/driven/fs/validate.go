@@ -62,6 +62,17 @@ func validate(c domain.Catalog) error {
 			problems = append(problems, fmt.Errorf("%s: negative anchor_usd", where))
 		}
 		problems = append(problems, validateRules(where, item.When)...)
+
+		// A typo here would silently drop the item from the comfort score, which
+		// reads as "fine" rather than as an error.
+		if c := item.Comfort; c != nil {
+			if !slices.Contains(domain.ComfortDimensions, c.Dimension) {
+				problems = append(problems, fmt.Errorf("%s: unknown comfort dimension %q", where, c.Dimension))
+			}
+			if c.Weight.Points() == 0 {
+				problems = append(problems, fmt.Errorf("%s: unknown comfort weight %q", where, c.Weight))
+			}
+		}
 	}
 
 	seenPitfalls := make(map[string]struct{}, len(c.Pitfalls))

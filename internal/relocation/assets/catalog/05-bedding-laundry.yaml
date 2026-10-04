@@ -4,6 +4,7 @@
   unit: pillow
   anchor_usd: 25
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: sleep, weight: critical}
   when: {min_nights: 30, not_housing: [hotel]}
   commonly_forgotten: true
   note: The provided pillow is always wrong. This is the highest return-per-dollar purchase on the entire list for a stay over a month.
@@ -14,6 +15,7 @@
   unit: set
   anchor_usd: 35
   quantity: {base: 2}
+  comfort: {dimension: sleep, weight: critical, arrival: true}
   when: {min_nights: 30, housing: [unfurnished]}
   note: Two sets, so washing day does not mean sleeping on a bare mattress.
 
@@ -23,6 +25,7 @@
   unit: set
   anchor_usd: 30
   quantity: {base: 1}
+  comfort: {dimension: sleep, weight: nice}
   when: {min_nights: 45, housing: [furnished, serviced, shared]}
   commonly_forgotten: true
   note: A furnished place supplies one set. Washing day then means either a bare mattress or a wet bed, and short-let laundry rarely runs on your schedule.
@@ -33,6 +36,7 @@
   unit: unit
   anchor_usd: 45
   quantity: {base: 1}
+  comfort: {dimension: sleep, weight: critical, arrival: true}
   when: {min_nights: 30, housing: [unfurnished]}
 
 - id: extra_blanket
@@ -41,6 +45,7 @@
   unit: blanket
   anchor_usd: 20
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: sleep, weight: important}
   when: {climate: [cold], min_nights: 21, not_housing: [hotel]}
   note: Heating is often centrally controlled and switched on by a calendar date rather than by the weather.
 
@@ -50,6 +55,7 @@
   unit: set
   anchor_usd: 12
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: sleep, weight: important}
   when: {min_nights: 7}
   commonly_forgotten: true
   note: Curtains are rarely blackout, and the building site next door starts at seven.
@@ -60,6 +66,7 @@
   unit: pack
   anchor_usd: 8
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: home, weight: important}
   when: {min_nights: 21, not_housing: [hotel]}
   commonly_forgotten: true
 
@@ -69,6 +76,7 @@
   unit: pack
   anchor_usd: 10
   quantity: {per_days: 45}
+  comfort: {dimension: home, weight: important}
   when: {not_housing: [hotel]}
 
 - id: drying_rack
@@ -77,6 +85,7 @@
   unit: rack
   anchor_usd: 20
   quantity: {base: 1}
+  comfort: {dimension: home, weight: important}
   when: {min_nights: 45, housing: [unfurnished]}
   note: Tumble dryers are rare outside North America.
 
@@ -86,6 +95,7 @@
   unit: month
   anchor_usd: 30
   quantity: {per_days: 30, per_person: true}
+  comfort: {dimension: home, weight: important}
   when: {min_nights: 14, housing: [hotel, serviced, shared]}
 
 - id: cleaning_supplies
@@ -94,6 +104,7 @@
   unit: set
   anchor_usd: 15
   quantity: {base: 1}
+  comfort: {dimension: home, weight: important}
   when: {min_nights: 30, not_housing: [hotel, serviced]}
 
 - id: cleaner
@@ -102,4 +113,25 @@
   unit: month
   anchor_usd: 60
   quantity: {per_days: 30}
+  comfort: {dimension: home, weight: nice}
   when: {min_nights: 60, budget: [comfortable], not_housing: [hotel, serviced]}
+
+- id: laundry_bag
+  category: laundry
+  name: Laundry bag
+  unit: bag
+  anchor_usd: 6
+  quantity: {base: 1, per_person: true}
+  when: {min_nights: 14}
+  comfort: {dimension: home, weight: nice}
+  note: Otherwise the dirty pile lives on a chair, and in a studio that chair is in every room.
+
+- id: door_wedge
+  category: housing
+  name: Door wedge or portable lock
+  unit: piece
+  anchor_usd: 10
+  quantity: {base: 1}
+  when: {not_housing: [hotel]}
+  comfort: {dimension: home, weight: nice}
+  note: You do not know who else has a key to a short-term rental. A wedge under the door is the cheapest answer to a question you cannot otherwise ask.

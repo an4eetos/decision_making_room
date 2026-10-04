@@ -108,6 +108,53 @@ func TestOverlayRejectsInvalidEntries(t *testing.T) {
 	}
 }
 
+// A misspelt comfort dimension would quietly drop the item from the score, which
+// reads as "fine" rather than as a mistake.
+func TestOverlayRejectsUnknownComfortRule(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	catalogDir := filepath.Join(dir, "catalog")
+	if err := os.MkdirAll(catalogDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	bad := `
+- id: hammock
+  category: bedding
+  name: Hammock
+  quantity: {base: 1}
+  comfort: {dimension: vibes, weight: essential}
+`
+	if err := os.WriteFile(filepath.Join(catalogDir, "bad.yaml"), []byte(bad), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := fs.Load(assets.Catalog(), assets.Pitfalls(), dir); err == nil {
+		t.Fatal("expected an unknown comfort dimension and weight to fail loading")
+	}
+}
+
+// The essentials are what make the comfort score mean anything. Losing their
+// tag in an edit would let a stay with no towel read as comfortable.
+func TestBuiltinEssentialsAreCritical(t *testing.T) {
+	t.Parallel()
+
+	catalog := load(t, "")
+	want := map[string]bool{"bath_towel": true, "toothbrush": true, "own_pillow": true, "bed_sheets": true}
+	for _, item := range catalog.Items {
+		if !want[item.ID] {
+			continue
+		}
+		delete(want, item.ID)
+		if item.Comfort == nil || item.Comfort.Weight != domain.WeightCritical {
+			t.Errorf("%s should carry a critical comfort weight, got %+v", item.ID, item.Comfort)
+		}
+	}
+	for id := range want {
+		t.Errorf("%s missing from the catalogue", id)
+	}
+}
+
 func TestMissingOverlayDirIsAnError(t *testing.T) {
 	t.Parallel()
 

@@ -4,6 +4,7 @@
   unit: course
   anchor_usd: 0
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: health, weight: critical, arrival: true}
   commonly_forgotten: true
   note: Check legality and availability at the destination before booking anything. Stimulants for ADHD, strong painkillers and some antidepressants are controlled or outright banned in a number of countries, including ones that are otherwise popular with remote workers. Carry the prescription and the original packaging.
 
@@ -21,6 +22,7 @@
   unit: kit
   anchor_usd: 25
   quantity: {base: 1}
+  comfort: {dimension: health, weight: important}
   when: {min_nights: 14}
   note: Painkillers, rehydration salts, antihistamine, plasters, something for an upset stomach. Needed at 2am, when the pharmacy is shut and you do not speak the language.
 
@@ -59,6 +61,7 @@
   unit: card
   anchor_usd: 0
   quantity: {base: 1}
+  comfort: {dimension: connected, weight: important}
   note: Tell the bank you are travelling. A card frozen for fraud on day one, with no local cash, is a genuinely bad afternoon.
 
 - id: backup_card
@@ -67,6 +70,7 @@
   unit: card
   anchor_usd: 0
   quantity: {base: 1}
+  comfort: {dimension: connected, weight: important}
   commonly_forgotten: true
   note: Separately means not in the same bag as the first one.
 
@@ -76,6 +80,7 @@
   unit: check
   anchor_usd: 0
   quantity: {base: 1}
+  comfort: {dimension: connected, weight: nice}
   when: {min_nights: 14}
   note: Several countries are effectively app-only for everyday payments, and some of those apps require a local bank account or phone number to register.
 
@@ -85,6 +90,7 @@
   unit: plan
   anchor_usd: 8
   quantity: {base: 1, per_person: true}
+  comfort: {dimension: connected, weight: nice}
   note: You need data to order the taxi that takes you to the shop that sells the local SIM.
 
 - id: visa_check
