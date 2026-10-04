@@ -188,6 +188,18 @@ const HINTS = {
             "The caveat under the total says how much of it is guesswork. Treat an estimated total as a range, not a quote.",
         ],
     },
+    comfort: {
+        title: "Comfort",
+        what: "How livable this stay is with what you have now, scored from the checklist. No model is involved.",
+        uses: [
+            "Each item serves one part of daily life — hygiene, sleep, food — and is critical, important or nice. A missing critical item caps its area at 35 however complete the rest is: no towel is not a 95% bathroom.",
+            "The overall score leans on the worst area. Good coffee does not make up for no sheets.",
+            "<strong>First night</strong> scores only what you need before any shop opens. <strong>Fix these first</strong> is the shortest path up, in the order to buy.",
+        ],
+        notes: [
+            "Have it and Bought count as covered. Skip means the item does not apply here, so it neither helps nor hurts.",
+        ],
+    },
     pitfalls: {
         title: "Pitfalls",
         what: "Mistakes people discover too late, filtered to the ones that apply to this stay.",

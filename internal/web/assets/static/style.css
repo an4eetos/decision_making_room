@@ -850,6 +850,91 @@ textarea {
     white-space: nowrap;
 }
 
+/* Comfort. The bars are coloured by the same thresholds as the label, so a
+   red bar always means the stay is miserable in that area, not merely short. */
+.reloc-comfort .tone-good .reloc-figure-value { color: var(--wr-green); }
+.reloc-comfort .tone-warn .reloc-figure-value { color: var(--wr-amber-text); }
+.reloc-comfort .tone-bad  .reloc-figure-value { color: var(--wr-red-text); }
+
+.reloc-dims {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.reloc-dim {
+    display: grid;
+    grid-template-columns: 9rem minmax(6rem, 1fr) 2.5rem minmax(0, 1.4fr);
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.2rem 0;
+    font-size: 0.9rem;
+}
+
+.reloc-dim-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--wr-panel-3);
+    overflow: hidden;
+}
+
+.reloc-dim-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+}
+
+.reloc-dim.tone-good .reloc-dim-bar span { background: var(--wr-green); }
+.reloc-dim.tone-warn .reloc-dim-bar span { background: var(--wr-amber); }
+.reloc-dim.tone-bad  .reloc-dim-bar span { background: var(--wr-red); }
+
+.reloc-dim-score {
+    font-family: var(--wr-mono);
+    text-align: right;
+}
+
+.reloc-dim-missing {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.reloc-radar {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--wr-line);
+}
+
+.reloc-radar h3 {
+    margin: 0 0 0.4rem;
+    font-size: 0.95rem;
+}
+
+.reloc-radar ol {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.reloc-radar li {
+    padding: 0.25rem 0;
+}
+
+.reloc-radar li > * {
+    vertical-align: middle;
+}
+
+.reloc-radar .btn {
+    padding: 0.15rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.reloc-radar-gain {
+    margin: 0 0.6rem;
+    font-family: var(--wr-mono);
+    color: var(--wr-green);
+    white-space: nowrap;
+}
+
 @media (max-width: 900px) {
     .reloc {
         grid-template-columns: 1fr;
@@ -872,6 +957,15 @@ textarea {
     .reloc-cost {
         grid-column: 2;
         justify-content: flex-start;
+    }
+
+    .reloc-dim {
+        grid-template-columns: 7rem 1fr 2.5rem;
+    }
+
+    .reloc-dim-missing {
+        grid-column: 1 / -1;
+        white-space: normal;
     }
 }
 

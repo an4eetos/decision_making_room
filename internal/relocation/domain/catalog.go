@@ -15,6 +15,8 @@ type CatalogItem struct {
 
 	Quantity QuantityRule `yaml:"quantity"`
 	When     Rules        `yaml:"when"`
+	// Comfort is nil for items that do not affect how livable the stay is.
+	Comfort *ComfortRule `yaml:"comfort"`
 
 	// AnchorUSD is a rough global baseline, not a real local price. It exists so
 	// an unpriced plan still totals to something, and so the pricing pass has a

@@ -24,6 +24,25 @@ const SEVERITY_LABELS = {
     annoying: "Annoying",
 };
 
+const DIMENSION_LABELS = {
+    hygiene: "Hygiene",
+    sleep: "Sleep",
+    food: "Food",
+    home: "Home",
+    work: "Work",
+    health: "Health",
+    climate: "Climate",
+    connected: "Power, data, money",
+};
+
+// Same thresholds as service.ComfortLabel, used only to pick a colour.
+function comfortTone(score) {
+    if (score >= 65) {
+        return "good";
+    }
+    return score >= 40 ? "warn" : "bad";
+}
+
 function money(value, currency) {
     if (value === null || value === undefined) {
         return "—";
@@ -120,6 +139,7 @@ function setupRelocation() {
         planEl.innerHTML = `
             ${renderHeader(plan)}
             ${renderBudget(plan.budget)}
+            ${renderComfort(plan.comfort, plan.budget)}
             ${renderPitfalls(plan.pitfalls)}
             <div class="reloc-groups">${sections}</div>
         `;
@@ -190,6 +210,79 @@ function setupRelocation() {
                 </div>` : ""}
             </div>
             ${caveat}
+        </section>`;
+    }
+
+    function renderComfort(comfort, budget) {
+        if (!comfort || comfort.score === null || comfort.score === undefined) {
+            return "";
+        }
+
+        const dims = comfort.dimensions.map((d) => {
+            // Name the worst two gaps; the full list is in the checklist below.
+            const missing = d.missing.slice(0, 2).map((m) => escapeHTML(m.name)).join(", ");
+            const more = d.missing.length > 2 ? ` +${d.missing.length - 2}` : "";
+            return `
+            <li class="reloc-dim tone-${comfortTone(d.score)}">
+                <span class="reloc-dim-name">${escapeHTML(DIMENSION_LABELS[d.dimension] || d.dimension)}</span>
+                <span class="reloc-dim-bar"><span style="width: ${d.score}%"></span></span>
+                <span class="reloc-dim-score">${d.score}</span>
+                <span class="reloc-dim-missing muted">${missing ? `missing ${missing}${more}` : ""}</span>
+            </li>`;
+        }).join("");
+
+        let radar = "";
+        if (budget.items_resolved === 0) {
+            // A new plan has every line at "need", so it scores near zero and no
+            // single purchase moves it. The useful next step is to mark what you
+            // are already bringing, not to buy anything.
+            radar = `<p class="reloc-caveat">
+                Every item is still marked <strong>Need</strong>, so this starts from
+                nothing. Mark what you are already bringing as <strong>Have it</strong>
+                and the score shows what is really missing.
+            </p>`;
+        } else if (comfort.radar.length > 0) {
+            let from = comfort.score;
+            radar = `
+            <div class="reloc-radar">
+                <h3>Fix these first</h3>
+                <ol>
+                    ${comfort.radar.map((step) => {
+                        // A zero cost is a check, not a purchase; a price would mislead.
+                        const cost = step.cost === null || step.cost === undefined || step.cost === 0
+                            ? ""
+                            : ` · ${step.estimated ? "~" : ""}${money(step.cost, step.currency)}${
+                                step.estimated ? ' <span class="reloc-estimate">est</span>' : ""}`;
+                        const line = `
+                        <li>
+                            <span><strong>${escapeHTML(step.name)}</strong>
+                                <span class="muted">${escapeHTML(step.weight)}${cost}</span></span>
+                            <span class="reloc-radar-gain">${from} → ${step.score_after}</span>
+                            <button type="button" class="btn" data-action="radar-bought"
+                                    data-item-id="${escapeHTML(step.id)}">Bought</button>
+                        </li>`;
+                        from = step.score_after;
+                        return line;
+                    }).join("")}
+                </ol>
+            </div>`;
+        }
+
+        return `
+        <section class="card reloc-comfort">
+            <div class="reloc-budget-figures">
+                <div class="reloc-figure tone-${comfortTone(comfort.score)}">
+                    <span class="reloc-figure-value">${comfort.score}</span>
+                    <span class="muted">comfort · ${escapeHTML(comfort.label)} <button type="button" class="hint" data-hint="comfort"></button></span>
+                </div>
+                ${comfort.arrival !== null && comfort.arrival !== undefined ? `
+                <div class="reloc-figure tone-${comfortTone(comfort.arrival)}">
+                    <span class="reloc-figure-value">${comfort.arrival}</span>
+                    <span class="muted">first night · ${escapeHTML(comfort.arrival_label)}</span>
+                </div>` : ""}
+            </div>
+            <ul class="reloc-dims">${dims}</ul>
+            ${radar}
         </section>`;
     }
 
@@ -334,6 +427,12 @@ function setupRelocation() {
                 }
             }
             showForm(true);
+            return;
+        }
+
+        if (action === "radar-bought") {
+            e.target.disabled = true;
+            await patchItem(e.target.dataset.itemId, { status: "bought" });
             return;
         }
 

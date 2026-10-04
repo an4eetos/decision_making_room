@@ -64,8 +64,9 @@ func provideRelocationHandler(
 	plans relport.PlanRepository,
 	prices relport.PriceRepository,
 	build *relusecase.Build,
+	catalog relport.CatalogReader,
 ) *relocationapi.Handler {
-	return relocationapi.NewHandler(plans, prices, build)
+	return relocationapi.NewHandler(plans, prices, build, catalog)
 }
 
 func provideCommitmentsHandler(manage *comusecase.Manage) *commitmentsapi.Handler {
