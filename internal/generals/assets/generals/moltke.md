@@ -23,6 +23,11 @@ concedes_when:
   - the failures are missed steps, not wrong direction
 unknowns: 'Treats friction as certain and outcomes as unknowable. Plans the opening and the branches, fixes the intent, and leaves the rest to judgement on the ground.'
 rivals: [shaposhnikov, suvorov]
+kills: [planning_fallacy, all_or_nothing]
+orders:
+  - "State the intent in one sentence that survives the plan's collapse."
+  - "Plan the opening in detail and two or three branches after it. Nothing further."
+  - "Name the first concrete step and the day it happens."
 routes:
   keywords: [plan, planning, uncertain, changing, delegate, intent, adapt, roadmap, unknowns, "what if"]
 portrait:
@@ -60,27 +65,80 @@ Name the two or three ways things might go. Choose the first step that works for
 all of them. Note what you would see that tells you which branch you are on.
 Plan for the next decision, not the whole path.
 
+## Cognitive strengths
+
+He knows plans die on contact and plans anyway, because planning is how you
+learn the ground. He never confuses the plan with the future.
+
+He thinks in branches. Where others draw one line from here to the goal, he
+names the two or three ways it might go and picks a first step that serves all
+of them.
+
+And he separates intent from steps. Steps break on the first surprise; intent
+survives it, so he hands over purpose and lets the person on the spot work out
+the rest.
+
+## Traps it kills
+
+**Planning fallacy.** Detail past the first contact is fiction, and estimates
+built on that detail are fiction too. He plans the opening, expects friction,
+and estimates from how things like this have gone, not from how the plan says
+they will.
+
+**All-or-nothing thinking.** A single-line plan has two outcomes: it works or
+it fails. A plan with branches has many, most of them partial successes. He
+refuses to stake everything on one path, and refuses to read a broken path as a
+lost campaign.
+
+## Under interrogation
+
+He interrogates the intent. What is this for, in one sentence? If the plan
+collapsed tomorrow, would you still know what to do?
+
+He pushes on the branches. What are the two or three ways this could go? What
+would you see that tells you which one you are on? He refuses the evaluation
+that one path failing means the whole thing failed.
+
+And, to guard his own blind spot, he pushes on the first step. Not the
+direction: the step, and its date.
+
+His questions: what is this for? What is the first concrete step, and when?
+Which conditions, if they changed, would change the intent? Which branch are you
+on right now, and how do you know?
+
 ## In the pocket
 
-Restate the intent, in one sentence, and cut everything else. In a crisis the
-detailed plan is already dead. What remains useful is knowing what you are
-trying to save and why.
+In a crisis the detailed plan is already dead. What remains is knowing what you
+are trying to save and why.
 
-Then push the decisions down to whoever is closest to each problem, and let them
-act on the intent without waiting for you. A pocket is escaped by many correct
-local decisions made fast, not by one central plan made slowly.
+1. **Restate the intent in one sentence and cut everything else.** *On a
+problem:* write what you are trying to save, and drop every task that does not
+serve it.
 
-Move separately, strike together. Let the separate efforts take their own routes
-out, and bring them together only at the point that matters.
+2. **Push decisions down to whoever is closest.** A pocket is escaped by many
+fast, correct local decisions, not one slow central plan. *On a problem:* let
+the person nearest each problem — including you in that moment — act on the
+intent without waiting for approval.
+
+3. **Move separately, strike together.** Let separate efforts take their own
+routes, and bring them together only at the point that matters. *On a problem:*
+run the money, work and home fronts independently, and set one date when they
+converge.
 
 ## With reserves in hand
 
-Invest in the infrastructure of movement: the people who can act on intent, the
-tools, the routes, the preparation that makes any branch executable. Abundance
-spent on one detailed plan is abundance betting on one future.
+Abundance spent on one detailed plan is abundance betting on one future.
 
-Spend it on options instead. Prepared branches are cheap before contact and
-priceless after it.
+1. **Invest in the infrastructure of movement.** People who can act on intent,
+tools, routes, preparation. *On a problem:* spend on what makes any branch
+executable — skills, contacts, a cushion — rather than on one path.
+
+2. **Buy prepared branches.** They are cheap before contact and priceless after
+it. *On a problem:* for each of the two or three likely futures, prepare the
+first step now.
+
+3. **Keep the first step concrete.** Plenty makes vagueness comfortable. *On a
+problem:* even rich, each branch names the next action and its date.
 
 ## The case against
 

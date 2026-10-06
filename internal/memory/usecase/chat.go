@@ -48,7 +48,9 @@ type ChatMessageDTO struct {
 	Method     string          `json:"generals_method,omitempty"`
 	Mode       string          `json:"mode,omitempty"`
 	ModeMethod string          `json:"mode_method,omitempty"`
-	CreatedAt  time.Time       `json:"created_at"`
+	// Suggestion is the room recommending an interrogation, signed by a general.
+	Suggestion *domain.Suggestion `json:"suggestion,omitempty"`
+	CreatedAt  time.Time          `json:"created_at"`
 }
 
 type ChatSessionDetail struct {
@@ -83,6 +85,27 @@ func (c *Chat) StartSession(ctx context.Context, title, content, modeID string) 
 		return ChatSessionDTO{}, err
 	}
 
+	return toChatSessionDTO(session), nil
+}
+
+// SetMode pins the conversation to a mode, or with "" hands it back to
+// detection, without sending anything. Leaving an interrogation uses it: the
+// session must stop being locked the moment you leave, not on your next message,
+// or a reload would put you straight back in.
+func (c *Chat) SetMode(ctx context.Context, sessionID, modeID string) (ChatSessionDTO, error) {
+	id, err := uuid.Parse(sessionID)
+	if err != nil {
+		return ChatSessionDTO{}, fmt.Errorf("invalid session id")
+	}
+	session, err := c.repo.GetSession(ctx, id)
+	if err != nil {
+		return ChatSessionDTO{}, err
+	}
+	session.ModeID = strings.TrimSpace(modeID)
+	session.ModeLocked = session.ModeID != ""
+	if err := c.repo.UpdateSession(ctx, session); err != nil {
+		return ChatSessionDTO{}, err
+	}
 	return toChatSessionDTO(session), nil
 }
 
@@ -152,6 +175,9 @@ type SendMessageInput struct {
 	// Mode set by hand for this turn. It locks the session to that mode; an
 	// empty string means "auto" and unlocks it.
 	Mode *string
+	// Conclude closes the session's mode with its position: "Take a position"
+	// at the end of an interrogation.
+	Conclude bool
 	// Progress, when set, receives the answer as it is written; see Progress.
 	Progress *Progress
 }
@@ -238,10 +264,16 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		// The user turn was already appended, so a fresh conversation has one
 		// message here and stickiness must not apply to it.
 		TurnIndex: len(messages) - 1,
+		Conclude:  in.Conclude,
 		Progress:  in.Progress,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
+	}
+
+	suggestion := consultResult.Suggestion
+	if suggestedRecently(messages) {
+		suggestion = nil
 	}
 
 	assistantMessage, err := c.repo.CreateMessage(ctx, port.ChatMessage{
@@ -253,6 +285,7 @@ func (c *Chat) SendMessage(ctx context.Context, in SendMessageInput) (ChatSessio
 		Generals:     consultResult.Generals,
 		ModeID:       consultResult.Mode,
 		DetectMethod: consultResult.ModeMethod,
+		Suggestion:   suggestion,
 	})
 	if err != nil {
 		return ChatSessionDetail{}, err
@@ -412,6 +445,7 @@ func toChatMessagesDTO(messages []port.ChatMessage) []ChatMessageDTO {
 			Generals:   message.Generals,
 			Mode:       message.ModeID,
 			ModeMethod: message.DetectMethod,
+			Suggestion: message.Suggestion,
 			CreatedAt:  message.CreatedAt,
 		}
 	}
@@ -458,6 +492,32 @@ func recentGenerals(messages []port.ChatMessage) []string {
 	}
 	return out
 }
+
+// suggestionCooldown is how many recent answers are checked for an earlier
+// suggestion. A room that recommends an interrogation every turn is a room
+// whose recommendations get ignored.
+const suggestionCooldown = 4
+
+// suggestedRecently reports whether one of the last few answers already made a
+// suggestion, or the conversation has been interrogated in that time — there
+// is no point offering what just happened.
+func suggestedRecently(messages []port.ChatMessage) bool {
+	turns := 0
+	for i := len(messages) - 1; i >= 0 && turns < suggestionCooldown; i-- {
+		if messages[i].Role != "assistant" {
+			continue
+		}
+		turns++
+		if messages[i].Suggestion != nil || messages[i].ModeID == interrogationModeID {
+			return true
+		}
+	}
+	return false
+}
+
+// interrogationModeID is the shipped interrogation mode. The cooldown keys off
+// it; everything else asks the mode itself.
+const interrogationModeID = "interrogation"
 
 // seatedGenerals is the roster of the latest answer that had one. Answers
 // written without lenses, like check-ins, do not empty the bench.

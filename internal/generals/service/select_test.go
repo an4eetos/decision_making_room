@@ -11,7 +11,7 @@ import (
 
 func registry(t *testing.T) port.Registry {
 	t.Helper()
-	roster, err := fs.Load(assets.Generals(), assets.Styles(), "")
+	roster, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), "")
 	if err != nil {
 		t.Fatalf("load roster: %v", err)
 	}

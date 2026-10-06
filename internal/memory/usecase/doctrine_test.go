@@ -75,9 +75,11 @@ func (r fakeRegistry) Get(id string) (gendomain.Lens, bool) {
 	}
 	return gendomain.Lens{}, false
 }
-func (r fakeRegistry) Generals() []gendomain.Lens        { return r.generals }
-func (r fakeRegistry) Styles() []gendomain.Lens          { return nil }
-func (r fakeRegistry) Resolve([]string) []gendomain.Lens { return nil }
+func (r fakeRegistry) Generals() []gendomain.Lens         { return r.generals }
+func (r fakeRegistry) Styles() []gendomain.Lens           { return nil }
+func (r fakeRegistry) Resolve([]string) []gendomain.Lens  { return nil }
+func (r fakeRegistry) Traps() []gendomain.Trap            { return nil }
+func (r fakeRegistry) Trap(string) (gendomain.Trap, bool) { return gendomain.Trap{}, false }
 
 var testLens = gendomain.Lens{
 	ID:   "zhukov",

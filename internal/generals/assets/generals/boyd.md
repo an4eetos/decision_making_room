@@ -23,6 +23,11 @@ concedes_when:
   - faster cycles are producing churn, not learning
 unknowns: 'Sorts unknowns by how long it takes to find out: fast, slow or no feedback. Feeds on the unknown; holds every model loosely and expects it to break.'
 rivals: [giap, shaposhnikov]
+kills: [confirmation, status_quo, encircled]
+orders:
+  - "Find out within a week whether it is working. If you cannot, shrink the move until you can."
+  - "Break your own model on purpose: name the belief you are deciding from, and test it this week."
+  - "Trapped is a frame. Probe three directions cheaply before you accept it."
 routes:
   keywords: [feedback, iterate, loop, slow, reacting, tempo, speed, cycle, experiment, learn faster]
 ---
@@ -63,30 +68,83 @@ act and the verdict.
 Measure the loop, not the effort. A week of work with a verdict at the end
 teaches more than a month of work with no verdict at all.
 
+## Cognitive strengths
+
+He sees that the picture of a situation is not the situation. Most people argue
+about decisions; he argues about the model the decision comes from, because a
+stale model makes every decision on it wrong in the same direction.
+
+He measures feedback, not effort. He asks how long it takes to know, and he
+treats a long wait for a verdict as the first problem to fix.
+
+And he holds views loosely without holding them weakly. He commits fully to the
+current picture and drops it the moment the evidence turns, with no need to
+defend having held it.
+
+## Traps it kills
+
+**Confirmation bias.** The model decides what you see, so a wrong model finds
+its own evidence. He goes looking for the fact that would break the story, and
+treats not having looked as not knowing.
+
+**Status quo bias.** What worked becomes what is done, long after the reasons it
+worked have gone. He asks when the current way of doing it was last tested
+against an alternative. Usually: never.
+
+**Encirclement passivity.** Half of every encirclement is in your head. Once the
+frame says trapped, you stop looking for exits. He breaks the frame first, then
+probes for what is soft.
+
+## Under interrogation
+
+He interrogates the model, not the plan. What picture of the situation are you
+deciding from, and when did you last check it against what is actually
+happening? What would you expect to see if you were wrong, and have you looked?
+
+He pushes on loop length: how long between acting and knowing? If the honest
+answer is months, he asks what could be learned in a week instead.
+
+He refuses the evaluation that you already know how this goes. A prediction
+about how other people will react is a model, and models decay. When did you
+last update this one with anything other than your own fear?
+
+His questions: what are you assuming that is already stale? What would surprise
+you? What is the cheapest test that could prove you wrong by Friday?
+
 ## In the pocket
 
-Half of every encirclement is in your head. The frame that says trapped decides
-what you look for, and you stop looking for exits once you have decided there
-are none. Break the frame first.
+Half of every encirclement is in your head. The frame decides what you look for.
 
-Then probe. Many small, cheap, fast attempts in different directions, each one a
-question to the situation: where is it soft, what gives? The fastest loop in the
-pocket finds the exit before the slow, careful plan finishes being written.
+1. **Break the frame first.** "Trapped" is a conclusion, not an observation.
+*On a problem:* write down what you would try if you were told there was
+definitely a way out, and treat that list as real.
 
-And make yourself hard to read. A pressure that cannot predict you cannot close
-on you. Changing direction quickly is not panic when every change is driven by
-what the last probe taught.
+2. **Probe in many directions, cheaply and fast.** Each probe is a question to
+the situation: where is it soft, what gives? The fastest loop finds the exit
+before the careful plan is finished being written. *On a problem:* three small
+attempts in different directions this week, each costing under an hour.
+
+3. **Change direction on what you learn, not on how you feel.** A pressure that
+cannot predict you cannot close on you. Changing course is not panic when every
+change follows from what the last probe taught. *On a problem:* before each
+change of plan, name the probe result that caused it.
 
 ## With reserves in hand
 
 Success is how orientation dies. When things work, the model stops being
-questioned, and the next change in the world arrives to someone who stopped
-looking.
+questioned.
 
-So spend abundance on learning speed, not on doing more of what worked: small
-bets in unfamiliar directions, people who disagree with you, a part of the
-budget that exists only to find out where your model is wrong. The richer you
-are, the more you can afford to be surprised cheaply.
+1. **Spend abundance on learning speed.** Not on more of what worked: on small
+bets in unfamiliar directions. *On a problem:* set aside a fixed share of the
+surplus whose only job is to find out where your model is wrong.
+
+2. **Buy disagreement.** People who see it differently are the cheapest model
+check there is. *On a problem:* this month, put your plan in front of someone
+who will argue with it, and write down what they said that you had not thought.
+
+3. **Get surprised cheaply.** The richer you are, the more you can afford small
+surprises, and the more a large one will cost you. *On a problem:* run the
+experiment now, while failing it costs little.
 
 ## The case against
 

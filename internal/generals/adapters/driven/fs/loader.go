@@ -13,10 +13,10 @@ import (
 	"github.com/an4eetos/decision-room/internal/generals/domain"
 )
 
-// Load reads the embedded roster, then overlays a directory from disk. An entry
-// with an existing id replaces it; a new id is appended. That lets someone
-// rewrite a general, or add their own, without forking.
-func Load(builtinGenerals, builtinStyles fs.FS, overlayDir string) (domain.Roster, error) {
+// Load reads the embedded roster and trap catalogue, then overlays a directory
+// from disk. An entry with an existing id replaces it; a new id is appended.
+// That lets someone rewrite a general, or add their own, without forking.
+func Load(builtinGenerals, builtinStyles fs.FS, builtinTraps []byte, overlayDir string) (domain.Roster, error) {
 	generals, err := loadDir(builtinGenerals, domain.KindGeneral, "builtin")
 	if err != nil {
 		return domain.Roster{}, err
@@ -26,13 +26,18 @@ func Load(builtinGenerals, builtinStyles fs.FS, overlayDir string) (domain.Roste
 		return domain.Roster{}, err
 	}
 
+	traps, err := parseTraps(builtinTraps, "builtin/traps.yaml")
+	if err != nil {
+		return domain.Roster{}, err
+	}
+
 	if overlayDir != "" {
-		if err := overlay(overlayDir, &generals, &styles); err != nil {
+		if err := overlay(overlayDir, &generals, &styles, &traps); err != nil {
 			return domain.Roster{}, err
 		}
 	}
 
-	roster := domain.Roster{Generals: generals, Styles: styles}
+	roster := domain.Roster{Generals: generals, Styles: styles, Traps: traps}
 	if err := validate(roster); err != nil {
 		return domain.Roster{}, err
 	}
@@ -104,4 +109,13 @@ func parse(data []byte, kind domain.Kind, source string) (domain.Lens, error) {
 	lens.Doctrine = strings.TrimSpace(string(body))
 	lens.Source = source
 	return lens, nil
+}
+
+// parseTraps reads a trap catalogue: a YAML list of traps.
+func parseTraps(data []byte, source string) ([]domain.Trap, error) {
+	var traps []domain.Trap
+	if err := yaml.Unmarshal(bytes.TrimPrefix(data, utf8BOM), &traps); err != nil {
+		return nil, fmt.Errorf("%s: %w", source, err)
+	}
+	return traps, nil
 }

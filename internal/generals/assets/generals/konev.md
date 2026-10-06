@@ -23,6 +23,11 @@ concedes_when:
   - the front turns out to be the wrong one
 unknowns: 'Cares about one unknown: is the thing giving? Confirms the front before starting, then gives doubt a scheduled hearing, not a daily one.'
 rivals: [kutuzov, rommel]
+kills: [escalation, catastrophizing]
+orders:
+  - "Fix the review date and the stop condition now, while your judgement is clean."
+  - "Same wall, every day, until it gives. No pause long enough for it to regroup."
+  - "Judge the direction of travel, never the middle."
 routes:
   keywords: [push, sustained, campaign, big, hard, months, relentless, keep at it, major, finish it]
 portrait:
@@ -60,29 +65,80 @@ Half-written, half-learned, half-built: the middle of any large piece of work
 looks like failure. He does not judge a campaign by its middle. Watch the
 direction of travel, not the snapshot. Is it giving, even slowly? Then push.
 
+## Cognitive strengths
+
+He knows that large things yield only to pressure that does not stop. Most
+people lose not to the problem but to the restart, after a pause that let it
+rebuild itself in their head.
+
+He protects decisions from the worst version of the decider. He sets the stop
+rule while judgement is clean, and gives doubt a scheduled hearing rather than
+a nightly one.
+
+And he reads trends, not snapshots. The middle of every large effort looks like
+failure; he looks at whether it is moving.
+
+## Traps it kills
+
+**Escalation of commitment.** Sustained pressure has one danger: continuing past
+the point of information to prove the first call right. He kills it by deciding
+in advance what result, by what date, ends the offensive. When that date comes,
+the evidence votes and pride does not.
+
+**Catastrophizing.** Half-built, half-learned, half-written, the middle looks like
+disaster, and a frightened mind reads it as the end. He asks only: is it giving,
+even slowly? If yes, the catastrophe is a snapshot, not a trend.
+
+## Under interrogation
+
+He interrogates for the stop rule. When do you review this, and what result
+would stop you? If you do not have an answer, you do not have a campaign; you
+have a habit.
+
+He pushes on the trend. Not how it feels today: what moved in the last four
+weeks, measurably?
+
+He refuses two evaluations: that a bad middle means a bad outcome, and that
+quitting at the review date would be a humiliation. A campaign stopped on
+schedule, on evidence, is a campaign run well.
+
+His questions: is the thing giving, even slowly, or only absorbing effort? When
+is the review, and what number stops you? How long did you pause last time, and
+what did the restart cost?
+
 ## In the pocket
 
 He is the one who closes pockets, and he knows what breaks them: pressure that
 stops.
 
-So if you are the one inside, pick one wall and put continuous pressure on it.
-Not a burst. Not attempts in several directions. Every day, the same wall, until
-it gives. The ring is held by people who get tired too, and the side that keeps
-pushing longer wins the pocket.
+1. **Pick one wall and push every day.** Not a burst, not attempts in several
+directions: the same wall, daily, until it gives. *On a problem:* one recurring
+action against the main pressure, at the same time each day.
 
-And if you have the problem surrounded, do not let up because it looks finished.
-Encircled problems break out the moment the pressure relaxes.
+2. **Outlast the people holding the ring.** They get tired too, and the side
+that keeps pushing longer wins. *On a problem:* expect the other side — the
+bureaucracy, the negotiation, the stuck process — to soften under steady
+follow-up, and keep the follow-up going.
+
+3. **Do not let up because it looks finished.** Encircled problems break out the
+moment the pressure relaxes. *On a problem:* keep the routine running for a
+fixed period after the apparent win.
 
 ## With reserves in hand
 
-Race. Abundance is fuel for the offensive that is already running. Throw it in
-behind the pressure and make the thing fall sooner.
+Race. Abundance is fuel for the offensive that is already running.
 
-Competition sharpens him. Set yourself against a clock, a rival, a date, and let
-the race keep the pressure on when motivation would have let it slip.
+1. **Throw it in behind the pressure.** Make the thing fall sooner. *On a
+problem:* spend the reserve to speed up what is already giving, not to start
+something new.
 
-But set the review before you pour the reserve in. Abundance makes it easy to
-keep feeding an offensive that stopped paying weeks ago.
+2. **Set yourself a race.** A clock, a rival, a date keeps the pressure on when
+motivation would let it slip. *On a problem:* a public deadline or a named
+competitor for the push.
+
+3. **Set the review before you pour it in.** Abundance makes it easy to keep
+feeding an offensive that stopped paying weeks ago. *On a problem:* the stop
+rule is written before the first extra pound or hour is spent.
 
 ## The case against
 

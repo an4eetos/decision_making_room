@@ -55,6 +55,15 @@
         <div id="chat-messages" class="chat-messages"></div>
 
         <form id="consult-form" class="chat-form">
+            <div id="interrogation-bar" class="interrogation-bar" hidden>
+                <span class="interrogation-bar-label">Interrogation</span>
+                <span id="interrogation-who" class="interrogation-who">The council is asking</span>
+                <button type="button" class="hint" data-hint="interrogation"></button>
+                <span class="interrogation-bar-actions">
+                    <button id="take-position" type="button" class="btn-secondary take-position" title="End the questioning and write the position it earned">Take a position</button>
+                    <button id="leave-interrogation" type="button" class="btn-secondary" title="Back to ordinary advice">Leave</button>
+                </span>
+            </div>
             <textarea id="question" name="question" rows="3"
                       placeholder="State the situation. What are you deciding?" required></textarea>
 

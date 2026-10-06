@@ -109,7 +109,7 @@ func TestNilRegistryDegradesGracefully(t *testing.T) {
 
 func testRegistry(t *testing.T) genport.Registry {
 	t.Helper()
-	roster, err := genfs.Load(assets.Generals(), assets.Styles(), "")
+	roster, err := genfs.Load(assets.Generals(), assets.Styles(), assets.Traps(), "")
 	if err != nil {
 		t.Fatalf("load roster: %v", err)
 	}

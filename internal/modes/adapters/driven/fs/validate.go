@@ -11,7 +11,7 @@ import (
 
 var validFamilies = []domain.Family{
 	domain.FamilyPlan, domain.FamilyDecide, domain.FamilyUnblock,
-	domain.FamilyReview, domain.FamilyOpen,
+	domain.FamilyReview, domain.FamilyOpen, domain.FamilyInterrogate,
 }
 
 var validKinds = []string{"decision", "plan", "note", "daily_log"}
@@ -53,9 +53,17 @@ func validate(r domain.Registry) error {
 		if mode.Retrieval.RecencyWeight < 0 || mode.Retrieval.RecencyWeight > 1 {
 			problems = append(problems, fmt.Errorf("%s: recency_weight must be between 0 and 1", where))
 		}
-		// Every mode but the open default needs a way to be detected.
-		if mode.ID != DefaultModeID && len(mode.Triggers.Keywords) == 0 {
+		// Every mode but the open default needs a way to be detected, unless it
+		// is never detected at all. Triggers on such a mode would be dead text
+		// that reads as if it worked.
+		switch {
+		case mode.ExplicitOnly && len(mode.Triggers.Keywords) > 0:
+			problems = append(problems, fmt.Errorf("%s: explicit_only modes are never detected; remove its triggers", where))
+		case !mode.ExplicitOnly && mode.ID != DefaultModeID && len(mode.Triggers.Keywords) == 0:
 			problems = append(problems, fmt.Errorf("%s: needs trigger keywords to be detectable", where))
+		}
+		if mode.IsInterrogation() && !mode.ExplicitOnly {
+			problems = append(problems, fmt.Errorf("%s: interrogation modes must be explicit_only", where))
 		}
 
 		// A phrase shared by two modes cannot discriminate between them: they

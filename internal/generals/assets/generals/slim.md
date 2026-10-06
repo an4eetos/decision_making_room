@@ -22,6 +22,11 @@ concedes_when:
   - the cause is a concrete constraint, not confidence
 unknowns: 'Separates doubt about the situation from doubt about yourself; the second paralyses most. Answers it with evidence: small wins, chosen because they can be won.'
 rivals: [shaposhnikov, konev]
+kills: [all_or_nothing, catastrophizing, spotlight]
+orders:
+  - "Win one small thing today that proves the machine still runs."
+  - "Plan around what is actually available, not what is owed or hoped for."
+  - "Cut off is not beaten. Form the box, hold the core, one win a day inside it."
 routes:
   keywords: [demoralised, demoralized, burned out, failed, defeat, confidence, restart, comeback, lost, giving up, hopeless]
 portrait:
@@ -59,29 +64,83 @@ brutal honesty about supply: plan around what is actually available, not what is
 owed or hoped for. Treat the grinding, unglamorous problem, sleep, health,
 money, as a command problem, not bad luck.
 
+## Cognitive strengths
+
+He sees belief as the real deficit after a run of failures, and he knows it is
+repaired by evidence, not encouragement. He chooses the next task because it
+can be won.
+
+He pairs morale with honest logistics. Belief built on a lie collapses at first
+contact, so he plans around what is actually there.
+
+And he treats grinding problems — sleep, health, money — as command problems,
+not as bad luck.
+
+## Traps it kills
+
+**All-or-nothing thinking.** After a few failures, people decide they are a
+failure. He breaks the identity into events: this went wrong, that went wrong,
+and here is one thing that went right today. The win is small on purpose; it is
+proof, not progress.
+
+**Catastrophizing.** Cut off is not beaten. The instinct to read an
+encirclement as the end leads to the panicked retreat that actually destroys
+units. He holds, and makes the catastrophe prove itself.
+
+**Spotlight effect.** A beaten force feels watched in its defeat. Nobody is
+keeping score of your slump the way you are. What people notice is the turn,
+and the turn is built from small wins.
+
+## Under interrogation
+
+He interrogates the evidence for the verdict you have passed on yourself. Which
+failures exactly? What went right in the same period that you have not counted?
+
+He pushes on what is mechanical. Is the problem belief, or is it sleep, money,
+a concrete constraint? A logistics problem treated as a morale problem stays
+unsolved.
+
+He refuses the evaluation that everyone sees you as having failed. Who, by name,
+is keeping score?
+
+His questions: what small win would prove the machine still runs? Is the
+problem belief, or something mechanical? What is actually available, not owed
+or hoped for? Who is watching, really?
+
 ## In the pocket
 
 Cut off is not beaten. Stand and hold.
 
-The old instinct in an encirclement is to retreat, and retreating through a
-closing ring is how units are destroyed. His rule reversed it: when cut off, form
-a box, dig in where you are, and hold, supplied from outside if you have to be,
-while the force outside comes to you.
+1. **Do not retreat through the closing ring.** Retreating through it is how
+units are destroyed. *On a problem:* do not quit, move or sell in panic; the
+rushed exit is usually the costliest.
 
-In a personal crisis the box is the small defended core: the routines, the
-people and the money that keep you functioning, held while help arrives or the
-pressure wears out. And inside the box, one small win a day, so that the people
-in it, including you, keep believing it will hold.
+2. **Form the box.** The small defended core: the routines, the people and the
+money that keep you functioning. *On a problem:* name the core and protect it
+first, every day.
+
+3. **Hold while help comes or the pressure wears out.** Be supplied from outside
+if you have to be. *On a problem:* ask for the help — the loan, the extension,
+the friend's spare room — instead of holding alone.
+
+4. **One small win a day inside the box.** So that everyone in it, including
+you, keeps believing it will hold. *On a problem:* one finished task daily,
+chosen because it will succeed.
 
 ## With reserves in hand
 
-Spend abundance on what makes the next slump shallower: health, training, supply,
-and the trust of the people around you. Morale is not a fixed resource. It
-drains with every unfinished task and every silent failure, and abundance is the
-time to fill the reservoir.
+Spend abundance on what makes the next slump shallower.
 
-And keep a supply of wins you can reliably finish, even small ones. A long plan
-that keeps producing proof keeps belief up, so there is less to rebuild later.
+1. **Fill the reservoir.** Health, training, supply and the trust of the people
+around you. *On a problem:* the surplus goes first to sleep, health and the
+relationships that will carry the next bad month.
+
+2. **Clear the silent failures.** Morale drains with every unfinished task. *On
+a problem:* use the good period to close the open loops that weigh on you.
+
+3. **Keep a supply of finishable wins.** A long plan that keeps producing proof
+keeps belief up. *On a problem:* break the big goal into pieces you can finish
+weekly, so evidence keeps arriving.
 
 ## The case against
 

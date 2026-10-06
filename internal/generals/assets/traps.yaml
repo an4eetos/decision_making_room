@@ -1,0 +1,112 @@
+# Cognitive traps the room watches for.
+#
+# A trap is a way of reading the situation that feels like information and is
+# not. Each general names the traps it kills (`kills:` in its frontmatter); a
+# test fails if a trap here is killed by nobody.
+#
+# signals: phrases that suggest the trap is active. Multi-word phrases match as
+#   substrings, single words as whole words, case-insensitive.
+# kill: the question that exposes the trap.
+# weak: too common in ordinary speech to interrupt someone over on its own.
+#
+# Override or extend through GENERALS_DIR/traps.yaml: a matching id replaces the
+# entry, a new id is appended.
+
+- id: spotlight
+  name: Spotlight effect
+  tell: Assumes other people are watching, judging and remembering far more than they are. Public shame forecast as a verdict.
+  signals: ["everyone will think", "everyone will see", "everyone will know", "everybody will think", "people will think", "will think i'm", "will think i am", "think less of me", "what people think", "what others think", "people will talk", "what will people", "what would people", "what will they think", "what would they think", "look stupid", "look like an idiot", "look like a fool", "look weak", "laugh at me", "judge me", "judged", "embarrassing", "embarrassed", "humiliating", "humiliated", "humiliation", "ashamed", "lose face", "make a fool"]
+  kill: Who exactly, by name — and three weeks from now, how many minutes a day will any of them spend thinking about it?
+
+- id: transparency
+  name: Imagined misunderstanding
+  tell: Is certain how other people will read the move without having asked them. Mind reading, then treating the reading as a fact.
+  signals: ["misunderstand", "misunderstood", "won't understand", "will not understand", "they'll assume", "they will assume", "they must think", "probably thinks", "probably think i", "take it the wrong way", "take it personally", "read it as", "be offended", "offended", "they'll hate me", "they will hate me"]
+  kill: Have you asked them? What exactly would they have to hear for the reading you fear to be the likely one?
+
+- id: impact_bias
+  name: Pain forecast too large
+  tell: Predicts that a feeling will be bigger and last longer than it will. A week of discomfort forecast as a year.
+  signals: ["never get over", "unbearable", "can't bear", "cannot bear", "couldn't bear", "can't handle", "couldn't handle", "would kill me", "destroy me", "devastated", "devastating", "hate myself", "regret it forever", "forever", "never recover", "crushed"]
+  kill: The last time something like this happened, how many days did it actually hurt — and what were you doing a month later?
+
+- id: catastrophizing
+  name: Catastrophizing
+  tell: Treats ruin as the default outcome and skips how likely it is and what would come after.
+  signals: ["disaster", "catastrophe", "catastrophic", "ruin", "ruined", "fall apart", "falls apart", "worst case", "worst-case", "it's over", "end of the world", "lose everything", "game over", "everything will collapse", "nightmare"]
+  kill: What is the actual worst outcome in numbers, how likely is it, and what would you do on the first morning after it?
+
+- id: encircled
+  name: Encirclement passivity
+  tell: Reads pressure from several sides as being trapped, then freezes and waits for rescue, orders or a better moment.
+  signals: ["no choice", "no other choice", "no option", "no way out", "trapped", "nothing i can do", "have to wait", "can't do anything", "cannot do anything", "out of my hands", "hands are tied", "helpless", "surrounded", "cornered", "powerless", "at their mercy", "stuck with"]
+  kill: Name three moves you could make tomorrow, however ugly. Which one hits the thinnest part of the ring?
+
+- id: normalcy
+  name: Normalcy bias
+  tell: Minimises a warning because nothing bad has happened yet. Waiting presented as judgement.
+  signals: ["not that bad", "probably fine", "it'll be fine", "it will be fine", "let's see", "see how it goes", "wait and see", "sort itself out", "blow over", "hopefully it", "it's nothing", "overreacting", "can wait"]
+  kill: If it were exactly as bad as the worst signal says, what would you do — and why aren't you doing a scaled-down version of that now?
+
+- id: sunk_cost
+  name: Sunk cost
+  tell: Lets what has already been spent vote on what happens next.
+  signals: ["already invested", "already spent", "already put", "put so much", "put in so much", "come this far", "come so far", "wasted if", "all for nothing", "years into", "too much invested", "invested so much", "throw it away", "throw away"]
+  kill: If you were starting today with nothing invested, would you choose this? What does the next year of it cost?
+
+- id: escalation
+  name: Escalation of commitment
+  tell: Doubles down on a failing course to prove the first call was right.
+  signals: ["double down", "doubling down", "try harder", "one more push", "push harder", "prove them wrong", "prove i was right", "can't give up now", "cannot give up now", "give it one more", "just need more effort", "keep pushing"]
+  kill: What result, by what date, would make you admit this approach is not working? Has it already happened?
+
+- id: status_quo
+  name: Status quo bias
+  tell: Treats staying as safe and free because it is the default, as if not choosing were not a choice.
+  signals: ["keep things as they are", "stay where i am", "safer to stay", "rock the boat", "leave it as is", "leave things as", "devil you know", "if it ain't broke", "better the devil", "comfortable where", "not the right time to change"]
+  kill: Staying is also a decision. What does it cost per month, and would you pick it if it were not the default?
+
+- id: loss_aversion
+  name: Loss aversion
+  tell: Weighs a possible loss about twice as heavily as an equal gain, and so refuses good trades.
+  signals: ["afraid to lose", "scared to lose", "afraid of losing", "scared of losing", "can't afford to lose", "what if i lose", "lose what i have", "give up what i have", "risk losing", "too much to lose", "giving up my", "lose my"]
+  kill: Write the loss and the gain in the same unit. Is the gain smaller — or does the loss just feel twice as loud?
+
+- id: all_or_nothing
+  name: All-or-nothing thinking
+  tell: Sees only total success or total failure, so a partial result counts as nothing and a first attempt has to be perfect.
+  signals: ["total failure", "complete failure", "i'm a failure", "i am a failure", "a failure", "all or nothing", "has to be perfect", "if it's not perfect", "perfect or", "pointless", "no point", "completely wasted", "either it works"]
+  kill: What would the sixty per cent version look like, and what does it already get you?
+
+- id: planning_fallacy
+  name: Planning fallacy
+  tell: Estimates from the plan instead of from how long things like this have actually taken.
+  signals: ["just a few days", "only a few days", "won't take long", "will not take long", "should be easy", "easy enough", "in no time", "a couple of hours", "over a weekend", "just need to", "quick job", "real quick"]
+  kill: How long did the last three things like this actually take, against what you planned for them?
+  weak: true
+
+- id: analysis_paralysis
+  name: Analysis paralysis
+  tell: Gathers information that would not change the decision, because gathering feels safer than deciding.
+  signals: ["need more information", "need more info", "more research", "research more", "need to think", "think about it more", "back and forth", "overthinking", "can't decide", "cannot decide", "can't make up my mind", "keep going around", "weigh it more"]
+  kill: What single fact would change your decision, and how do you get it within forty-eight hours? If there is none, decide now.
+
+- id: vague_intent
+  name: Vague intent
+  tell: States an intention with no direction, date or fallback, so nothing has to happen tomorrow.
+  signals: ["try to", "if possible", "at some point", "someday", "some day", "eventually", "when i have time", "when things calm down", "one of these days", "when the time is right", "sooner or later"]
+  kill: What exactly, by which day — and what happens if it doesn't?
+  weak: true
+
+- id: permission_seeking
+  name: Waiting for permission
+  tell: Wants someone to approve the move before making it, and treats guilt as evidence that it is wrong.
+  signals: ["is it okay if", "is it ok if", "am i allowed", "would it be wrong", "is it selfish", "selfish", "do i have the right", "should i feel bad", "guilty", "let them down", "letting them down", "letting people down", "disappoint", "disappointed in me"]
+  kill: Whose permission are you waiting for — and what do you do if it never comes?
+
+- id: confirmation
+  name: Confirmation bias
+  tell: Collects what supports the story already believed and does not look for what would break it.
+  signals: ["i knew it", "just proves", "proves that", "always happens to me", "i was right all along", "everyone knows", "obviously", "clearly"]
+  kill: What evidence would show you are wrong, and have you gone looking for it?
+  weak: true

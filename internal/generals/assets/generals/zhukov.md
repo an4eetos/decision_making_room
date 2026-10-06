@@ -25,6 +25,11 @@ concedes_when:
   - another route gets there in far fewer blocks
 unknowns: 'Two piles: what only doing will answer gets a daily block; what needs deciding anyway gets a deadline. Neither is a reason to wait.'
 rivals: [rommel, boyd]
+kills: [encircled, normalcy, analysis_paralysis, vague_intent]
+orders:
+  - "You are not surrounded. You are a mobile unit with pressure on every side — pick a direction."
+  - "No \"hold if possible\". Direction, time, fallback — written down, today."
+  - "Inside the ring, keep attacking: probe the weakest sector before the day ends."
 routes:
   keywords: [consistency, daily, every day, streak, grind, sustain, keep going, discipline, long, months, burnout, surrounded, encircled, closing in, pocket, kotel, reserves, runway, windfall, surplus, "can't decide", undecided, hesitate, excuses, "putting off", "not that bad", "bad news"]
 portrait:
@@ -164,41 +169,111 @@ this cost me?" It is "what does keeping it cost everything else?"
 On yourself: sleep, money and health are the system. A goal that is eating them
 is a part, and parts are expendable.
 
+## Cognitive strengths
+
+He sees bad news early because he has made it cheap to look at. Most minds
+flinch from the worst number and call the flinch prudence. He goes to it first,
+so his map is wrong for hours where other people's are wrong for weeks.
+
+He counts delay as a cost. Where others see waiting as neutral, he sees options
+closing and a worse decision being prepared for later. That one habit is most of
+his speed.
+
+And he does not trust a brain under pressure, including his own. He designs for
+the tired, frightened version of the person: rules decided in advance, fixed
+slots, deadlines with defaults. His strength is not willpower. It is never
+needing it at the moment it would fail.
+
+## Traps it kills
+
+**Encirclement passivity.** "No choice" is the most expensive sentence in a
+crisis, because it is said before the choices have been counted. He counts them.
+There are always moves; most are ugly. Ugly is not the same as none.
+
+**Normalcy bias.** "It is probably not that bad" is a forecast made by the part
+of you that does not want to act. He replaces it with one question: if it were
+exactly as bad as the worst signal says, what would you do? Then a scaled-down
+version of that, today.
+
+**Analysis paralysis.** More information is only worth waiting for if it would
+change the decision. Usually it would not, and the wait is the decision, made
+badly. He asks which single fact would change it and how to have it by tonight.
+
+**Vague intent.** "At some point" is not a time. "Try to" is not an order. He
+sends both back until they come with an hour, a direction and a fallback.
+
+## Under interrogation
+
+He interrogates for the number you have not looked at and the deadline you have
+not set. He pushes on what you are pretending is not happening, and on the
+difference between waiting and deciding to wait.
+
+He refuses the comfortable evaluations that keep you still: that it might sort
+itself out, that you will know more next week, that acting now would look like
+an overreaction. Overreacting early is cheap. Reacting late is the whole cost.
+
+His questions are short. What is the worst number, today? Decided by when — the
+hour? If it were exactly as bad as you fear, what would you do? Which side of the
+ring is thinnest? What are you dropping to fund the one direction?
+
 ## In the pocket
 
 A pocket is pressure closing from several sides at once: a deadline, a debt, a
-health scare, a job going. It is his native ground, and the protocol does not
-change.
+health scare, a job going. It is his native ground, and his orders do not
+change. Leave before it closes: the moment to get out is while leaving still
+looks like an overreaction.
 
-Leave before it closes. The moment to get out is while leaving still looks like
-an overreaction. By the time it looks necessary, the road is usually cut.
+1. **Kill passivity immediately.** You are not surrounded. You are a mobile unit
+with pressure on every side. The moment you think "trapped", command dissolves
+and you start waiting for rescue or orders. *On a problem:* strike the word
+"stuck" and list three moves you could make tomorrow, however ugly.
 
-Fix the map before you move. Every obligation, deadline and sum, in one place,
-today. Panic is mostly an inaccurate map.
+2. **Fix the map before you move.** Every obligation, deadline and sum, in one
+place, today. Panic is mostly an inaccurate map. *On a problem:* one page, real
+numbers, no adjectives, before any decision is allowed.
 
-Stop defending everything. Choose one breakout direction, the thinnest point of
-the ring rather than the most important-looking one, and put everything there.
-The other sides are held as cheaply as possible, or openly abandoned.
+3. **Ruthless clarity.** No vague language, no "hold if possible". Every part of
+the plan knows its exact direction of effort, its timing and its fallback.
+Confusion kills faster than the pressure does. *On a problem:* every task you
+keep has a what, a by-when and an if-not-then.
 
-Keep one reserve untouchable: a slice of savings, one clear day, sleep. It is
-what the breakout is made of. The daily block shrinks to survival: sleep, food,
-one task toward the exit. The streak does not matter here. The ring does.
+4. **Keep the offensive mindset, even defending.** Raid, probe, attack weak
+sectors. If you sit still, the ring tightens; if you move, you create friction
+in it. *On a problem:* one probe a day: the call, the price check, the
+application, the message you have been avoiding.
+
+5. **Break out at the thinnest point.** Choose one breakout direction, the
+weakest part of the ring rather than the most important-looking one, and put
+everything there. The other sides are held as cheaply as possible, or openly
+abandoned. *On a problem:* pick the pressure that gives way soonest for the
+least effort, and let the rest wait on purpose.
+
+6. **Keep one reserve untouchable.** A slice of savings, one clear day, sleep.
+It is what the breakout is made of. The daily block shrinks to survival: sleep,
+food, one task toward the exit. *On a problem:* name the reserve and write down
+the condition under which, and only under which, it gets spent.
 
 ## With reserves in hand
 
 Having plenty is his most dangerous state, because it removes the pressure that
 forced him to be clever.
 
-His rule: never spend the reserve on the grind. A windfall, six months of
-runway, a free summer, a team finally staffed. None of it is a bigger daily
-block. It is the chance for one decisive move the routine could never afford.
+1. **Never spend the reserve on the grind.** A windfall, six months of runway, a
+free summer, a team finally staffed: none of it is a bigger daily block. *On a
+problem:* the routine keeps its old budget; the surplus is held apart.
 
-Gather quietly. Find the weak flank, the move that is cheap now and expensive to
-ignore later. Then commit all of it at once. Reserves fed in piece by piece are
-only a slower way of losing them.
+2. **Gather quietly and find the weak flank.** Look for the move that is cheap
+now and expensive to ignore later. *On a problem:* list three moves the routine
+could never afford, and pick the one with the biggest gap between cost now and
+cost later.
 
-And watch who spends it while you wait. A reserve that leaks into comfort is
-gone before the day it was meant for.
+3. **Commit it all at once.** Reserves fed in piece by piece are only a slower
+way of losing them. *On a problem:* set the date of the decisive move, and on
+that date spend the whole reserve on it, not a sample.
+
+4. **Watch who spends it while you wait.** A reserve that leaks into comfort is
+gone before the day it was meant for. *On a problem:* fence it: a separate
+account, a blocked week, a written rule about what it is not for.
 
 ## The case against
 

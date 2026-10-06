@@ -12,6 +12,9 @@ const (
 	FamilyUnblock Family = "unblock"
 	FamilyReview  Family = "review"
 	FamilyOpen    Family = "open"
+	// FamilyInterrogate questions instead of advising. Its modes are entered on
+	// purpose, never detected.
+	FamilyInterrogate Family = "interrogate"
 )
 
 // Mode is one conversation shape.
@@ -34,11 +37,18 @@ type Mode struct {
 	// they inform the answer's tone rather than being argued between.
 	Styles []string `yaml:"styles"`
 
+	// ExplicitOnly keeps a mode out of detection entirely: it runs only when
+	// picked. Interrogation is one — being questioned when you asked for advice
+	// is worse than any misdetected template.
+	ExplicitOnly bool `yaml:"explicit_only"`
+
 	// SystemPrompt and OutputPrompt come from the "## System" and "## Output"
-	// sections of the body.
-	SystemPrompt string `yaml:"-"`
-	OutputPrompt string `yaml:"-"`
-	Source       string `yaml:"-"`
+	// sections of the body. ConcludePrompt comes from "## Position" and replaces
+	// the output template on the turn that closes the mode.
+	SystemPrompt   string `yaml:"-"`
+	OutputPrompt   string `yaml:"-"`
+	ConcludePrompt string `yaml:"-"`
+	Source         string `yaml:"-"`
 }
 
 type Triggers struct {
@@ -71,10 +81,17 @@ type Generals struct {
 	// wants "The case against", not "Over a long game". Boosted, never filtered:
 	// a passage that matches the question still beats one that matches the mode.
 	Doctrine []string `yaml:"doctrine"`
+	// KeepSeated keeps the conversation's generals when switching into this
+	// mode. Normally a mode switch earns a fresh pick; an interrogation should
+	// be run by the generals who saw the trap in the first place.
+	KeepSeated bool `yaml:"keep_seated"`
 }
 
 // IsOpen reports the unstructured default, which applies no output template.
 func (m Mode) IsOpen() bool { return m.Family == FamilyOpen }
+
+// IsInterrogation reports a mode that questions instead of advising.
+func (m Mode) IsInterrogation() bool { return m.Family == FamilyInterrogate }
 
 type Registry struct {
 	Modes []Mode

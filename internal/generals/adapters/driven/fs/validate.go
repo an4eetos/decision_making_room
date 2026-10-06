@@ -82,5 +82,70 @@ func validate(r domain.Roster) error {
 		}
 	}
 
+	problems = append(problems, validateTraps(r)...)
+
 	return errors.Join(problems...)
+}
+
+// validateTraps checks the catalogue and every lens's kills against it. A kill
+// naming a trap that does not exist would silently drop out of the card and out
+// of interrogation; a trap nobody kills would be detected and then suggested by
+// no one.
+func validateTraps(r domain.Roster) []error {
+	var problems []error
+
+	traps := make(map[string]bool, len(r.Traps))
+	signals := make(map[string]string)
+	for _, trap := range r.Traps {
+		where := fmt.Sprintf("trap %q", trap.ID)
+		if strings.TrimSpace(trap.ID) == "" {
+			problems = append(problems, errors.New("trap with empty id"))
+			continue
+		}
+		if traps[trap.ID] {
+			problems = append(problems, fmt.Errorf("%s: duplicate id", where))
+		}
+		traps[trap.ID] = true
+
+		if strings.TrimSpace(trap.Name) == "" {
+			problems = append(problems, fmt.Errorf("%s: missing name", where))
+		}
+		if strings.TrimSpace(trap.Tell) == "" {
+			problems = append(problems, fmt.Errorf("%s: missing tell", where))
+		}
+		if strings.TrimSpace(trap.Kill) == "" {
+			problems = append(problems, fmt.Errorf("%s: missing kill question", where))
+		}
+		if len(trap.Signals) == 0 {
+			problems = append(problems, fmt.Errorf("%s: needs signals to be detectable", where))
+		}
+		// One phrase in two traps would always name both, which says nothing
+		// about which one is actually running.
+		for _, signal := range trap.Signals {
+			key := strings.ToLower(strings.TrimSpace(signal))
+			if other, dup := signals[key]; dup && other != trap.ID {
+				problems = append(problems, fmt.Errorf("%s: signal %q is also used by trap %q", where, signal, other))
+			}
+			signals[key] = trap.ID
+		}
+	}
+
+	killed := make(map[string]bool, len(r.Traps))
+	for _, group := range [][]domain.Lens{r.Generals, r.Styles} {
+		for _, lens := range group {
+			for _, id := range lens.Kills {
+				if !traps[id] {
+					problems = append(problems, fmt.Errorf("%s %q: kills unknown trap %q", lens.Kind, lens.ID, id))
+				}
+				killed[id] = true
+			}
+		}
+	}
+	for _, trap := range r.Traps {
+		if trap.ID != "" && !killed[trap.ID] {
+			problems = append(problems, fmt.Errorf("trap %q: no general kills it", trap.ID))
+		}
+	}
+
+	return problems
 }

@@ -46,6 +46,10 @@ type ConsultInput struct {
 	// way of a short question.
 	Plain bool
 
+	// Conclude asks the mode for its closing turn: in an interrogation, the
+	// position the questioning has earned instead of more questions.
+	Conclude bool
+
 	// Progress, when set, hears about the consult as it runs and receives the
 	// answer as it is written. Nil means the caller only wants the result.
 	Progress *Progress
@@ -75,6 +79,9 @@ type ConsultResult struct {
 	Mode       string `json:"mode,omitempty"`
 	ModeName   string `json:"mode_name,omitempty"`
 	ModeMethod string `json:"mode_method,omitempty"`
+	// Suggestion recommends an interrogation when a trap was found, by phrase
+	// or by the model's flag. The chat decides whether it is shown.
+	Suggestion *domain.Suggestion `json:"suggestion,omitempty"`
 }
 
 type Consult struct {
@@ -173,10 +180,21 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 		ModeMethod:     plan.ModeMethod,
 	})
 
+	var result ConsultResult
 	if plan.Tier.UsesTools() && u.agent != nil {
-		return u.agent.Execute(ctx, plan, context)
+		result, err = u.agent.Execute(ctx, plan, context)
+	} else {
+		result, err = u.executeSingleShot(ctx, plan, context)
 	}
-	return u.executeSingleShot(ctx, plan, context)
+	if err != nil {
+		return ConsultResult{}, err
+	}
+
+	// The flag line is for the room, not the reader: it never reaches storage.
+	var flagged []string
+	result.Answer, flagged = parseInterrogateFlag(result.Answer)
+	result.Suggestion = suggest(plan, flagged)
+	return result, nil
 }
 
 // gatherContext runs retrieval once for every tier. Single-shot and agent paths
@@ -358,17 +376,29 @@ func buildSystemPrompt(base string, plan ConsultPlan) string {
 
 	// Mode before lenses: the mode decides the shape of the answer, the lenses
 	// decide the argument inside it.
-	if mode := modePrompt(plan.Mode); mode != "" {
+	if mode := modePrompt(plan.Mode, plan.Conclude); mode != "" {
 		parts = append(parts, mode)
 	}
 	if styles := stylesPrompt(plan.Styles); styles != "" {
 		parts = append(parts, styles)
 	}
-	// The mode decides the shape of the answer; the lenses decide the argument
-	// inside it. Passing that along stops the two imposing rival templates.
-	structured := strings.TrimSpace(plan.Mode.OutputPrompt) != ""
-	if lenses := generalsPrompt(plan.Generals, plan.Doctrine, structured); lenses != "" {
-		parts = append(parts, lenses)
+	if plan.Mode.IsInterrogation() {
+		// The lenses question instead of debating, so the exchange template
+		// would fight the mode's. No flag either: this is where a flag leads.
+		if lenses := interrogationPrompt(plan.Generals, plan.Doctrine, plan.Traps, plan.SpottedTraps(), plan.Conclude); lenses != "" {
+			parts = append(parts, lenses)
+		}
+	} else {
+		// The mode decides the shape of the answer; the lenses decide the
+		// argument inside it. Passing that along stops the two imposing rival
+		// templates.
+		structured := strings.TrimSpace(plan.Mode.OutputPrompt) != ""
+		if lenses := generalsPrompt(plan.Generals, plan.Doctrine, structured); lenses != "" {
+			parts = append(parts, lenses)
+		}
+		if flag := flagPrompt(plan.Traps); flag != "" {
+			parts = append(parts, flag)
+		}
 	}
 	if budget := strings.TrimSpace(plan.Tier.AnswerBudget); budget != "" {
 		parts = append(parts, budget)

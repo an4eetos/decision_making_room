@@ -3,6 +3,7 @@ package fs_test
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -15,7 +16,7 @@ import (
 
 func load(t *testing.T, overlay string) domain.Roster {
 	t.Helper()
-	roster, err := fs.Load(assets.Generals(), assets.Styles(), overlay)
+	roster, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), overlay)
 	if err != nil {
 		t.Fatalf("load roster: %v", err)
 	}
@@ -183,7 +184,7 @@ routes:
 		t.Fatal(err)
 	}
 
-	if _, err := fs.Load(assets.Generals(), assets.Styles(), dir); err == nil {
+	if _, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), dir); err == nil {
 		t.Fatal("expected a general with no bias to fail validation")
 	} else if !strings.Contains(err.Error(), "bias") {
 		t.Fatalf("error should name the missing field, got: %v", err)
@@ -213,7 +214,7 @@ routes:
 		t.Fatal(err)
 	}
 
-	if _, err := fs.Load(assets.Generals(), assets.Styles(), dir); err == nil {
+	if _, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), dir); err == nil {
 		t.Fatal("expected an unknown family to fail validation")
 	}
 }
@@ -230,7 +231,7 @@ func TestParseRejectsMissingFrontmatter(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := fs.Load(assets.Generals(), assets.Styles(), dir); err == nil {
+	if _, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), dir); err == nil {
 		t.Fatal("expected a file without frontmatter to fail")
 	}
 }
@@ -266,7 +267,8 @@ func TestEveryGeneralHasTheStandardSections(t *testing.T) {
 	t.Parallel()
 
 	standard := []string{
-		"Doctrine", "In the pocket", "With reserves in hand", "The case against",
+		"Doctrine", "Cognitive strengths", "Traps it kills", "Under interrogation",
+		"In the pocket", "With reserves in hand", "The case against",
 		"Where it broke", "Rivals", "Over a long game", "Facing the unknown",
 	}
 	for _, lens := range load(t, "").Generals {
@@ -279,5 +281,160 @@ func TestEveryGeneralHasTheStandardSections(t *testing.T) {
 				t.Errorf("%s: missing the %q section", lens.ID, want)
 			}
 		}
+	}
+}
+
+// Interrogation runs on kills and orders. A general without them would sit in an
+// interrogation with nothing of its own to hunt and nothing to order, and the
+// questions would come out generic.
+func TestEveryGeneralKillsTrapsAndGivesOrders(t *testing.T) {
+	t.Parallel()
+
+	roster := load(t, "")
+	traps := make(map[string]bool, len(roster.Traps))
+	for _, trap := range roster.Traps {
+		traps[trap.ID] = true
+	}
+	for _, g := range roster.Generals {
+		if n := len(g.Kills); n < 2 || n > 4 {
+			t.Errorf("%s: kills %d traps, want 2 to 4", g.ID, n)
+		}
+		for _, id := range g.Kills {
+			if !traps[id] {
+				t.Errorf("%s: kills unknown trap %q", g.ID, id)
+			}
+		}
+		if len(g.Orders) != 3 {
+			t.Errorf("%s: has %d orders, want exactly 3", g.ID, len(g.Orders))
+		}
+		for _, order := range g.Orders {
+			if utf8.RuneCountInString(order) > 140 {
+				t.Errorf("%s: order is too long to be an order: %q", g.ID, order)
+			}
+		}
+	}
+}
+
+// The pocket and reserves sections are orders, each carried into an ordinary
+// problem. Prose there drifts back into description, which a model then turns
+// into advice instead of an order.
+func TestPocketAndReservesAreWrittenAsOrders(t *testing.T) {
+	t.Parallel()
+
+	numbered := regexp.MustCompile(`(?m)^\d+\. \*\*`)
+	for _, g := range load(t, "").Generals {
+		text := map[string]string{}
+		for _, p := range g.Passages() {
+			text[p.Section] += p.Text + "\n\n"
+		}
+		for _, section := range []string{"In the pocket", "With reserves in hand"} {
+			body := text[section]
+			if n := len(numbered.FindAllString(body, -1)); n < 3 {
+				t.Errorf("%s / %s: %d numbered orders, want at least 3", g.ID, section, n)
+			}
+			if !strings.Contains(body, "*On a problem:*") {
+				t.Errorf("%s / %s: orders must say what they mean on an ordinary problem", g.ID, section)
+			}
+		}
+	}
+}
+
+func TestTrapCatalogueIsValidAndCovered(t *testing.T) {
+	t.Parallel()
+
+	roster := load(t, "")
+	if len(roster.Traps) < 12 {
+		t.Fatalf("expected the shipped trap catalogue, got %d traps", len(roster.Traps))
+	}
+	registry := fs.NewRegistry(roster)
+	zhukov, _ := registry.Get("zhukov")
+	if len(zhukov.KillNames) == 0 || zhukov.KillNames[0] != "Encirclement passivity" {
+		t.Fatalf("kills should resolve to trap names, got %v", zhukov.KillNames)
+	}
+	if _, ok := registry.Trap("spotlight"); !ok {
+		t.Fatal("registry should serve traps by id")
+	}
+}
+
+func TestValidationRejectsAnUnknownKill(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	generalsDir := filepath.Join(dir, "generals")
+	if err := os.MkdirAll(generalsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	bad := `---
+id: hunter
+name: Hunter
+family: contact
+job: Does something.
+deploy_when: [sometimes]
+bias: unclear
+kills: [no_such_trap]
+routes:
+  keywords: [thing]
+---
+`
+	if err := os.WriteFile(filepath.Join(generalsDir, "bad.md"), []byte(bad), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), dir); err == nil {
+		t.Fatal("expected a kill naming an unknown trap to fail validation")
+	} else if !strings.Contains(err.Error(), "no_such_trap") {
+		t.Fatalf("error should name the unknown trap, got: %v", err)
+	}
+}
+
+func TestOverlayTrapsReplaceAndAppend(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	extra := `- id: spotlight
+  name: Being watched
+  tell: My own wording.
+  signals: ["they are all staring"]
+  kill: Who is staring?
+- id: my_trap
+  name: My trap
+  tell: Something only I do.
+  signals: ["my special phrase"]
+  kill: Why?
+`
+	if err := os.WriteFile(filepath.Join(dir, "traps.yaml"), []byte(extra), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	// A trap nobody kills fails validation, which is the point; here the new
+	// one is killed by an overlaid general.
+	generalsDir := filepath.Join(dir, "generals")
+	if err := os.MkdirAll(generalsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	doc := `---
+id: my_own
+name: My Own
+family: endurance
+job: Mine.
+deploy_when: [always]
+bias: none stated
+kills: [my_trap]
+routes:
+  keywords: [mine]
+---
+Body.
+`
+	if err := os.WriteFile(filepath.Join(generalsDir, "mine.md"), []byte(doc), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	roster := load(t, dir)
+	registry := fs.NewRegistry(roster)
+	if trap, _ := registry.Trap("spotlight"); trap.Name != "Being watched" {
+		t.Fatalf("overlay did not replace spotlight: %q", trap.Name)
+	}
+	if _, ok := registry.Trap("my_trap"); !ok {
+		t.Fatal("overlay did not append the new trap")
 	}
 }

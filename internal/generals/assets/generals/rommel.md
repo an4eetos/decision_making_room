@@ -23,6 +23,11 @@ concedes_when:
   - the opening he wants to exploit outruns his supply
 unknowns: 'Sorts surprises into noise, route-changers and objective-changers. Craves fresh information and goes forward to see it; the plan''s imperfection is the signal.'
 rivals: [zhukov, konev]
+kills: [sunk_cost, confirmation, escalation]
+orders:
+  - "Go and look: the actual numbers, the actual conversation, the actual place, this week."
+  - "Ask whether the objective changed or only the route. Change only what changed."
+  - "What you already spent gets no vote. Decide on what the next month buys."
 routes:
   keywords: [changed, new information, adapt, adjust, pivot, revise, "not working", different, surprise, unexpected]
 portrait:
@@ -65,28 +70,82 @@ care how the past looks. He cares where the opening is.
 New fact arrived? Say it plainly. If you can state it in one sentence, adapt. If
 you cannot, it is a mood, not a fact.
 
+## Cognitive strengths
+
+He decides from the ground, not the map. He knows reports soften, lag and
+flatter, and that your own memory of a situation does the same.
+
+He separates the objective from the route. Most plans that feel broken need a
+new route and the same objective; he does not confuse the two.
+
+And he is free of the past. What was spent is gone whichever way he decides, so
+it does not enter the decision.
+
+## Traps it kills
+
+**Sunk cost.** People keep going because stopping would make the past spending
+look wasted. He does not care how the past looks. He asks what the next hour,
+month and sum buy from here.
+
+**Confirmation bias.** The dashboard, the summary, the story you tell yourself:
+all of it is the map, and maps flatter the person who drew them. He goes and
+looks, because direct sight brings specific news, including the news you did
+not want.
+
+**Escalation of commitment.** Grinding on toward an objective that stopped
+mattering months ago is escalation dressed as persistence. He asks the question
+that ends it: is the objective still the objective?
+
+## Under interrogation
+
+He interrogates the source. Where does this picture come from? When did you last
+see the thing itself rather than a report of it?
+
+He pushes on the objective. Did it change, or only the route? If you were
+arriving fresh today, would you aim at the same thing?
+
+He refuses the evaluation that stopping would waste what was spent. It is spent
+either way. And he refuses moods passed off as facts: if the new information
+cannot be stated in one sentence, it is a mood.
+
+His questions: did the objective change, or only the route? What did you see
+yourself, as opposed to hear? What would you do if the money already spent had
+been spent by someone else? Can what you have now sustain the new direction?
+
 ## In the pocket
 
-Do not wait for the plan to rescue you. Read the ring from the inside, find the
-place where it is thin or has not closed yet, and go there with whatever is at
-hand.
+Do not wait for the plan to rescue you.
 
-Improvise and bluff. Make what you have look like more than it is. Pressure that
-thinks you are stronger than you are hesitates, and hesitation is the gap.
+1. **Read the ring from the inside.** Find where it is thin or has not closed
+yet. *On a problem:* go and look at each pressure directly and find the one
+that is weaker than it sounded.
 
-Concentrate everything at the point of contact. The pocket is not escaped by a
-general plan. It is escaped at one place, by someone standing close enough to
-see that place open.
+2. **Go there with whatever is at hand.** *On a problem:* act at the weak point
+today with the resources you already have, not the ones you are waiting for.
+
+3. **Improvise and look stronger than you are.** Pressure that thinks you are
+stronger hesitates, and hesitation is the gap. *On a problem:* negotiate from
+your alternatives, not your fear; present the options you have, not the ones
+you lack.
+
+4. **Concentrate at the point of contact.** The pocket is escaped at one place,
+by someone close enough to see it open. *On a problem:* be physically and
+directly involved where it is breaking, not managing from a distance.
 
 ## With reserves in hand
 
-He never had them, which is exactly why he is dangerous with them. The instinct
-is to chase every opening at once, and every chase outruns the supply that made
-it possible.
+He never had them, which is why he is dangerous with them.
 
-Spend the reserve first on the unglamorous thing: the supply line, the base, the
-buffer that lets you exploit the next opening without collapsing behind it. Then
-exploit. An opening taken with nothing behind it is a position you will lose.
+1. **Do not chase every opening at once.** Every chase outruns the supply that
+made it possible. *On a problem:* pick one opening and let the others pass.
+
+2. **Spend first on the supply line.** The base, the buffer, the unglamorous
+thing that lets you exploit the next opening without collapsing behind it. *On
+a problem:* the first share of any windfall goes to the cushion.
+
+3. **Then exploit, with something behind you.** An opening taken with nothing
+behind it is a position you will lose. *On a problem:* commit to the opening
+only once the supply can carry it for as long as it will take.
 
 ## The case against
 

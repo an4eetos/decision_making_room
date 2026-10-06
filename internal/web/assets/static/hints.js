@@ -66,7 +66,7 @@ const HINTS = {
     },
     mode: {
         title: "Mode",
-        what: "The shape of the answer — a day plan, a hard call, a stalled task, a debrief. Fifteen modes plus <strong>Open</strong>, which imposes nothing.",
+        what: "The shape of the answer — a day plan, a hard call, a stalled task, a debrief. Fifteen modes plus <strong>Open</strong>, which imposes nothing, and <strong>Interrogation</strong>, which you only ever enter on purpose.",
         uses: [
             "The room detects it from what you asked and shows why. Pick one from the menu to pin it.",
             "Modes also bias retrieval: a debrief weights recent notes heavily; a pre-mortem barely cares how old a decision is.",
@@ -76,7 +76,32 @@ const HINTS = {
             "A wrong pick is one click to fix. Add your own modes with markdown files in <code>MODES_DIR</code>.",
         ],
     },
-    depth: {
+    interrogation: {
+        title: "Interrogation",
+        what: "No advice yet. The seated generals question you, one question each, until your position no longer rests on a cognitive trap.",
+        uses: [
+            "Every turn shows what is <em>on the record</em>, what is <em>still dark</em>, any trap <em>caught</em> in your own words, and the questions — each from the general who asks it.",
+            "Vague answers get sent back: “soon” and “maybe” need a date, a number or a name. Every turn ends with a probe you can check in reality within 48 hours.",
+            "<strong>Take a position</strong> ends it: your stance, the traps that no longer get a vote, orders with a direction, a time and a fallback, and the unknowns you chose to carry.",
+        ],
+        notes: [
+            "It lights up when the generals say nothing left would change the position, but you can take one at any point.",
+            "<strong>Leave</strong> goes back to ordinary advice without a position. The room will not suggest another interrogation for the next few answers.",
+        ],
+    },
+    "interrogate-suggest": {
+        title: "Why a general recommends this",
+        what: "Something in what you wrote looks like a cognitive trap: shame forecast as a verdict, pain forecast as permanent, “no choice”, money already spent voting on what happens next.",
+        uses: [
+            "Found two ways: phrases in your message (quoted), and the model reading between the lines (marked as such). Neither costs an extra model call.",
+            "It is signed by the seated general whose doctrine kills that trap.",
+        ],
+        notes: [
+            "It is a suggestion, not a diagnosis. <strong>Not now</strong> hides it on this device, and the room waits a few answers before suggesting again.",
+            "Check-ins never suggest one.",
+        ],
+    },
+        depth: {
         title: "Answer depth",
         what: "How much work one question is worth.",
         uses: [

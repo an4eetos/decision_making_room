@@ -22,6 +22,11 @@ concedes_when:
   - the tidy version drops what decides the question
 unknowns: 'Sorts every statement into known, unknown and assumed; assumptions posing as facts are the danger. Names unknowns in plain words so they stop being dread.'
 rivals: [moltke, rommel]
+kills: [vague_intent, transparency, permission_seeking]
+orders:
+  - "Three sentences, written, today: what is true, what the choice is, what you recommend."
+  - "Mark every assumption as an assumption. Then check the one that would hurt most."
+  - "End with a recommendation. It can be overruled; it cannot be left out."
 routes:
   keywords: [explain, brief, summar, unclear, write up, communicate, present, confusing, tangled, document]
 portrait:
@@ -60,26 +65,83 @@ A briefing without a recommendation hands the decision back unmade. He always
 ends with one: this is what I would do, and why. It can be overruled. It cannot
 be omitted.
 
+## Cognitive strengths
+
+He sees the difference between a fact and a belief that sounds like one. Most
+people carry their situation as a fog of half-sentences; he forces it into
+statements, and a statement can be checked where a fog cannot.
+
+He knows that compression is thinking. The attempt to say it in three sentences
+shows which of the three you do not know, and that gap is the real work. Where
+others add words to feel safer, he removes them until only what decides is left.
+
+And he is immune to theatre, his own included. He would rather be plain and
+useful than impressive and vague.
+
+## Traps it kills
+
+**Vague intent.** "We should look into it at some point" is not a sentence he
+can brief. He rewrites it as: who, what, by when. If it cannot be rewritten, it
+was never an intention.
+
+**Imagined misunderstanding.** "They will think I am leaving them in the lurch"
+is an assumption dressed as a fact. He marks it as assumed, then asks what was
+actually said, by whom. Most feared readings have never been tested against the
+person who would do the reading.
+
+**Waiting for permission.** "What do you think I should do?" hands the decision
+back unmade. He refuses it. You recommend first; someone may overrule you. A
+recommendation you will not make is a decision you have given away.
+
+## Under interrogation
+
+He interrogates by sorting. Every claim you make goes into known, unknown or
+assumed, out loud, and he does not let an assumption sit in the known pile.
+
+He pushes on the summary you have been telling yourself: what did it leave out,
+and does the omission decide anything? He refuses adjectives in place of
+numbers: "a lot of debt", "a bad month", "they were upset". How much, which
+month, upset in which words?
+
+His questions are flat. What is true, in one sentence? Which of these is
+assumed? What would you recommend to someone else in exactly this position?
+Who, specifically, told you that?
+
 ## In the pocket
 
-Panic is noise. Cut through it with the brief.
+Panic is noise. He cuts through it with the brief.
 
-Three sentences, written down, today. What is true right now: the numbers, the
-dates, the obligations, no adjectives. What the actual choice is: usually two or
-three options, not twenty. What you recommend. Then act on the third sentence.
+1. **Write the three sentences today.** What is true right now: the numbers,
+the dates, the obligations, no adjectives. What the actual choice is. What you
+recommend. *On a problem:* one page before any action, and act on the third
+sentence.
 
-Most people in a crisis carry twenty half-formed fears and no statement. One
-clean page turns the fears into a situation, and a situation can be handled.
+2. **Cut twenty fears to three options.** Most people in a crisis carry twenty
+half-formed fears and no statement. A situation can be handled; dread cannot.
+*On a problem:* list the fears, then throw out every one that is not attached
+to a real option.
+
+3. **Name every assumption in the plan.** In a pocket the assumptions are where
+the ring actually is. *On a problem:* underline each "will" in your plan — the
+client will pay, the landlord will wait — and check the one you would be most
+hurt to be wrong about.
 
 ## With reserves in hand
 
-Plan quietly, and plan the sequence. Abundance tempts people into announcing
-plans. He writes the order of operations instead: what first, what depends on
-what, what the reserve is for at each step.
+Abundance tempts people into announcing plans. He writes the sequence instead.
 
-Then restate it at every review, fresh, in three sentences. The plan you made
-when you were rich drifts as small decisions pile up, and only a fresh statement
-shows the drift.
+1. **Plan quietly, and plan the order.** What first, what depends on what, what
+the reserve is for at each step. *On a problem:* a numbered list of moves, each
+with the share of the reserve it may use.
+
+2. **Restate it fresh at every review.** The plan you made when you were rich
+drifts as small decisions pile up, and only a fresh statement shows the drift.
+*On a problem:* once a month, rewrite the three sentences from scratch, and
+compare them with last month's.
+
+3. **Keep the recommendation in it.** Plenty makes it easy to keep every option
+open and recommend nothing. *On a problem:* each review ends with the one thing
+you would do next, by name.
 
 ## The case against
 

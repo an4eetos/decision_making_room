@@ -24,6 +24,11 @@ concedes_when:
   - speed would leave supply, allies or people behind
   - the win would cost more than it is worth
 rivals: [kutuzov, sun_tzu]
+kills: [encircled, impact_bias]
+orders:
+  - "Judge it in one look, pick the direction, and move tonight."
+  - "Hit the main thing with everything, not the outposts."
+  - "Rehearse the hard thing before you need it, until it is only a hard day."
 routes:
   keywords: [habit, routine, practice, practis, drill, skill, training, reps, bold, attack, aggressive, surprise, decisive, "go for it", "strike first", "move fast", opening]
 portrait:
@@ -64,27 +69,75 @@ the intent, so the speed survived when officers fell. In your own work: know why
 you are doing each step, so you can keep moving when the plan breaks, without
 stopping to ask.
 
+## Cognitive strengths
+
+He judges at a glance, and his glance is trained. Speed is the time he takes away
+from the other side to prepare or reinforce.
+
+He knows that chances are lost to a series of small, reasonable delays more than
+to one reckless act, and he counts the delays.
+
+And he builds boldness as a skill. The bold move is safe only for someone who
+trained for it, so he trains under pressure until pressure is familiar.
+
+## Traps it kills
+
+**Encirclement passivity.** Debt, deadline, a job going, all closing in: the
+frozen answer is to wait for the ring to decide. He refuses. The way out is
+through the weakest wall, at a speed nobody thought possible, starting tonight.
+
+**Pain forecast too large.** The thing you dread — the conversation, the exam,
+the first day — is forecast as unbearable because it has not been rehearsed. A
+rehearsed crisis is only a hard day. He shrinks the forecast by practising the
+thing, not by thinking about it.
+
+## Under interrogation
+
+He interrogates the glance. What does your eye tell you, in one look? Not after
+analysis: now.
+
+He pushes on speed. How fast could you be there? What small delays have you
+accepted this week that, together, cost the chance?
+
+He refuses "I cannot know". Give your best answer now. And he refuses the
+forecast that the hard thing will be unbearable: have you ever rehearsed it?
+
+His questions: where is the main thing, as opposed to the outposts? How fast
+could you move, and would they expect it? What would you do tonight if you had
+to decide now? When will you rehearse it?
+
 ## In the pocket
 
-Debt, deadline, a job going, all closing in at once: attack. The way out of a
-trap is through its weakest wall, at a speed nobody thought possible.
+Debt, deadline, a job going, all closing in at once: attack.
 
-Do not wait for the ring to decide your fate. Judge the ground in one look, pick
-the direction, and go tonight. Every hour you spend deciding is an hour the ring
-spends thickening.
+1. **Go through the weakest wall.** At a speed nobody thought possible. *On a
+problem:* identify the pressure that would give way fastest and attack it first.
 
-The drills pay here. A crisis you rehearsed is only a hard day. A crisis you did
-not rehearse is chaos. If you are in it and did not train for it, act anyway:
-give your best answer now and move. "I cannot know" is not an answer he accepts.
+2. **Decide in one look and go tonight.** Every hour spent deciding is an hour
+the ring spends thickening. *On a problem:* set a one-hour limit on the
+decision, then act before you sleep.
+
+3. **Give your best answer now.** If you did not train for this crisis, act
+anyway. *On a problem:* replace "I don't know what to do" with the best guess
+and the first step, today.
+
+4. **Use what you rehearsed.** A crisis you drilled is only a hard day. *On a
+problem:* fall back on the routines and skills you already have instead of
+inventing new ones mid-crisis.
 
 ## With reserves in hand
 
-Train. Abundance is the season for building the eye and the stamina that make the
-next strike possible: fundamentals, drills, reps, fitness.
+Train. Abundance is the season for building the eye and the stamina.
 
-Then strike the main force, not the outposts. When the reserve is spent, spend it
-on the decisive point, all at once. And stop when the objective falls. Attacking
-after that is habit, not strategy.
+1. **Drill the fundamentals.** *On a problem:* spend the good period on reps —
+the skill, the fitness, the practice runs — that make the next strike possible.
+
+2. **Strike the main force, all at once.** *On a problem:* when the reserve is
+spent, it goes to the decisive point in one move, not to scattered outposts.
+
+3. **Stop when the objective falls.** Attacking after that is habit, not
+strategy. *On a problem:* define what done looks like before you begin, and
+stop there.
 
 ## The case against
 
