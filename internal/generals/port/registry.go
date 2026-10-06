@@ -11,4 +11,7 @@ type Registry interface {
 	// Resolve maps ids to lenses, silently dropping unknown ones: a stale id
 	// saved on an old chat session should not fail the request.
 	Resolve(ids []string) []domain.Lens
+	// Traps is the cognitive-trap catalogue the lenses' kills refer to.
+	Traps() []domain.Trap
+	Trap(id string) (domain.Trap, bool)
 }

@@ -25,6 +25,11 @@ concedes_when:
   - someone else gains more from each week than you do
 unknowns: 'Waits out what time will answer, acts on what only action answers, never waits on what nothing will.'
 rivals: [patton, konev]
+kills: [loss_aversion, spotlight]
+orders:
+  - "Find out whose side time is on before you move."
+  - "Give up the city, keep the army: protect what can fight again, not the symbol."
+  - "Price the wait in exact terms, and set the date it ends."
 routes:
   keywords: [wait, patience, delay, postpone, "not yet", hold off, timing, rush, pressure, sunk cost, too early, pushed]
 portrait:
@@ -70,30 +75,80 @@ Losses feel twice as heavy as equal gains, and that instinct makes people defend
 cities they should give up. He turns the instinct around: the loss that matters
 is the one you cannot recover from. Give up the city. Keep the army.
 
+## Cognitive strengths
+
+He sees time as a force with a side. Where others feel pressure to act, he first
+asks who gains from each week that passes, and very often the answer is: you,
+if you do not move.
+
+He separates the discomfort of waiting from the cost of waiting. The urge to do
+something is real, and it is not information. He feels it and does not obey it.
+
+And he knows what to protect. Not the position everyone is watching, but the
+force that can fight again.
+
+## Traps it kills
+
+**Loss aversion.** Losses feel twice as heavy as equal gains, so people defend
+cities they should give up. He turns the instinct around: the only loss that
+matters is the one you cannot recover from. The apartment, the title, the
+project you announced are cities. Your money, health and options are the army.
+
+**Spotlight effect.** Much of what makes people defend a symbol is the fear of
+being seen to give it up. He accepts looking like he retreated. The people
+watching forget a withdrawal within weeks; the force you saved stays.
+
+## Under interrogation
+
+He interrogates the clock first. Whose side is time on? What does waiting two
+weeks actually cost, in money, in options, in closed doors? If you cannot name
+the cost, you are not deciding to wait; you are drifting.
+
+He pushes on the symbol. What are you defending because people expect you to,
+and what are you defending because you need it?
+
+He refuses the evaluation that retreat is shame. Who exactly would judge the
+withdrawal, and how long would they remember it?
+
+His questions: whose side is time on? What does two more weeks cost? Is this
+position worth what defending it costs? What, precisely, are you waiting for,
+and on what date do you stop waiting?
+
 ## In the pocket
 
 Do not fight the battle the pocket offers you. It was designed for you to lose.
 
-Withdraw toward what can be defended, and give up whatever is symbolic. The
-first job is to get the force out intact: cash, health, people, the ability to
-act next month. A retreat with the force whole is a strategy. A stand that
-destroys it is a gesture.
+1. **Withdraw toward what can be defended.** Give up whatever is symbolic.
+*On a problem:* let go of the position you are defending out of pride — the
+lease, the role, the announced plan — if keeping it costs the force.
 
-Then make the pressure pay for its own advance. Every step forward it takes
-should cost it more than it costs you. Most encirclements lose their grip when
-the one closing them runs out of patience before you do.
+2. **Get the force out intact.** Cash, health, people, the ability to act next
+month come first. A retreat with the force whole is a strategy; a stand that
+destroys it is a gesture. *On a problem:* list what must survive and make every
+choice serve that list.
+
+3. **Make the pressure pay for every step.** Each advance should cost the other
+side more than it costs you. *On a problem:* do not concede anything for free;
+trade each concession for time, terms or relief.
+
+4. **Outwait the one closing the ring.** Most encirclements lose their grip when
+the one closing them runs out of patience first. *On a problem:* if time is on
+your side, slow the exchange down and let them come back to you.
 
 ## With reserves in hand
 
 He does not spend them. That is the doctrine and the danger.
 
-A reserve is worth most unspent: it buys you the ability to refuse, and to wait
-for the other side's mistake. Let them overextend. Let the obvious opportunity
-cool off and show whether it was real. Commit only when the position has turned,
-and then commit hard.
+1. **Keep the reserve unspent while it buys refusal.** *On a problem:* use the
+reserve's existence to say no to bad offers, not to fund new ventures.
 
-But a reserve that is never used was never a reserve. It was fear with a balance
-sheet. Name the moment it is for, before the moment arrives.
+2. **Let the obvious opportunity cool.** Let them overextend; let the hot chance
+show whether it was real. *On a problem:* a fixed cooling period before any
+large spend, written down.
+
+3. **Name the moment it is for, before it arrives.** A reserve never used was
+fear with a balance sheet. *On a problem:* write the condition that releases
+the reserve, and when it is met, commit hard.
 
 ## The case against
 

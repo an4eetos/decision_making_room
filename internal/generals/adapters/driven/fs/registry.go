@@ -6,6 +6,7 @@ import "github.com/an4eetos/decision-room/internal/generals/domain"
 type Registry struct {
 	roster domain.Roster
 	byID   map[string]domain.Lens
+	traps  map[string]domain.Trap
 }
 
 func NewRegistry(roster domain.Roster) *Registry {
@@ -24,13 +25,30 @@ func NewRegistry(roster domain.Roster) *Registry {
 		}
 	}
 
+	traps := make(map[string]domain.Trap, len(roster.Traps))
+	for _, trap := range roster.Traps {
+		traps[trap.ID] = trap
+	}
+	// Kills are stored as ids and shown as names, the same way rivals are.
+	for _, group := range [][]domain.Lens{roster.Generals, roster.Styles} {
+		for i := range group {
+			l := &group[i]
+			l.KillNames = nil
+			for _, id := range l.Kills {
+				if trap, ok := traps[id]; ok {
+					l.KillNames = append(l.KillNames, trap.Name)
+				}
+			}
+		}
+	}
+
 	byID := make(map[string]domain.Lens, len(roster.Generals)+len(roster.Styles))
 	for _, group := range [][]domain.Lens{roster.Generals, roster.Styles} {
 		for _, lens := range group {
 			byID[lens.ID] = lens
 		}
 	}
-	return &Registry{roster: roster, byID: byID}
+	return &Registry{roster: roster, byID: byID, traps: traps}
 }
 
 func (r *Registry) Get(id string) (domain.Lens, bool) {
@@ -40,6 +58,12 @@ func (r *Registry) Get(id string) (domain.Lens, bool) {
 
 func (r *Registry) Generals() []domain.Lens { return r.roster.Generals }
 func (r *Registry) Styles() []domain.Lens   { return r.roster.Styles }
+func (r *Registry) Traps() []domain.Trap    { return r.roster.Traps }
+
+func (r *Registry) Trap(id string) (domain.Trap, bool) {
+	trap, ok := r.traps[id]
+	return trap, ok
+}
 
 // Resolve drops unknown ids rather than erroring. A chat session can hold an id
 // from a general that has since been renamed or removed from an overlay, and

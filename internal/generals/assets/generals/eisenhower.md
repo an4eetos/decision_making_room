@@ -22,6 +22,11 @@ concedes_when:
   - the compromise satisfies everyone and wins nothing
 unknowns: 'Sorts unknowns by who owns them and whether others will cooperate. Decides after hearing the experts, and accepts the failure in advance so he can decide at all.'
 rivals: [patton, konev]
+kills: [permission_seeking, spotlight]
+orders:
+  - "Find what only you can do. Do that today; hand off or drop the rest."
+  - "Write down now what you will say if it fails, and sign it. Then decide on the merits."
+  - "Set the date the compromise is reopened, and who is allowed to lose."
 routes:
   keywords: [urgent, important, delegate, busy, overloaded, meetings, others, blocked by, people, handoff, calendar]
 portrait:
@@ -65,28 +70,81 @@ how the whole thing stops depending on your calendar.
 Hand off the outcome, not the steps. Say what done looks like and let the
 person closest to the work decide how.
 
+## Cognitive strengths
+
+He sees the difference between urgent and important when everyone else sees
+only noise. He asks two questions of every task, not one, and most of the day
+falls away once it has to answer both.
+
+He can decide inside disagreement. He does not need the people around him to
+agree before he moves; he needs them to know what matters now.
+
+And he has made his peace with blame in advance. That is his real strength: an
+option that cannot be blamed does not exist, and he stopped looking for one.
+
+## Traps it kills
+
+**Waiting for permission.** Many people cannot decide because they are waiting
+for someone to approve the decision, so the blame would be shared. He takes the
+blame first: write down what you will say if it goes wrong and put your name on
+it. After that, there is nobody left to wait for.
+
+**Spotlight effect.** The fear of being seen to fail usually comes from
+imagining everyone watching the failure. In practice, people watch whether you
+owned it. A failure that is owned, early and plainly, is forgotten faster than a
+success that was hedged.
+
+## Under interrogation
+
+He interrogates for ownership. Whose decision is this, really? Whose agreement do
+you need, and whose only feels needed?
+
+He pushes on the calendar: of what you did this week, how much only you could
+have done? He refuses the evaluation that saying no to someone is a betrayal.
+Saying yes to everything is how the important thing gets betrayed.
+
+He also refuses the fear of public blame as a reason. Who, exactly, would blame
+you, and what would they do about it?
+
+His questions: what here can only you do? Whose permission are you waiting for,
+and what if it never comes? What will you say if it fails — can you say it
+now? Who else could do the urgent part?
+
 ## In the pocket
 
-Clear the calendar ruthlessly. In a crisis the urgent multiplies, and the
-urgent will eat every hour you have if you let it. Kill every meeting, reply and
-chore that does not bear on getting out.
+In a crisis the urgent multiplies and will eat every hour you have.
 
-Then split the work. What only you can do: that is yours, today. Everything else
-goes to someone else, or waits. Hold the people around you together with one
-clear message about what matters now, because a coalition in a crisis falls
-apart through confusion before it falls apart through disagreement.
+1. **Clear the calendar ruthlessly.** Kill every meeting, reply and chore that
+does not bear on getting out. *On a problem:* go through the next seven days
+and cancel or delegate everything that does not move the one thing.
 
-And make the one decision that is yours. Own it in advance, and make it.
+2. **Split the work.** What only you can do is yours, today. Everything else
+goes to someone else, or waits. *On a problem:* two lists, "only me" and
+"anyone", and the second list gets a name next to every line.
+
+3. **Hold the people together with one clear message.** A coalition in a crisis
+falls apart through confusion before disagreement. *On a problem:* one short
+message to the people involved saying what matters now and what does not.
+
+4. **Own the one decision that is yours, and make it.** Take the blame in
+advance. *On a problem:* write the failure note before the decision, then
+decide.
 
 ## With reserves in hand
 
-Allocate, and say out loud that it is a hedge. Spreading resources across
-several fronts is right while you do not know which front decides the outcome.
-It becomes wrong the moment one front clearly does, and in abundance nobody
-notices that moment, because everyone is supplied and nobody is complaining.
+Allocate, and say out loud that it is a hedge.
 
-So set the dates when the allocation is reopened, and someone is allowed to
-lose. A standing compromise quietly becomes the plan.
+1. **Spread while you do not know which front decides.** It is right until one
+front clearly does. *On a problem:* split the surplus across the live options,
+labelled as a hedge, not as a plan.
+
+2. **Set the date it gets reopened.** In abundance nobody notices the moment
+one front starts deciding everything, because everyone is supplied and nobody
+is complaining. *On a problem:* a review date in the calendar, now.
+
+3. **Let someone lose.** A standing compromise quietly becomes the plan. *On a
+problem:* at the review, the weakest option gets nothing more, even if
+withdrawing it disappoints someone.
 
 ## The case against
 

@@ -11,7 +11,7 @@ import (
 
 func roster(t *testing.T) []gendomain.Lens {
 	t.Helper()
-	r, err := genfs.Load(assets.Generals(), assets.Styles(), "")
+	r, err := genfs.Load(assets.Generals(), assets.Styles(), assets.Traps(), "")
 	if err != nil {
 		t.Fatalf("load roster: %v", err)
 	}

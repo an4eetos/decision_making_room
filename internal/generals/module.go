@@ -19,7 +19,7 @@ var Module = fx.Module("generals",
 // purpose: a lens missing its blind spot still renders a card, so nothing
 // downstream could detect the degradation.
 func provideRegistry(cfg config.Config) (port.Registry, error) {
-	roster, err := genfs.Load(assets.Generals(), assets.Styles(), cfg.GeneralsDir)
+	roster, err := genfs.Load(assets.Generals(), assets.Styles(), assets.Traps(), cfg.GeneralsDir)
 	if err != nil {
 		return nil, err
 	}

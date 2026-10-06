@@ -121,17 +121,28 @@ Set `GENERALS_DIR` to a directory containing `generals/` and `styles/`
 subdirectories. A file whose `id` matches a shipped one replaces it; a new `id`
 is appended. Nothing needs recompiling and the repository does not need forking.
 
-Each file's body — sent to the model a passage at a time, as above — has eight
+Each file's body — sent to the model a passage at a time, as above — has eleven
 standard sections, and a test fails if any is missing:
 
 - **Doctrine**: the core claim, as statements. What the lens believes and does.
+- **Cognitive strengths**: what this lens sees that most minds miss. Zhukov
+  goes to the worst number first; Kutuzov separates the discomfort of waiting
+  from its cost.
+- **Traps it kills**: how it takes apart each trap in its `kills` list, in its
+  own register. See [Traps](#traps) below.
+- **Under interrogation**: what it pushes on when questioning, which hidden
+  evaluations it refuses to let stand, and its questions. This is what an
+  interrogation argues from.
 - **In the pocket**: how it behaves when pressure closes from several sides at
   once. This is where the lenses differ most. Zhukov breaks out at the thinnest
   point, Kutuzov gives up the city to save the army, Slim forms a box and
-  holds, Giáp dissolves, Yi Sun-sin retreats to the narrow water.
+  holds, Giáp dissolves, Yi Sun-sin retreats to the narrow water. Written as
+  **numbered orders**, each followed by *On a problem:* — what the order means
+  on an ordinary one.
 - **With reserves in hand**: how it spends abundance: runway, savings, a free
   season. Guderian never disperses, Kutuzov does not spend, Boyd buys learning
-  speed, Manstein drops the cleverness and takes the straight road.
+  speed, Manstein drops the cleverness and takes the straight road. Also
+  numbered orders with *On a problem:* lines; a test checks both sections.
 - **The case against**: the strongest critique, written seriously.
 - **Where it broke**: one short paragraph on a real failure (someone else's,
   labelled as such, when the general's own record has none).
@@ -183,6 +194,11 @@ unknowns: One line. How it sorts uncertainty and what it does about it.
 concedes_when:
   - A condition under which it yields
 rivals: [kutuzov]          # ids of generals it argues with, distinct families
+kills: [encircled, impact_bias]   # 2-4 trap ids from traps.yaml
+orders:                    # exactly three, one line each, usable on a real problem
+  - Hit the whole front at once, so no sector can be reinforced from another.
+  - Prepare in secret, everywhere, so the main blow cannot be read in advance.
+  - Judge by what moved this week, not by the plan.
 routes:
   keywords: [words, "or phrases", that, route, here]
 portrait:                  # optional; file goes in internal/web/assets/static/portraits/
@@ -199,6 +215,28 @@ heading, and sent a passage at a time when it bears on the question.
 The roster is validated at startup and a malformed file aborts the boot. That is
 deliberate — a lens missing its job or its blind spot still renders a card, so
 nothing further down the stack could tell it had been silently degraded.
+
+## Traps
+
+`internal/generals/assets/traps.yaml` is the catalogue of cognitive traps the
+room watches for: the spotlight effect (public shame forecast as a verdict), a
+pain forecast too large, imagined misunderstanding, encirclement passivity
+("no choice"), sunk cost, normalcy bias, vague intent and the rest. Each has a
+`tell`, the `signals` that suggest it, and the `kill` question that exposes it.
+
+Every general names the traps it kills, and every trap must be killed by at
+least one general; startup fails otherwise. The kills decide two things: which
+seated general signs a suggestion to be interrogated, and which traps an
+interrogation hunts. They stay out of the card, which is at its budget.
+
+Traps are found two ways, neither costing an extra model call. Signal phrases
+match the question deterministically; a trap marked `weak` (common in ordinary
+speech, like "try to") only counts beside one that is not. And the answering
+model may end its answer with a `[[interrogate: id, id]]` line for traps it saw
+between the lines; the line is cut out before the answer is stored or shown.
+
+Override or extend the catalogue with `GENERALS_DIR/traps.yaml`: a matching id
+replaces the entry, a new id is appended.
 
 ## Portraits
 

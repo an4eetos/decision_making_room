@@ -4,9 +4,10 @@ A mode is what kind of question you are asking. It decides three things: the
 instructions the model gets, the shape the answer takes, and what retrieval
 favours.
 
-Fifteen ship. The most important is `open`, which imposes no template at all —
-without it, every casual question gets forced into a framework, which is worse
-than having no modes.
+Fifteen ship, plus `interrogation`, which is never detected. The most
+important is `open`, which imposes no template at all — without it, every
+casual question gets forced into a framework, which is worse than having no
+modes.
 
 ## Detection
 
@@ -62,6 +63,36 @@ Each mode nudges retrieval:
 Generals argue about strategy; **working styles** describe how to execute once
 the decision is made. Modes reference them by id and they colour the advice
 rather than being argued between. You do not pick them by hand.
+
+## Interrogation
+
+The one mode that does not advise. The seated generals question you, one
+question each plus a single probe you can check in reality within 48 hours,
+until your position no longer rests on a trap: shame nobody will remember,
+pain forecast as permanent, "no choice", money already spent voting on what
+happens next. Vague answers are sent back for a date, a number or a name.
+
+- **Entered only on purpose** (`explicit_only: true`): from the mode menu, or
+  from a general's banner under an answer that showed a trap. Detection never
+  picks it, and once unlocked it does not stick.
+- **The generals who saw the trap run it** (`keep_seated: true`): unlike any
+  other mode switch, entering it keeps the seated roster.
+- **Each turn** shows On the record, Still dark, Caught (with your words
+  quoted) and Questions. When nothing left would change the position, Still dark
+  says so and *Take a position* lights up.
+- **Take a position** sends a closing turn that uses the mode's `## Position`
+  section instead of `## Output`: the stance, the traps killed, orders with a
+  direction, a time and a fallback, and the unknowns you chose to carry. It
+  also ends the interrogation. **Leave** ends it without a position.
+
+The room suggests an interrogation when it finds a strong trap in what you
+wrote (see [Traps](generals.md#traps)). The suggestion is stored with the
+answer, never made in a check-in or inside an interrogation, and held back for
+four answers after the last one so it does not nag.
+
+A mode with `explicit_only: true` needs no triggers (and may not have any). Any
+mode can carry a `## Position` section and a closing turn; the request flag is
+`conclude: true`.
 
 ## Writing your own
 

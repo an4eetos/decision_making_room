@@ -78,6 +78,19 @@ type Lens struct {
 	// RivalNames is Rivals resolved to display names at load time.
 	RivalNames []string `yaml:"-"`
 
+	// Kills are ids of the traps this lens refuses to let stand — the cognitive
+	// mistakes it is built to catch. They decide who signs a suggestion to be
+	// interrogated and which traps an interrogation carries. They stay out of
+	// the card, which is at its budget: an ordinary answer gets the whole trap
+	// list through the flag instruction instead.
+	Kills []string `yaml:"kills"`
+	// KillNames is Kills resolved to display names at load time.
+	KillNames []string `yaml:"-"`
+	// Orders are the lens's direct orders, one line each, written so they can be
+	// carried out on an ordinary problem. They reach only interrogation and the
+	// position that closes it, never an ordinary card.
+	Orders []string `yaml:"orders"`
+
 	// Portrait is optional artwork, credited.
 	Portrait Portrait `yaml:"portrait"`
 
@@ -138,6 +151,7 @@ func (l Lens) Card() string {
 	if len(l.ConcedesWhen) > 0 {
 		fmt.Fprintf(&b, "Concedes when: %s\n", strings.Join(l.ConcedesWhen, "; "))
 	}
+
 	if len(l.RivalNames) > 0 {
 		fmt.Fprintf(&b, "Argues most with: %s\n", strings.Join(l.RivalNames, ", "))
 	}
@@ -158,4 +172,5 @@ func Cards(lenses []Lens) string {
 type Roster struct {
 	Generals []Lens
 	Styles   []Lens
+	Traps    []Trap
 }

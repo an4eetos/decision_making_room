@@ -72,6 +72,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/chat/sessions", h.createChatSession)
 	mux.HandleFunc("GET /api/chat/sessions/{id}", h.getChatSession)
 	mux.HandleFunc("DELETE /api/chat/sessions/{id}", h.deleteChatSession)
+	mux.HandleFunc("PUT /api/chat/sessions/{id}/mode", h.setChatMode)
 	mux.HandleFunc("POST /api/chat/sessions/{id}/messages", h.sendChatMessage)
 	mux.HandleFunc("POST /api/chat/sessions/{id}/messages/stream", h.streamChatMessage)
 }
@@ -205,6 +206,8 @@ func (h *Handler) listGenerals(w http.ResponseWriter, r *http.Request) {
 		Family  string `json:"family"`
 		Job     string `json:"job"`
 		Bias    string `json:"bias,omitempty"`
+		// Kills names the traps the general refuses to let stand.
+		Kills []string `json:"kills,omitempty"`
 		// Portrait is a URL when there is a picture, empty when the UI should
 		// draw the monogram instead.
 		Portrait string `json:"portrait,omitempty"`
@@ -216,7 +219,7 @@ func (h *Handler) listGenerals(w http.ResponseWriter, r *http.Request) {
 	for _, l := range lenses {
 		dto := generalDTO{
 			ID: l.ID, Name: l.Name, Epithet: l.Epithet, Era: l.Era,
-			Family: string(l.Family), Job: l.Job, Bias: l.Bias,
+			Family: string(l.Family), Job: l.Job, Bias: l.Bias, Kills: l.KillNames,
 		}
 		if l.Portrait.File != "" {
 			dto.Portrait = "/static/portraits/" + l.Portrait.File
@@ -407,11 +410,45 @@ func (h *Handler) deleteChatSession(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// setChatMode pins a conversation's mode, or hands it back to detection with an
+// empty mode, without sending a message.
+func (h *Handler) setChatMode(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Mode string `json:"mode"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+	if req.Mode != "" {
+		if _, ok := h.modes.Get(req.Mode); !ok {
+			http.Error(w, "unknown mode", http.StatusBadRequest)
+			return
+		}
+	}
+
+	session, err := h.chatUC.SetMode(r.Context(), r.PathValue("id"), req.Mode)
+	if err != nil {
+		switch {
+		case strings.Contains(err.Error(), "invalid session id"):
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		case errors.Is(err, port.ErrChatSessionNotFound):
+			http.Error(w, err.Error(), http.StatusNotFound)
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	writeJSON(w, http.StatusOK, session)
+}
+
 type sendChatMessageRequest struct {
 	Content  string    `json:"content"`
 	Tier     string    `json:"tier"`
 	Generals *[]string `json:"generals"`
 	Mode     *string   `json:"mode"`
+	// Conclude asks the mode for its closing turn ("Take a position").
+	Conclude bool `json:"conclude"`
 }
 
 func (req sendChatMessageRequest) input(sessionID string) usecase.SendMessageInput {
@@ -421,6 +458,7 @@ func (req sendChatMessageRequest) input(sessionID string) usecase.SendMessageInp
 		Tier:      req.Tier,
 		Generals:  derefStrings(req.Generals),
 		Mode:      req.Mode,
+		Conclude:  req.Conclude,
 	}
 }
 

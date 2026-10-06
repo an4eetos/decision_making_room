@@ -47,6 +47,16 @@ type ConsultPlan struct {
 	// Plain drops the output template and lenses; see ConsultInput.Plain.
 	Plain bool
 
+	// Conclude closes the mode: its "## Position" template replaces the output
+	// template for this turn. See ConsultInput.Conclude.
+	Conclude bool
+
+	// Traps is the trap catalogue, and TrapHits the traps its signal phrases
+	// found in the question. Hits are only looked for where a suggestion could
+	// follow — never inside an interrogation, never on a plain check-in.
+	Traps    []gendomain.Trap
+	TrapHits []genservice.TrapHit
+
 	// Progress is carried from the input; see ConsultInput.Progress.
 	Progress *Progress
 
@@ -95,6 +105,7 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		Tier:     policy,
 		Now:      time.Now().UTC(),
 		Plain:    input.Plain,
+		Conclude: input.Conclude,
 		Progress: input.Progress,
 	}
 
@@ -115,7 +126,9 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		// A mode switch is the clearest sign the situation changed: the bar to
 		// leave a mode is already set high, so it clearing earns a fresh pick of
 		// generals too.
-		if input.SessionMode != "" && detection.Mode.ID != input.SessionMode {
+		// Unless the mode asks to keep them: an interrogation is run by the
+		// generals who saw the trap.
+		if input.SessionMode != "" && detection.Mode.ID != input.SessionMode && !detection.Mode.Generals.KeepSeated {
 			seated = nil
 		}
 
@@ -148,9 +161,42 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		plan.GeneralsMethod = selection.Method
 
 		plan.Styles = r.registry.Resolve(plan.Mode.Styles)
+
+		plan.Traps = r.registry.Traps()
+		if plan.Mode.IsInterrogation() {
+			// Inside an interrogation the hits never become a suggestion; they
+			// tell the interrogators which traps the conversation has shown, so
+			// one is not misnamed after whatever the seated lenses carry.
+			plan.TrapHits = genservice.DetectTraps(userText(plan.Question, plan.History), plan.Traps)
+		} else {
+			plan.TrapHits = genservice.DetectTraps(plan.Question, plan.Traps)
+		}
 	}
 
 	return plan
+}
+
+// SpottedTraps lists the ids of the traps found in what the person wrote.
+func (p ConsultPlan) SpottedTraps() []string {
+	ids := make([]string, 0, len(p.TrapHits))
+	for _, hit := range p.TrapHits {
+		ids = append(ids, hit.ID)
+	}
+	return ids
+}
+
+// userText is everything the person has written in the conversation, newest
+// last.
+func userText(question string, history []port.Message) string {
+	var b strings.Builder
+	for _, m := range history {
+		if m.Role == "user" {
+			b.WriteString(m.Content)
+			b.WriteString("\n")
+		}
+	}
+	b.WriteString(question)
+	return b.String()
 }
 
 // RetrievalBias turns the mode's preferences into reranking inputs. Kinds are

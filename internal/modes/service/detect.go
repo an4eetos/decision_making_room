@@ -93,7 +93,9 @@ func (d *Detector) Detect(in Input) Detection {
 	}
 
 	if in.TurnIndex > 0 && in.SessionMode != "" && in.SessionMode != fallback.ID {
-		if mode, ok := d.registry.Get(in.SessionMode); ok {
+		// An explicit-only mode is held by the lock, never by stickiness: once
+		// unlocked, the conversation is out of it.
+		if mode, ok := d.registry.Get(in.SessionMode); ok && !mode.ExplicitOnly {
 			// Stay unless a different mode makes a strong case.
 			if best.id == "" || best.id == mode.ID || best.score < challengeScore {
 				return Detection{Mode: mode, Method: MethodSticky, Confidence: 0.6}
@@ -121,6 +123,9 @@ func (d *Detector) score(question string) []scored {
 
 	out := make([]scored, 0, len(d.registry.List()))
 	for _, mode := range d.registry.List() {
+		if mode.ExplicitOnly {
+			continue
+		}
 		weight := mode.Triggers.Weight
 		if weight <= 0 {
 			// Weight zero means the mode opts out of keyword detection, which is

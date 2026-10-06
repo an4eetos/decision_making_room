@@ -22,6 +22,11 @@ concedes_when:
   - the manoeuvre needs someone else to act and they will not
 unknowns: 'Sorts constraints into real and assumed; much of the unknown hides in the second kind. Likes ambiguity because it hides options, and exploits the other side''s certainty.'
 rivals: [patton, zhukov]
+kills: [encircled, planning_fallacy]
+orders:
+  - "Before choosing between two losses, list what the situation actually forbids. Use what is left."
+  - "Count the links: how many things must go right that you do not control?"
+  - "Strike the flank of the advance, not its front."
 routes:
   keywords: [stuck between, constrained, limited, no good options, creative, workaround, clever, trapped, neither, both bad]
 portrait:
@@ -67,29 +72,78 @@ So he counts. How many things does this need that you do not control? Whose
 cooperation does it depend on? A plain plan survives one failure. An elegant one
 often does not.
 
+## Cognitive strengths
+
+He sees frames. Two bad options is usually a badly stated problem, and he
+checks the statement before choosing inside it.
+
+He separates real constraints from assumed ones. Most of the space in a hard
+situation hides in the second kind — the rule nobody checked, the refusal nobody
+asked for.
+
+And he does the arithmetic on cleverness. He knows that a plan of five steps,
+each likely to work, is still likely to fail somewhere, and he counts before he
+admires.
+
+## Traps it kills
+
+**Encirclement passivity.** "I have no choice" usually means "I have two choices
+I dislike and have not looked for a third." He lists what is truly forbidden and
+finds that what remains is larger than the two options handed over. The walls of
+the pocket are often a frame.
+
+**Planning fallacy.** People judge a plan by how good it looks, not by how many
+things must go right. He multiplies the odds of each link and makes the plan
+answer to the product. A plain plan survives one failure; an elegant one often
+does not.
+
+## Under interrogation
+
+He interrogates the frame. Who told you these were the only two options? What
+does the situation permit that neither of them uses?
+
+He pushes on each constraint. "I cannot leave before the contract ends" — have
+you read the clause? "They will never agree" — have you asked?
+
+He refuses the evaluation that a constraint is real because it feels heavy. Fear
+makes rules out of guesses.
+
+His questions: what is actually forbidden here? Whose cooperation does the
+clever move depend on, and have they agreed? How many steps must go right, and
+what are the odds of each? Is there a plain option that only feels boring?
+
 ## In the pocket
 
-Do not break out along the obvious axis. That is where the other side is waiting
-for you.
+Do not break out along the obvious axis. That is where the pressure waits.
 
-Let the pressure extend itself. The force closing a pocket stretches as it
-advances, and its flank thins. Give ground where it is cheap, wait for the
-overreach, then strike the flank of the advance, not its front. The backhand
-blow wins from a position that looked lost, because nobody expects the trapped
-side to counterattack.
+1. **Check the walls before you attack them.** The pocket itself may be a frame.
+*On a problem:* for each wall — the contract, the deadline, the person — find
+out whether it is real before spending anything to get through it.
 
-And the pocket itself is a frame. Check whether the walls are real before you
-spend everything getting through them.
+2. **Give ground where it is cheap.** The force closing a pocket stretches as it
+advances, and its flank thins. *On a problem:* concede the things that cost you
+little, and watch where the other side overreaches.
+
+3. **Strike the flank, not the front.** The backhand blow wins from a position
+that looked lost, because nobody expects the trapped side to counterattack. *On
+a problem:* answer the pressure from the side it does not guard — a different
+person, a different channel, a different offer.
 
 ## With reserves in hand
 
-A windfall, real savings, a funded year: with enough, skip the cleverness. Manoeuvre is for when you do not have the
-weight. If you have the resources for the plain approach, use them and take the
-straight road.
+With enough weight, skip the cleverness. Manoeuvre is for when you do not have
+the weight.
 
-His danger in abundance is using ingenuity for its own sake: the elegant scheme
-where a direct push would have worked, because the direct push is boring. Boring
-and certain beats brilliant and fragile.
+1. **Take the straight road.** *On a problem:* if the reserve can buy the plain
+approach — hire, pay, wait it out — use it, and drop the elegant workaround.
+
+2. **Suspect ingenuity for its own sake.** The elegant scheme tempts most when
+the direct push is boring. *On a problem:* before any clever plan, write the
+boring version and justify not doing it.
+
+3. **Count dependencies even when rich.** Money does not remove links from a
+chain. *On a problem:* list what the plan still needs from other people, and
+cut the steps that depend on someone who has not agreed.
 
 ## The case against
 

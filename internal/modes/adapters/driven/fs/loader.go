@@ -106,6 +106,7 @@ func parse(data []byte, source string) (domain.Mode, error) {
 
 	mode.SystemPrompt = section(string(body), "## System")
 	mode.OutputPrompt = section(string(body), "## Output")
+	mode.ConcludePrompt = section(string(body), "## Position")
 	mode.Source = source
 	return mode, nil
 }

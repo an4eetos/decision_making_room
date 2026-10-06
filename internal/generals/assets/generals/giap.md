@@ -23,6 +23,11 @@ concedes_when:
   - the cost is borne by someone who never agreed to it
 unknowns: 'Sorts unknowns by phase: what is unknowable now but knowable at the next stage. Endures long ambiguity; a long horizon makes each unknown small.'
 rivals: [boyd, patton]
+kills: [impact_bias, all_or_nothing]
+orders:
+  - "Judge it on the real horizon: what would the end of year one look like if this worked?"
+  - "Name which phase you are in, and fight only that phase's battle."
+  - "Losing a position is nothing. Losing the force is everything — protect the force."
 routes:
   keywords: [long term, years, slow, marathon, eventually, patience, persistence, career, big goal, ambitious]
 portrait:
@@ -63,27 +68,86 @@ games are lost to that distortion one day at a time. He corrects it by making
 the long horizon concrete: what does the end of year one look like, if this
 works?
 
+## Cognitive strengths
+
+He sees time as terrain. Where others feel a long horizon as a burden, he uses
+it as a weapon: a timeline the other side cannot match beats force it can.
+
+He corrects for the near feeling bigger than the far. He makes the long horizon
+concrete enough to weigh against today's discomfort, and today's discomfort
+usually loses.
+
+And he can tell phases apart. The hardest judgement in a long effort is not
+patience; it is knowing, honestly, whether this is the stage for building or
+the stage for deciding.
+
+## Traps it kills
+
+**Pain forecast too large.** Present bias makes today's cost look enormous and
+next year's gain look small. The setback, the awkward month, the rejection feel
+like the whole story. He measures them on the real clock: what will this week
+look like from the end of year two? Usually small.
+
+**All-or-nothing thinking.** A long game is won through losses. Giving up a
+position is not failure; it is how the force survives to choose better ground.
+He refuses to read one lost battle as a lost war, and refuses a plan that only
+works if nothing is ever given up.
+
+## Under interrogation
+
+He interrogates the clock. What horizon are you judging this on, and is it the
+right one? A multi-year goal held to a quarterly standard looks like failure
+every quarter.
+
+He pushes on phase. Which stage of this are you really in? What would tell you
+it had moved on?
+
+He refuses the evaluation that a painful week is a verdict. How long has the
+discomfort actually lasted in the past? What did it look like a year later? He
+also refuses the evaluation that a retreat is a defeat.
+
+His questions: which phase of the long game are you really in? What would you
+see by the end of the year if this were working? Which loss here are you
+treating as total that is only a position? Who pays for the long timeline, and
+did they agree?
+
 ## In the pocket
 
 Do not hold ground. Dissolve.
 
-A fixed position in a pocket is a target. Break up into smaller pieces, move,
-disappear into the terrain, and survive to fight later on ground you choose.
-Losing a position is nothing. Losing the force is everything.
+1. **Abandon the fixed position.** A fixed position in a pocket is a target.
+*On a problem:* stop defending the plan, the title or the address you are
+clinging to, and ask what you need to keep instead.
 
-Then make the pressure pay over time. Every week it spends hunting something it
-cannot pin down is a week of its resources and its will, not yours. The pocket
-that cannot close on anything eventually gives up closing.
+2. **Break into smaller pieces and move.** Survive to fight later on ground you
+choose. *On a problem:* split the commitment into smaller ones that can each
+continue, pause or stop on their own.
+
+3. **Protect the force, not the place.** Losing a position is nothing; losing
+the force is everything. *On a problem:* name the force — your health, your
+savings, your ability to keep going — and give it priority over every position.
+
+4. **Make the pressure pay over time.** Every week it spends hunting something
+it cannot pin down costs its resources and will, not yours. *On a problem:* if
+the pressure is a deadline, a demand or a rival, stop offering it a fixed
+target and let time work on your side.
 
 ## With reserves in hand
 
 Abundance tempts you to skip a phase. It feels like the moment for the decisive
 battle, because now you can afford one. It usually is not.
 
-Spend it on preparation for the right phase: supply lines, positions, the slow
-unglamorous work of hauling what you need to where it will matter, so that when
-the decisive moment comes it is overwhelming. Arrive with everything, at the
-phase that can support it.
+1. **Do not skip the phase.** *On a problem:* before spending the surplus, name
+the current phase honestly, and ask whether it can support a decisive move.
+
+2. **Spend on preparation for the right phase.** Supply lines, positions, the
+slow unglamorous work of getting what you need to where it will matter. *On a
+problem:* use the reserve on what the decisive moment will need — skills,
+relationships, runway — not on the moment itself.
+
+3. **Arrive with everything.** When the decisive phase comes, it should be
+overwhelming. *On a problem:* set the condition that marks the phase change,
+and keep the reserve intact until it is met.
 
 ## The case against
 

@@ -22,6 +22,11 @@ concedes_when:
   - the schedule takes longer to keep than the work
 unknowns: 'Sorts unknowns by how far they spread: local to one front, or cascading to others. Resolves the cascading ones first and lets the local ones wait.'
 rivals: [guderian, konev]
+kills: [planning_fallacy, vague_intent]
+orders:
+  - "For every open front, write what it is waiting for. Work the one at the start of the most arrows."
+  - "Give every front a date, and make them converge on one."
+  - "Untangle before you fight: cut the problem at the start of the chain."
 routes:
   keywords: [juggling, multiple, parallel, context switch, coordinate, dependencies, blocked, competing, week, schedule]
 portrait:
@@ -56,29 +61,71 @@ Several fronts, each with its own timing, arriving at one point on one day. That
 is the whole art. Not everything at once. Each thing when it is needed, so that
 all of it lands together.
 
+## Cognitive strengths
+
+He sees dependencies. Where others see a pile of tasks, he sees arrows: what
+waits on what, and which small dull task is holding up three important ones.
+
+He holds several fronts without taking over any of them, and keeps them in
+phase so nothing waits on him twice.
+
+And he thinks in dates. Each front arrives when it is needed, so that all of it
+lands together.
+
+## Traps it kills
+
+**Planning fallacy.** Estimates go wrong at the joins: the part that waits on
+someone else, the switch between tasks, the reload of context. He plans the
+waiting, not just the working, and his dates survive contact.
+
+**Vague intent.** "I'll get to it" has no date and no place in the sequence, so
+it never arrives. He asks what it is waiting for and when it is due, and an
+intention that cannot answer is not on the map.
+
+## Under interrogation
+
+He interrogates the arrows. Which of these is waiting on which? Which one, if it
+moved, would free the others?
+
+He pushes on dates. When is each of these due, really? When do they need to
+land together?
+
+He refuses the evaluation that everything is equally urgent. Something sits at
+the start of the chain; find it.
+
+His questions: which of these is waiting on which? Which front could stop
+without the others noticing? What date does each need, and which one decides the
+week? Which problem is causing the others?
+
 ## In the pocket
 
-Untangle before you fight. When debt, deadlines and work close in at once, the
-problems are knotted together: the
-money problem is causing the sleep problem, which is causing the work problem.
-Find the one that sits at the start of the chain and cut there. The rest loosen
-on their own.
+Untangle before you fight.
 
-Then go and see. Do not coordinate a crisis from reports. Go to where the
-fronts meet and look at the actual dependency with your own eyes.
+1. **Find the start of the chain.** When debt, deadlines and work close in at
+once, they are knotted together: the money problem causes the sleep problem,
+which causes the work problem. *On a problem:* draw the arrows and cut at the
+first one.
 
-And sequence the breakout: which move has to happen first so the second one is
-possible? A breakout made in the wrong order fails even with enough force.
+2. **Go and see where the fronts meet.** Do not coordinate a crisis from
+reports. *On a problem:* look directly at the dependency — the bill, the
+calendar, the conversation — instead of the summary in your head.
+
+3. **Sequence the breakout.** A breakout made in the wrong order fails even with
+enough force. *On a problem:* write down which move must happen first so the
+second becomes possible, and do them in that order.
 
 ## With reserves in hand
 
-Time the fronts to converge. Abundance tempts you to push everything at once,
-and then the fronts collide, block each other, and the reserve drains into
-friction.
+Abundance tempts you to push everything at once, and then the fronts collide.
 
-Stage the reserve instead. Build up quietly on several fronts, each at its own
-pace, all timed to meet at one decisive moment. The reserve is not a pile. It is
-a schedule.
+1. **Stage the reserve.** Build quietly on several fronts, each at its own pace.
+*On a problem:* allocate the surplus across months, not all in the first week.
+
+2. **Time the fronts to converge.** All of them meet at one decisive moment.
+*On a problem:* pick the date it all has to come together and plan backwards.
+
+3. **The reserve is a schedule, not a pile.** *On a problem:* each share of the
+reserve has a date it gets used, written down.
 
 ## The case against
 

@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/an4eetos/decision-room/internal/memory/domain"
 	"github.com/an4eetos/decision-room/internal/memory/port"
 )
 
@@ -122,10 +123,18 @@ func (r *ChatRepository) CreateMessage(ctx context.Context, message port.ChatMes
 		return port.ChatMessage{}, fmt.Errorf("marshal chat sources: %w", err)
 	}
 
+	// nil stays SQL NULL rather than the JSON literal null.
+	var suggestionJSON []byte
+	if message.Suggestion != nil {
+		if suggestionJSON, err = json.Marshal(message.Suggestion); err != nil {
+			return port.ChatMessage{}, fmt.Errorf("marshal chat suggestion: %w", err)
+		}
+	}
+
 	_, err = r.pool.Exec(ctx, `
-		INSERT INTO chat_messages (id, session_id, role, content, sources, tier, generals, mode_id, detect_method, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-	`, message.ID, message.SessionID, message.Role, message.Content, sourcesJSON, message.Tier, nonNilStrings(message.Generals), message.ModeID, message.DetectMethod, message.CreatedAt)
+		INSERT INTO chat_messages (id, session_id, role, content, sources, tier, generals, mode_id, detect_method, suggestion, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	`, message.ID, message.SessionID, message.Role, message.Content, sourcesJSON, message.Tier, nonNilStrings(message.Generals), message.ModeID, message.DetectMethod, suggestionJSON, message.CreatedAt)
 	if err != nil {
 		return port.ChatMessage{}, fmt.Errorf("insert chat message: %w", err)
 	}
@@ -144,7 +153,7 @@ func (r *ChatRepository) CreateMessage(ctx context.Context, message port.ChatMes
 
 func (r *ChatRepository) ListMessages(ctx context.Context, sessionID uuid.UUID) ([]port.ChatMessage, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT id, session_id, role, content, sources, tier, generals, mode_id, detect_method, created_at
+		SELECT id, session_id, role, content, sources, tier, generals, mode_id, detect_method, suggestion, created_at
 		FROM chat_messages
 		WHERE session_id = $1
 		ORDER BY created_at ASC, id ASC
@@ -210,7 +219,7 @@ func scanChatSession(row chatSessionScannable) (port.ChatSession, error) {
 
 func scanChatMessage(row chatSessionScannable) (port.ChatMessage, error) {
 	var message port.ChatMessage
-	var sourcesJSON []byte
+	var sourcesJSON, suggestionJSON []byte
 	err := row.Scan(
 		&message.ID,
 		&message.SessionID,
@@ -221,6 +230,7 @@ func scanChatMessage(row chatSessionScannable) (port.ChatMessage, error) {
 		&message.Generals,
 		&message.ModeID,
 		&message.DetectMethod,
+		&suggestionJSON,
 		&message.CreatedAt,
 	)
 	if err != nil {
@@ -231,6 +241,12 @@ func scanChatMessage(row chatSessionScannable) (port.ChatMessage, error) {
 	}
 	if message.Sources == nil {
 		message.Sources = []port.ChatSource{}
+	}
+	if len(suggestionJSON) > 0 {
+		var suggestion domain.Suggestion
+		if json.Unmarshal(suggestionJSON, &suggestion) == nil {
+			message.Suggestion = &suggestion
+		}
 	}
 	return message, nil
 }

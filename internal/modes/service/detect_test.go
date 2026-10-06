@@ -165,3 +165,31 @@ func TestUnknownExplicitModeFallsThrough(t *testing.T) {
 		t.Fatalf("got %q; an unknown explicit mode should fall through to detection", got.Mode.ID)
 	}
 }
+
+// Being questioned when you asked for advice is worse than any misdetected
+// template, so interrogation is only ever entered on purpose.
+func TestInterrogationIsNeverDetected(t *testing.T) {
+	t.Parallel()
+	d := detector(t)
+
+	for _, q := range []string{
+		"Interrogate me",
+		"Grill me on this decision",
+		"I have no choice and everyone will think I'm a failure",
+	} {
+		if got := d.Detect(service.Input{Question: q}); got.Mode.ID == "interrogation" {
+			t.Fatalf("%q auto-detected interrogation", q)
+		}
+	}
+
+	if got := d.Detect(service.Input{Question: "anything", Explicit: "interrogation"}); got.Mode.ID != "interrogation" {
+		t.Fatalf("an explicit pick should enter it, got %q", got.Mode.ID)
+	}
+	if got := d.Detect(service.Input{Question: "anything", SessionMode: "interrogation", Locked: true, TurnIndex: 3}); got.Mode.ID != "interrogation" {
+		t.Fatalf("a locked interrogation should hold, got %q", got.Mode.ID)
+	}
+	// Unlocked, it is over: stickiness never holds an explicit-only mode.
+	if got := d.Detect(service.Input{Question: "plan my day", SessionMode: "interrogation", TurnIndex: 3}); got.Mode.ID == "interrogation" {
+		t.Fatal("an unlocked interrogation should not stick")
+	}
+}

@@ -22,6 +22,13 @@
     --wr-red-soft: #33191a;
     --wr-red-text: #f3a39c;
     --wr-green: #8fb86a;
+    /* Interrogation: a cold steel room under the warm war room. Its own hue so
+       amber keeps meaning "the call" and red keeps meaning a conflict. */
+    --wr-int: #7d9cc0;
+    --wr-int-line: #34465c;
+    --wr-int-soft: #141a21;
+    --wr-int-panel: #18202a;
+    --wr-int-text: #bcd0e6;
     --wr-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 }
 
@@ -189,9 +196,10 @@ textarea {
 /* pre-wrap preserves the newlines you typed. It must not apply to rendered
    markdown, where the whitespace between block tags is formatting, not content —
    with it on, the newline marked leaves between two <li> tags renders as a blank
-   line and every list gains a gap. */
+   line and every list gains a gap. The same goes for structured answers — a
+   briefing or an interrogation — which are markup built from markdown. */
 .answer-body:not(.markdown),
-.chat-message-body:not(.markdown) {
+.chat-message-body:not(.markdown):not(.structured) {
     white-space: pre-wrap;
 }
 
@@ -2340,6 +2348,320 @@ body {
 
 .call-key {
     color: var(--wr-amber);
+}
+
+/* ---------- Interrogation ----------
+   The room changes colour when the generals stop advising and start asking:
+   a cold steel background on every message in it, the composer included, and
+   each general's question tinted in that general's family colour, the same way
+   stances are in a briefing. Red still means one kind of thing — a conflict:
+   generals parting ways, or a trap caught in your own words. */
+
+.chat-messages.interrogating {
+    background:
+        radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--wr-int) 10%, transparent), transparent 60%),
+        var(--wr-int-soft);
+    border-radius: 10px;
+    padding: 0.6rem;
+}
+
+.chat-message.interrogation {
+    background: var(--wr-int-panel);
+    border-color: var(--wr-int-line);
+    border-left: 3px solid var(--wr-int);
+}
+
+.chat-message.user.interrogation {
+    background: var(--wr-int-soft);
+    border-left-color: var(--wr-int-line);
+}
+
+/* The war room strips the box off answers; in interrogation they get it back,
+   so the room reads as a room. */
+.war-room .chat-message.assistant.interrogation {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--wr-int-line);
+    border-left: 3px solid var(--wr-int);
+    border-radius: 0 10px 10px 0;
+    background: var(--wr-int-panel);
+}
+
+.war-room .chat-message.user.interrogation {
+    border-color: var(--wr-int-line);
+    background: color-mix(in srgb, var(--wr-int) 14%, var(--wr-int-soft));
+}
+
+.interrogation-badge {
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--wr-int) 18%, transparent);
+    color: var(--wr-int-text);
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.interrogation-answer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.int-key {
+    display: block;
+    margin-bottom: 3px;
+    font-family: var(--wr-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-int);
+}
+
+.interrogation-answer .markdown p:first-child {
+    margin-top: 0;
+}
+
+.interrogation-answer .markdown p:last-child {
+    margin-bottom: 0;
+}
+
+.int-record {
+    font-size: 0.86rem;
+    color: var(--wr-text-2);
+}
+
+.int-dark {
+    padding: 8px 12px;
+    border: 1px dashed var(--wr-int-line);
+    border-radius: 8px;
+    font-size: 0.88rem;
+}
+
+.int-dark.ready {
+    border-style: solid;
+    border-color: var(--wr-amber-line);
+    background: var(--wr-amber-soft);
+    color: var(--wr-amber-text);
+}
+
+.int-dark.ready .int-key {
+    color: var(--wr-amber);
+}
+
+.int-dark.ready p {
+    margin: 0;
+}
+
+.int-caught,
+.int-killed {
+    padding: 8px 12px;
+    border-left: 3px solid var(--wr-red);
+    background: var(--wr-red-soft);
+    color: var(--wr-red-text);
+    font-size: 0.88rem;
+}
+
+.int-caught .int-key,
+.int-killed .int-key {
+    color: var(--wr-red);
+}
+
+/* Killed traps are a conflict won, not one still open. */
+.int-killed {
+    border-left-color: var(--wr-green);
+    background: color-mix(in srgb, var(--wr-green) 10%, var(--wr-panel));
+    color: var(--wr-text);
+}
+
+.int-killed .int-key {
+    color: var(--wr-green);
+}
+
+.int-questions,
+.int-orders {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.interrogator,
+.order {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border: 1px solid color-mix(in srgb, var(--family) 35%, transparent);
+    border-left: 3px solid var(--family);
+    border-radius: 0 8px 8px 0;
+    background: color-mix(in srgb, var(--family) 12%, var(--wr-panel));
+}
+
+.interrogator-body,
+.order-body {
+    min-width: 0;
+    font-size: 0.92rem;
+}
+
+.interrogator-name,
+.order-name {
+    display: block;
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--family);
+}
+
+.interrogator-body p,
+.order-body p {
+    margin: 2px 0 0;
+}
+
+.int-position {
+    padding: 12px 14px;
+    border: 1px solid var(--wr-amber-line);
+    border-radius: 8px;
+    background: var(--wr-panel-2);
+}
+
+.int-position .int-key {
+    color: var(--wr-amber);
+}
+
+/* The banner under an answer: a general recommending an interrogation. */
+.interrogate-suggest {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 0.75rem;
+    padding: 12px 14px;
+    border: 1px solid var(--wr-int-line);
+    border-left: 3px solid var(--family);
+    border-radius: 0 8px 8px 0;
+    background:
+        linear-gradient(90deg, color-mix(in srgb, var(--family) 10%, transparent), transparent 70%),
+        var(--wr-int-soft);
+}
+
+.interrogate-suggest-body {
+    min-width: 0;
+    flex: 1;
+}
+
+.interrogate-suggest-head {
+    margin: 0 0 6px;
+    font-size: 0.9rem;
+    color: var(--wr-int-text);
+}
+
+.interrogate-suggest-head strong {
+    color: var(--family);
+}
+
+.interrogate-traps {
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+    font-size: 0.86rem;
+}
+
+.interrogate-traps li {
+    padding: 3px 0;
+}
+
+.interrogate-traps .trap-names {
+    display: block;
+}
+
+.trap-name + .trap-name::before {
+    content: "· ";
+    color: var(--wr-faint);
+}
+
+.trap-name {
+    margin-right: 6px;
+    font-family: var(--wr-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--wr-red-text);
+}
+
+.interrogate-traps q {
+    color: var(--wr-text);
+    font-style: italic;
+}
+
+.trap-unsaid {
+    color: var(--wr-muted);
+    font-style: italic;
+}
+
+.interrogate-suggest-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.interrogate-suggest-actions .btn,
+.interrogate-suggest-actions .btn-secondary {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+/* The composer while questioning. */
+.chat-form.interrogating textarea {
+    border-color: var(--wr-int-line);
+    background: var(--wr-int-panel);
+}
+
+.interrogation-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--wr-int-line);
+    border-radius: 8px;
+    background: var(--wr-int-soft);
+}
+
+.interrogation-bar[hidden] {
+    display: none;
+}
+
+.interrogation-bar-label {
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wr-int);
+}
+
+.interrogation-who {
+    font-size: 0.85rem;
+    color: var(--wr-int-text);
+}
+
+.interrogation-bar-actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.interrogation-bar-actions .btn-secondary {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+}
+
+.take-position.ready {
+    border-color: var(--wr-amber-line);
+    background: var(--wr-amber-soft);
+    color: var(--wr-amber-text);
+    box-shadow: 0 0 0 1px var(--wr-amber-line);
 }
 
 /* ---------- Narrower screens ---------- */

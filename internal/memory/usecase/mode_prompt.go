@@ -9,17 +9,29 @@ import (
 )
 
 // modePrompt renders a mode's instructions. The open mode contributes only its
-// system text and no template, which is the point of having it.
-func modePrompt(mode modedomain.Mode) string {
+// system text and no template, which is the point of having it. On a closing
+// turn the mode's position template replaces its output template.
+func modePrompt(mode modedomain.Mode, conclude bool) string {
 	if strings.TrimSpace(mode.SystemPrompt) == "" {
 		return ""
 	}
 
 	var b strings.Builder
-	fmt.Fprintf(&b, "This is a %s.\n\n", strings.ToLower(mode.Name))
+	name := strings.ToLower(mode.Name)
+	article := "a"
+	if strings.ContainsAny(name[:1], "aeiou") {
+		article = "an"
+	}
+	fmt.Fprintf(&b, "This is %s %s.\n\n", article, name)
 	b.WriteString(strings.TrimSpace(mode.SystemPrompt))
 
-	if out := strings.TrimSpace(mode.OutputPrompt); out != "" {
+	out := strings.TrimSpace(mode.OutputPrompt)
+	if pos := strings.TrimSpace(mode.ConcludePrompt); conclude && pos != "" {
+		b.WriteString("\n\nThis turn closes it. Do not ask anything more. ")
+		b.WriteString("Write the position the conversation so far has earned.")
+		out = pos
+	}
+	if out != "" {
 		b.WriteString("\n\nStructure the answer like this:\n\n")
 		b.WriteString(out)
 	}

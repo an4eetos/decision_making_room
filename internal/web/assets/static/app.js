@@ -191,7 +191,12 @@ function renderChatMessages(container, messages) {
         return;
     }
 
-    container.innerHTML = messages.map(chatMessageHTML).join("");
+    // What you wrote during an interrogation sits in the same room as the
+    // questions, so it takes the same background.
+    const marked = messages.map((m, i) => (m.role === "user" && messages[i + 1]?.mode === INTERROGATION_MODE
+        ? { ...m, interrogation: true }
+        : m));
+    container.innerHTML = marked.map(chatMessageHTML).join("");
     container.scrollTop = container.scrollHeight;
 }
 
@@ -199,12 +204,17 @@ function renderChatMessages(container, messages) {
 // be swapped for its finished form the moment it is saved.
 function chatMessageHTML(message) {
     const isAssistant = message.role === "assistant";
+    const interrogating = isAssistant ? message.mode === INTERROGATION_MODE : Boolean(message.interrogation);
     // Only assistant answers are markdown. What you typed is shown exactly as
     // you typed it — rendering your own text would mangle anything containing
     // an asterisk or a hash.
-    const briefing = isAssistant ? renderBriefing(message.content) : null;
-    const body = briefing
-        ? `<div class="chat-message-body">${briefing}</div>`
+    const structured = !isAssistant
+        ? null
+        : interrogating
+            ? renderInterrogation(message.content)
+            : renderBriefing(message.content);
+    const body = structured
+        ? `<div class="chat-message-body structured">${structured}</div>`
         : isAssistant
             ? `<div class="chat-message-body markdown">${renderMarkdown(message.content)}</div>`
             : `<div class="chat-message-body">${escapeHTML(message.content)}</div>`;
@@ -215,8 +225,11 @@ function chatMessageHTML(message) {
 
     // Which lenses produced this answer, and whether you picked them. An
     // auto-selected lens should never look like one you chose.
-    const mode = isAssistant && message.mode && message.mode !== "open"
+    const mode = isAssistant && message.mode && message.mode !== "open" && !interrogating
         ? `<span class="mode-badge">${escapeHTML(modeChipName(message.mode))}</span>`
+        : "";
+    const room = interrogating
+        ? `<span class="interrogation-badge">${isAssistant ? "Interrogation" : "Under questioning"}</span>`
         : "";
 
     const lenses = isAssistant && message.generals?.length
@@ -227,15 +240,17 @@ function chatMessageHTML(message) {
         : "";
 
     return `
-    <div class="chat-message ${escapeHTML(message.role)}">
+    <div class="chat-message ${escapeHTML(message.role)}${interrogating ? " interrogation" : ""}">
         <div class="chat-message-head">
             <span class="chat-message-role">${escapeHTML(message.role)}</span>
+            ${room}
             ${mode}
             ${tier}
             ${lenses}
         </div>
         ${body}
         ${isAssistant ? renderChatSources(message.sources) : ""}
+        ${isAssistant ? suggestionHTML(message) : ""}
         ${isAssistant && message.id ? `<button type="button" class="track-btn" data-track-message="${escapeHTML(message.id)}">Track something from this</button>` : ""}
     </div>`;
 }
@@ -439,7 +454,7 @@ function setupConsultForm() {
 
     const loops = setupCommitments();
 
-    const modeChip = setupModeChip({ onChange: () => {} });
+    const modeChip = setupModeChip({ onChange: () => syncInterrogation() });
     modeChip?.load().then(async () => {
         try {
             modeNames = Object.fromEntries(
@@ -455,6 +470,7 @@ function setupConsultForm() {
         generals.setMax(LENSES_PER_TIER[selectedTier()] ?? 2);
         lensNames = generals.names();
         setBriefingRoster(generals.all());
+        setInterrogationRoster(generals.all());
         // Any messages already on screen were rendered before the roster
         // arrived, so redraw them with proper names.
         if (activeSessionID) {
@@ -482,6 +498,98 @@ function setupConsultForm() {
             radio.checked = radio.value === tier;
         }
     }
+
+    // The interrogation bar sits on the composer while the conversation is
+    // pinned to an interrogation: who is asking, Take a position, Leave.
+    const interrogationBar = document.getElementById("interrogation-bar");
+    const interrogationWho = document.getElementById("interrogation-who");
+    const takePositionButton = document.getElementById("take-position");
+    const leaveButton = document.getElementById("leave-interrogation");
+    // Set by Take a position for the one send it triggers.
+    let concludeNext = false;
+
+    function interrogating() {
+        return modeChip?.pinned() === INTERROGATION_MODE;
+    }
+
+    // syncInterrogation puts the room in or out of interrogation. Given the
+    // stored messages, it also names who is asking and lights up Take a
+    // position once the last answer says nothing left would change it.
+    function syncInterrogation(stored) {
+        const on = interrogating();
+        messages.classList.toggle("interrogating", on);
+        form.classList.toggle("interrogating", on);
+        if (interrogationBar) {
+            interrogationBar.hidden = !on;
+        }
+        if (!on || stored === undefined) {
+            return;
+        }
+
+        const last = [...stored].reverse().find((m) => m.role === "assistant" && m.mode === INTERROGATION_MODE);
+        takePositionButton?.classList.toggle("ready", Boolean(last && isReadyToConclude(last.content)));
+        const who = last?.generals?.length ? last.generals : (generals?.selected() ?? []);
+        if (interrogationWho) {
+            interrogationWho.textContent = who.length
+                ? `${who.map((id) => lensName(id)).join(", ")} asking`
+                : "The council is asking";
+        }
+    }
+
+    async function setSessionMode(sessionID, mode) {
+        await apiJSON(`/api/chat/sessions/${sessionID}/mode`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mode }),
+        });
+    }
+
+    // Leaving unlocks the conversation on the server at once, so reopening it
+    // does not put you back in the room.
+    async function leaveInterrogation(sessionID = activeSessionID) {
+        modeChip?.setPinned(null);
+        modeChip?.setDetected(null);
+        syncInterrogation();
+        if (!sessionID) {
+            return;
+        }
+        try {
+            await setSessionMode(sessionID, "");
+        } catch (error) {
+            showMessage(result, error.message, "error");
+        }
+    }
+
+    function sendNow(fallbackText) {
+        if (currentRun()) {
+            return;
+        }
+        if (!form.question.value.trim()) {
+            form.question.value = fallbackText;
+        }
+        form.requestSubmit();
+    }
+
+    function enterInterrogation() {
+        if (currentRun()) {
+            return;
+        }
+        modeChip?.setPinned(INTERROGATION_MODE);
+        syncInterrogation();
+        sendNow("Interrogate me on this.");
+    }
+
+    takePositionButton?.addEventListener("click", () => {
+        if (currentRun()) {
+            return;
+        }
+        concludeNext = true;
+        sendNow("Take a position.");
+    });
+
+    leaveButton?.addEventListener("click", () => {
+        leaveInterrogation();
+    });
 
     let activeSessionID = null;
     let sessionLoadToken = 0;
@@ -597,6 +705,7 @@ function setupConsultForm() {
             generals?.set(data.session?.generals);
             modeChip?.setPinned(data.session?.mode_locked ? data.session?.mode : null);
             modeChip?.setDetected(data.session?.mode, "sticky");
+            syncInterrogation(data.messages ?? []);
             result.innerHTML = "";
             const failure = failures.get(sessionID);
             if (failure) {
@@ -626,6 +735,7 @@ function setupConsultForm() {
         generals?.set([]);
         modeChip?.setPinned(null);
         modeChip?.setDetected(null);
+        syncInterrogation([]);
         activeSessionID = null;
         // A send from the previous new chat carries on in the background.
         draftRun = null;
@@ -707,6 +817,20 @@ function setupConsultForm() {
         }
     });
 
+    // The banner under an answer: go into the interrogation, or wave it away.
+    messages.addEventListener("click", (e) => {
+        if (e.target.closest("[data-interrogate]")) {
+            enterInterrogation();
+            return;
+        }
+        const dismiss = e.target.closest("[data-dismiss-suggestion]");
+        if (dismiss) {
+            const banner = dismiss.closest(".interrogate-suggest");
+            dismissSuggestion(banner?.dataset.suggestionFor);
+            banner?.remove();
+        }
+    });
+
     // A check-in's Reply opens its conversation here.
     document.addEventListener("open-session", async (e) => {
         const id = e.detail?.id;
@@ -766,6 +890,10 @@ function setupConsultForm() {
         form.question.value = "";
 
         const tier = selectedTier();
+        const conclude = concludeNext;
+        concludeNext = false;
+        // Fixed for this send: switching mode mid-answer does not restyle it.
+        const underQuestioning = interrogating();
 
         // Everything this send touches hangs off run, never off "whatever is on
         // screen": you can open another conversation, or start a new one, while
@@ -777,6 +905,10 @@ function setupConsultForm() {
             userEl: optimisticMessageElement("user", question),
             assistantEl: optimisticMessageElement("assistant", ""),
         };
+        if (underQuestioning) {
+            run.userEl.classList.add("interrogation");
+            run.assistantEl.classList.add("interrogation");
+        }
         if (run.sessionID) {
             runs.set(run.sessionID, run);
         } else {
@@ -818,7 +950,8 @@ function setupConsultForm() {
             // Follow the answer down only if you were already at the bottom;
             // scrolling up to reread something should not be yanked back.
             const follow = followsAnswer();
-            pendingBody.innerHTML = renderMarkdown(streamed);
+            const text = stripInterrogateFlag(streamed);
+            pendingBody.innerHTML = (underQuestioning && renderInterrogation(text)) || renderMarkdown(text);
             if (follow) {
                 messages.scrollTop = messages.scrollHeight;
             }
@@ -912,6 +1045,7 @@ function setupConsultForm() {
                     tier,
                     generals: generals?.selected() ?? [],
                     mode: modeChip ? (modeChip.pinned() ?? "") : undefined,
+                    conclude: conclude || undefined,
                 },
                 idleTimeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
                 onEvent,
@@ -930,6 +1064,18 @@ function setupConsultForm() {
                 if (answer?.mode) {
                     modeChip?.setDetected(answer.mode, answer.mode_method);
                 }
+            }
+
+            // The position closes the interrogation.
+            if (conclude && underQuestioning) {
+                if (isShown(run)) {
+                    await leaveInterrogation(run.sessionID);
+                } else {
+                    setSessionMode(run.sessionID, "").catch(() => {});
+                }
+            }
+            if (isShown(run)) {
+                syncInterrogation(data.messages);
             }
 
             // Anything you committed to is extracted in the background; pick

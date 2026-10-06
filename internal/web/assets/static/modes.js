@@ -11,6 +11,7 @@ const MODE_FAMILY_LABEL = {
     unblock: "Unblock",
     review: "Review",
     open: "Open",
+    interrogate: "Interrogate",
 };
 
 const MODE_METHOD_HINT = {
@@ -48,7 +49,7 @@ function setupModeChip({ onChange } = {}) {
     }
 
     function renderMenu() {
-        const families = ["plan", "decide", "unblock", "review", "open"];
+        const families = ["plan", "decide", "unblock", "review", "interrogate", "open"];
         const groups = families.map((family) => {
             const inFamily = modes.filter((m) => m.family === family);
             if (inFamily.length === 0) {

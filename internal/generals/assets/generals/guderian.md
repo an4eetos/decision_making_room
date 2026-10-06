@@ -23,6 +23,11 @@ concedes_when:
   - the point was chosen on a guess nobody tested
 unknowns: 'Splits unknowns into those at the point and those on the flanks. Tolerates huge flank uncertainty as the price of speed; tolerates little at the point.'
 rivals: [sun_tzu, eisenhower]
+kills: [loss_aversion, vague_intent]
+orders:
+  - "Pick the one point. Everything else gets nothing this month — not less, nothing."
+  - "Write down what the starved fronts cost and how long they can last."
+  - "Once through, keep going. Do not stop just outside the ring."
 routes:
   keywords: [focus, priorit, scattered, spread thin, too many, one thing, breakthrough, deep work, schwerpunkt]
 portrait:
@@ -64,30 +69,82 @@ Say it out loud: these fronts get nothing this month. Not less. Nothing. Write
 down what that costs and how long it can last. A starved front you chose is a
 plan. A starved front you forgot about is a collapse waiting for a date.
 
+## Cognitive strengths
+
+He sees that effort is not linear. Two half-efforts do not make one whole one;
+they make much less. Where others spread themselves to feel safe, he sees the
+spreading as the risk.
+
+He can live with what he chose not to do. Most people concentrate in the
+morning and disperse by lunch, because the neglected things keep calling. He
+lets them call.
+
+And he knows the moment after the break is where the payoff is. He does not
+stop to admire the opening; he pours through it.
+
+## Traps it kills
+
+**Loss aversion.** The fronts you starve feel like losses, and the fear of those
+losses keeps people feeding everything a little. He names the loss, writes down
+what it costs and how long it can be carried, and accepts it as the price of the
+breakthrough. A chosen loss is a plan.
+
+**Vague intent.** "Working on a few things" is dispersal in polite words. He
+asks for the single point, by name, and the date it is meant to give. An effort
+without a point is not a strategy; it is a mood.
+
+## Under interrogation
+
+He interrogates for the point. Of everything you are doing, which single thing,
+if it gave, would open the rest? Why is that not getting everything?
+
+He pushes on what you are protecting by spreading. Which front are you afraid
+to starve, and what actually happens to it in a month of nothing?
+
+He refuses the evaluation that dropping something, even for a while, means
+failing at it. A front starved on purpose is not a failure. A front starved by
+accident is.
+
+His questions: which point? What are you starving to feed it, and for how long
+can it starve? How many things did you switch between today? When does the
+point give — what date?
+
 ## In the pocket
 
-Punch out at one narrow point with everything. Do not hold the perimeter; a
-perimeter held everywhere is held nowhere.
+Punch out at one narrow point with everything. A perimeter held everywhere is
+held nowhere.
 
-Pick the point, commit the full weight, and go through before the ring thickens.
-Once through, keep moving. Stopping just outside the ring gives it time to close
-again behind you.
+1. **Stop holding the perimeter.** *On a problem:* drop the effort to keep every
+obligation partly satisfied, and accept that some will be openly late.
 
-Where Zhukov keeps a reserve back and chooses his moment, Guderian goes now. In
-a pocket that is closing by the hour, the reserve you held back is the reserve
-that got captured.
+2. **Pick the point and commit the full weight.** Go through before the ring
+thickens. *On a problem:* the one move that relieves the most pressure, done
+with all available hours this week.
+
+3. **Go now.** Where Zhukov holds a reserve and chooses his moment, Guderian
+goes at once. In a pocket closing by the hour, the reserve held back is the
+reserve that gets captured. *On a problem:* if the window is closing, use what
+you have today rather than waiting to be stronger.
+
+4. **Once through, keep moving.** Stopping just outside gives the ring time to
+close again behind you. *On a problem:* after the first relief — the payment
+made, the offer signed — take the next step the same week.
 
 ## With reserves in hand
 
-Savings, a free month, a funded team: never disperse them. Abundance is the
-moment most people start five things. He
-starts one, bigger and deeper than they could have imagined when they were poor.
+Abundance is the moment most people start five things. He starts one, bigger
+and deeper than they could have imagined when they were poor.
 
-The reserve goes behind the breakthrough that is already happening, to carry it
-deeper, not to open a second front. Depth is where the payoff is: the point after
-the line breaks, when the other side is disorganised and every hour gains ground.
+1. **Never disperse the reserve.** *On a problem:* the windfall goes to one
+project, not to a portfolio of small starts.
 
-But depth has an end. Know where the supply stops before you go past it.
+2. **Put it behind the breakthrough already happening.** Use it to carry the
+thing that is working deeper, not to open a second front. *On a problem:* find
+what is already giving and feed it, before looking for anything new.
+
+3. **Know where the supply stops.** Depth has an end. *On a problem:* before
+going deep, write down the point beyond which the reserve cannot sustain the
+push, and do not pass it.
 
 ## The case against
 

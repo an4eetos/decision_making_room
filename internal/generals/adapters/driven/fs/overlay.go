@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,8 +10,8 @@ import (
 )
 
 // overlay merges a directory from disk over the embedded roster. It expects
-// generals/ and styles/ subdirectories; either may be absent.
-func overlay(dir string, generals, styles *[]domain.Lens) error {
+// generals/ and styles/ subdirectories and a traps.yaml; any may be absent.
+func overlay(dir string, generals, styles *[]domain.Lens, traps *[]domain.Trap) error {
 	info, err := os.Stat(dir)
 	if err != nil {
 		return fmt.Errorf("generals overlay %q: %w", dir, err)
@@ -38,7 +39,37 @@ func overlay(dir string, generals, styles *[]domain.Lens) error {
 		*target.into = merge(*target.into, extra)
 	}
 
+	path := filepath.Join(dir, "traps.yaml")
+	data, err := os.ReadFile(path)
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+	case err != nil:
+		return fmt.Errorf("generals overlay: %w", err)
+	default:
+		extra, err := parseTraps(data, path)
+		if err != nil {
+			return err
+		}
+		*traps = mergeTraps(*traps, extra)
+	}
+
 	return nil
+}
+
+func mergeTraps(base, extra []domain.Trap) []domain.Trap {
+	index := make(map[string]int, len(base))
+	for i, trap := range base {
+		index[trap.ID] = i
+	}
+	for _, trap := range extra {
+		if i, ok := index[trap.ID]; ok {
+			base[i] = trap
+			continue
+		}
+		index[trap.ID] = len(base)
+		base = append(base, trap)
+	}
+	return base
 }
 
 func merge(base, extra []domain.Lens) []domain.Lens {

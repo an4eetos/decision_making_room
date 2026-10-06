@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/an4eetos/decision-room/internal/memory/domain"
 )
 
 var ErrChatSessionNotFound = errors.New("chat session not found")
@@ -50,7 +52,9 @@ type ChatMessage struct {
 	Generals     []string
 	ModeID       string
 	DetectMethod string
-	CreatedAt    time.Time
+	// Suggestion is the room recommending an interrogation; nil on most answers.
+	Suggestion *domain.Suggestion
+	CreatedAt  time.Time
 }
 
 type ChatRepository interface {

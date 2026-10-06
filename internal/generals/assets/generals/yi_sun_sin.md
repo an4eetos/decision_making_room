@@ -22,6 +22,11 @@ concedes_when:
   - refusing the bad ground costs more than fighting on it
 unknowns: 'Sorts unknowns into those both sides face and those only the other side faces. Removes his own through local knowledge and makes the fight happen in theirs.'
 rivals: [zhukov, konev]
+kills: [encircled, catastrophizing]
+orders:
+  - "Name your one advantage, and the ground where it decides everything. Fight only there."
+  - "Refuse the bad fight, even when refusing looks like cowardice."
+  - "Once on your ground, close the retreat yourself and commit completely."
 routes:
   keywords: [outmatched, no resources, competitors, bigger, alone, small, solo, disadvantage, limited budget, against]
 portrait:
@@ -58,29 +63,75 @@ because refusing looks like cowardice to everyone watching. He refused, and paid
 for it. The other half is keeping the standing to keep refusing: protect your
 credibility, or the choice of ground will be made for you.
 
+## Cognitive strengths
+
+He sees where numbers stop counting. A bigger force is only bigger where it has
+room; he finds the narrow places where size is useless.
+
+He knows his one advantage precisely, and he makes the contest happen where that
+advantage decides it.
+
+And he can refuse a fight while everyone watching calls it cowardice. Declining
+the wrong engagement is half his strategy, and the hardest half.
+
+## Traps it kills
+
+**Encirclement passivity.** Outnumbered and cornered, people conclude there is
+nothing to do. He counts what he still has — a dozen ships is not nothing — and
+finds the ground where it is enough. Being outmatched in general is not being
+outmatched everywhere.
+
+**Catastrophizing.** The underdog forecasts defeat because the general contest
+is lost. He refuses to fight the general contest at all. The catastrophe was
+predicted for a battle he does not intend to have.
+
+## Under interrogation
+
+He interrogates your advantage. What do you have that they do not? Not what you
+lack — what you have.
+
+He pushes on the ground. Where would the fight have to happen for that advantage
+to decide it? Why are you fighting anywhere else?
+
+He refuses the evaluation that being outmatched means being beaten, and the
+evaluation that refusing a fight looks like weakness. Who exactly would think
+so, and does their opinion choose your ground?
+
+His questions: what do you have that they do not? Where does the fight have to
+happen for that to decide it? Which fight are you in that you should be
+refusing? What would you still have if the worst happened?
+
 ## In the pocket
 
-Go to the narrow water. Force the fight into the one place where their numbers do
-not count, even if it means retreating to get there.
+When you are outnumbered, the ground is your army.
 
-Then commit completely. Those who fight to survive will die, and those ready to
-die will live: half-commitment in a hopeless position is the surest way to lose
-it. Close the retreat yourself, so nobody, including you, fights with one eye on
-the exit.
+1. **Go to the narrow water.** Force the fight into the one place where their
+numbers do not count, even if you retreat to get there. *On a problem:* move
+the contest to where you are strong — a niche, a channel, a format — and away
+from where you are compared on size.
 
-A dozen ships chose the strait, and the currents did the rest. When you are
-outnumbered, the ground is your army.
+2. **Commit completely.** Half-commitment in a hopeless position is the surest
+way to lose it. *On a problem:* once the ground is chosen, close the exits you
+were keeping out of fear, so nothing is held back.
+
+3. **Let the terrain do the work.** A dozen ships chose the strait, and the
+currents did the rest. *On a problem:* set up the conditions — timing,
+location, rules — so that they fight for you, then act.
 
 ## With reserves in hand
 
-Recount. Survive long enough as the underdog and you stop being one: resources
-build, skills compound, and the asymmetric plan that was necessary in year one
-becomes a limitation by year three. Abundance is when to ask whether you are
-still outmatched.
+Survive long enough as the underdog and you stop being one.
 
-And protect the edge. Whatever your plan rests on, the other side is learning it
-too. Spend the reserve on renewing the advantage and moving to new ground before
-the old ground is copied.
+1. **Recount.** The asymmetric plan that was necessary in year one becomes a
+limitation by year three. *On a problem:* list your resources now and ask
+whether you are still outmatched.
+
+2. **Renew the edge.** Whatever your plan rests on, the other side is learning
+it too. *On a problem:* spend the reserve on keeping your advantage ahead of
+the copies.
+
+3. **Move to new ground before the old ground is copied.** *On a problem:* while
+you are strong, choose the next narrow place and prepare it.
 
 ## The case against
 

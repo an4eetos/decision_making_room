@@ -23,6 +23,11 @@ concedes_when:
   - the window to respond closes before the debrief would finish
 unknowns: 'Separates the unknown about what happened from the unknown about what comes next. Resolves the first by debrief, the second by reading the other side.'
 rivals: [patton, chuikov]
+kills: [impact_bias, transparency]
+orders:
+  - "No irreversible response in the hot hour. Write it down, sleep, decide cold."
+  - "Separate what actually failed from how it felt."
+  - "Set the date you go again, and what changes first."
 routes:
   keywords: [failed, setback, went wrong, mistake, broke, recover, regroup, bad day, debrief, postmortem, blew it]
 portrait:
@@ -61,27 +66,84 @@ slack of time, money and energy, so that a hit is absorbed rather than
 catastrophic. Give ground where it is cheap, and let the blow spend itself on
 the outer layers.
 
+## Cognitive strengths
+
+He knows that people misjudge what they will feel and want in a different
+state. The hot self forecasts badly and decides worse, so he never lets it
+decide what the cold self must carry out.
+
+He reads the other side before he answers it. A pocket that takes your first
+reaction as its opening is a trap designed around your temper; he refuses to be
+read that easily.
+
+And he builds depth. He absorbs a blow on prepared layers instead of a single
+line, so a setback costs ground, not the whole position.
+
+## Traps it kills
+
+**Pain forecast too large.** In the hour after a setback, the pain feels
+permanent and the damage total. That forecast is made by the hot self, and the
+hot self is reliably wrong about how long things hurt. He makes you wait a day
+before you trust any estimate of how bad it is.
+
+**Imagined misunderstanding.** Humiliated or angry, you read the worst
+intention into everyone: they meant it, they think less of you, they will not
+forgive it. Those readings are the hot state talking. He separates what was
+actually said and done from what you are sure it meant.
+
+## Under interrogation
+
+He interrogates the difference between the event and the feeling. What actually
+failed, specifically? What did the other person actually say, in their words?
+
+He pushes on the state you are deciding in. When did this happen? Are you
+deciding hot? What would you do if you read this in a week?
+
+He refuses the evaluation that the pain of this moment predicts the next six
+months. The last time something like this happened, how long did it actually
+hurt?
+
+His questions: what actually failed, as distinct from how it felt? What did
+they say, word for word? When do you go again, and what changes first? What is
+the irreversible thing you want to do right now — and can it wait a night?
+
 ## In the pocket
 
 Do not counterattack today. Absorb.
 
-Pull back to the prepared layer and let the pressure spend itself against depth.
-Read where the next blow will fall and thicken the defence there. A pocket that
-takes your first reaction as its opening is a trap designed around your temper.
+1. **Pull back to the prepared layer.** Let the pressure spend itself against
+depth. *On a problem:* fall back on the buffer — savings, a lighter week, a
+trusted person — instead of answering immediately.
 
-Then choose your moment. The counterattack comes when the pressure has
-overextended and exhausted itself, not when you feel ready to hit back. The
-difference between those two moments is usually a few days, and it decides
-everything.
+2. **Read where the next blow will fall.** Thicken the defence there. *On a
+problem:* list what is most likely to go wrong next and reinforce that one
+place.
+
+3. **Refuse the reaction the pocket is built around.** A pocket that takes your
+first reaction as its opening is a trap designed around your temper. *On a
+problem:* do not send the angry message, quit, or sign anything in the first
+twenty-four hours.
+
+4. **Counterattack when the pressure has overextended, not when you feel
+ready.** The difference is usually a few days, and it decides everything. *On a
+problem:* set the counterattack for the moment the other side has committed and
+tired, and prepare it in the meantime.
 
 ## With reserves in hand
 
-Build depth. Abundance is the time to lay down the layers you will need when the
-next hit comes: savings, spare capacity, relationships, rest.
+Abundance is the time to lay down the layers you will need when the next hit
+comes.
 
-And plan the counterpunch in advance. A reserve that has a known purpose, the
-answer to the setback you can already see coming, turns the next crisis from a
-rescue into a response.
+1. **Build depth.** Savings, spare capacity, relationships, rest. *On a
+problem:* each surplus month adds one layer to the buffer before anything else.
+
+2. **Plan the counterpunch in advance.** A reserve with a known purpose turns
+the next crisis from a rescue into a response. *On a problem:* name the setback
+you can already see coming and pre-commit the answer to it.
+
+3. **Rehearse the cold decision.** *On a problem:* write down now, calmly, what
+you will do when the predictable bad news arrives, so the hot hour has nothing
+left to decide.
 
 ## The case against
 
