@@ -38,8 +38,13 @@ type commitmentDTO struct {
 	Source     string     `json:"source"`
 	SessionID  *uuid.UUID `json:"session_id,omitempty"`
 	Confidence float64    `json:"confidence"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
+	// Kind is order or recon; TargetID is the campaign item it is aimed at.
+	Kind string `json:"kind"`
+	// Mode is the mode of the turn a proposal came from.
+	Mode      string     `json:"mode,omitempty"`
+	TargetID  *uuid.UUID `json:"target_id,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 func toDTO(c domain.Commitment, now time.Time) commitmentDTO {
@@ -50,8 +55,14 @@ func toDTO(c domain.Commitment, now time.Time) commitmentDTO {
 		Source:     string(c.Source),
 		SessionID:  c.SessionID,
 		Confidence: c.Confidence,
+		Kind:       string(c.Kind),
+		Mode:       c.ModeID,
+		TargetID:   c.TargetID,
 		CreatedAt:  c.CreatedAt,
 		UpdatedAt:  c.UpdatedAt,
+	}
+	if dto.Kind == "" {
+		dto.Kind = string(domain.KindOrder)
 	}
 	if c.DueAt != nil {
 		dto.Due = c.DueAt.Format("2006-01-02")

@@ -453,6 +453,7 @@ function setupConsultForm() {
     const LENSES_PER_TIER = { quick: 1, standard: 2, deep: 3 };
 
     const loops = setupCommitments();
+    const intel = setupIntelRail();
 
     const modeChip = setupModeChip({ onChange: () => syncInterrogation() });
     modeChip?.load().then(async () => {
@@ -1081,6 +1082,7 @@ function setupConsultForm() {
             // Anything you committed to is extracted in the background; pick
             // up the proposals when they land.
             loops?.refreshSoon();
+            intel?.refreshSoon();
         } catch (error) {
             run.userEl.remove();
             run.assistantEl.remove();

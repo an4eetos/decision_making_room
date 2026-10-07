@@ -167,7 +167,7 @@ func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools 
 	var resp *http.Response
 	var errOut error
 	for _, model := range c.models() {
-		url := fmt.Sprintf("%s/models/%s:streamGenerateContent?alt=sse&key=%s", c.baseURL, normalizeModel(model), c.apiKey)
+		url := fmt.Sprintf("%s/models/%s:streamGenerateContent?alt=sse", c.baseURL, normalizeModel(model))
 		resp, errOut = c.send(ctx, url, body)
 		if errOut == nil {
 			break
@@ -277,7 +277,7 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 	var respBody []byte
 	var errOut error
 	for _, model := range c.models() {
-		url := fmt.Sprintf("%s/models/%s:generateContent?key=%s", c.baseURL, normalizeModel(model), c.apiKey)
+		url := fmt.Sprintf("%s/models/%s:generateContent", c.baseURL, normalizeModel(model))
 		// Retries within a model first, then falls over to the next one. Chat used
 		// to skip retrying entirely, so a momentary spike killed the request even
 		// though the error was explicitly classified as retryable.
@@ -322,7 +322,7 @@ func (c *Client) Embed(ctx context.Context, text string) ([]float32, error) {
 		return nil, fmt.Errorf("marshal embed request: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/models/%s:embedContent?key=%s", c.baseURL, normalizeModel(c.embedModel), c.apiKey)
+	url := fmt.Sprintf("%s/models/%s:embedContent", c.baseURL, normalizeModel(c.embedModel))
 	respBody, err := c.post(ctx, url, body)
 	if err != nil {
 		return nil, err
@@ -396,7 +396,7 @@ func (c *Client) send(ctx context.Context, url string, body []byte) (*http.Respo
 		}
 	}
 
-	return nil, &apiError{status: lastStatus, message: formatAPIError(lastBody)}
+	return nil, &apiError{status: lastStatus, message: c.redactString(formatAPIError(lastBody))}
 }
 
 // apiError carries the HTTP status alongside the message.
@@ -445,19 +445,50 @@ func retryDelayFor(respBody []byte, attempt int) time.Duration {
 	return time.Duration(1<<attempt) * time.Second
 }
 
+// doPost sends the key in the x-goog-api-key header, never in the URL. Go's
+// HTTP errors quote the request URL, so a key in the query string was written
+// to the log by every timeout, refused connection and DNS failure.
 func (c *Client) doPost(ctx context.Context, url string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
-		return nil, fmt.Errorf("create request: %w", err)
+		return nil, fmt.Errorf("create request: %w", c.redact(err))
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-goog-api-key", c.apiKey)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("request: %w", err)
+		return nil, fmt.Errorf("request: %w", c.redact(err))
 	}
 	return resp, nil
 }
+
+// redact is the second line: should the key reach an error by another route —
+// a misconfigured base URL that embeds it, a proxy that echoes it — it still
+// never reaches a log.
+func (c *Client) redact(err error) error {
+	if err == nil || c.apiKey == "" || !strings.Contains(err.Error(), c.apiKey) {
+		return err
+	}
+	return redactedError{msg: c.redactString(err.Error()), cause: err}
+}
+
+func (c *Client) redactString(s string) string {
+	if c.apiKey == "" {
+		return s
+	}
+	return strings.ReplaceAll(s, c.apiKey, "[REDACTED]")
+}
+
+// redactedError keeps the cause for errors.Is and errors.As — a cancelled
+// context must still read as cancelled — while its message hides the key.
+type redactedError struct {
+	msg   string
+	cause error
+}
+
+func (e redactedError) Error() string { return e.msg }
+func (e redactedError) Unwrap() error { return e.cause }
 
 type apiErrorResponse struct {
 	Error struct {

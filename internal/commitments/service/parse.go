@@ -12,6 +12,9 @@ type Candidate struct {
 	Text       string
 	Due        *time.Time
 	Confidence float64
+	// Serves is the 1-based number of the objective it serves, from the list
+	// the prompt gave; zero is none.
+	Serves int
 }
 
 // MinConfidence is the floor below which a candidate is discarded outright.
@@ -26,6 +29,7 @@ type wireCandidate struct {
 	Text       string  `json:"text"`
 	Due        *string `json:"due"`
 	Confidence float64 `json:"confidence"`
+	Serves     *int    `json:"serves"`
 }
 
 // ParseCandidates reads the extraction response. Tolerant of code fences and
@@ -59,6 +63,9 @@ func ParseCandidates(answer string, now time.Time) ([]Candidate, error) {
 		}
 
 		c := Candidate{Text: text, Confidence: clamp(w.Confidence)}
+		if w.Serves != nil && *w.Serves > 0 {
+			c.Serves = *w.Serves
+		}
 		if w.Due != nil {
 			c.Due = parseDue(*w.Due, now)
 		}

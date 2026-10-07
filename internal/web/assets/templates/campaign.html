@@ -1,0 +1,37 @@
+{{define "campaign.html"}}
+{{template "layout-head" .}}
+<section class="campaign">
+    <header class="campaign-head">
+        <div>
+            <h1>Campaign <button type="button" class="hint" data-hint="campaign"></button></h1>
+            <p class="muted">Your goals as objectives, what blocks them as opposition, what you do not know as fog. Drawn from what you write; nothing stays without your say.</p>
+        </div>
+        <div id="campaign-summary" class="campaign-summary"></div>
+    </header>
+
+    <section id="campaign-proposals" class="campaign-proposals" hidden>
+        <h2 class="wr-label">Waiting for you <button type="button" class="hint" data-hint="intel"></button></h2>
+        <ul id="campaign-proposal-list" class="intel-list"></ul>
+    </section>
+
+    <div id="campaign-fronts" class="campaign-fronts"></div>
+
+    <section id="campaign-unaimed" class="campaign-unaimed" hidden>
+        <h2 class="wr-label">Orders not aimed at anything <button type="button" class="hint" data-hint="orders"></button></h2>
+        <ul id="campaign-unaimed-list" class="campaign-orders"></ul>
+    </section>
+
+    <section id="campaign-resolved" class="campaign-resolved" hidden>
+        <h2 class="wr-label">Last thirty days</h2>
+        <ul id="campaign-resolved-list" class="campaign-resolved-list"></ul>
+    </section>
+
+    <form id="campaign-front-form" class="campaign-front-form">
+        <input name="name" type="text" maxlength="40" placeholder="Open a front — an area of life or work" autocomplete="off">
+        <button type="submit" class="btn-secondary">Open front</button>
+    </form>
+
+    <div id="campaign-result"></div>
+</section>
+{{template "layout-foot" .}}
+{{end}}

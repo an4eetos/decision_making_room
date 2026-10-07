@@ -76,6 +76,43 @@ const HINTS = {
             "A wrong pick is one click to fix. Add your own modes with markdown files in <code>MODES_DIR</code>.",
         ],
     },
+    campaign: {
+        title: "Campaign",
+        what: "Everything the room knows about your goals, drawn as one map. <strong>Objectives</strong> are positions to take, <strong>opposition</strong> is what is dug in between you and them, <strong>fog</strong> is what you do not know yet.",
+        uses: [
+            "Fronts are areas of life and work. You open them; the room never invents one, it only files what it finds under a front you have.",
+            "Open loops become orders when you aim them at something on the map. An order aimed at fog is <em>reconnaissance</em>: finishing it asks what you found, and the answer lifts the fog.",
+            "Opposition is typed by the five kinds of stuck from the Stalled mode, because they need opposite treatments, and given a strength from outpost to fortress.",
+        ],
+        notes: [
+            "A strength the room estimated is marked <span class=\"est\">est</span> until you confirm or change it, the same way relocation prices are.",
+            "Withdrawing an objective is a legitimate order, not a loss. It shows under the last thirty days with what was taken.",
+            "If you never open this page, the room answers exactly as it does without it.",
+        ],
+    },
+    intel: {
+        title: "Intel",
+        what: "Goals, blockers and open questions picked up from what you wrote, waiting for you to keep or drop them. Nothing goes on the map without your say.",
+        uses: [
+            "An ordinary turn costs one background model call, and only when what you wrote sounds like a goal, a blocker or an open question.",
+            "An interrogation costs nothing extra: what it lists as still dark becomes fog, and its probe becomes a recon order.",
+            "Pick a front before you keep it, or keep it loose and file it later.",
+        ],
+        notes: [
+            "Only what you wrote counts — goals and risks the assistant raised are not yours unless you said them.",
+            "Turn it off with <code>CAMPAIGN_EXTRACTION_ENABLED=false</code>.",
+        ],
+    },
+    orders: {
+        title: "Orders",
+        what: "Open loops that are not aimed at anything on the map. Aim one at the objective it serves, the obstacle it attacks, or the fog it scouts.",
+        uses: [
+            "Loops picked up from conversation are linked to the objective they plainly serve when there is one; the rest wait here.",
+        ],
+        notes: [
+            "Aiming is optional. Most small loops serve no objective, and that is fine.",
+        ],
+    },
     interrogation: {
         title: "Interrogation",
         what: "No advice yet. The seated generals question you, one question each, until your position no longer rests on a cognitive trap.",

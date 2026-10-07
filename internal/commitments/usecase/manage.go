@@ -30,6 +30,12 @@ type CreateInput struct {
 	Source    domain.Source
 	SessionID *uuid.UUID
 	MessageID *uuid.UUID
+	// Kind and TargetID aim the order at a campaign item; see Commitment.
+	Kind     domain.Kind
+	TargetID *uuid.UUID
+	// ModeID is the mode of the turn it came from, so a proposal drawn up by
+	// an interrogation does not claim you said it.
+	ModeID string
 }
 
 // Create adds a commitment you made explicitly. It goes straight to open: you
@@ -60,6 +66,8 @@ func (u *Manage) Create(ctx context.Context, in CreateInput) (domain.Commitment,
 		MessageID:   in.MessageID,
 		Confidence:  1,
 		Fingerprint: service.Fingerprint(text),
+		Kind:        in.Kind,
+		TargetID:    in.TargetID,
 	})
 	if errors.Is(err, port.ErrDuplicate) {
 		return u.findLive(ctx, service.Fingerprint(text))
@@ -135,6 +143,48 @@ func (u *Manage) SetStatus(ctx context.Context, id uuid.UUID, to domain.Status) 
 	}
 
 	return u.repo.SetStatus(ctx, id, to)
+}
+
+// SetTarget aims an order at a campaign item, or with nil at nothing. The caller
+// has checked the target exists; commitments do not know what the map holds.
+func (u *Manage) SetTarget(ctx context.Context, id uuid.UUID, target *uuid.UUID, kind domain.Kind) (domain.Commitment, error) {
+	if kind != "" && !kind.Valid() {
+		return domain.Commitment{}, fmt.Errorf("unknown kind %q", kind)
+	}
+	return u.repo.SetTarget(ctx, id, target, kind)
+}
+
+// ByTargets lists the orders aimed at the given campaign items.
+func (u *Manage) ByTargets(ctx context.Context, targets []uuid.UUID) ([]domain.Commitment, error) {
+	return u.repo.ListByTargets(ctx, targets)
+}
+
+// Propose adds an order the room drew up for you — a probe or an order from an
+// interrogation's position. It waits as a proposal like anything extracted;
+// already live is not an error.
+func (u *Manage) Propose(ctx context.Context, in CreateInput, confidence float64) (domain.Commitment, error) {
+	text := strings.TrimSpace(in.Text)
+	if text == "" || len([]rune(text)) > 240 {
+		return domain.Commitment{}, fmt.Errorf("a proposed order needs 1 to 240 characters")
+	}
+	source := in.Source
+	if source == "" {
+		source = domain.SourceChat
+	}
+	c, err := u.repo.Create(ctx, domain.Commitment{
+		Text:        text,
+		Status:      domain.StatusProposed,
+		DueAt:       in.DueAt,
+		Source:      source,
+		SessionID:   in.SessionID,
+		MessageID:   in.MessageID,
+		ModeID:      in.ModeID,
+		Confidence:  confidence,
+		Fingerprint: service.Fingerprint(text),
+		Kind:        in.Kind,
+		TargetID:    in.TargetID,
+	})
+	return c, err
 }
 
 // Edit changes the wording or due date. Editing a proposal is taken as

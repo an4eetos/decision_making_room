@@ -23,16 +23,17 @@ type Repository struct {
 func NewRepository(pool *pgxpool.Pool) *Repository { return &Repository{pool: pool} }
 
 const columns = `id, text, status, due_at, source, session_id, message_id, mode_id,
-	confidence, fingerprint, created_at, updated_at, resolved_at`
+	confidence, fingerprint, created_at, updated_at, resolved_at, kind, target_id`
 
 func (r *Repository) Create(ctx context.Context, c domain.Commitment) (domain.Commitment, error) {
 	row := r.pool.QueryRow(ctx, `
 		INSERT INTO commitments
-			(text, status, due_at, source, session_id, message_id, mode_id, confidence, fingerprint)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			(text, status, due_at, source, session_id, message_id, mode_id, confidence, fingerprint,
+			 kind, target_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING `+columns,
 		c.Text, string(c.Status), c.DueAt, string(c.Source), c.SessionID, c.MessageID,
-		c.ModeID, c.Confidence, c.Fingerprint)
+		c.ModeID, c.Confidence, c.Fingerprint, string(kindOrDefault(c.Kind)), c.TargetID)
 
 	created, err := scan(row)
 	if isUniqueViolation(err) {
@@ -132,6 +133,55 @@ func (r *Repository) UpdateText(ctx context.Context, id uuid.UUID, text, fingerp
 	return c, nil
 }
 
+func (r *Repository) SetTarget(ctx context.Context, id uuid.UUID, target *uuid.UUID, kind domain.Kind) (domain.Commitment, error) {
+	c, err := scan(r.pool.QueryRow(ctx, `
+		UPDATE commitments SET target_id = $2, kind = $3, updated_at = now()
+		WHERE id = $1
+		RETURNING `+columns, id, target, string(kindOrDefault(kind))))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.Commitment{}, port.ErrNotFound
+	}
+	if err != nil {
+		return domain.Commitment{}, fmt.Errorf("set commitment target: %w", err)
+	}
+	return c, nil
+}
+
+// ListByTargets leaves out dropped orders and anything finished more than a
+// month ago: the campaign shows what is moving, not the whole archive.
+func (r *Repository) ListByTargets(ctx context.Context, targets []uuid.UUID) ([]domain.Commitment, error) {
+	if len(targets) == 0 {
+		return nil, nil
+	}
+	rows, err := r.pool.Query(ctx, `
+		SELECT `+columns+` FROM commitments
+		WHERE target_id = ANY($1)
+		  AND status <> 'dropped'
+		  AND (resolved_at IS NULL OR resolved_at > now() - interval '30 days')
+		ORDER BY (status = 'proposed') DESC, due_at ASC NULLS LAST, updated_at DESC`, targets)
+	if err != nil {
+		return nil, fmt.Errorf("list commitments by target: %w", err)
+	}
+	defer rows.Close()
+
+	var out []domain.Commitment
+	for rows.Next() {
+		c, err := scan(rows)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, c)
+	}
+	return out, rows.Err()
+}
+
+func kindOrDefault(k domain.Kind) domain.Kind {
+	if k == "" {
+		return domain.KindOrder
+	}
+	return k
+}
+
 // MarkStale is plain SQL with no model call: whether something has gone
 // untouched for two weeks is a fact, not a judgement.
 func (r *Repository) MarkStale(ctx context.Context, cutoff time.Time) ([]domain.Commitment, error) {
@@ -161,16 +211,18 @@ type scannable interface {
 
 func scan(row scannable) (domain.Commitment, error) {
 	var (
-		c              domain.Commitment
-		status, source string
+		c                    domain.Commitment
+		status, source, kind string
 	)
 	err := row.Scan(&c.ID, &c.Text, &status, &c.DueAt, &source, &c.SessionID, &c.MessageID,
-		&c.ModeID, &c.Confidence, &c.Fingerprint, &c.CreatedAt, &c.UpdatedAt, &c.ResolvedAt)
+		&c.ModeID, &c.Confidence, &c.Fingerprint, &c.CreatedAt, &c.UpdatedAt, &c.ResolvedAt,
+		&kind, &c.TargetID)
 	if err != nil {
 		return domain.Commitment{}, err
 	}
 	c.Status = domain.Status(status)
 	c.Source = domain.Source(source)
+	c.Kind = domain.Kind(kind)
 	return c, nil
 }
 

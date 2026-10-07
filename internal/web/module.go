@@ -3,6 +3,7 @@ package web
 import (
 	"go.uber.org/fx"
 
+	camusecase "github.com/an4eetos/decision-room/internal/campaign/usecase"
 	chkusecase "github.com/an4eetos/decision-room/internal/checkin/usecase"
 	comusecase "github.com/an4eetos/decision-room/internal/commitments/usecase"
 	genport "github.com/an4eetos/decision-room/internal/generals/port"
@@ -14,6 +15,7 @@ import (
 	relport "github.com/an4eetos/decision-room/internal/relocation/port"
 	relusecase "github.com/an4eetos/decision-room/internal/relocation/usecase"
 	"github.com/an4eetos/decision-room/internal/web/api"
+	"github.com/an4eetos/decision-room/internal/web/campaignapi"
 	"github.com/an4eetos/decision-room/internal/web/checkinapi"
 	"github.com/an4eetos/decision-room/internal/web/commitmentsapi"
 	"github.com/an4eetos/decision-room/internal/web/relocationapi"
@@ -30,6 +32,7 @@ var Module = fx.Module("web",
 		asRoute(provideRelocationHandler),
 		asRoute(provideCommitmentsHandler),
 		asRoute(provideCheckinHandler),
+		asRoute(provideCampaignHandler),
 	),
 )
 
@@ -71,6 +74,10 @@ func provideRelocationHandler(
 
 func provideCommitmentsHandler(manage *comusecase.Manage) *commitmentsapi.Handler {
 	return commitmentsapi.NewHandler(manage)
+}
+
+func provideCampaignHandler(manage *camusecase.Manage) *campaignapi.Handler {
+	return campaignapi.NewHandler(manage)
 }
 
 func provideCheckinHandler(gen *chkusecase.Generate, scheduler *chkusecase.Scheduler) *checkinapi.Handler {
