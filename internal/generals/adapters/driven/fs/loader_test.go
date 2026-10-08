@@ -27,8 +27,8 @@ func TestBuiltinRosterIsValid(t *testing.T) {
 	t.Parallel()
 
 	roster := load(t, "")
-	if len(roster.Generals) != 20 {
-		t.Fatalf("expected 20 generals, got %d", len(roster.Generals))
+	if len(roster.Generals) != 21 {
+		t.Fatalf("expected 21 generals, got %d", len(roster.Generals))
 	}
 	if len(roster.Styles) != 13 {
 		t.Fatalf("expected 13 working styles, got %d", len(roster.Styles))

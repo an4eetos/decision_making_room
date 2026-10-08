@@ -2,7 +2,7 @@
 // room chooses; pick up to three and they argue.
 //
 // Emblems are generated rather than drawn. Historical portraits would be a
-// licensing problem and a tone problem, and twenty consistent illustrations is a
+// licensing problem and a tone problem, and twenty-one consistent illustrations is a
 // project of its own — a monogram in the family's colour carries the one thing
 // that matters, which is telling them apart at a glance.
 
@@ -34,7 +34,7 @@ function initials(name) {
 
 // portrait draws a general's picture when there is one, and the monogram when
 // there is not. Every photo and painting goes through the same treatment —
-// greyscale, then the family colour laid over it — so twenty sources from two
+// greyscale, then the family colour laid over it — so twenty-one sources from two
 // centuries read as one set rather than a scrapbook.
 function portrait(general, size = 34, shape = "round") {
     const { color } = familyStyle(general.family);

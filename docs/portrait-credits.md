@@ -13,6 +13,7 @@ Boyd has no freely licensed portrait and is shown as a monogram.
 
 | General | File | Author | Licence |
 |---|---|---|---|
+| Alexander | [Alejandro Magno, Alexander The Great Bust Alexander BM 1857 (cropped).jpg](https://commons.wikimedia.org/wiki/File:Alejandro_Magno,_Alexander_The_Great_Bust_Alexander_BM_1857_(cropped).jpg) | Jastrow | Public domain |
 | Antonov | [Aleksei Antonov 3.jpg](https://commons.wikimedia.org/wiki/File:Aleksei_Antonov_3.jpg) | Mil.ru | CC BY 4.0 |
 | Chuikov | [Vasily Ivanovich Chuikov.jpg](https://commons.wikimedia.org/wiki/File:Vasily_Ivanovich_Chuikov.jpg) | Mil.ru | CC BY 4.0 |
 | Eisenhower | [General of the Army Dwight D. Eisenhower 1947.jpg](https://commons.wikimedia.org/wiki/File:General_of_the_Army_Dwight_D._Eisenhower_1947.jpg) | Unknown author | Public domain |

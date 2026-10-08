@@ -240,7 +240,7 @@ replaces the entry, a new id is appended.
 
 ## Portraits
 
-Nineteen of the twenty have portraits from Wikimedia Commons, stored at 400
+Twenty of the twenty-one have portraits from Wikimedia Commons, stored at 400
 pixels wide in `internal/web/assets/static/portraits/`. Each general's file
 records the author, licence and source, and
 [docs/portrait-credits.md](portrait-credits.md) lists them together. Three are

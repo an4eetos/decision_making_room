@@ -343,7 +343,7 @@ screen shows the whole situation at once.
 
 v2 draws it as a theatre map. Your goals are objectives to take. Your problems
 are the opposition, dug in between you and them. Your commitments are orders,
-your time and energy are supply, and the twenty generals stop being lenses you
+your time and energy are supply, and the twenty-one generals stop being lenses you
 pick and become a staff that reads the map with you. The map moves as you work:
 close a loop and the front line advances; let a front go quiet and it shows.
 
