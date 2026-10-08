@@ -2664,6 +2664,554 @@ body {
     box-shadow: 0 0 0 1px var(--wr-amber-line);
 }
 
+/* ---------- Campaign ----------
+   Objectives are amber diamonds (the call, the thing to take), opposition is
+   red (a conflict, the one thing red means), fog is the interrogation steel —
+   the colour of not knowing yet. Estimates are labelled everywhere they appear. */
+
+.campaign {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-bottom: 3rem;
+}
+
+.campaign-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.campaign-head h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.4rem;
+}
+
+.campaign-head p {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 0.9rem;
+}
+
+.campaign-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.campaign-summary .sum {
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--wr-text-2);
+}
+
+.campaign-summary .sum b {
+    color: var(--wr-text);
+}
+
+.campaign-summary .sum.warn {
+    border-color: var(--wr-amber-line);
+    color: var(--wr-amber-text);
+}
+
+.est {
+    display: inline-block;
+    padding: 0 0.35rem;
+    border: 1px dashed var(--wr-amber-line);
+    border-radius: 4px;
+    background: none;
+    color: var(--wr-amber-text);
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+button.est {
+    cursor: pointer;
+}
+
+button.est:hover {
+    border-style: solid;
+}
+
+/* Proposals: the same keep-or-drop shape as open loops. */
+.intel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.intel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.6rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px dashed var(--wr-line);
+    border-left: 3px solid var(--wr-line-strong);
+    border-radius: 0 6px 6px 0;
+    background: var(--wr-panel);
+    font-size: 0.85rem;
+}
+
+.intel.type-objective { border-left-color: var(--wr-amber); }
+.intel.type-obstacle { border-left-color: var(--wr-red); }
+.intel.type-unknown { border-left-color: var(--wr-int); }
+
+.intel-type {
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--wr-muted);
+}
+
+.intel.type-objective .intel-type { color: var(--wr-amber); }
+.intel.type-obstacle .intel-type { color: var(--wr-red-text); }
+.intel.type-unknown .intel-type { color: var(--wr-int); }
+
+.intel-text {
+    flex: 1 1 12rem;
+    color: var(--wr-text);
+}
+
+.intel-meta {
+    font-size: 0.75rem;
+    color: var(--wr-muted);
+}
+
+.intel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.intel-hint {
+    flex: 1;
+    font-size: 0.72rem;
+    color: var(--wr-muted);
+}
+
+.intel select,
+.campaign select {
+    max-width: 14rem;
+    padding: 0.15rem 0.35rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 6px;
+    background: var(--wr-bg);
+    color: var(--wr-text-2);
+    font: inherit;
+    font-size: 0.75rem;
+}
+
+/* The chat rail is narrow: proposals stack. */
+.intel-rail .intel {
+    font-size: 0.8rem;
+}
+
+.intel-rail .intel-hint {
+    flex-basis: 100%;
+}
+
+.intel-rail .intel select {
+    flex: 1;
+    max-width: none;
+}
+
+.wr-mini-link {
+    font-size: 0.72rem;
+    color: var(--wr-muted);
+}
+
+/* Fronts */
+.campaign-fronts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.front {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--wr-line);
+    border-top: 2px solid var(--wr-amber-line);
+    border-radius: 0 0 10px 10px;
+    background: var(--wr-panel);
+}
+
+.front.unassigned {
+    border-top-color: var(--wr-line-strong);
+    border-style: dashed;
+}
+
+.front-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 10px;
+}
+
+.front-head h2 {
+    margin: 0;
+    font-family: var(--wr-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wr-amber-text);
+}
+
+.front-counts {
+    font-size: 0.75rem;
+    color: var(--wr-muted);
+}
+
+.front-head .row-actions {
+    margin-left: auto;
+}
+
+.front-empty {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.row-actions {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: auto;
+    opacity: 0.35;
+    transition: opacity 0.15s;
+}
+
+.front:hover .front-head .row-actions,
+.objective-row:hover .row-actions,
+.enemy-row:hover .row-actions,
+.fog-row:hover .row-actions,
+.row-actions:focus-within {
+    opacity: 1;
+}
+
+.row-actions .loop-x {
+    opacity: 1;
+}
+
+.mini-btn {
+    padding: 0.05rem 0.45rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 5px;
+    background: none;
+    color: var(--wr-text-2);
+    font: inherit;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.mini-btn:hover {
+    border-color: var(--wr-line-strong);
+    color: var(--wr-text);
+}
+
+.link-btn {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--wr-amber-text);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.link-btn:hover {
+    text-decoration: underline;
+}
+
+.objective {
+    padding: 8px 10px;
+    border: 1px solid var(--wr-amber-line);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--wr-amber) 6%, var(--wr-panel));
+}
+
+.objective-row,
+.enemy-row,
+.fog-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.objective-mark {
+    color: var(--wr-amber);
+}
+
+/* A long title keeps its width; the date and actions wrap below it. */
+.objective-row,
+.enemy-row,
+.fog-row {
+    flex-wrap: wrap;
+}
+
+.objective-text,
+.enemy-text,
+.fog-text {
+    flex: 1 1 13rem;
+    min-width: 0;
+}
+
+.bears-on {
+    display: block;
+    margin: 2px 0 0 1.1rem;
+    font-size: 0.72rem;
+    color: var(--wr-muted);
+}
+
+.objective-text {
+    font-weight: 500;
+}
+
+.objective-children,
+.loose {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.loose-label {
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--wr-faint);
+}
+
+.enemy {
+    padding: 6px 10px;
+    border-left: 3px solid var(--wr-red);
+    border-radius: 0 6px 6px 0;
+    background: var(--wr-red-soft);
+    font-size: 0.88rem;
+}
+
+.enemy-mark {
+    color: var(--wr-red);
+    font-size: 0.7rem;
+}
+
+.enemy-intel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.treatment {
+    flex-basis: 100%;
+    font-size: 0.75rem;
+    color: var(--wr-red-text);
+}
+
+.strength,
+.strength-inline {
+    display: inline-flex;
+    gap: 2px;
+    vertical-align: middle;
+}
+
+.pip {
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--wr-red);
+    border-radius: 1px;
+}
+
+.pip.on {
+    background: var(--wr-red);
+}
+
+.fog {
+    padding: 6px 10px;
+    border-left: 3px dotted var(--wr-int);
+    border-radius: 0 6px 6px 0;
+    background: var(--wr-int-soft);
+    font-size: 0.88rem;
+}
+
+.fog-mark {
+    color: var(--wr-int);
+    font-weight: 700;
+}
+
+.fog-text {
+    color: var(--wr-int-text);
+}
+
+.campaign-orders {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 6px 0 0;
+    padding: 0 0 0 1.1rem;
+    list-style: none;
+}
+
+.order {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--wr-text-2);
+}
+
+.order-tag {
+    padding: 0 0.3rem;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--wr-int) 20%, transparent);
+    color: var(--wr-int-text);
+    font-family: var(--wr-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.order-proposed {
+    font-family: var(--wr-mono);
+    font-size: 0.6rem;
+    color: var(--wr-faint);
+    text-transform: uppercase;
+}
+
+.loop-aimed {
+    color: var(--wr-amber);
+    font-size: 0.7rem;
+}
+
+.add-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.add-item input[name="text"] {
+    flex: 1 1 10rem;
+    min-width: 0;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--wr-line-soft);
+    border-radius: 6px;
+    background: var(--wr-bg);
+    color: var(--wr-text);
+    font: inherit;
+    font-size: 0.8rem;
+}
+
+.add-item select[name="objective_id"] {
+    flex-basis: 100%;
+    max-width: none;
+}
+
+.campaign-empty {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 1.5rem;
+    border: 1px dashed var(--wr-line);
+    border-radius: 10px;
+}
+
+.campaign-empty p {
+    flex-basis: 100%;
+    margin: 0;
+}
+
+.withdrawn-fronts {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.campaign-unaimed .order {
+    padding: 4px 0;
+}
+
+.campaign-unaimed .campaign-orders {
+    padding: 0;
+}
+
+.campaign-unaimed select {
+    margin-left: auto;
+}
+
+.campaign-resolved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.82rem;
+}
+
+.resolved {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--wr-muted);
+}
+
+.resolved-verb {
+    min-width: 5.5rem;
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.resolved.type-objective .resolved-verb { color: var(--wr-green); }
+.resolved.withdrawn .resolved-verb { color: var(--wr-amber); }
+.resolved.type-unknown .resolved-verb { color: var(--wr-int); }
+
+.resolved-answer {
+    color: var(--wr-text-2);
+}
+
+.resolved .link-btn {
+    margin-left: auto;
+    font-size: 0.72rem;
+}
+
+.campaign-front-form {
+    display: flex;
+    gap: 8px;
+    max-width: 32rem;
+}
+
+.campaign-front-form input {
+    flex: 1;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 8px;
+    background: var(--wr-panel);
+    color: var(--wr-text);
+    font: inherit;
+}
+
 /* ---------- Narrower screens ---------- */
 
 @media (max-width: 1180px) {

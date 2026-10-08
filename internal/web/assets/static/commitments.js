@@ -25,16 +25,22 @@ function setupCommitments() {
                 <span class="loop-text">${escapeHTML(c.text)}</span>
                 ${due}
                 <span class="loop-proposal-actions">
-                    <span class="loop-hint">You said this — track it?</span>
+                    <span class="loop-hint">${c.mode === "interrogation" ? "From an interrogation" : "You said this"} — track it?</span>
                     <button type="button" class="loop-btn keep" data-set="open">Keep</button>
                     <button type="button" class="loop-btn drop" data-set="dropped">Drop</button>
                 </span>
             </li>`;
         }
 
+        // A recon order is scouting an unknown on the campaign map; finishing it
+        // asks what it found.
+        const recon = c.kind === "recon" ? '<span class="order-tag">Recon</span>' : "";
+        const aimed = c.target_id && c.kind !== "recon" ? '<span class="loop-aimed" title="Aimed at something on the campaign map">⌖</span>' : "";
+
         return `
         <li class="loop" data-id="${escapeHTML(c.id)}">
             <input type="checkbox" class="loop-check" data-set="done" aria-label="Mark done">
+            ${recon}${aimed}
             <span class="loop-text">${escapeHTML(c.text)}</span>
             ${due}
             <button type="button" class="loop-x" data-set="dropped" title="Drop" aria-label="Drop">×</button>
@@ -91,8 +97,13 @@ function setupCommitments() {
             rowEl.classList.add("closing");
             await new Promise((r) => setTimeout(r, 250));
         }
+        // Captured before the status change, which reloads the list without it.
+        const loop = items.find((c) => c.id === rowEl.dataset.id);
         try {
             await setStatus(rowEl.dataset.id, control.dataset.set);
+            if (control.dataset.set === "done" && loop?.kind === "recon" && loop.target_id) {
+                await liftUnknown(loop.target_id, loop.text).catch(() => {});
+            }
         } catch (error) {
             showMessage(document.getElementById("consult-result"), error.message, "error");
             await load();

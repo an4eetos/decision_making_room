@@ -24,10 +24,28 @@ type Repository interface {
 	List(ctx context.Context, statuses []domain.Status, limit int) ([]domain.Commitment, error)
 	SetStatus(ctx context.Context, id uuid.UUID, status domain.Status) (domain.Commitment, error)
 	UpdateText(ctx context.Context, id uuid.UUID, text, fingerprint string, due *time.Time) (domain.Commitment, error)
+	// SetTarget aims an order at a campaign item, or with nil at nothing.
+	SetTarget(ctx context.Context, id uuid.UUID, target *uuid.UUID, kind domain.Kind) (domain.Commitment, error)
+	// ListByTarget returns the live and recently finished orders aimed at any of
+	// the given campaign items.
+	ListByTargets(ctx context.Context, targets []uuid.UUID) ([]domain.Commitment, error)
 
 	// MarkStale moves open commitments untouched since before the cutoff to
 	// stale, and returns the ones it moved so a nudge can name them.
 	MarkStale(ctx context.Context, cutoff time.Time) ([]domain.Commitment, error)
+}
+
+// ObjectiveRef is an active objective an extracted commitment can be linked to.
+type ObjectiveRef struct {
+	ID   uuid.UUID
+	Text string
+}
+
+// ObjectiveSource lists the objectives on the campaign map, so extraction can
+// say which one a new commitment serves. Optional: without it commitments are
+// extracted exactly as before.
+type ObjectiveSource interface {
+	ActiveObjectives(ctx context.Context) ([]ObjectiveRef, error)
 }
 
 // StaleListener hears about commitments at the moment they go stale.

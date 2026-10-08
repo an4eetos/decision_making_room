@@ -5,7 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/an4eetos/decision-room/internal/commitments/domain"
 	"github.com/an4eetos/decision-room/internal/commitments/port"
@@ -24,6 +27,9 @@ type Extract struct {
 	repo    port.Repository
 	enabled bool
 	now     func() time.Time
+	// objectives, when set, lets a new commitment say which objective on the
+	// campaign map it serves. Nil extracts exactly as before.
+	objectives port.ObjectiveSource
 
 	// busy caps extraction at one in flight. If a slow extraction is still
 	// running when the next turn arrives, that turn is skipped rather than
@@ -40,6 +46,12 @@ func NewExtract(llm memport.LLM, repo port.Repository, enabled bool) *Extract {
 		now:     time.Now,
 		busy:    make(chan struct{}, 1),
 	}
+}
+
+// WithObjectives links extracted commitments to the objectives they serve.
+func (u *Extract) WithObjectives(source port.ObjectiveSource) *Extract {
+	u.objectives = source
+	return u
 }
 
 // extractTimeout bounds the background call. It is derived from a fresh context,
@@ -87,17 +99,36 @@ Wishes, questions and reflections are not commitments.
 Today is %s (%s). Resolve relative dates like "Friday" or "tomorrow" against it.
 
 Return ONLY a JSON array, no prose, no code fences:
-[{"text": "<short imperative, max 12 words>", "due": "YYYY-MM-DD" or null, "confidence": 0.0-1.0}]
+[{"text": "<short imperative, max 12 words>", "due": "YYYY-MM-DD" or null, "confidence": 0.0-1.0%s}]
 
 Return [] if they committed to nothing. That is the usual answer.`
+
+// objectivesPrompt is appended when the campaign map has objectives. Linking is
+// by number, so the model never has to reproduce an id.
+const objectivesPrompt = `
+
+Their current objectives, numbered:
+%s
+If a commitment plainly serves one of them, set "serves" to its number. Otherwise null. Do not stretch.`
 
 // Run extracts synchronously and stores proposals. Exported for tests and for
 // callers that want to wait on the result.
 func (u *Extract) Run(ctx context.Context, turn memport.Turn) ([]domain.Commitment, error) {
 	now := u.now()
 
+	objectives := u.activeObjectives(ctx)
+	system := fmt.Sprintf(extractPrompt, now.Format("2006-01-02"), now.Weekday(), "")
+	if len(objectives) > 0 {
+		var list strings.Builder
+		for i, o := range objectives {
+			fmt.Fprintf(&list, "%d. %s\n", i+1, o.Text)
+		}
+		system = fmt.Sprintf(extractPrompt, now.Format("2006-01-02"), now.Weekday(), `, "serves": <objective number> or null`) +
+			fmt.Sprintf(objectivesPrompt, strings.TrimRight(list.String(), "\n"))
+	}
+
 	answer, err := u.llm.Chat(ctx, []memport.Message{
-		{Role: "system", Content: fmt.Sprintf(extractPrompt, now.Format("2006-01-02"), now.Weekday())},
+		{Role: "system", Content: system},
 		{Role: "user", Content: "They wrote:\n" + turn.UserText +
 			"\n\nThe assistant replied (context only — not their commitments):\n" +
 			truncate(turn.AssistantText, 1500)},
@@ -125,6 +156,7 @@ func (u *Extract) Run(ctx context.Context, turn memport.Turn) ([]domain.Commitme
 			ModeID:      turn.ModeID,
 			Confidence:  c.Confidence,
 			Fingerprint: service.Fingerprint(c.Text),
+			TargetID:    servedObjective(objectives, c.Serves),
 		})
 		// Already tracked is the expected outcome of saying the same thing twice.
 		if errors.Is(err, port.ErrDuplicate) {
@@ -137,6 +169,28 @@ func (u *Extract) Run(ctx context.Context, turn memport.Turn) ([]domain.Commitme
 	}
 
 	return created, nil
+}
+
+// activeObjectives is best effort: a map that cannot be read leaves the
+// commitment unlinked, never unextracted.
+func (u *Extract) activeObjectives(ctx context.Context) []port.ObjectiveRef {
+	if u.objectives == nil {
+		return nil
+	}
+	objectives, err := u.objectives.ActiveObjectives(ctx)
+	if err != nil {
+		log.Printf("commitments: reading objectives: %v", err)
+		return nil
+	}
+	return objectives
+}
+
+func servedObjective(objectives []port.ObjectiveRef, n int) *uuid.UUID {
+	if n < 1 || n > len(objectives) {
+		return nil
+	}
+	id := objectives[n-1].ID
+	return &id
 }
 
 func truncate(s string, max int) string {

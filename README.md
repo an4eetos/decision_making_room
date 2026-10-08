@@ -8,10 +8,10 @@ It is built around a simple idea: an assistant that has read everything you have
 written about your own work gives better advice than one that has not.
 
 > **Status:** early but usable. Retrieval, chat with depth tiers, the generals
-> roster, conversation modes, open loops, check-ins, the journal watcher and the
-> relocation planner all work today. Next is v2, **the Campaign**: everything the
-> room knows about your goals and problems, drawn as one living map. See
-> [the roadmap](#roadmap).
+> roster, conversation modes, interrogation, open loops, check-ins, the journal
+> watcher and the relocation planner all work today, and v2, **the Campaign**,
+> has begun: objectives, opposition and fog of war, proposed from what you
+> write. The map itself is next. See [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -150,6 +150,35 @@ no push service. Set `CHECKIN_NOTIFY_CMD` for a desktop notification.
 Scheduled check-ins cost one quick model call each. Nudges cost nothing — they
 are written from what the database already knows.
 
+## Campaign
+
+The **Campaign** page holds what the room knows about your goals. You open a few
+**fronts** — areas of life and work — and on them sit **objectives** (positions
+to take), **opposition** (what is dug in between you and them) and **fog** (what
+you do not know yet).
+
+Write *"I want to move to Lisbon by March, but the bank still hasn't sent the
+statement the visa needs, and I'm not sure if the visa takes six weeks or six
+months"* and three proposals appear, here and in the chat's left rail: an
+objective, an obstacle typed *waiting on input* and linked to it, and an unknown.
+Nothing goes on the map until you keep it.
+
+- **Opposition** is typed by the five kinds of stuck from the Stalled mode, each
+  with its treatment, and given a strength from outpost to fortress. A strength
+  the room estimated is marked `est` until you confirm it.
+- **Open loops become orders** when aimed at something on the map. An order aimed
+  at fog is **reconnaissance**: finishing it asks what you found, and the answer
+  lifts the fog. *Send recon* on an unknown writes the loop for you.
+- **Interrogations feed it for free**: what an interrogation lists as still dark
+  becomes proposed fog, and its probe becomes a proposed order aimed at what it
+  goes after.
+- **Withdrawing** an objective is a legitimate order, not a loss.
+
+An ordinary turn costs one background model call, and only when what you wrote
+sounds like a goal, a blocker or an open question; a free prefilter skips the
+rest. If you never open the page, the room answers exactly as before. Details in
+[docs/campaign.md](docs/campaign.md).
+
 ## Generals
 
 Twenty strategic lenses. Pick up to three under the composer and they argue about
@@ -225,6 +254,7 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `CHECKIN_SLOTS` | `morning@08:00,midday@13:00,evening@21:00` | |
 | `CHECKIN_TZ` | *(machine's)* | e.g. `Asia/Almaty` |
 | `COMMITMENT_EXTRACTION_ENABLED` | `true` | propose open loops from what you write |
+| `CAMPAIGN_EXTRACTION_ENABLED` | `true` | propose objectives, obstacles and unknowns from what you write |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -258,6 +288,15 @@ server never imports a domain package.
 | `POST` | `/api/admin/reindex?max=N` | re-embed memories after switching model |
 | `GET` `POST` | `/api/commitments` | open loops |
 | `PATCH` | `/api/commitments/{id}` | keep, drop, done, reopen, edit |
+| `GET` | `/api/campaign` | fronts, items and the orders aimed at them |
+| `GET` | `/api/campaign/proposals` | items waiting for keep or drop |
+| `POST` | `/api/campaign/fronts` | open a front; `/fronts/starters` opens the starter set |
+| `PATCH` | `/api/campaign/fronts/{id}` | rename, withdraw, restore |
+| `POST` | `/api/campaign/items` | add an objective, obstacle or unknown |
+| `PATCH` | `/api/campaign/items/{id}` | keep, drop, resolve, withdraw, file, retype, confirm strength |
+| `POST` | `/api/campaign/items/{id}/lift` | lift fog with what you found |
+| `POST` | `/api/campaign/items/{id}/recon` | send a recon order against an unknown |
+| `PUT` | `/api/campaign/orders/{id}/target` | aim an open loop at an item |
 | `GET` | `/api/checkins/unseen` | waiting check-ins |
 | `POST` | `/api/checkins/now` | check in now |
 | `POST` | `/api/checkins/{id}/open` | reply — opens the conversation |
@@ -345,9 +384,9 @@ campaign keeps the rules v1 already follows:
 
 **Milestones**
 
-- [ ] **v2.0 Groundwork** — streaming answers; fronts; objectives as proposals you
+- [x] **v2.0 Groundwork** — streaming answers; fronts; objectives as proposals you
   keep or drop; commitments linked to the objective they serve
-- [ ] **v2.1 Opposition and intel** — obstacles extracted from what you write,
+- [x] **v2.1 Opposition and intel** — obstacles extracted from what you write,
   typed by kind of stuck, strength estimated then confirmed; fog of war over
   what is unknown; reconnaissance as a kind of order
 - [ ] **v2.2 The theatre map** — server-rendered SVG of fronts, objectives and the

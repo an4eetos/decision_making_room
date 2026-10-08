@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/an4eetos/decision-room/internal/commitments/domain"
+	"github.com/an4eetos/decision-room/internal/commitments/port"
 	memport "github.com/an4eetos/decision-room/internal/memory/port"
 )
 
@@ -217,5 +218,37 @@ func TestExtractionFailureIsReturnedNotPanicked(t *testing.T) {
 	llm := &stubLLM{err: errors.New("429 quota")}
 	if _, err := NewExtract(llm, newMemRepo(), true).Run(context.Background(), turn("I'll do it")); err == nil {
 		t.Fatal("expected the model error to surface")
+	}
+}
+
+type fixedObjectives []port.ObjectiveRef
+
+func (f fixedObjectives) ActiveObjectives(context.Context) ([]port.ObjectiveRef, error) {
+	return f, nil
+}
+
+// With a campaign map wired in, an extracted commitment is linked to the
+// objective it serves; a number the model invents links nothing.
+func TestExtractionLinksTheObjectiveItServes(t *testing.T) {
+	t.Parallel()
+
+	lisbon := uuid.New()
+	objectives := fixedObjectives{{ID: uuid.New(), Text: "Get fit"}, {ID: lisbon, Text: "Move to Lisbon"}}
+	llm := &stubLLM{answer: `[{"text":"book the visa appointment","due":null,"confidence":0.9,"serves":2},
+		{"text":"call mum","due":null,"confidence":0.9,"serves":7}]`}
+
+	got, err := NewExtract(llm, newMemRepo(), true).WithObjectives(objectives).
+		Run(context.Background(), turn("I'll book the visa appointment and call mum"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("got %d proposals, want 2", len(got))
+	}
+	if got[0].TargetID == nil || *got[0].TargetID != lisbon {
+		t.Fatalf("first commitment should serve Lisbon: %+v", got[0])
+	}
+	if got[1].TargetID != nil {
+		t.Fatalf("an out-of-range number links nothing: %+v", got[1])
 	}
 }

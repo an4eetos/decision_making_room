@@ -25,6 +25,7 @@ func TestPagesRenderDistinctContent(t *testing.T) {
 		{"/", "Briefing", "Semantic search"},
 		{"/ingest", "Ingest Memory", "consult-form"},
 		{"/memories", "Semantic search", "consult-form"},
+		{"/campaign", "campaign-fronts", "consult-form"},
 	}
 
 	mux := http.NewServeMux()

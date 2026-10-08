@@ -100,6 +100,32 @@ func (m *memRepo) UpdateText(_ context.Context, id uuid.UUID, text, fp string, d
 	return c, nil
 }
 
+func (m *memRepo) SetTarget(_ context.Context, id uuid.UUID, target *uuid.UUID, kind domain.Kind) (domain.Commitment, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	c, ok := m.rows[id]
+	if !ok {
+		return domain.Commitment{}, port.ErrNotFound
+	}
+	c.TargetID, c.Kind = target, kind
+	m.rows[id] = c
+	return c, nil
+}
+
+func (m *memRepo) ListByTargets(_ context.Context, targets []uuid.UUID) ([]domain.Commitment, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	var out []domain.Commitment
+	for _, c := range m.rows {
+		for _, t := range targets {
+			if c.TargetID != nil && *c.TargetID == t && c.Status != domain.StatusDropped {
+				out = append(out, c)
+			}
+		}
+	}
+	return out, nil
+}
+
 func (m *memRepo) MarkStale(_ context.Context, cutoff time.Time) ([]domain.Commitment, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

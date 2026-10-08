@@ -45,9 +45,27 @@ const (
 	SourceCheckin Source = "checkin"
 )
 
+// Kind is what sort of order a commitment is. Most are plain orders; a recon
+// order is aimed at an unknown and exists to lift fog — finding something out
+// rather than getting something done.
+type Kind string
+
+const (
+	KindOrder Kind = "order"
+	KindRecon Kind = "recon"
+)
+
+func (k Kind) Valid() bool { return k == KindOrder || k == KindRecon }
+
 type Commitment struct {
-	ID          uuid.UUID
-	Text        string
+	ID   uuid.UUID
+	Text string
+	// Kind is order or recon; empty is read as order.
+	Kind Kind
+	// TargetID is the campaign item the order is aimed at: the objective it
+	// serves, the obstacle it attacks, or the unknown a recon order scouts. Nil
+	// is an order aimed at nothing on the map, which is most of them.
+	TargetID    *uuid.UUID
 	Status      Status
 	DueAt       *time.Time
 	Source      Source

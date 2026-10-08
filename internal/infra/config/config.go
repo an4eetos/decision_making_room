@@ -56,6 +56,11 @@ type Config struct {
 	// before it is marked stale and drops out of check-ins.
 	CommitmentStaleAfter time.Duration
 
+	// CampaignExtraction proposes objectives, obstacles and unknowns from what
+	// you write. Like open loops, a qualifying turn costs one background model
+	// call behind a free prefilter; interrogation turns cost none.
+	CampaignExtraction bool
+
 	// Check-ins are off by default: a tool that starts messaging you unasked
 	// is one people uninstall. Slots are "name@HH:MM" pairs.
 	CheckinEnabled   bool
@@ -119,6 +124,7 @@ func Load() (Config, error) {
 		GeneralsDir:            os.Getenv("GENERALS_DIR"),
 		ModesDir:               os.Getenv("MODES_DIR"),
 		CommitmentExtraction:   envBoolOrDefault("COMMITMENT_EXTRACTION_ENABLED", true),
+		CampaignExtraction:     envBoolOrDefault("CAMPAIGN_EXTRACTION_ENABLED", true),
 		CheckinEnabled:         envBoolOrDefault("CHECKIN_ENABLED", false),
 		CheckinSlots:           envOrDefault("CHECKIN_SLOTS", "morning@08:00,midday@13:00,evening@21:00"),
 		CheckinTimezone:        os.Getenv("CHECKIN_TZ"),
