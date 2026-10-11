@@ -59,6 +59,10 @@ function setupCommitments() {
         setSituationChip("sit-loops", open.length
             ? `${open.length} open${overdue ? ` · ${overdue} overdue` : ""}`
             : "");
+        // Due today or overdue is a crisis; beast mode listens for it.
+        const today = new Date().toLocaleDateString("en-CA");
+        const crisis = open.filter((c) => c.overdue || c.due === today).length;
+        document.dispatchEvent(new CustomEvent("loops-crisis", { detail: { count: crisis } }));
 
         if (items.length === 0) {
             list.innerHTML = '<li class="loop-empty muted">Nothing open. Say "I\'ll…" in a chat, or add one below.</li>';

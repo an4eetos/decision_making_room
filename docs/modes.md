@@ -4,7 +4,7 @@ A mode is what kind of question you are asking. It decides three things: the
 instructions the model gets, the shape the answer takes, and what retrieval
 favours.
 
-Fifteen ship, plus `interrogation`, which is never detected. The most
+Fifteen ship, plus `interrogation` and `beast`, which are never detected. The most
 important is `open`, which imposes no template at all — without it, every
 casual question gets forced into a framework, which is worse than having no
 modes.
@@ -93,6 +93,51 @@ four answers after the last one so it does not nag.
 A mode with `explicit_only: true` needs no triggers (and may not have any). Any
 mode can carry a `## Position` section and a closing turn; the request flag is
 `conclude: true`.
+
+## Beast mode
+
+The crisis gear, for when a deadline is on top of you and you are freezing,
+drifting or bargaining with yourself. The generals stop being polite. The most
+aggressive one seated (ranked by the mode's `shouters`: Zhukov, Patton, Chuikov,
+Konev, Suvorov, Guderian, Alexander; otherwise whoever sits first) swears at
+you in English with Russian mat, in the manner Zhukov's staff remembered:
+the tribunal, the penal battalion, "I'll have you shot". The others stay just
+as hard but do not swear.
+
+**Language warning:** this mode is profane on purpose. It never switches on by
+itself (`explicit_only: true`).
+
+- **The button** sits in the situation strip and pulses while an open loop is
+  due today or overdue. It is also in the mode menu under Crisis.
+- **Orders run on a clock.** The generals write `[[order: MINUTES | action]]`
+  lines, which the server rewrites as readable lines and puts on the board
+  under the composer. You can edit the text, move the clock ±5 minutes, add
+  your own orders, or strike one off (it stays as *abandoned*).
+- **Only a report stops a clock.** Press *Report done*, or tell them in chat
+  which task is finished. The model then writes `[[done: N]]`, but only for a
+  task you named.
+- **A clock that runs out** makes the generals erupt on their own. The page
+  sends the turn and the server writes the "Time's up" message. The task is
+  re-armed at half its time per miss, never under five minutes. Eruptions are
+  at least two minutes apart; clocks that run out in between are shouted about
+  together.
+- **Open loops due today or overdue** are put in front of the generals. An
+  order marked `| loop N` finishes that loop, and reporting it closes the loop.
+- **Stand down** sends a closing debrief (`## Position`) and marks whatever is
+  still open as abandoned. **Leave** goes back to ordinary advice and keeps the
+  clocks. They are not watched, so nobody erupts at a conversation you left.
+
+Hard limits, written into the prompt and outranking the voice: the abuse is
+aimed at excuses and stalling, never at who you are. No slurs about race,
+ethnicity, nationality, religion, sexuality, gender or disability, and nothing
+about your body. If you mention self-harm, a medical emergency or someone in
+danger, the act drops for that turn. With Gemini, beast turns loosen only the
+harassment filter, and only to blocking the worst of it; hate speech stays at
+Google's default. A reply a filter cuts off is reported as blocked rather than
+stored half-written.
+
+Beast turns are kept out of open-loop and campaign extraction: the orders
+already have their own board.
 
 ## Writing your own
 

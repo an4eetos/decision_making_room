@@ -165,7 +165,8 @@ func parseInterrogateFlag(answer string) (string, []string) {
 // than the phrase "try to" is.
 func suggest(plan ConsultPlan, flagged []string) *domain.Suggestion {
 	// Inside an interrogation the hits feed the interrogators instead.
-	if plan.Plain || plan.Mode.IsInterrogation() || len(plan.Traps) == 0 {
+	// Mid-crisis is no time to be offered a detour.
+	if plan.Plain || plan.Mode.IsInterrogation() || plan.Mode.IsBeast() || len(plan.Traps) == 0 {
 		return nil
 	}
 

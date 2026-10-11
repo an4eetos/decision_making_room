@@ -15,6 +15,9 @@ const (
 	// FamilyInterrogate questions instead of advising. Its modes are entered on
 	// purpose, never detected.
 	FamilyInterrogate Family = "interrogate"
+	// FamilyBeast is the crisis gear: the generals shout, swear and put timers
+	// on orders. Entered on purpose, never detected.
+	FamilyBeast Family = "beast"
 )
 
 // Mode is one conversation shape.
@@ -41,6 +44,10 @@ type Mode struct {
 	// picked. Interrogation is one — being questioned when you asked for advice
 	// is worse than any misdetected template.
 	ExplicitOnly bool `yaml:"explicit_only"`
+
+	// Shouters ranks the generals who may take the profane voice in beast mode,
+	// most aggressive first. The first one seated shouts; the rest stay clipped.
+	Shouters []string `yaml:"shouters"`
 
 	// SystemPrompt and OutputPrompt come from the "## System" and "## Output"
 	// sections of the body. ConcludePrompt comes from "## Position" and replaces
@@ -92,6 +99,9 @@ func (m Mode) IsOpen() bool { return m.Family == FamilyOpen }
 
 // IsInterrogation reports a mode that questions instead of advising.
 func (m Mode) IsInterrogation() bool { return m.Family == FamilyInterrogate }
+
+// IsBeast reports the crisis mode: profane generals and timed orders.
+func (m Mode) IsBeast() bool { return m.Family == FamilyBeast }
 
 type Registry struct {
 	Modes []Mode

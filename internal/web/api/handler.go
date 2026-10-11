@@ -181,13 +181,16 @@ func (h *Handler) listModes(w http.ResponseWriter, r *http.Request) {
 		Name    string `json:"name"`
 		Family  string `json:"family"`
 		Summary string `json:"summary,omitempty"`
+		// Shouters is beast mode's ranking, so the page can name who is
+		// shouting the same way the prompt picks him.
+		Shouters []string `json:"shouters,omitempty"`
 	}
 
 	modes := h.modes.List()
 	out := make([]modeDTO, 0, len(modes))
 	for _, m := range modes {
 		out = append(out, modeDTO{
-			ID: m.ID, Name: m.Name, Family: string(m.Family), Summary: m.Summary,
+			ID: m.ID, Name: m.Name, Family: string(m.Family), Summary: m.Summary, Shouters: m.Shouters,
 		})
 	}
 
@@ -449,6 +452,13 @@ type sendChatMessageRequest struct {
 	Mode     *string   `json:"mode"`
 	// Conclude asks the mode for its closing turn ("Take a position").
 	Conclude bool `json:"conclude"`
+	// Beast is a beast-mode event: a clock that ran out or a task reported.
+	Beast *beastEventRequest `json:"beast_event"`
+}
+
+type beastEventRequest struct {
+	Kind    string   `json:"kind"`
+	TaskIDs []string `json:"task_ids"`
 }
 
 func (req sendChatMessageRequest) input(sessionID string) usecase.SendMessageInput {
@@ -459,7 +469,21 @@ func (req sendChatMessageRequest) input(sessionID string) usecase.SendMessageInp
 		Generals:  derefStrings(req.Generals),
 		Mode:      req.Mode,
 		Conclude:  req.Conclude,
+		Beast:     req.beastEvent(),
 	}
+}
+
+func (req sendChatMessageRequest) beastEvent() *usecase.BeastEventInput {
+	if req.Beast == nil {
+		return nil
+	}
+	return &usecase.BeastEventInput{Kind: req.Beast.Kind, TaskIDs: req.Beast.TaskIDs}
+}
+
+// beastSkipped reports an expiry turn the board declined: nothing had run out,
+// or the generals erupted a moment ago. The page drops it without a word.
+func beastSkipped(err error) bool {
+	return errors.Is(err, port.ErrNothingExpired) || errors.Is(err, port.ErrEruptionTooSoon)
 }
 
 func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
@@ -470,6 +494,10 @@ func (h *Handler) sendChatMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	detail, err := h.chatUC.SendMessage(r.Context(), req.input(r.PathValue("id")))
+	if beastSkipped(err) {
+		http.Error(w, err.Error(), http.StatusConflict)
+		return
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -511,6 +539,10 @@ func (h *Handler) streamChatMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	detail, err := h.chatUC.SendMessage(r.Context(), in)
+	if beastSkipped(err) {
+		sse.send("error", map[string]string{"message": err.Error(), "code": "beast_skipped"})
+		return
+	}
 	if err != nil {
 		sse.send("error", map[string]string{"message": err.Error()})
 		return
