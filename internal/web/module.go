@@ -3,6 +3,7 @@ package web
 import (
 	"go.uber.org/fx"
 
+	beastusecase "github.com/an4eetos/decision-room/internal/beast/usecase"
 	camusecase "github.com/an4eetos/decision-room/internal/campaign/usecase"
 	chkusecase "github.com/an4eetos/decision-room/internal/checkin/usecase"
 	comusecase "github.com/an4eetos/decision-room/internal/commitments/usecase"
@@ -15,6 +16,7 @@ import (
 	relport "github.com/an4eetos/decision-room/internal/relocation/port"
 	relusecase "github.com/an4eetos/decision-room/internal/relocation/usecase"
 	"github.com/an4eetos/decision-room/internal/web/api"
+	"github.com/an4eetos/decision-room/internal/web/beastapi"
 	"github.com/an4eetos/decision-room/internal/web/campaignapi"
 	"github.com/an4eetos/decision-room/internal/web/checkinapi"
 	"github.com/an4eetos/decision-room/internal/web/commitmentsapi"
@@ -33,6 +35,7 @@ var Module = fx.Module("web",
 		asRoute(provideCommitmentsHandler),
 		asRoute(provideCheckinHandler),
 		asRoute(provideCampaignHandler),
+		asRoute(provideBeastHandler),
 	),
 )
 
@@ -74,6 +77,10 @@ func provideRelocationHandler(
 
 func provideCommitmentsHandler(manage *comusecase.Manage) *commitmentsapi.Handler {
 	return commitmentsapi.NewHandler(manage)
+}
+
+func provideBeastHandler(board *beastusecase.Board) *beastapi.Handler {
+	return beastapi.NewHandler(board)
 }
 
 func provideCampaignHandler(manage *camusecase.Manage) *campaignapi.Handler {

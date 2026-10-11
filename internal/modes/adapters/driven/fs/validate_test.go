@@ -66,3 +66,27 @@ func TestParsesThePositionSection(t *testing.T) {
 		t.Fatalf("sections parsed wrong: output=%q position=%q", mode.OutputPrompt, mode.ConcludePrompt)
 	}
 }
+
+// Nobody gets sworn at because a keyword matched.
+func TestBeastModesMustBeExplicitOnlyAndRankShouters(t *testing.T) {
+	t.Parallel()
+
+	detectable := domain.Mode{
+		ID: "rage", Name: "Rage", Family: domain.FamilyBeast, SystemPrompt: "x", Shouters: []string{"zhukov"},
+		Triggers: domain.Triggers{Keywords: []string{"shout at me"}, Weight: 1},
+	}
+	if err := validate(registryWith(detectable)); err == nil || !strings.Contains(err.Error(), "explicit_only") {
+		t.Fatalf("expected an explicit_only error, got %v", err)
+	}
+
+	unranked := domain.Mode{ID: "rage", Name: "Rage", Family: domain.FamilyBeast, SystemPrompt: "x", ExplicitOnly: true}
+	if err := validate(registryWith(unranked)); err == nil || !strings.Contains(err.Error(), "shouters") {
+		t.Fatalf("expected a shouters error, got %v", err)
+	}
+
+	ranked := unranked
+	ranked.Shouters = []string{"zhukov", "patton"}
+	if err := validate(registryWith(ranked)); err != nil {
+		t.Fatalf("an explicit-only beast mode with a ranking should pass: %v", err)
+	}
+}

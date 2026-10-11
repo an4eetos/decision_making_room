@@ -193,3 +193,27 @@ func TestInterrogationIsNeverDetected(t *testing.T) {
 		t.Fatal("an unlocked interrogation should not stick")
 	}
 }
+
+// Being sworn at is something you ask for. No question, however desperate,
+// switches it on.
+func TestBeastIsNeverDetected(t *testing.T) {
+	t.Parallel()
+	d := detector(t)
+
+	for _, q := range []string{
+		"Beast mode",
+		"Shout at me, I'm procrastinating and the deadline is tonight",
+		"I'm stuck and panicking, the report is due in an hour",
+	} {
+		if got := d.Detect(service.Input{Question: q}); got.Mode.ID == "beast" {
+			t.Fatalf("%q auto-detected beast mode", q)
+		}
+	}
+
+	if got := d.Detect(service.Input{Question: "anything", Explicit: "beast"}); got.Mode.ID != "beast" {
+		t.Fatalf("an explicit pick should enter it, got %q", got.Mode.ID)
+	}
+	if got := d.Detect(service.Input{Question: "plan my day", SessionMode: "beast", TurnIndex: 3}); got.Mode.ID == "beast" {
+		t.Fatal("an unlocked beast mode should not stick")
+	}
+}

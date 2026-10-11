@@ -51,6 +51,9 @@ type ConsultPlan struct {
 	// template for this turn. See ConsultInput.Conclude.
 	Conclude bool
 
+	// Beast is the board in beast mode; see ConsultInput.Beast.
+	Beast *port.BeastBrief
+
 	// Traps is the trap catalogue, and TrapHits the traps its signal phrases
 	// found in the question. Hits are only looked for where a suggestion could
 	// follow — never inside an interrogation, never on a plain check-in.
@@ -106,6 +109,7 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 		Now:      time.Now().UTC(),
 		Plain:    input.Plain,
 		Conclude: input.Conclude,
+		Beast:    input.Beast,
 		Progress: input.Progress,
 	}
 

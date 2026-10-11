@@ -51,9 +51,23 @@ func NewClient(baseURL, apiKey string, chatModels []string, embedModel string) *
 }
 
 type generateRequest struct {
-	SystemInstruction *contentWire    `json:"systemInstruction,omitempty"`
-	Contents          []contentWire   `json:"contents"`
-	Tools             []toolGroupWire `json:"tools,omitempty"`
+	SystemInstruction *contentWire        `json:"systemInstruction,omitempty"`
+	Contents          []contentWire       `json:"contents"`
+	Tools             []toolGroupWire     `json:"tools,omitempty"`
+	SafetySettings    []safetySettingWire `json:"safetySettings,omitempty"`
+}
+
+type safetySettingWire struct {
+	Category  string `json:"category"`
+	Threshold string `json:"threshold"`
+}
+
+// relaxedSafety is what a call marked port.WithRelaxedSafety sends: beast
+// mode, where the person asked to be sworn at. Only harassment is loosened,
+// and only to blocking the worst of it. Hate speech stays at Google's default,
+// which is the second line behind the prompt's ban on slurs.
+var relaxedSafety = []safetySettingWire{
+	{Category: "HARM_CATEGORY_HARASSMENT", Threshold: "BLOCK_ONLY_HIGH"},
 }
 
 type contentWire struct {
@@ -90,8 +104,56 @@ type functionDeclWire struct {
 
 type generateResponse struct {
 	Candidates []struct {
-		Content contentWire `json:"content"`
+		Content       contentWire `json:"content"`
+		FinishReason  string      `json:"finishReason"`
+		SafetyRatings []struct {
+			Category string `json:"category"`
+			Blocked  bool   `json:"blocked"`
+		} `json:"safetyRatings"`
 	} `json:"candidates"`
+	PromptFeedback *struct {
+		BlockReason string `json:"blockReason"`
+	} `json:"promptFeedback"`
+}
+
+// ErrBlocked means Gemini's own filters stopped the reply. It used to surface
+// as "empty generate response", which reads like an outage rather than a
+// refusal and sent people looking in the wrong place.
+var ErrBlocked = errors.New("the model blocked the reply")
+
+// blockedFinish are the finish reasons that mean a filter cut the reply off,
+// as opposed to it ending or running out of tokens.
+var blockedFinish = map[string]bool{
+	"SAFETY": true, "PROHIBITED_CONTENT": true, "BLOCKLIST": true, "SPII": true, "RECITATION": true,
+}
+
+// blocked reports why the response was filtered, or "" if it was not. It
+// names the category that tripped when Gemini says, because "safety" alone
+// does not tell you which threshold to look at.
+func (r generateResponse) blocked() string {
+	if r.PromptFeedback != nil && r.PromptFeedback.BlockReason != "" {
+		return r.PromptFeedback.BlockReason
+	}
+	for _, c := range r.Candidates {
+		if !blockedFinish[c.FinishReason] {
+			continue
+		}
+		var categories []string
+		for _, rating := range c.SafetyRatings {
+			if rating.Blocked {
+				categories = append(categories, strings.TrimPrefix(rating.Category, "HARM_CATEGORY_"))
+			}
+		}
+		if len(categories) > 0 {
+			return c.FinishReason + ": " + strings.Join(categories, ", ")
+		}
+		return c.FinishReason
+	}
+	return ""
+}
+
+func blockedError(reason string) error {
+	return fmt.Errorf("%w (%s)", ErrBlocked, strings.ToLower(reason))
 }
 
 type embedRequest struct {
@@ -129,17 +191,21 @@ func (c *Client) ChatToolsStream(ctx context.Context, messages []port.Message, t
 	return c.chatStream(ctx, messages, tools, onDelta)
 }
 
-func (c *Client) generateBody(messages []port.Message, tools []port.Tool) ([]byte, error) {
+func (c *Client) generateBody(ctx context.Context, messages []port.Message, tools []port.Tool) ([]byte, error) {
 	systemInstruction, contents, err := toWireContents(messages)
 	if err != nil {
 		return nil, err
 	}
 
-	body, err := json.Marshal(generateRequest{
+	req := generateRequest{
 		SystemInstruction: systemInstruction,
 		Contents:          contents,
 		Tools:             toWireTools(tools),
-	})
+	}
+	if port.RelaxedSafety(ctx) {
+		req.SafetySettings = relaxedSafety
+	}
+	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("marshal generate request: %w", err)
 	}
@@ -159,7 +225,7 @@ func (c *Client) models() []string {
 // byte of a successful response: once text has reached the reader it cannot be
 // taken back, so a failure mid-stream is returned rather than retried.
 func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
-	body, err := c.generateBody(messages, tools)
+	body, err := c.generateBody(ctx, messages, tools)
 	if err != nil {
 		return port.ChatTurn{}, err
 	}
@@ -202,7 +268,10 @@ func readStream(r io.Reader, onDelta func(string)) (port.ChatTurn, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Buffer(make([]byte, 0, 64<<10), maxStreamLine)
 
-	var parts []partWire
+	var (
+		parts   []partWire
+		blocked string
+	)
 	for scanner.Scan() {
 		line := scanner.Text()
 		data, ok := strings.CutPrefix(line, "data:")
@@ -221,6 +290,9 @@ func readStream(r io.Reader, onDelta func(string)) (port.ChatTurn, error) {
 		if chunk.Error != nil {
 			return port.ChatTurn{}, fmt.Errorf("stream failed: %s", chunk.Error.Message)
 		}
+		if reason := chunk.blocked(); reason != "" {
+			blocked = reason
+		}
 		if len(chunk.Candidates) == 0 {
 			continue
 		}
@@ -236,6 +308,11 @@ func readStream(r io.Reader, onDelta func(string)) (port.ChatTurn, error) {
 		return port.ChatTurn{}, fmt.Errorf("read stream: %w", err)
 	}
 
+	// A filter can cut a reply off halfway. Half an answer stored as if it were
+	// the whole one is worse than saying it was stopped.
+	if blocked != "" {
+		return port.ChatTurn{}, blockedError(blocked)
+	}
 	if len(parts) == 0 {
 		return port.ChatTurn{}, fmt.Errorf("empty generate response")
 	}
@@ -269,7 +346,7 @@ func appendStreamPart(parts []partWire, part partWire) []partWire {
 }
 
 func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port.Tool) (port.ChatTurn, error) {
-	body, err := c.generateBody(messages, tools)
+	body, err := c.generateBody(ctx, messages, tools)
 	if err != nil {
 		return port.ChatTurn{}, err
 	}
@@ -298,6 +375,9 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 		return port.ChatTurn{}, fmt.Errorf("unmarshal generate response: %w", err)
 	}
 
+	if reason := result.blocked(); reason != "" {
+		return port.ChatTurn{}, blockedError(reason)
+	}
 	if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
 		return port.ChatTurn{}, fmt.Errorf("empty generate response")
 	}

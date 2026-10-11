@@ -8,7 +8,7 @@ It is built around a simple idea: an assistant that has read everything you have
 written about your own work gives better advice than one that has not.
 
 > **Status:** early but usable. Retrieval, chat with depth tiers, the generals
-> roster, conversation modes, interrogation, open loops, check-ins, the journal
+> roster, conversation modes, interrogation, beast mode, open loops, check-ins, the journal
 > watcher and the relocation planner all work today, and v2, **the Campaign**,
 > has begun: objectives, opposition and fog of war, proposed from what you
 > write. The map itself is next. See [the roadmap](#roadmap).

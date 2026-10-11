@@ -39,6 +39,8 @@
                 <span id="sit-next" class="sit-chip" hidden></span>
                 <button id="checkin-now" type="button" class="sit-chip action" title="Ask me how it's going, now">Check in now</button>
                 <button type="button" class="hint" data-hint="checkins"></button>
+                <button id="beast-now" type="button" class="sit-chip beast-now" title="The generals stop being polite: orders on a clock, and one of them swears at you.">Beast mode</button>
+                <button type="button" class="hint" data-hint="beast"></button>
                 <span class="mode-chip-wrap">
                     <button id="mode-chip" type="button" class="mode-chip" aria-haspopup="listbox" aria-expanded="false">
                         <span id="mode-chip-label">Open</span>
@@ -71,6 +73,24 @@
                     <button id="take-position" type="button" class="btn-secondary take-position" title="End the questioning and write the position it earned">Take a position</button>
                     <button id="leave-interrogation" type="button" class="btn-secondary" title="Back to ordinary advice">Leave</button>
                 </span>
+            </div>
+            <div id="beast-bar" class="beast-bar" hidden>
+                <div class="beast-bar-head">
+                    <span class="beast-bar-label">Beast mode</span>
+                    <span id="beast-who" class="beast-who">The council is shouting</span>
+                    <span class="beast-bar-actions">
+                        <button id="stand-down" type="button" class="btn-secondary" title="End it: a debrief, and whatever is still open is abandoned">Stand down</button>
+                        <button id="leave-beast" type="button" class="btn-secondary" title="Back to ordinary advice. The clocks stay on the board.">Leave</button>
+                    </span>
+                </div>
+                <ul id="beast-tasks" class="beast-tasks"></ul>
+                <!-- Not a form: it sits inside the chat form, and forms do not nest. -->
+                <div id="beast-add" class="beast-add">
+                    <input id="beast-add-text" type="text" placeholder="Add an order yourself" autocomplete="off" maxlength="240">
+                    <input id="beast-add-minutes" type="number" min="1" max="240" value="15" aria-label="Minutes">
+                    <span class="beast-add-unit">min</span>
+                    <button id="beast-add-button" type="button" class="beast-btn">Add</button>
+                </div>
             </div>
             <textarea id="question" name="question" rows="3"
                       placeholder="State the situation. What are you deciding?" required></textarea>

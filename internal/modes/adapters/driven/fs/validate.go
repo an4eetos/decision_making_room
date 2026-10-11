@@ -12,6 +12,7 @@ import (
 var validFamilies = []domain.Family{
 	domain.FamilyPlan, domain.FamilyDecide, domain.FamilyUnblock,
 	domain.FamilyReview, domain.FamilyOpen, domain.FamilyInterrogate,
+	domain.FamilyBeast,
 }
 
 var validKinds = []string{"decision", "plan", "note", "daily_log"}
@@ -64,6 +65,13 @@ func validate(r domain.Registry) error {
 		}
 		if mode.IsInterrogation() && !mode.ExplicitOnly {
 			problems = append(problems, fmt.Errorf("%s: interrogation modes must be explicit_only", where))
+		}
+		// Nobody gets sworn at because a keyword matched.
+		if mode.IsBeast() && !mode.ExplicitOnly {
+			problems = append(problems, fmt.Errorf("%s: beast modes must be explicit_only", where))
+		}
+		if mode.IsBeast() && len(mode.Shouters) == 0 {
+			problems = append(problems, fmt.Errorf("%s: beast modes need a shouters ranking", where))
 		}
 
 		// A phrase shared by two modes cannot discriminate between them: they

@@ -113,6 +113,20 @@ const HINTS = {
             "Aiming is optional. Most small loops serve no objective, and that is fine.",
         ],
     },
+    beast: {
+        title: "Beast mode",
+        what: "The crisis gear. The generals stop being polite. The most aggressive one seated swears at you in English and Russian mat, and every order comes with a clock.",
+        uses: [
+            "Orders land on the board under the composer with a countdown. A clock stops only when you report it: press <strong>Report done</strong>, or tell them in chat which task is finished. Time running out is not a report.",
+            "When a clock runs out, the generals erupt on their own and re-arm it shorter: half the time, never under five minutes.",
+            "Your open loops due today or overdue are put in front of them, and the button pulses while there are any. Finishing an order that serves a loop closes the loop too.",
+            "<strong>Stand down</strong> ends it with a debrief, and whatever is still open is marked abandoned. <strong>Leave</strong> goes back to ordinary advice and keeps the clocks for later.",
+        ],
+        notes: [
+            "Harsh language is the point, and you have to ask for it: it never switches on by itself.",
+            "The abuse is aimed at your excuses, never at who you are. No slurs about race, religion, sexuality, gender or disability. If you mention real danger, the act stops.",
+        ],
+    },
     interrogation: {
         title: "Interrogation",
         what: "No advice yet. The seated generals question you, one question each, until your position no longer rests on a cognitive trap.",

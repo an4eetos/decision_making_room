@@ -50,6 +50,10 @@ type ConsultInput struct {
 	// position the questioning has earned instead of more questions.
 	Conclude bool
 
+	// Beast is the board the shouter reads in beast mode. Nil outside it, or
+	// when no board is wired.
+	Beast *port.BeastBrief
+
 	// Progress, when set, hears about the consult as it runs and receives the
 	// answer as it is written. Nil means the caller only wants the result.
 	Progress *Progress
@@ -82,6 +86,10 @@ type ConsultResult struct {
 	// Suggestion recommends an interrogation when a trap was found, by phrase
 	// or by the model's flag. The chat decides whether it is shown.
 	Suggestion *domain.Suggestion `json:"suggestion,omitempty"`
+	// Orders and Done are what the beast-mode generals put on the board and
+	// took off it this turn. Their lines are rewritten or cut before storage.
+	Orders []port.BeastOrder `json:"-"`
+	Done   []int             `json:"-"`
 }
 
 type Consult struct {
@@ -180,6 +188,12 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 		ModeMethod:     plan.ModeMethod,
 	})
 
+	// The person asked to be sworn at. The provider's harassment filter would
+	// otherwise refuse the turn they pulled the alarm for.
+	if plan.Mode.IsBeast() {
+		ctx = port.WithRelaxedSafety(ctx)
+	}
+
 	var result ConsultResult
 	if plan.Tier.UsesTools() && u.agent != nil {
 		result, err = u.agent.Execute(ctx, plan, context)
@@ -194,6 +208,9 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	var flagged []string
 	result.Answer, flagged = parseInterrogateFlag(result.Answer)
 	result.Suggestion = suggest(plan, flagged)
+	if plan.Mode.IsBeast() && !plan.Conclude {
+		result.Answer, result.Orders, result.Done = parseBeastFlags(result.Answer)
+	}
 	return result, nil
 }
 
@@ -382,7 +399,13 @@ func buildSystemPrompt(base string, plan ConsultPlan) string {
 	if styles := stylesPrompt(plan.Styles); styles != "" {
 		parts = append(parts, styles)
 	}
-	if plan.Mode.IsInterrogation() {
+	if plan.Mode.IsBeast() {
+		// No exchange and no trap flag: the person wants orders and a clock,
+		// not deliberation or a detour into being questioned.
+		if lenses := beastPrompt(plan.Generals, plan.Mode.Shouters, plan.Doctrine, plan.Beast, plan.Conclude); lenses != "" {
+			parts = append(parts, lenses)
+		}
+	} else if plan.Mode.IsInterrogation() {
 		// The lenses question instead of debating, so the exchange template
 		// would fight the mode's. No flag either: this is where a flag leads.
 		if lenses := interrogationPrompt(plan.Generals, plan.Doctrine, plan.Traps, plan.SpottedTraps(), plan.Conclude); lenses != "" {

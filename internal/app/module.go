@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	"github.com/an4eetos/decision-room/internal/beast"
 	"github.com/an4eetos/decision-room/internal/campaign"
 	"github.com/an4eetos/decision-room/internal/checkin"
 	"github.com/an4eetos/decision-room/internal/commitments"
@@ -41,6 +42,7 @@ var Module = fx.Module("app",
 	relocation.Module,
 	commitments.Module,
 	campaign.Module,
+	beast.Module,
 	checkin.Module,
 	web.Module,
 	fx.Invoke(startServer),

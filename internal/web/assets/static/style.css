@@ -29,6 +29,13 @@
     --wr-int-soft: #141a21;
     --wr-int-panel: #18202a;
     --wr-int-text: #bcd0e6;
+    /* Beast mode: fire. Hotter and more orange than the conflict red, so a
+       clash on the campaign map never reads as the alarm. */
+    --wr-beast: #ff6a3d;
+    --wr-beast-line: #7a2e18;
+    --wr-beast-soft: #1f1210;
+    --wr-beast-panel: #261613;
+    --wr-beast-text: #ffb59c;
     --wr-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 }
 
@@ -2662,6 +2669,281 @@ body {
     background: var(--wr-amber-soft);
     color: var(--wr-amber-text);
     box-shadow: 0 0 0 1px var(--wr-amber-line);
+}
+
+/* ---------- Beast mode ----------
+   The crisis gear: the room runs hot, orders carry a clock, and a late one
+   blinks until it is reported. */
+
+.beast-now {
+    border-color: var(--wr-beast-line);
+    color: var(--wr-beast-text);
+    cursor: pointer;
+}
+
+.beast-now:hover {
+    background: var(--wr-beast-soft);
+    border-color: var(--wr-beast);
+}
+
+.beast-now.crisis {
+    background: var(--wr-beast-soft);
+    border-color: var(--wr-beast);
+    color: var(--wr-beast);
+    animation: beast-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes beast-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--wr-beast) 45%, transparent); }
+    50% { box-shadow: 0 0 0 5px transparent; }
+}
+
+.chat-messages.beasting {
+    background:
+        radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--wr-beast) 12%, transparent), transparent 60%),
+        var(--wr-beast-soft);
+    border-radius: 10px;
+    padding: 0.6rem;
+}
+
+.war-room .chat-message.assistant.beast {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--wr-beast-line);
+    border-left: 3px solid var(--wr-beast);
+    border-radius: 0 10px 10px 0;
+    background: var(--wr-beast-panel);
+}
+
+.war-room .chat-message.user.beast {
+    border-color: var(--wr-beast-line);
+    background: color-mix(in srgb, var(--wr-beast) 12%, var(--wr-beast-soft));
+}
+
+.beast-badge {
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--wr-beast) 20%, transparent);
+    color: var(--wr-beast-text);
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.chat-form.beasting textarea {
+    border-color: var(--wr-beast-line);
+    background: var(--wr-beast-panel);
+}
+
+.beast-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--wr-beast-line);
+    border-radius: 8px;
+    background: var(--wr-beast-soft);
+}
+
+.beast-bar[hidden] {
+    display: none;
+}
+
+.beast-bar-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.beast-bar-label {
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wr-beast);
+}
+
+.beast-who {
+    font-size: 0.85rem;
+    color: var(--wr-beast-text);
+}
+
+.beast-bar-actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.beast-bar-actions .btn-secondary {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+}
+
+.beast-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.beast-task {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid var(--wr-line-soft);
+    border-radius: 6px;
+    background: var(--wr-panel);
+    font-size: 0.86rem;
+    transition: opacity 0.25s;
+}
+
+.beast-task.closing {
+    opacity: 0.4;
+}
+
+.beast-task.done,
+.beast-task.abandoned {
+    opacity: 0.55;
+}
+
+.beast-task.abandoned .beast-text {
+    text-decoration: line-through;
+}
+
+.beast-num {
+    min-width: 1.4em;
+    font-family: var(--wr-mono);
+    font-size: 0.72rem;
+    color: var(--wr-muted);
+}
+
+.beast-text {
+    flex: 1 1 12rem;
+    min-width: 0;
+    color: var(--wr-text);
+    cursor: text;
+    overflow-wrap: anywhere;
+}
+
+.beast-loop,
+.beast-missed,
+.beast-state {
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--wr-muted);
+}
+
+.beast-missed {
+    color: var(--wr-beast);
+}
+
+.beast-time {
+    min-width: 3.6em;
+    font-family: var(--wr-mono);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--wr-text-2);
+}
+
+.beast-task.urgent .beast-time {
+    color: var(--wr-amber-text);
+}
+
+.beast-task.late {
+    border-color: var(--wr-beast);
+    background: var(--wr-beast-panel);
+}
+
+.beast-task.late .beast-time {
+    color: var(--wr-beast);
+    animation: beast-blink 1s steps(2, start) infinite;
+}
+
+@keyframes beast-blink {
+    to { visibility: hidden; }
+}
+
+.beast-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.beast-btn {
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 5px;
+    background: var(--wr-panel-2);
+    color: var(--wr-text-2);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.beast-btn:hover {
+    border-color: var(--wr-line-strong);
+    color: var(--wr-text);
+}
+
+.beast-btn.done {
+    border-color: var(--wr-beast-line);
+    color: var(--wr-beast-text);
+}
+
+.beast-btn.done:hover {
+    border-color: var(--wr-beast);
+    background: var(--wr-beast-soft);
+}
+
+.beast-empty {
+    padding: 4px 2px;
+    font-size: 0.82rem;
+}
+
+.beast-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.beast-add input[type="text"] {
+    flex: 1;
+    min-width: 0;
+}
+
+.beast-add input[type="number"] {
+    width: 4.2rem;
+}
+
+.beast-add input {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 5px;
+    background: var(--wr-panel);
+    color: var(--wr-text);
+    font: inherit;
+    font-size: 0.82rem;
+}
+
+.beast-add-unit {
+    font-size: 0.75rem;
+    color: var(--wr-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .beast-now.crisis,
+    .beast-task.late .beast-time {
+        animation: none;
+    }
 }
 
 /* ---------- Campaign ----------

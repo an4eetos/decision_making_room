@@ -193,9 +193,17 @@ function renderChatMessages(container, messages) {
 
     // What you wrote during an interrogation sits in the same room as the
     // questions, so it takes the same background.
-    const marked = messages.map((m, i) => (m.role === "user" && messages[i + 1]?.mode === INTERROGATION_MODE
-        ? { ...m, interrogation: true }
-        : m));
+    // The same goes for what you wrote under fire.
+    const marked = messages.map((m, i) => {
+        if (m.role !== "user") {
+            return m;
+        }
+        const next = messages[i + 1]?.mode;
+        if (next === INTERROGATION_MODE) {
+            return { ...m, interrogation: true };
+        }
+        return next === BEAST_MODE ? { ...m, beast: true } : m;
+    });
     container.innerHTML = marked.map(chatMessageHTML).join("");
     container.scrollTop = container.scrollHeight;
 }
@@ -205,10 +213,13 @@ function renderChatMessages(container, messages) {
 function chatMessageHTML(message) {
     const isAssistant = message.role === "assistant";
     const interrogating = isAssistant ? message.mode === INTERROGATION_MODE : Boolean(message.interrogation);
+    const beast = isAssistant ? message.mode === BEAST_MODE : Boolean(message.beast);
     // Only assistant answers are markdown. What you typed is shown exactly as
     // you typed it — rendering your own text would mangle anything containing
     // an asterisk or a hash.
-    const structured = !isAssistant
+    // A beast answer is a shout and a list of clocks, not a briefing: no
+    // sections to lay out.
+    const structured = !isAssistant || beast
         ? null
         : interrogating
             ? renderInterrogation(message.content)
@@ -225,12 +236,14 @@ function chatMessageHTML(message) {
 
     // Which lenses produced this answer, and whether you picked them. An
     // auto-selected lens should never look like one you chose.
-    const mode = isAssistant && message.mode && message.mode !== "open" && !interrogating
+    const mode = isAssistant && message.mode && message.mode !== "open" && !interrogating && !beast
         ? `<span class="mode-badge">${escapeHTML(modeChipName(message.mode))}</span>`
         : "";
     const room = interrogating
         ? `<span class="interrogation-badge">${isAssistant ? "Interrogation" : "Under questioning"}</span>`
-        : "";
+        : beast
+            ? `<span class="beast-badge">${isAssistant ? "Beast mode" : "Under fire"}</span>`
+            : "";
 
     const lenses = isAssistant && message.generals?.length
         ? `<span class="lens-badges">${message.generals.map((id) =>
@@ -240,7 +253,7 @@ function chatMessageHTML(message) {
         : "";
 
     return `
-    <div class="chat-message ${escapeHTML(message.role)}${interrogating ? " interrogation" : ""}">
+    <div class="chat-message ${escapeHTML(message.role)}${interrogating ? " interrogation" : ""}${beast ? " beast" : ""}">
         <div class="chat-message-head">
             <span class="chat-message-role">${escapeHTML(message.role)}</span>
             ${room}
@@ -455,12 +468,19 @@ function setupConsultForm() {
     const loops = setupCommitments();
     const intel = setupIntelRail();
 
-    const modeChip = setupModeChip({ onChange: () => syncInterrogation() });
+    const modeChip = setupModeChip({
+        onChange: () => {
+            syncInterrogation();
+            syncBeast();
+        },
+    });
+    // Beast mode's ranking of who shouts, from the mode file.
+    let beastShouters = BEAST_SHOUTERS;
     modeChip?.load().then(async () => {
         try {
-            modeNames = Object.fromEntries(
-                (await apiJSON("/api/modes")).map((m) => [m.id, m.name]),
-            );
+            const modes = await apiJSON("/api/modes");
+            modeNames = Object.fromEntries(modes.map((m) => [m.id, m.name]));
+            beastShouters = modes.find((m) => m.id === BEAST_MODE)?.shouters ?? BEAST_SHOUTERS;
         } catch {
             // Badges fall back to a tidied id.
         }
@@ -592,6 +612,130 @@ function setupConsultForm() {
         leaveInterrogation();
     });
 
+    // Beast mode: the bar on the composer holds the board, who is shouting,
+    // Stand down and Leave.
+    const beastBar = document.getElementById("beast-bar");
+    const beastWho = document.getElementById("beast-who");
+    // Set by a clock or a report for the one send it triggers.
+    let beastEventNext = null;
+    // Reports made while an answer was still coming, by session, sent once
+    // it lands. The clock already stopped; this is only the telling.
+    let pendingReports = [];
+
+    function beasting() {
+        return modeChip?.pinned() === BEAST_MODE;
+    }
+
+    const beastBoard = setupBeastBoard({
+        onExpired(late) {
+            const names = late.map((t) => `task ${t.number}, ${t.text}`).join("; ");
+            return sendBeastTurn(`⏱ Time's up: ${names}. Not reported.`, { kind: "expired" });
+        },
+        onReport(task) {
+            if (!task) {
+                return;
+            }
+            if (!sendBeastTurn(reportText([task]), { kind: "report", task_ids: [task.id] })) {
+                pendingReports.push({ sessionID: activeSessionID, task });
+            }
+        },
+        onError(error) {
+            showMessage(result, error.message, "error");
+        },
+    });
+    setupBeastAlarm();
+
+    function reportText(tasks) {
+        return `Reporting: ${tasks.map((t) => `task ${t.number}, ${t.text}`).join("; ")} — done.`;
+    }
+
+    // sendBeastTurn sends a turn the room writes for you, without eating what
+    // you were typing. It returns false when an answer is still coming.
+    function sendBeastTurn(text, event) {
+        if (currentRun() || !beasting()) {
+            return false;
+        }
+        const draft = form.question.value;
+        form.question.value = text;
+        beastEventNext = event;
+        // The submit handler reads and clears the textarea before its first
+        // await, so the draft can go straight back.
+        form.requestSubmit();
+        form.question.value = draft;
+        return true;
+    }
+
+    function flushReports() {
+        const mine = pendingReports.filter((r) => r.sessionID === activeSessionID);
+        pendingReports = [];
+        if (mine.length === 0) {
+            return;
+        }
+        const tasks = mine.map((r) => r.task);
+        sendBeastTurn(reportText(tasks), { kind: "report", task_ids: tasks.map((t) => t.id) });
+    }
+
+    // syncBeast puts the room in or out of beast mode and points the board at
+    // the conversation. Given the stored messages, it names who is shouting.
+    function syncBeast(stored) {
+        const on = beasting();
+        messages.classList.toggle("beasting", on);
+        form.classList.toggle("beasting", on);
+        if (beastBar) {
+            beastBar.hidden = !on;
+        }
+        beastBoard?.setSession(activeSessionID, on);
+        if (!on) {
+            return;
+        }
+        const last = stored && [...stored].reverse().find((m) => m.role === "assistant" && m.mode === BEAST_MODE);
+        const seated = last?.generals?.length ? last.generals : (generals?.selected() ?? []);
+        const shouter = pickBeastShouter(seated, beastShouters);
+        if (beastWho) {
+            beastWho.textContent = shouter ? `${lensName(shouter)} is shouting` : "The council is shouting";
+        }
+    }
+
+    // Leaving keeps the clocks on the board, but stops watching them: nobody
+    // erupts at a conversation you walked out of.
+    async function leaveBeast(sessionID = activeSessionID) {
+        modeChip?.setPinned(null);
+        modeChip?.setDetected(null);
+        syncBeast();
+        if (!sessionID) {
+            return;
+        }
+        try {
+            await setSessionMode(sessionID, "");
+        } catch (error) {
+            showMessage(result, error.message, "error");
+        }
+    }
+
+    function enterBeast() {
+        if (currentRun()) {
+            return;
+        }
+        modeChip?.setPinned(BEAST_MODE);
+        syncInterrogation();
+        syncBeast();
+        sendNow("Beast mode. I'm stuck and the clock is running. Get me moving.");
+    }
+
+    document.getElementById("beast-now")?.addEventListener("click", enterBeast);
+
+    document.getElementById("stand-down")?.addEventListener("click", () => {
+        if (currentRun()) {
+            return;
+        }
+        concludeNext = true;
+        sendNow("Stand down.");
+    });
+
+    document.getElementById("leave-beast")?.addEventListener("click", () => {
+        leaveBeast();
+    });
+
     let activeSessionID = null;
     let sessionLoadToken = 0;
     let cachedSessions = [];
@@ -707,6 +851,7 @@ function setupConsultForm() {
             modeChip?.setPinned(data.session?.mode_locked ? data.session?.mode : null);
             modeChip?.setDetected(data.session?.mode, "sticky");
             syncInterrogation(data.messages ?? []);
+            syncBeast(data.messages ?? []);
             result.innerHTML = "";
             const failure = failures.get(sessionID);
             if (failure) {
@@ -738,6 +883,7 @@ function setupConsultForm() {
         modeChip?.setDetected(null);
         syncInterrogation([]);
         activeSessionID = null;
+        syncBeast([]);
         // A send from the previous new chat carries on in the background.
         draftRun = null;
         sessionLoadToken++;
@@ -893,8 +1039,11 @@ function setupConsultForm() {
         const tier = selectedTier();
         const conclude = concludeNext;
         concludeNext = false;
+        const beastEvent = beastEventNext;
+        beastEventNext = null;
         // Fixed for this send: switching mode mid-answer does not restyle it.
         const underQuestioning = interrogating();
+        const underFire = beasting();
 
         // Everything this send touches hangs off run, never off "whatever is on
         // screen": you can open another conversation, or start a new one, while
@@ -909,6 +1058,10 @@ function setupConsultForm() {
         if (underQuestioning) {
             run.userEl.classList.add("interrogation");
             run.assistantEl.classList.add("interrogation");
+        }
+        if (underFire) {
+            run.userEl.classList.add("beast");
+            run.assistantEl.classList.add("beast");
         }
         if (run.sessionID) {
             runs.set(run.sessionID, run);
@@ -951,7 +1104,7 @@ function setupConsultForm() {
             // Follow the answer down only if you were already at the bottom;
             // scrolling up to reread something should not be yanked back.
             const follow = followsAnswer();
-            const text = stripInterrogateFlag(streamed);
+            const text = underFire ? stripBeastFlags(streamed) : stripInterrogateFlag(streamed);
             pendingBody.innerHTML = (underQuestioning && renderInterrogation(text)) || renderMarkdown(text);
             if (follow) {
                 messages.scrollTop = messages.scrollHeight;
@@ -1020,8 +1173,11 @@ function setupConsultForm() {
             case "done":
                 finished = data;
                 break;
-            case "error":
-                throw new Error(data.message || "The answer failed.");
+            case "error": {
+                const error = new Error(data.message || "The answer failed.");
+                error.code = data.code;
+                throw error;
+            }
             }
         }
 
@@ -1047,6 +1203,7 @@ function setupConsultForm() {
                     generals: generals?.selected() ?? [],
                     mode: modeChip ? (modeChip.pinned() ?? "") : undefined,
                     conclude: conclude || undefined,
+                    beast_event: beastEvent || undefined,
                 },
                 idleTimeoutMs: TIER_TIMEOUTS[tier] ?? TIER_TIMEOUTS.standard,
                 onEvent,
@@ -1075,8 +1232,16 @@ function setupConsultForm() {
                     setSessionMode(run.sessionID, "").catch(() => {});
                 }
             }
+            if (conclude && underFire) {
+                if (isShown(run)) {
+                    await leaveBeast(run.sessionID);
+                } else {
+                    setSessionMode(run.sessionID, "").catch(() => {});
+                }
+            }
             if (isShown(run)) {
                 syncInterrogation(data.messages);
+                syncBeast(data.messages);
             }
 
             // Anything you committed to is extracted in the background; pick
@@ -1086,7 +1251,11 @@ function setupConsultForm() {
         } catch (error) {
             run.userEl.remove();
             run.assistantEl.remove();
-            if (isShown(run)) {
+            if (error.code === "beast_skipped") {
+                // A clock the server says had not run out, or an eruption too
+                // soon after the last. Nothing was stored; say nothing.
+                beastBoard?.eruptionDone();
+            } else if (isShown(run)) {
                 showMessage(result, error.message, "error");
                 // The answer is stored even though something after it failed,
                 // so show the conversation as the server has it.
@@ -1109,6 +1278,11 @@ function setupConsultForm() {
             }
             syncSendButton();
             refreshSessions().catch((error) => showMessage(result, error.message, "error"));
+            // After this handler is done with the run, so the report is not
+            // turned away as a second send.
+            if (pendingReports.length) {
+                setTimeout(flushReports, 0);
+            }
         }
     });
 }

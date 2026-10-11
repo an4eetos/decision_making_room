@@ -189,10 +189,13 @@ type chatParams struct {
 	LLM       port.LLM
 	Consult   *usecase.Consult
 	Observers []port.TurnObserver `group:"turn_observers"`
+	// Board is beast mode's clocks. Optional: without it beast mode still
+	// shouts, it just keeps no time.
+	Board port.BeastBoard `optional:"true"`
 }
 
 // provideChat collects every turn observer from the "turn_observers" group, so a
 // module can react to conversation without chat importing it.
 func provideChat(p chatParams) *usecase.Chat {
-	return usecase.NewChat(p.Repo, p.LLM, p.Consult, p.Observers...)
+	return usecase.NewChat(p.Repo, p.LLM, p.Consult, p.Observers...).WithBeastBoard(p.Board)
 }
