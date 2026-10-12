@@ -235,7 +235,10 @@ func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools 
 
 	var resp *http.Response
 	var errOut error
-	for _, model := range c.models() {
+	for i, model := range c.models() {
+		if i > 0 {
+			port.Notice(ctx, switchNotice(c.models()[i-1], model))
+		}
 		url := fmt.Sprintf("%s/models/%s:streamGenerateContent?alt=sse", c.baseURL, normalizeModel(model))
 		resp, errOut = c.send(ctx, url, body)
 		if errOut == nil {
@@ -356,7 +359,10 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 
 	var respBody []byte
 	var errOut error
-	for _, model := range c.models() {
+	for i, model := range c.models() {
+		if i > 0 {
+			port.Notice(ctx, switchNotice(c.models()[i-1], model))
+		}
 		url := fmt.Sprintf("%s/models/%s:generateContent", c.baseURL, normalizeModel(model))
 		// Retries within a model first, then falls over to the next one. Chat used
 		// to skip retrying entirely, so a momentary spike killed the request even
@@ -471,6 +477,7 @@ func (c *Client) send(ctx context.Context, url string, body []byte) (*http.Respo
 		if delay <= 0 {
 			break
 		}
+		port.Notice(ctx, busyNotice(resp.StatusCode, delay))
 
 		select {
 		case <-ctx.Done():
@@ -480,6 +487,23 @@ func (c *Client) send(ctx context.Context, url string, body []byte) (*http.Respo
 	}
 
 	return nil, &apiError{status: lastStatus, message: c.redactString(formatAPIError(lastBody))}
+}
+
+// busyNotice says why the wait is longer than thinking, in the words the
+// waiting line shows.
+func busyNotice(status int, delay time.Duration) string {
+	wait := delay.Round(time.Second)
+	if wait < time.Second {
+		wait = time.Second
+	}
+	if status == http.StatusTooManyRequests {
+		return fmt.Sprintf("Gemini's quota is used up for the moment. Trying again in %s", wait)
+	}
+	return fmt.Sprintf("Gemini is overloaded. Trying again in %s", wait)
+}
+
+func switchNotice(from, to string) string {
+	return fmt.Sprintf("%s is unavailable. Switching to %s", normalizeModel(from), normalizeModel(to))
 }
 
 // apiError carries the HTTP status alongside the message.

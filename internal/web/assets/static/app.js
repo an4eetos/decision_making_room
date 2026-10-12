@@ -57,8 +57,10 @@ async function apiJSON(url, options) {
 // the question goes in the body.
 //
 // The timeout is for silence, not for the whole answer. A deep answer that is
-// visibly arriving should never be cut off because it is long; one that has
-// said nothing for that long has stalled.
+// visibly arriving should never be cut off because it is long. The server sends
+// a keep-alive every fifteen seconds while it works, so ninety seconds of
+// nothing means the connection or the server is gone, not that the model is
+// slow; the server bounds slow models itself and reports that as an error.
 async function apiStream(url, { body, idleTimeoutMs = 90000, onEvent }) {
     const controller = new AbortController();
     let timeout = null;
@@ -115,7 +117,7 @@ async function apiStream(url, { body, idleTimeoutMs = 90000, onEvent }) {
         }
     } catch (error) {
         if (error && error.name === "AbortError") {
-            throw new Error("The answer stalled. Try a shallower depth, or switch to another model.");
+            throw new Error("Lost contact with the server before the answer arrived. Check it is still running, then ask again.");
         }
         throw error;
     } finally {
@@ -1255,13 +1257,16 @@ function setupConsultForm() {
                 // A clock the server says had not run out, or an eruption too
                 // soon after the last. Nothing was stored; say nothing.
                 beastBoard?.eruptionDone();
+            } else if (answered) {
+                // The answer is stored and was on screen; what failed is the
+                // housekeeping after it. Show the conversation as the server
+                // has it rather than an error over an answer that arrived.
+                console.warn("after the answer:", error);
+                if (isShown(run)) {
+                    loadSession(run.sessionID);
+                }
             } else if (isShown(run)) {
                 showMessage(result, error.message, "error");
-                // The answer is stored even though something after it failed,
-                // so show the conversation as the server has it.
-                if (answered) {
-                    loadSession(run.sessionID).then(() => showMessage(result, error.message, "error"));
-                }
             } else if (run.sessionID) {
                 failures.set(run.sessionID, error.message);
             }

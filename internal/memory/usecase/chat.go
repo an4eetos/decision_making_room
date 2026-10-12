@@ -16,6 +16,7 @@ import (
 const (
 	chatSummaryTriggerMessages = 8
 	chatSummaryKeepRecent      = 8
+	summaryTimeout             = 45 * time.Second
 )
 
 type Chat struct {
@@ -394,6 +395,12 @@ func (c *Chat) maybeSummarize(ctx context.Context, session *port.ChatSession, me
 	if cutoff <= 0 {
 		return nil
 	}
+
+	// The answer is already on screen; this is housekeeping the person still
+	// waits on before they can send the next message. A busy model gets a
+	// short leash and the old summary stands.
+	ctx, cancel := context.WithTimeout(ctx, summaryTimeout)
+	defer cancel()
 
 	summaryPrompt := buildSummaryPrompt(session.Summary, messages[:cutoff])
 	answer, err := c.llm.Chat(ctx, []port.Message{

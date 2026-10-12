@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	genport "github.com/an4eetos/decision-room/internal/generals/port"
 	journalusecase "github.com/an4eetos/decision-room/internal/journal/usecase"
@@ -526,11 +528,15 @@ func (h *Handler) streamChatMessage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	sse := &sseWriter{w: w, rc: http.NewResponseController(w)}
+	defer sse.keepAlive(sseKeepAlive)()
 
 	in := req.input(r.PathValue("id"))
 	in.Progress = &usecase.Progress{
 		OnStage: func(stage, detail string) {
 			sse.send("stage", map[string]string{"stage": stage, "detail": detail})
+		},
+		OnNotice: func(detail string) {
+			sse.send("stage", map[string]string{"stage": usecase.StageWaiting, "detail": detail})
 		},
 		OnPlan:   func(info usecase.PlanInfo) { sse.send("plan", info) },
 		OnDelta:  func(text string) { sse.send("delta", map[string]string{"text": text}) },
@@ -550,10 +556,20 @@ func (h *Handler) streamChatMessage(w http.ResponseWriter, r *http.Request) {
 	sse.send("done", detail)
 }
 
+// sseKeepAlive is how often an idle stream gets a comment line. The browser
+// gives up on a stream silent for ninety seconds, and a model can easily be
+// silent that long while it thinks, retries a busy endpoint or waits out a
+// quota. Silence used to mean "stalled" when it only meant "working".
+const sseKeepAlive = 15 * time.Second
+
 // sseWriter writes one event per call and flushes it straight away. Write errors
 // mean the client has gone; the request context is cancelled in that case too,
 // so the consult stops on its own and there is nothing useful to do here.
+//
+// It is safe from several goroutines: the keep-alive and a council's seats
+// write alongside the request goroutine.
 type sseWriter struct {
+	mu sync.Mutex
 	w  http.ResponseWriter
 	rc *http.ResponseController
 }
@@ -565,10 +581,42 @@ func (s *sseWriter) send(event string, v any) {
 		event = "error"
 	}
 	// JSON never contains a raw newline, so one data line is always enough.
-	if _, err := fmt.Fprintf(s.w, "event: %s\ndata: %s\n\n", event, data); err != nil {
+	s.write(fmt.Sprintf("event: %s\ndata: %s\n\n", event, data))
+}
+
+func (s *sseWriter) write(frame string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, err := io.WriteString(s.w, frame); err != nil {
 		return
 	}
 	_ = s.rc.Flush()
+}
+
+// keepAlive sends an SSE comment every interval until the returned stop is
+// called. A comment carries no event, so the page only notices that bytes
+// arrived. Stop waits for the goroutine, so nothing writes after the handler
+// has returned.
+func (s *sseWriter) keepAlive(every time.Duration) (stop func()) {
+	done := make(chan struct{})
+	exited := make(chan struct{})
+	go func() {
+		defer close(exited)
+		ticker := time.NewTicker(every)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				s.write(": keep-alive\n\n")
+			}
+		}
+	}()
+	return func() {
+		close(done)
+		<-exited
+	}
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {

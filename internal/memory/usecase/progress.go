@@ -14,6 +14,9 @@ const (
 	StageReading   = "reading"
 	StageDigging   = "digging"
 	StageThinking  = "thinking"
+	// StageWaiting is a provider explaining a wait: a retry, a quota, a
+	// switch to the fallback model. Its detail says which.
+	StageWaiting = "waiting"
 )
 
 // PlanInfo is what is known about an answer before any of it is written: the
@@ -35,7 +38,10 @@ type PlanInfo struct {
 type Progress struct {
 	OnStage func(stage, detail string)
 	OnPlan  func(PlanInfo)
-	OnDelta func(text string)
+	// OnNotice hears a provider explain a wait it cannot avoid; see
+	// port.WithNotice. Called from whichever goroutine made the model call.
+	OnNotice func(detail string)
+	OnDelta  func(text string)
 	// OnReset discards text already delivered. A tool-using round can write a
 	// sentence and then decide to call a tool instead; that sentence is not the
 	// answer and must not stay on screen.
@@ -49,6 +55,12 @@ type Progress struct {
 func (p *Progress) stage(stage, detail string) {
 	if p != nil && p.OnStage != nil {
 		p.OnStage(stage, detail)
+	}
+}
+
+func (p *Progress) notice(detail string) {
+	if p != nil && p.OnNotice != nil {
+		p.OnNotice(detail)
 	}
 }
 

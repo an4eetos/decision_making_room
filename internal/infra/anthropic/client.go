@@ -126,7 +126,10 @@ func (c *Client) params(ctx context.Context, model string, messages []port.Messa
 
 func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port.Tool) (port.ChatTurn, error) {
 	var errOut error
-	for _, model := range c.models() {
+	for i, model := range c.models() {
+		if i > 0 {
+			port.Notice(ctx, switchNotice(c.models()[i-1], model))
+		}
 		params, err := c.params(ctx, model, messages, tools, blockMaxTokens)
 		if err != nil {
 			return port.ChatTurn{}, err
@@ -149,7 +152,10 @@ func (c *Client) chat(ctx context.Context, messages []port.Message, tools []port
 // once text has reached the reader it cannot be taken back.
 func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools []port.Tool, onDelta func(string)) (port.ChatTurn, error) {
 	var errOut error
-	for _, model := range c.models() {
+	for i, model := range c.models() {
+		if i > 0 {
+			port.Notice(ctx, switchNotice(c.models()[i-1], model))
+		}
 		params, err := c.params(ctx, model, messages, tools, streamMaxTokens)
 		if err != nil {
 			return port.ChatTurn{}, err
@@ -194,6 +200,12 @@ func (c *Client) chatStream(ctx context.Context, messages []port.Message, tools 
 		return parseMessage(&msg)
 	}
 	return port.ChatTurn{}, errOut
+}
+
+// switchNotice is what the waiting line says on a failover. The SDK's own
+// retries before it are silent; the keep-alive covers them.
+func switchNotice(from, to string) string {
+	return fmt.Sprintf("%s is overloaded. Switching to %s", from, to)
 }
 
 // isRetryableModelError covers rate limiting (429), overload (529) and server

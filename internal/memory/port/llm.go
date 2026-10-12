@@ -67,6 +67,23 @@ func ToolsWithdrawn(ctx context.Context) bool {
 	return v
 }
 
+type noticeKey struct{}
+
+// WithNotice lets a provider explain a wait it cannot avoid: a busy endpoint it
+// is retrying, a quota it is waiting out, a switch to the fallback model. The
+// waiting line otherwise says "thinking" through a minute of retries. fn may be
+// called from any goroutine.
+func WithNotice(ctx context.Context, fn func(string)) context.Context {
+	return context.WithValue(ctx, noticeKey{}, fn)
+}
+
+// Notice reports msg to whoever asked through WithNotice, if anyone did.
+func Notice(ctx context.Context, msg string) {
+	if fn, ok := ctx.Value(noticeKey{}).(func(string)); ok && fn != nil {
+		fn(msg)
+	}
+}
+
 type LLM interface {
 	Chat(ctx context.Context, messages []Message) (string, error)
 }
