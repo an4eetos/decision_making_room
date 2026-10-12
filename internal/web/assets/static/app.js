@@ -36,7 +36,7 @@ async function apiJSON(url, options) {
     } catch (error) {
         clearTimeout(timeout);
         if (error && error.name === "AbortError") {
-            throw new Error("Request timed out. Try a shallower depth, or switch to another Gemini model.");
+            throw new Error("Request timed out. Try a shallower depth, or switch to another model.");
         }
         throw error;
     }
@@ -115,7 +115,7 @@ async function apiStream(url, { body, idleTimeoutMs = 90000, onEvent }) {
         }
     } catch (error) {
         if (error && error.name === "AbortError") {
-            throw new Error("The answer stalled. Try a shallower depth, or switch to another Gemini model.");
+            throw new Error("The answer stalled. Try a shallower depth, or switch to another model.");
         }
         throw error;
     } finally {

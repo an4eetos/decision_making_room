@@ -78,10 +78,11 @@ func TestCardsStaySmallAndDoctrineStaysOut(t *testing.T) {
 		if strings.Contains(card, lens.Doctrine) {
 			t.Fatalf("%s: full doctrine leaked into the card", lens.ID)
 		}
-		// Roughly four characters per token; 1300 chars is about 325 tokens. The
-		// dialectical fields (asks, concedes, rivals) are what push a card past
-		// the original 700: worth it, but bounded.
-		if len(card) > 1300 {
+		// Roughly four characters per token; 2000 chars is about 500 tokens. The
+		// dialectical fields (asks, concedes, rivals) pushed cards past the
+		// original 700, and 1300 then left no room to say a lens properly. Still
+		// bounded: three of these go into every multi-general answer.
+		if len(card) > 2000 {
 			t.Fatalf("%s: card is %d chars, too large to inject three of", lens.ID, len(card))
 		}
 		for _, want := range []string{lens.Name, "Job:", "Blind spot:"} {
@@ -102,8 +103,9 @@ func TestThreeCardsFitTheBudget(t *testing.T) {
 	block := domain.Cards(cards[:3])
 
 	// The original injected all nine generals in full on every question, about
-	// 19KB. Three cards must stay a small fraction of that.
-	if len(block) > 4000 {
+	// 19KB. Three cards must stay a small fraction of that; this moves with the
+	// per-card limit above, or that limit means nothing for the largest three.
+	if len(block) > 6000 {
 		t.Fatalf("the three largest cards are %d chars; the point was to be cheap", len(block))
 	}
 }

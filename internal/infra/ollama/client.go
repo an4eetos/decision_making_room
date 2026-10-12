@@ -188,6 +188,9 @@ func (c *Client) openChat(ctx context.Context, messages []port.Message, tools []
 	if err != nil {
 		return nil, err
 	}
+	if port.ToolsWithdrawn(ctx) {
+		tools = nil
+	}
 
 	body, err := json.Marshal(chatRequest{
 		Model:    c.chatModel,

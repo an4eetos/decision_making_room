@@ -82,6 +82,11 @@ func beastPrompt(lenses []gendomain.Lens, ranking []string, doctrine map[string]
 	b.WriteString("\n\n")
 	b.WriteString(beastLimits)
 	b.WriteString("\n\n")
+	// The voice is the act; the judgement behind an order is not. An order
+	// the person cannot carry out in the minutes given is noise with a clock.
+	b.WriteString("The shouting is the voice, not the judgement. ")
+	b.WriteString(lensJudgement)
+	b.WriteString(" An order has to be one the person can actually carry out in the minutes given.\n\n")
 
 	b.WriteString("Seated:\n\n")
 	b.WriteString(lensBlocks(lenses, doctrine))

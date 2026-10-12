@@ -25,13 +25,13 @@ func (s *stubToolLLM) Chat(_ context.Context, _ []port.Message) (string, error) 
 	return "fallback answer", nil
 }
 
-func (s *stubToolLLM) ChatTools(_ context.Context, _ []port.Message, tools []port.Tool) (port.ChatTurn, error) {
+func (s *stubToolLLM) ChatTools(ctx context.Context, _ []port.Message, tools []port.Tool) (port.ChatTurn, error) {
 	if s.calls >= len(s.turns) {
 		return port.ChatTurn{Content: "done"}, nil
 	}
 	turn := s.turns[s.calls]
 	s.calls++
-	if len(tools) == 0 && turn.Content == "" && len(turn.ToolCalls) == 0 {
+	if (len(tools) == 0 || port.ToolsWithdrawn(ctx)) && turn.Content == "" && len(turn.ToolCalls) == 0 {
 		return port.ChatTurn{Content: "forced answer"}, nil
 	}
 	return turn, nil

@@ -116,9 +116,10 @@ type Routes struct {
 	Modes []string `yaml:"modes"`
 }
 
-// Card renders the compact form that goes into a prompt: roughly 90 to 120
-// tokens. Three of these cost about 350 tokens against the ~5,000 the original
-// spent injecting all nine generals in full, every turn, ranked or not.
+// Card renders the compact form that goes into a prompt: at most about 500
+// tokens, and today well under. Three of these are still a fraction of the
+// ~5,000 the original spent injecting all nine generals in full, every turn,
+// ranked or not.
 func (l Lens) Card() string {
 	var b strings.Builder
 

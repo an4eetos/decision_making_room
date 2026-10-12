@@ -7,13 +7,28 @@ type Message struct {
 	Content   string
 	ToolCalls []ToolCall
 	ToolName  string
-	Parts     []ContentPart
+	// ToolCallID answers the call with the same ID. Providers that pair calls
+	// with results by ID (Anthropic) need it; the others match by name.
+	ToolCallID string
+	Parts      []ContentPart
 }
 
 type ContentPart struct {
 	Text             string
 	ToolCall         *ToolCall
 	ThoughtSignature string
+	// Reasoning is a thinking block the model wrote before its text or tool
+	// calls. It is only ever replayed to the provider that produced it, within
+	// the same turn, and must go back unchanged or the next round is rejected.
+	Reasoning *Reasoning
+}
+
+// Reasoning is one thinking block. Data is set instead of Thinking when the
+// provider redacted it.
+type Reasoning struct {
+	Thinking  string
+	Signature string
+	Data      string
 }
 
 type Tool struct {
@@ -23,6 +38,8 @@ type Tool struct {
 }
 
 type ToolCall struct {
+	// ID is the provider's own handle for the call, empty when it has none.
+	ID        string
 	Name      string
 	Arguments map[string]any
 }
@@ -31,6 +48,23 @@ type ChatTurn struct {
 	Content   string
 	ToolCalls []ToolCall
 	Parts     []ContentPart
+}
+
+type toolsWithdrawnKey struct{}
+
+// WithToolsWithdrawn marks a tool round that must be answered without calling
+// anything: the last round of an agent loop. The caller still passes the same
+// tools. Providers that check the tool set against the history they already
+// saw (Anthropic, whose thinking blocks are bound to it) keep the tools and
+// forbid calls; the others simply drop them.
+func WithToolsWithdrawn(ctx context.Context) context.Context {
+	return context.WithValue(ctx, toolsWithdrawnKey{}, true)
+}
+
+// ToolsWithdrawn reports whether WithToolsWithdrawn was applied.
+func ToolsWithdrawn(ctx context.Context) bool {
+	v, _ := ctx.Value(toolsWithdrawnKey{}).(bool)
+	return v
 }
 
 type LLM interface {

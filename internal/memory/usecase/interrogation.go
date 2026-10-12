@@ -49,6 +49,8 @@ func interrogationPrompt(lenses []gendomain.Lens, doctrine map[string][]gendomai
 	}
 	b.WriteString("Each lens keeps the register of its \"Sounds like\" line and speaks to the person directly. " +
 		"Do not soften a blunt lens into a polite interviewer.\n\n")
+	b.WriteString(lensJudgement)
+	b.WriteString("\n\n")
 
 	for i, lens := range lenses {
 		if i > 0 {

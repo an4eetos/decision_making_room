@@ -27,6 +27,13 @@ const WAITING_LINES = {
         "Weighing what you're giving up",
         "Looking for the part you haven't said",
     ],
+    // The generals arguing as separate agents. The server names who is still
+    // out, so these only show before its first report.
+    council: [
+        "The generals are working it out separately",
+        "Each general is reading your notes on their own",
+        "Waiting for the council to report",
+    ],
     digging: [
         "Going back for more",
         "That wasn't enough — searching again",

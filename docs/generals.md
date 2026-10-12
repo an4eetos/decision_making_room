@@ -50,8 +50,29 @@ other side has right, without a "but". The answer then names **the fork**, the
 real disagreement as a question you have to answer, and **the call**: who it
 sides with, what it takes from the others, and what siding costs.
 
-It is still one model call. What makes it work is that each general carries
-four extra fields into the prompt:
+On quick and standard answers it is one model call: the model argues every
+lens itself. On a **deep** answer the generals form a **council** instead. Each
+seated general runs as its own agent, in parallel, with its own card, its own
+doctrine passages and its own digging through your notes (up to two
+`recall_memories` / `read_doctrine` calls, its own doctrine only). It writes a
+position without seeing the others': the advice, the first move, the strongest
+objection it expects and its answer, and what would change its mind. One
+closing call then writes the exchange below from those positions. It keeps each
+position as the general took it and draws the rebuttals and concessions out of
+what they actually wrote.
+
+The difference is the evidence. One model playing three lenses makes one pass
+over your notes, so the disagreement is staged. Separate seats can find
+different things and reach different calls. It costs one call per general plus
+one, and the answer starts arriving only once the slowest general has reported;
+while they work, the waiting line names who is still out. Interrogation, beast
+mode, check-ins and a mode's closing turn keep the single call at every depth,
+because each of them runs one voice by design. If one general fails, the
+exchange is written between those who reported. If none report, the answer
+falls back to the single call.
+
+Either way, what makes the exchange work is that each general carries four
+extra fields into the prompt:
 
 - `asks` — the questions it always puts to a situation, which the others can
   turn against it.
@@ -64,6 +85,44 @@ four extra fields into the prompt:
 - `rivals` — the generals it most naturally argues with. When there is room for
   more than one lens, a rival of the leading lens is seated beside it, so the
   answer has an actual fork in it.
+
+## Lenses lead, reality decides
+
+A general usually lands where its doctrine points, but it never follows the
+doctrine off a cliff. Every prompt a general speaks through (the single call,
+a council seat, an interrogation and beast mode) tells it to weigh its own move
+against what it would actually cost this person (time, money, health, people,
+and what their notes say) before committing. Where the doctrine would bring an
+obvious loss, the general says so and adjusts: a smaller move, different
+timing, or "my usual play is wrong here, because…". It does not explain the
+loss away or double down to stay in character. The lens fixes *how* a general
+looks at a situation, not what it concludes.
+
+Two places make this structural rather than a request. A council seat must
+write **What it costs**: the loss its own move brings, and why it is still worth
+it or how the move changed. And the exchange's rules make each lens own the cost
+of its advice: a position that walks past an obvious loss gets that loss named
+by the lens answering it.
+
+## Every move comes with a forecast
+
+On standard and deep answers, each general forecasts what its own move brings
+besides the result it is for:
+
+- **Unexpected wins**: up to three side effects in your favour that you are not
+  counting on. Fewer real ones beat a stretched third.
+- **Where it goes worse**: up to five or six mistakes or worse positions the move can
+  land you in that are not obvious, such as second-order effects, slow drifts,
+  what it makes harder later, or a failure that looks like success while it
+  happens. Each comes with the early sign that it is starting.
+
+Both numbers are ceilings, not quotas. A general with two real dangers names
+two, because a list padded to six buries the ones that matter. Risks anyone
+would name ("it might not work", "you could burn out") do not belong on either
+list. A general may turn another's "where it goes worse" against it in the
+exchange. In a council, each seat writes its own forecast and the closing call
+keeps every item. Quick answers skip the forecast, because nine more lines do
+not fit in 120 words.
 
 ## Selection
 

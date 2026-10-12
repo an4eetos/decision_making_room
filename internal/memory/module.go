@@ -9,6 +9,7 @@ import (
 	"go.uber.org/fx"
 
 	genport "github.com/an4eetos/decision-room/internal/generals/port"
+	"github.com/an4eetos/decision-room/internal/infra/anthropic"
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	"github.com/an4eetos/decision-room/internal/infra/gemini"
 	"github.com/an4eetos/decision-room/internal/infra/ollama"
@@ -43,8 +44,9 @@ var Module = fx.Module("memory",
 	),
 )
 
-// aiBundle exists because one client implements all three ports; fx needs them
-// separated to inject them independently.
+// aiBundle exists because one client usually implements all three ports; fx
+// needs them separated to inject them independently. With Anthropic it does not:
+// Claude answers and the embedder comes from EMBED_PROVIDER.
 type aiBundle struct {
 	LLM      port.LLM
 	ToolLLM  port.ToolLLM
@@ -52,19 +54,52 @@ type aiBundle struct {
 }
 
 func provideAI(cfg config.Config) (aiBundle, error) {
-	switch cfg.LLMProvider {
-	case "gemini":
-		client := gemini.NewClient(
-			cfg.GeminiBaseURL,
-			cfg.GeminiAPIKey,
-			cfg.GeminiChatModels,
-			cfg.GeminiEmbedModel,
-		)
-		return aiBundle{LLM: client, ToolLLM: client, Embedder: client}, nil
-	default:
-		client := ollama.NewClient(cfg.OllamaBaseURL, cfg.OllamaChatModel, cfg.OllamaEmbedModel)
-		return aiBundle{LLM: client, ToolLLM: client, Embedder: client}, nil
+	// Built once and shared when the same provider serves chat and vectors.
+	var gem *gemini.Client
+	geminiClient := func() *gemini.Client {
+		if gem == nil {
+			gem = gemini.NewClient(
+				cfg.GeminiBaseURL,
+				cfg.GeminiAPIKey,
+				cfg.GeminiChatModels,
+				cfg.GeminiEmbedModel,
+			)
+		}
+		return gem
 	}
+	var oll *ollama.Client
+	ollamaClient := func() *ollama.Client {
+		if oll == nil {
+			oll = ollama.NewClient(cfg.OllamaBaseURL, cfg.OllamaChatModel, cfg.OllamaEmbedModel)
+		}
+		return oll
+	}
+
+	var ai aiBundle
+	switch cfg.LLMProvider {
+	case "anthropic":
+		client := anthropic.NewClient(
+			cfg.AnthropicBaseURL,
+			cfg.AnthropicAPIKey,
+			cfg.AnthropicChatModels,
+			cfg.AnthropicEffort,
+		)
+		ai.LLM, ai.ToolLLM = client, client
+	case "gemini":
+		client := geminiClient()
+		ai.LLM, ai.ToolLLM = client, client
+	default:
+		client := ollamaClient()
+		ai.LLM, ai.ToolLLM = client, client
+	}
+
+	switch cfg.EmbedProvider {
+	case "gemini":
+		ai.Embedder = geminiClient()
+	default:
+		ai.Embedder = ollamaClient()
+	}
+	return ai, nil
 }
 
 func provideLLM(ai aiBundle) port.LLM         { return ai.LLM }

@@ -25,6 +25,23 @@ type Config struct {
 	// answer. Set it empty to disable.
 	GeminiFallbackModel string
 	GeminiEmbedModel    string
+
+	AnthropicAPIKey     string
+	AnthropicBaseURL    string
+	AnthropicChatModel  string
+	AnthropicChatModels []string
+	// AnthropicFallbackModel is tried when the chat model stays overloaded or
+	// rate limited after the SDK's own retries. Refusals are handled server
+	// side and never reach it.
+	AnthropicFallbackModel string
+	// AnthropicEffort is sent as output_config.effort. Empty sends nothing,
+	// for models that do not take the parameter.
+	AnthropicEffort string
+
+	// EmbedProvider is "gemini" or "ollama". It defaults to LLMProvider, and to
+	// gemini when that is anthropic, which has no embeddings endpoint.
+	EmbedProvider string
+
 	HTTPAddr            string
 	RetrievalTopK       int
 	RetrievalCandidates int
@@ -100,17 +117,26 @@ func Load() (Config, error) {
 	}
 
 	cfg := Config{
-		DatabaseURL:            envOrDefault("DATABASE_URL", "postgres://room:room@localhost:5432/decision_room?sslmode=disable"),
-		LLMProvider:            envOrDefault("LLM_PROVIDER", "gemini"),
-		OllamaBaseURL:          envOrDefault("OLLAMA_BASE_URL", "http://localhost:11434"),
-		OllamaChatModel:        envOrDefault("OLLAMA_CHAT_MODEL", "qwen3:8b"),
-		OllamaEmbedModel:       envOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
-		GeminiAPIKey:           os.Getenv("GEMINI_API_KEY"),
-		GeminiBaseURL:          envOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
-		GeminiChatModel:        envOrDefault("GEMINI_CHAT_MODEL", "gemini-flash-latest"),
-		GeminiChatModels:       parseCSVEnv("GEMINI_CHAT_MODELS"),
-		GeminiFallbackModel:    envOrDefault("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest"),
-		GeminiEmbedModel:       envOrDefault("GEMINI_EMBED_MODEL", "gemini-embedding-001"),
+		DatabaseURL:         envOrDefault("DATABASE_URL", "postgres://room:room@localhost:5432/decision_room?sslmode=disable"),
+		LLMProvider:         envOrDefault("LLM_PROVIDER", "gemini"),
+		OllamaBaseURL:       envOrDefault("OLLAMA_BASE_URL", "http://localhost:11434"),
+		OllamaChatModel:     envOrDefault("OLLAMA_CHAT_MODEL", "qwen3:8b"),
+		OllamaEmbedModel:    envOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
+		GeminiAPIKey:        os.Getenv("GEMINI_API_KEY"),
+		GeminiBaseURL:       envOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
+		GeminiChatModel:     envOrDefault("GEMINI_CHAT_MODEL", "gemini-flash-latest"),
+		GeminiChatModels:    parseCSVEnv("GEMINI_CHAT_MODELS"),
+		GeminiFallbackModel: envOrDefault("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest"),
+		GeminiEmbedModel:    envOrDefault("GEMINI_EMBED_MODEL", "gemini-embedding-001"),
+		AnthropicAPIKey:     os.Getenv("ANTHROPIC_API_KEY"),
+		AnthropicBaseURL:    os.Getenv("ANTHROPIC_BASE_URL"),
+		AnthropicChatModel:  envOrDefault("ANTHROPIC_CHAT_MODEL", "claude-opus-5-5"),
+		AnthropicChatModels: parseCSVEnv("ANTHROPIC_CHAT_MODELS"),
+		// Set but empty means "disabled", so these two read the variable
+		// directly instead of treating empty as unset.
+		AnthropicFallbackModel: envOrDefaultAllowEmpty("ANTHROPIC_FALLBACK_MODEL", "claude-sonnet-5-5"),
+		AnthropicEffort:        envOrDefaultAllowEmpty("ANTHROPIC_EFFORT", "medium"),
+		EmbedProvider:          os.Getenv("EMBED_PROVIDER"),
 		HTTPAddr:               envOrDefault("HTTP_ADDR", ":8080"),
 		RetrievalTopK:          topK,
 		RetrievalCandidates:    candidates,
@@ -151,13 +177,39 @@ func Load() (Config, error) {
 	}
 
 	switch cfg.LLMProvider {
+	case "ollama", "gemini", "anthropic":
+	default:
+		return Config{}, fmt.Errorf("unsupported LLM_PROVIDER %q (use gemini, anthropic or ollama)", cfg.LLMProvider)
+	}
+
+	if cfg.EmbedProvider == "" {
+		cfg.EmbedProvider = cfg.LLMProvider
+		if cfg.LLMProvider == "anthropic" {
+			cfg.EmbedProvider = "gemini"
+		}
+	}
+	switch cfg.EmbedProvider {
 	case "ollama", "gemini":
 	default:
-		return Config{}, fmt.Errorf("unsupported LLM_PROVIDER %q (use ollama or gemini)", cfg.LLMProvider)
+		return Config{}, fmt.Errorf("unsupported EMBED_PROVIDER %q (use gemini or ollama)", cfg.EmbedProvider)
 	}
 
 	if cfg.LLMProvider == "gemini" && cfg.GeminiAPIKey == "" {
 		return Config{}, fmt.Errorf("GEMINI_API_KEY is required when LLM_PROVIDER=gemini")
+	}
+	if cfg.EmbedProvider == "gemini" && cfg.GeminiAPIKey == "" {
+		// Reached with LLM_PROVIDER=anthropic: Claude answers, but something
+		// still has to turn the journal into vectors.
+		return Config{}, fmt.Errorf("GEMINI_API_KEY is required for embeddings when EMBED_PROVIDER=gemini (Anthropic has no embeddings API; set EMBED_PROVIDER=ollama to embed locally)")
+	}
+	if cfg.LLMProvider == "anthropic" && cfg.AnthropicAPIKey == "" {
+		return Config{}, fmt.Errorf("ANTHROPIC_API_KEY is required when LLM_PROVIDER=anthropic")
+	}
+	if len(cfg.AnthropicChatModels) == 0 {
+		cfg.AnthropicChatModels = []string{cfg.AnthropicChatModel}
+		if fb := cfg.AnthropicFallbackModel; fb != "" && fb != cfg.AnthropicChatModel {
+			cfg.AnthropicChatModels = append(cfg.AnthropicChatModels, fb)
+		}
 	}
 	if len(cfg.GeminiChatModels) == 0 {
 		cfg.GeminiChatModels = []string{cfg.GeminiChatModel}
@@ -172,6 +224,13 @@ func Load() (Config, error) {
 func envOrDefault(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
+	}
+	return fallback
+}
+
+func envOrDefaultAllowEmpty(key, fallback string) string {
+	if v, ok := os.LookupEnv(key); ok {
+		return strings.TrimSpace(v)
 	}
 	return fallback
 }

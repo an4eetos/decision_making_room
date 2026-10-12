@@ -33,6 +33,10 @@ Prefer to stay fully offline? Set `LLM_PROVIDER=ollama` in `.env`, then
 `make up-ollama && make pull-models` before `make run`. Nothing leaves your
 machine in that mode.
 
+Want Claude to answer? Set `LLM_PROVIDER=anthropic` and `ANTHROPIC_API_KEY`.
+Anthropic has no embeddings API, so the journal is still embedded by Gemini
+(keep `GEMINI_API_KEY`) or, with `EMBED_PROVIDER=ollama`, locally.
+
 ## How memory works
 
 Two layers, deliberately.
@@ -75,7 +79,7 @@ Every question runs at one of three depths, picked under the composer.
 |---|---|---|---|
 | **Quick** | top 3, no tools | none | "what's next" — seconds, one recommendation |
 | **Standard** | top 8, full hybrid search | one round if context is thin | the default |
-| **Deep** | question split into facets, pool of 60, model-reranked | up to three rounds | a decision worth the wait |
+| **Deep** | question split into facets, pool of 60, model-reranked | each general digs on its own, up to two rounds | a decision worth the wait |
 
 A session remembers the depth you last used, so a conversation you took deep
 stays deep. If Quick retrieves nothing at all it escalates itself to Standard
@@ -88,6 +92,11 @@ back, and can pull a general's full doctrine when the summary is not enough.
 Each costs a model call, and **each degrades silently** — a failed decomposition
 searches the question as asked, a failed re-rank keeps the heuristic order.
 None of them can make an answer worse than not running them.
+
+Deep also seats the generals as a **council**: each one runs as its own agent,
+reads your notes and argues its position alone, and one closing call writes the
+exchange between them. That costs one call per general plus one, and the
+answer waits for the slowest general. See [docs/generals.md](docs/generals.md).
 
 Set `DEFAULT_TIER` and `MAX_TIER` to bound this per deployment. `MAX_TIER=quick`
 turns off tool calling entirely.
@@ -236,10 +245,16 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | Variable | Default | Notes |
 |---|---|---|
 | `DATABASE_URL` | `postgres://room:room@localhost:5432/decision_room?sslmode=disable` | |
-| `LLM_PROVIDER` | `gemini` | `gemini` or `ollama` |
-| `GEMINI_API_KEY` | — | required when provider is `gemini` |
+| `LLM_PROVIDER` | `gemini` | `gemini`, `anthropic` or `ollama` |
+| `EMBED_PROVIDER` | same as `LLM_PROVIDER`; `gemini` for `anthropic` | `gemini` or `ollama`; switching means a reindex |
+| `GEMINI_API_KEY` | — | required when `gemini` answers or embeds |
 | `GEMINI_CHAT_MODEL` | `gemini-flash-latest` | an alias, so a retired version does not break the app | |
 | `GEMINI_CHAT_MODELS` | — | optional failover order, tried left to right |
+| `ANTHROPIC_API_KEY` | — | required when provider is `anthropic` |
+| `ANTHROPIC_CHAT_MODEL` | `claude-opus-5-5` | `claude-sonnet-5-5` or `claude-haiku-5-5` cost less |
+| `ANTHROPIC_FALLBACK_MODEL` | `claude-sonnet-5-5` | used when the main model stays overloaded; empty disables |
+| `ANTHROPIC_CHAT_MODELS` | — | optional failover order, tried left to right |
+| `ANTHROPIC_EFFORT` | `medium` | `low` to `max`; empty sends none |
 | `OLLAMA_CHAT_MODEL` | `qwen3:8b` | use `qwen3:4b` if RAM is tight |
 | `JOURNAL_WATCH_DIR` | `./journal` | |
 | `RETRIEVAL_TOP_K` | `8` | memories passed to the model |
@@ -268,7 +283,7 @@ cmd/server            fx bootstrap
 internal/app          config, pool, HTTP server — everything not domain-specific
 internal/memory       domain, ports, usecases, Postgres adapters
 internal/journal      filesystem watcher and sync
-internal/infra        config, postgres, gemini, ollama, http
+internal/infra        config, postgres, gemini, anthropic, ollama, http
 internal/web          JSON API, browser UI, embedded templates and static files
 migrations            embedded SQL schema
 ```
@@ -409,7 +424,9 @@ campaign keeps the rules v1 already follows:
 ## Privacy
 
 With `LLM_PROVIDER=gemini`, your journal text is sent to Google when you ask a
-question or ingest a file. With `ollama`, nothing leaves your machine. Postgres
+question or ingest a file. With `anthropic`, what goes into a question is sent
+to Anthropic, and the text being embedded still goes to Google unless
+`EMBED_PROVIDER=ollama`. With `ollama` for both, nothing leaves your machine. Postgres
 runs locally either way. There is no telemetry and no account.
 
 ## Licence

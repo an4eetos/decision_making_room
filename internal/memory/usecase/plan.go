@@ -54,6 +54,11 @@ type ConsultPlan struct {
 	// Beast is the board in beast mode; see ConsultInput.Beast.
 	Beast *port.BeastBrief
 
+	// Council is set by the council for its closing call: the generals have
+	// already argued as separate agents, and the prompt writes the exchange
+	// from their positions instead of asking one model to play all of them.
+	Council bool
+
 	// Traps is the trap catalogue, and TrapHits the traps its signal phrases
 	// found in the question. Hits are only looked for where a suggestion could
 	// follow — never inside an interrogation, never on a plain check-in.
@@ -178,6 +183,16 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 	}
 
 	return plan
+}
+
+// UsesCouncil reports whether the generals argue as separate agents. Only the
+// ordinary exchange does: an interrogation and beast mode run one voice by
+// design, a plain check-in has no lenses, and a closing turn writes the
+// position the conversation earned rather than a fresh debate.
+func (p ConsultPlan) UsesCouncil() bool {
+	return p.Tier.Council && len(p.Generals) >= 2 &&
+		!p.Plain && !p.Conclude &&
+		!p.Mode.IsBeast() && !p.Mode.IsInterrogation()
 }
 
 // SpottedTraps lists the ids of the traps found in what the person wrote.

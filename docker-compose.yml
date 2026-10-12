@@ -34,6 +34,8 @@ services:
       HTTP_ADDR: ":8090"
       LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      EMBED_PROVIDER: ${EMBED_PROVIDER:-}
       OLLAMA_BASE_URL: http://ollama:11434
       JOURNAL_WATCH_DIR: /journal
       ABOUT_ME_FILE: /journal/about-me.md
