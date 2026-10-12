@@ -28,6 +28,16 @@ orders:
   - "List every fight you are in. Decline every one not worth its cost, today."
   - "Scout only the unknowns that would change the choice; drop the rest."
   - "Start from the base rate — what usually happens — not from your story."
+side_wins:
+  - "dropping four battles frees more than the two you keep cost"
+  - "a fight you decline often stops existing"
+  - "knowing which battle is yours makes the rest easy to refuse"
+goes_worse:
+  - "the analysis runs past the point it could change the choice"
+  - "declined battles come back later, bigger, on worse ground"
+  - "you look strategic while committing to nothing"
+  - "the deadline arrives and the map is perfect"
+  - "refusing fights reads to others as having no position"
 routes:
   keywords: [decide, decision, choose, priorit, strategy, options, trade-off, tradeoff, overwhelm, too many, "should i", "or stay", "or should", "instead of"]
 portrait:

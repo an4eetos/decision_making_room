@@ -13,7 +13,8 @@ run: .env journal up wait-db
 	@echo
 	@echo "  Created .env — add a GEMINI_API_KEY before running."
 	@echo "  Free key: https://aistudio.google.com/apikey"
-	@echo "  Or set LLM_PROVIDER=ollama to stay fully offline."
+	@echo "  Or set LLM_PROVIDER=ollama to stay fully offline,"
+	@echo "  or LLM_PROVIDER=anthropic with an ANTHROPIC_API_KEY for Claude."
 	@echo
 	@exit 1
 

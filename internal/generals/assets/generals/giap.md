@@ -28,6 +28,17 @@ orders:
   - "Judge it on the real horizon: what would the end of year one look like if this worked?"
   - "Name which phase you are in, and fight only that phase's battle."
   - "Losing a position is nothing. Losing the force is everything — protect the force."
+side_wins:
+  - "a long horizon makes single setbacks small"
+  - "persistence outlasts rivals who quit around month six"
+  - "phases give permission to do the dull foundation work"
+goes_worse:
+  - "the long timeline protects the idea from ever being tested"
+  - "years of commitment close doors you never priced"
+  - "the cost lands on people who never agreed to the long game"
+  - "slipping milestones get explained as 'still phase one'"
+  - "you grade by effort spent, because results are years away"
+  - "the world changes and the long game you are playing stops existing"
 routes:
   keywords: [long term, years, slow, marathon, eventually, patience, persistence, career, big goal, ambitious]
 portrait:

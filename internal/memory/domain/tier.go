@@ -51,6 +51,15 @@ type TierPolicy struct {
 	// More lenses means a longer, structured answer, so it rises with depth.
 	MaxGenerals int
 
+	// Forecast has each lens predict what its move brings besides the intended
+	// result: unexpected wins, and the non-obvious ways it goes worse. Off on
+	// quick, whose 120-word budget has no room for nine more lines.
+	Forecast bool
+	// Council runs each seated general as its own agent, digging and arguing
+	// alone, before one more call writes the exchange from their positions.
+	// N+1 model calls instead of one, so only where depth is the point; the
+	// consult falls back to the single call when fewer than two generals sit.
+	Council bool
 	// MaxToolRounds is how many rounds the model may call tools in. Zero means
 	// single-shot with no agent loop at all. The loop always gets one further
 	// round with tools withdrawn, so it can answer rather than stopping mid-dig.
@@ -92,6 +101,8 @@ func PolicyFor(t Tier) TierPolicy {
 			Decompose:      true,
 			LLMRerank:      true,
 			ReadDoctrine:   true,
+			Council:        true,
+			Forecast:       true,
 			// Two per lens, and read_doctrine stays for the rest.
 			DoctrinePassages: 2,
 			AnswerBudget:     "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
@@ -106,6 +117,7 @@ func PolicyFor(t Tier) TierPolicy {
 			MaxGenerals:      2,
 			MaxToolRounds:    1,
 			DoctrinePassages: 1,
+			Forecast:         true,
 		}
 	}
 }

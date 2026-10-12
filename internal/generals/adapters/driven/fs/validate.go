@@ -19,6 +19,14 @@ var validFamilies = []domain.Family{
 // still loads and still renders a card, but the card is the entire contribution
 // it makes to an answer — a silently degraded one is worse than a crash, because
 // nothing downstream can tell.
+
+// The forecast asks for up to three side wins and up to five or six ways a
+// move goes worse; a lens's typical ones are held to the same ceilings.
+const (
+	maxSideWins  = 3
+	maxGoesWorse = 6
+)
+
 func validate(r domain.Roster) error {
 	var problems []error
 
@@ -46,6 +54,14 @@ func validate(r domain.Roster) error {
 			// which is the one thing it exists not to do.
 			if strings.TrimSpace(lens.Bias) == "" {
 				problems = append(problems, fmt.Errorf("%s: missing bias", where))
+			}
+			// Ceilings, matching the forecast's: a card that lists more than the
+			// forecast may use pushes the lens to pad.
+			if len(lens.SideWins) > maxSideWins {
+				problems = append(problems, fmt.Errorf("%s: at most %d side_wins, has %d", where, maxSideWins, len(lens.SideWins)))
+			}
+			if len(lens.GoesWorse) > maxGoesWorse {
+				problems = append(problems, fmt.Errorf("%s: at most %d goes_worse, has %d", where, maxGoesWorse, len(lens.GoesWorse)))
 			}
 			if len(lens.DeployWhen) == 0 {
 				problems = append(problems, fmt.Errorf("%s: needs at least one deploy_when", where))

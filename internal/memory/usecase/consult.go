@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -94,6 +95,7 @@ type ConsultResult struct {
 
 type Consult struct {
 	agent          *AgentConsult
+	council        *Council
 	repo           port.MemoryRepository
 	retriever      *Retrieve
 	llm            port.LLM
@@ -118,14 +120,17 @@ func NewConsult(
 	// Without a tool-capable model there is no agent, so no tier can use tools
 	// however high the ceiling is set.
 	var agent *AgentConsult
+	var council *Council
 	if toolLLM != nil && tools != nil {
 		agent = NewAgentConsult(toolLLM, tools, initialContext)
+		council = NewCouncil(toolLLM, tools, initialContext)
 	} else {
 		maxTier = domain.TierQuick
 	}
 
 	return &Consult{
 		agent:          agent,
+		council:        council,
 		deep:           NewDeep(llm),
 		repo:           repo,
 		retriever:      retriever,
@@ -195,9 +200,21 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	}
 
 	var result ConsultResult
-	if plan.Tier.UsesTools() && u.agent != nil {
+	switch {
+	case plan.UsesCouncil() && u.council != nil:
+		result, err = u.council.Execute(ctx, plan, context)
+		// A council that could not convene still owes an answer. The single
+		// agent is slower to be wrong about the same provider outage, but on a
+		// failed synthesis or every seat timing out it is the better bet than
+		// an error. A cancelled request is not retried.
+		if err != nil && ctx.Err() == nil {
+			log.Printf("council: %v; answering with one agent instead", err)
+			plan.Progress.reset()
+			result, err = u.agent.Execute(ctx, plan, context)
+		}
+	case plan.Tier.UsesTools() && u.agent != nil:
 		result, err = u.agent.Execute(ctx, plan, context)
-	} else {
+	default:
 		result, err = u.executeSingleShot(ctx, plan, context)
 	}
 	if err != nil {
@@ -416,7 +433,11 @@ func buildSystemPrompt(base string, plan ConsultPlan) string {
 		// argument inside it. Passing that along stops the two imposing rival
 		// templates.
 		structured := strings.TrimSpace(plan.Mode.OutputPrompt) != ""
-		if lenses := generalsPrompt(plan.Generals, plan.Doctrine, structured); lenses != "" {
+		lenses := generalsPrompt(plan.Generals, plan.Doctrine, structured, plan.Tier.Forecast)
+		if plan.Council {
+			lenses = councilPrompt(plan.Generals, structured, plan.Tier.Forecast)
+		}
+		if lenses != "" {
 			parts = append(parts, lenses)
 		}
 		if flag := flagPrompt(plan.Traps); flag != "" {

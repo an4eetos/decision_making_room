@@ -28,6 +28,16 @@ orders:
   - "Go and look: the actual numbers, the actual conversation, the actual place, this week."
   - "Ask whether the objective changed or only the route. Change only what changed."
   - "What you already spent gets no vote. Decide on what the next month buys."
+side_wins:
+  - "reading the ground shows an opening the plan never saw"
+  - "changing early costs less than the sunk effort you feared losing"
+  - "going forward to see builds instincts that speed later calls"
+goes_worse:
+  - "you rewrite a plan that only needed finishing"
+  - "the new direction outruns supplies built for the old one"
+  - "people working the old plan stop trusting it after the third change"
+  - "a feeling gets treated as new information"
+  - "constant adaptation leaves nothing finished to show"
 routes:
   keywords: [changed, new information, adapt, adjust, pivot, revise, "not working", different, surprise, unexpected]
 portrait:

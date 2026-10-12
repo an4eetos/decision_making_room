@@ -30,6 +30,16 @@ orders:
   - "Name the seam. Everything else holds on the minimum, and a closed line gets nothing."
   - "When it opens, spend the whole reserve through it once. Do not feed it in pieces."
   - "Pursue the same day. What you beat tonight reforms if you give it the night."
+side_wins:
+  - "a side that loses tempo once often never gets it back"
+  - "spending the reserve shows how much of it was held out of fear"
+  - "while the gap is open, every next step is cheap"
+goes_worse:
+  - "the pursuit runs past the aim and starts a fight you never chose"
+  - "the reserve is gone when the counterblow comes weeks later"
+  - "the seam was bait: easy to enter, closed behind you"
+  - "a fast win leaves the day after unarranged"
+  - "the people who carried the push are spent for the next one"
 routes:
   keywords: [pursu, seam, exploit, baggage, knot, "cut the knot", "travel light", "bounce back", "one blow", "let them reform", "press the advantage", "got away", "follow through", "change the terms", "while they're down"]
 portrait:

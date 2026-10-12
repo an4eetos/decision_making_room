@@ -27,6 +27,16 @@ orders:
   - "Before choosing between two losses, list what the situation actually forbids. Use what is left."
   - "Count the links: how many things must go right that you do not control?"
   - "Strike the flank of the advance, not its front."
+side_wins:
+  - "a third option frees you from both bad trade-offs"
+  - "constraints mapped honestly show which were never real"
+  - "the move surprises people who expected one of two losses"
+goes_worse:
+  - "the manoeuvre depends on someone who will not cooperate"
+  - "cleverness delays the plain answer until it is too late"
+  - "a complex plan has more places to fail than either simple loss"
+  - "one win by ingenuity makes plain effort feel beneath you"
+  - "the weak position was real, and the manoeuvre only postponed it"
 routes:
   keywords: [stuck between, constrained, limited, no good options, creative, workaround, clever, trapped, neither, both bad]
 portrait:

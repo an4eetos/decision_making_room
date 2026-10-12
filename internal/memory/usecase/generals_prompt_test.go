@@ -26,11 +26,15 @@ func TestGeneralsPromptStaysCheap(t *testing.T) {
 	lenses := roster(t)
 
 	// Roughly four characters per token. Bounds include the debate protocol's
-	// instructions, which is most of what a single lens costs.
-	if got := len(generalsPrompt(lenses[:1], nil, false)); got > 2000 {
+	// instructions, which is most of what a single lens costs, and the ~130
+	// tokens of lensJudgement: the price of lenses that weigh their doctrine
+	// against reality instead of following it off a cliff. Cards grew with
+	// their typical side wins and ways a move goes worse, about 125 tokens each,
+	// which is what the per-card limit was raised to 2000 for.
+	if got := len(generalsPrompt(lenses[:1], nil, false, false)); got > 3000 {
 		t.Fatalf("one lens costs %d chars (~%d tokens); it should be a few hundred", got, got/4)
 	}
-	if got := len(generalsPrompt(lenses[:3], nil, false)); got > 6000 {
+	if got := len(generalsPrompt(lenses[:3], nil, false, false)); got > 8600 {
 		t.Fatalf("three lenses cost %d chars (~%d tokens)", got, got/4)
 	}
 
@@ -38,7 +42,7 @@ func TestGeneralsPromptStaysCheap(t *testing.T) {
 	for _, l := range lenses {
 		full += len(l.Doctrine)
 	}
-	if len(generalsPrompt(lenses[:3], nil, false)) >= full {
+	if len(generalsPrompt(lenses[:3], nil, false, false)) >= full {
 		t.Fatal("three cards should cost far less than the roster's full doctrine")
 	}
 }
@@ -47,7 +51,7 @@ func TestGeneralsPromptNeverLeaksDoctrine(t *testing.T) {
 	t.Parallel()
 	lenses := roster(t)
 
-	prompt := generalsPrompt(lenses[:3], nil, false)
+	prompt := generalsPrompt(lenses[:3], nil, false, false)
 	for _, lens := range lenses[:3] {
 		// Compare on a distinctive slice; the doctrine is long and multi-line.
 		if probe := firstSentence(lens.Doctrine); probe != "" && strings.Contains(prompt, probe) {
@@ -62,7 +66,7 @@ func TestMultiLensPromptDemandsDisagreement(t *testing.T) {
 	t.Parallel()
 	lenses := roster(t)
 
-	prompt := generalsPrompt(lenses[:3], nil, false)
+	prompt := generalsPrompt(lenses[:3], nil, false, false)
 	for _, want := range []string{"## The fork", "## The call", "**Answers", "**Concedes:**", "Do not soften disagreement"} {
 		if !strings.Contains(prompt, want) {
 			t.Fatalf("multi-lens prompt missing %q", want)
@@ -79,7 +83,7 @@ func TestMultiLensPromptDemandsDisagreement(t *testing.T) {
 func TestSingleLensPromptHasNoSections(t *testing.T) {
 	t.Parallel()
 
-	prompt := generalsPrompt(roster(t)[:1], nil, false)
+	prompt := generalsPrompt(roster(t)[:1], nil, false, false)
 	if strings.Contains(prompt, "The fork") {
 		t.Fatal("a single lens should not be asked to disagree with itself")
 	}
@@ -91,7 +95,7 @@ func TestSingleLensPromptHasNoSections(t *testing.T) {
 func TestNoLensesMeansNoPrompt(t *testing.T) {
 	t.Parallel()
 
-	if got := generalsPrompt(nil, nil, false); got != "" {
+	if got := generalsPrompt(nil, nil, false, false); got != "" {
 		t.Fatalf("expected an empty prompt, got %q", got)
 	}
 }
@@ -110,7 +114,7 @@ func TestStructuredModeSuppressesLensSections(t *testing.T) {
 	t.Parallel()
 	lenses := roster(t)
 
-	prompt := generalsPrompt(lenses[:3], nil, true)
+	prompt := generalsPrompt(lenses[:3], nil, true, false)
 
 	for _, lens := range lenses[:3] {
 		if strings.Contains(prompt, "## "+lens.Name) {
@@ -134,7 +138,7 @@ func TestStructuredModeSuppressesLensSections(t *testing.T) {
 func TestStructuredModeStillDemandsRebuttals(t *testing.T) {
 	t.Parallel()
 
-	prompt := generalsPrompt(roster(t)[:2], nil, true)
+	prompt := generalsPrompt(roster(t)[:2], nil, true, false)
 	if !strings.Contains(prompt, "strongest point") || !strings.Contains(prompt, "concession states what the other side gets right") {
 		t.Fatal("structured modes must still require rebuttals and real concessions")
 	}
@@ -147,7 +151,7 @@ func TestDoctrinePassagesRenderUnderTheirCard(t *testing.T) {
 	lenses := roster(t)[:2]
 	passage := lenses[1].Passages()[0]
 
-	prompt := generalsPrompt(lenses, map[string][]gendomain.Passage{lenses[1].ID: {passage}}, false)
+	prompt := generalsPrompt(lenses, map[string][]gendomain.Passage{lenses[1].ID: {passage}}, false, false)
 
 	at := strings.Index(prompt, passage.Text)
 	if at < 0 {
@@ -174,7 +178,7 @@ func TestGeneralsPromptWithDoctrineStaysCheap(t *testing.T) {
 	lenses := roster(t)
 
 	one := map[string][]gendomain.Passage{lenses[0].ID: lenses[0].Passages()[:1]}
-	if got := len(generalsPrompt(lenses[:1], one, false)); got > 3200 {
+	if got := len(generalsPrompt(lenses[:1], one, false, false)); got > 4200 {
 		t.Fatalf("one lens with a passage costs %d chars (~%d tokens)", got, got/4)
 	}
 
@@ -182,7 +186,8 @@ func TestGeneralsPromptWithDoctrineStaysCheap(t *testing.T) {
 	for _, l := range lenses[:3] {
 		deep[l.ID] = l.Passages()[:2]
 	}
-	if got := len(generalsPrompt(lenses[:3], deep, false)); got > 12000 {
+	// Still well under the ~19KB of injecting every general in full.
+	if got := len(generalsPrompt(lenses[:3], deep, false, false)); got > 13000 {
 		t.Fatalf("three lenses with two passages each cost %d chars (~%d tokens)", got, got/4)
 	}
 }
@@ -193,7 +198,7 @@ func TestLensesKeepTheirRegister(t *testing.T) {
 	t.Parallel()
 
 	for _, n := range []int{1, 3} {
-		prompt := generalsPrompt(roster(t)[:n], nil, false)
+		prompt := generalsPrompt(roster(t)[:n], nil, false, false)
 		if !strings.Contains(prompt, "keeps the register of its \"Sounds like\" line") {
 			t.Fatalf("%d lens(es): the register instruction is missing", n)
 		}

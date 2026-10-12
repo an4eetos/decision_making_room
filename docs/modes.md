@@ -133,8 +133,10 @@ ethnicity, nationality, religion, sexuality, gender or disability, and nothing
 about your body. If you mention self-harm, a medical emergency or someone in
 danger, the act drops for that turn. With Gemini, beast turns loosen only the
 harassment filter, and only to blocking the worst of it; hate speech stays at
-Google's default. A reply a filter cuts off is reported as blocked rather than
-stored half-written.
+Google's default. Claude has no such knob, so with Anthropic the prompt is the
+only line; a turn Claude declines is re-run server-side on Anthropic's fallback
+model, and if that declines too it is reported as declined. A reply a filter
+cuts off is reported as blocked rather than stored half-written.
 
 Beast turns are kept out of open-loop and campaign extraction: the orders
 already have their own board.

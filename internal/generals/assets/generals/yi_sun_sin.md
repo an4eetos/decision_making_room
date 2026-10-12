@@ -27,6 +27,16 @@ orders:
   - "Name your one advantage, and the ground where it decides everything. Fight only there."
   - "Refuse the bad fight, even when refusing looks like cowardice."
   - "Once on your ground, close the retreat yourself and commit completely."
+side_wins:
+  - "on the right ground, your one advantage decides everything"
+  - "preparing for the narrow fight builds deep local knowledge"
+  - "the other side's size becomes their burden"
+goes_worse:
+  - "an asymmetric plan gets built where a direct one was available"
+  - "the underdog story becomes a comfort and an excuse"
+  - "waiting for the right ground costs more than fighting on the bad"
+  - "your one advantage, once known, gets neutralised"
+  - "the plan hinges on ground that is about to change"
 routes:
   keywords: [outmatched, no resources, competitors, bigger, alone, small, solo, disadvantage, limited budget, against]
 portrait:

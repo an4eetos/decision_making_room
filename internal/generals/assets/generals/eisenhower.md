@@ -27,6 +27,16 @@ orders:
   - "Find what only you can do. Do that today; hand off or drop the rest."
   - "Write down now what you will say if it fails, and sign it. Then decide on the merits."
   - "Set the date the compromise is reopened, and who is allowed to lose."
+side_wins:
+  - "handing off urgent work shows people more capable than you assumed"
+  - "deciding what only you can do clears hours every week"
+  - "a coalition kept together brings help you did not ask for"
+goes_worse:
+  - "delegated work fails out of sight while you still own the result"
+  - "the compromise keeps everyone and wins nothing"
+  - "you become the router, and every decision waits on you anyway"
+  - "the important-but-not-urgent thing gets scheduled, then moved, forever"
+  - "keeping the peace postpones the one conflict that needed having"
 routes:
   keywords: [urgent, important, delegate, busy, overloaded, meetings, others, blocked by, people, handoff, calendar]
 portrait:

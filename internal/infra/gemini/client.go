@@ -196,6 +196,9 @@ func (c *Client) generateBody(ctx context.Context, messages []port.Message, tool
 	if err != nil {
 		return nil, err
 	}
+	if port.ToolsWithdrawn(ctx) {
+		tools = nil
+	}
 
 	req := generateRequest{
 		SystemInstruction: systemInstruction,

@@ -68,76 +68,33 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 	if plan.Tier.ReadDoctrine && len(plan.Generals) > 0 {
 		toolDefs = append(toolDefs, ReadDoctrineTool(plan.GeneralIDs()))
 	}
-	seenCallBatches := make(map[string]int)
-
-	// MaxToolRounds counts rounds where tools are offered; the extra iteration is
-	// the same conversation with tools withdrawn, so the model answers from what
-	// it gathered instead of being cut off mid-dig.
-	totalRounds := plan.Tier.MaxToolRounds + 1
-
-	for round := 0; round < totalRounds; round++ {
-		lastRound := round == totalRounds-1
-
-		toolsForRound := toolDefs
-		if lastRound {
-			toolsForRound = nil
-		}
-
-		// Every round streams: the one that answers is only known once it ends,
-		// and a round that turns into tool calls retracts what it wrote.
-		plan.Progress.stage(StageThinking, "")
-		turn, err := streamChatTools(ctx, a.toolLLM, messages, toolsForRound, plan.Progress)
-		if err != nil {
-			return ConsultResult{}, fmt.Errorf("agent chat round %d: %w", round+1, err)
-		}
-
-		if len(turn.ToolCalls) == 0 {
-			if strings.TrimSpace(turn.Content) == "" {
-				return ConsultResult{}, fmt.Errorf("model returned empty response")
-			}
-			return ConsultResult{
-				Answer:         turn.Content,
-				Sources:        entriesToSources(collected),
-				Tier:           string(plan.Tier.Tier),
-				Generals:       plan.GeneralIDs(),
-				GeneralsMethod: plan.GeneralsMethod,
-				Doctrine:       plan.DoctrineRefs(),
-				Mode:           plan.Mode.ID,
-				ModeName:       plan.Mode.Name,
-				ModeMethod:     plan.ModeMethod,
-			}, nil
-		}
-
-		if lastRound {
-			break
-		}
-
-		batchKey := toolCallBatchKey(turn.ToolCalls)
-		seenCallBatches[batchKey]++
-		if batchKey != "" && seenCallBatches[batchKey] > 1 {
-			break
-		}
-
-		messages = append(messages, port.Message{
-			Role:      "assistant",
-			Content:   turn.Content,
-			ToolCalls: turn.ToolCalls,
-			Parts:     turn.Parts,
-		})
-
-		for _, call := range turn.ToolCalls {
+	loop := toolLoop{
+		llm:      a.toolLLM,
+		tools:    a.tools,
+		rounds:   plan.Tier.MaxToolRounds,
+		policy:   plan.Tier,
+		progress: plan.Progress,
+		onCall: func(call port.ToolCall) {
 			plan.Progress.stage(StageDigging, toolStageDetail(call))
-			result, err := a.tools.Execute(ctx, call.Name, call.Arguments, plan.Tier)
-			if err != nil {
-				result = ToolExecutionResult{Content: "tool error: " + err.Error()}
-			}
-			collected = mergeSourceEntries(collected, result.Entries)
-			messages = append(messages, port.Message{
-				Role:     "tool",
-				ToolName: call.Name,
-				Content:  result.Content,
-			})
-		}
+		},
+	}
+	answer, found, err := loop.run(ctx, messages, toolDefs)
+	collected = mergeSourceEntries(collected, found)
+	if err != nil {
+		return ConsultResult{}, fmt.Errorf("agent %w", err)
+	}
+	if answer != "" {
+		return ConsultResult{
+			Answer:         answer,
+			Sources:        entriesToSources(collected),
+			Tier:           string(plan.Tier.Tier),
+			Generals:       plan.GeneralIDs(),
+			GeneralsMethod: plan.GeneralsMethod,
+			Doctrine:       plan.DoctrineRefs(),
+			Mode:           plan.Mode.ID,
+			ModeName:       plan.Mode.Name,
+			ModeMethod:     plan.ModeMethod,
+		}, nil
 	}
 
 	return a.fallbackAnswer(ctx, aboutMe, plan, collected)
@@ -177,19 +134,4 @@ func (a *AgentConsult) fallbackAnswer(
 		ModeName:       plan.Mode.Name,
 		ModeMethod:     plan.ModeMethod,
 	}, nil
-}
-
-func toolCallBatchKey(calls []port.ToolCall) string {
-	if len(calls) == 0 {
-		return ""
-	}
-
-	var b strings.Builder
-	for _, call := range calls {
-		b.WriteString(call.Name)
-		b.WriteString(":")
-		b.WriteString(fmt.Sprint(call.Arguments))
-		b.WriteString("|")
-	}
-	return b.String()
 }

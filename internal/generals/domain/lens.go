@@ -72,6 +72,15 @@ type Lens struct {
 	// ConcedesWhen names the conditions under which this lens yields. A lens
 	// that can never be wrong cannot take part in a real exchange.
 	ConcedesWhen []string `yaml:"concedes_when"`
+	// SideWins are what this lens's kind of move typically brings besides its
+	// aim, at most three; GoesWorse are the non-obvious ways that kind of move
+	// typically leaves the person worse off, at most six. They are where a
+	// lens's forecast starts: checked against the situation, kept where they
+	// hold, and added to with what is specific to the person. Without them
+	// every lens forecasts from the same blank page and lands on the same
+	// generic risks.
+	SideWins  []string `yaml:"side_wins"`
+	GoesWorse []string `yaml:"goes_worse"`
 	// Rivals are ids of lenses it most naturally argues against. Selection
 	// uses them to seat opponents together, so an answer has a real fork in it.
 	Rivals []string `yaml:"rivals"`
@@ -116,9 +125,10 @@ type Routes struct {
 	Modes []string `yaml:"modes"`
 }
 
-// Card renders the compact form that goes into a prompt: roughly 90 to 120
-// tokens. Three of these cost about 350 tokens against the ~5,000 the original
-// spent injecting all nine generals in full, every turn, ranked or not.
+// Card renders the compact form that goes into a prompt: at most about 500
+// tokens, and today well under. Three of these are still a fraction of the
+// ~5,000 the original spent injecting all nine generals in full, every turn,
+// ranked or not.
 func (l Lens) Card() string {
 	var b strings.Builder
 
@@ -150,6 +160,12 @@ func (l Lens) Card() string {
 	}
 	if len(l.ConcedesWhen) > 0 {
 		fmt.Fprintf(&b, "Concedes when: %s\n", strings.Join(l.ConcedesWhen, "; "))
+	}
+	if len(l.SideWins) > 0 {
+		fmt.Fprintf(&b, "Typical side wins: %s\n", strings.Join(l.SideWins, "; "))
+	}
+	if len(l.GoesWorse) > 0 {
+		fmt.Fprintf(&b, "Typically goes worse: %s\n", strings.Join(l.GoesWorse, "; "))
 	}
 
 	if len(l.RivalNames) > 0 {
