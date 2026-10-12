@@ -28,6 +28,16 @@ orders:
   - "Pick the one point. Everything else gets nothing this month — not less, nothing."
   - "Write down what the starved fronts cost and how long they can last."
   - "Once through, keep going. Do not stop just outside the ring."
+side_wins:
+  - "one front finished unlocks others faster than splitting would have"
+  - "the starved fronts turn out to need less than you feared"
+  - "depth on one point builds a skill few people have"
+goes_worse:
+  - "total conviction at the wrong point: the push succeeds at the wrong thing"
+  - "a neglected flank collapses at the worst moment"
+  - "the push outruns its supply, and stopping deep in costs more than not going"
+  - "one breakthrough makes you repeat the bet without checking the target"
+  - "everything else rots quietly while the breakthrough looks like progress"
 routes:
   keywords: [focus, priorit, scattered, spread thin, too many, one thing, breakthrough, deep work, schwerpunkt]
 portrait:

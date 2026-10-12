@@ -28,11 +28,13 @@ func TestGeneralsPromptStaysCheap(t *testing.T) {
 	// Roughly four characters per token. Bounds include the debate protocol's
 	// instructions, which is most of what a single lens costs, and the ~130
 	// tokens of lensJudgement: the price of lenses that weigh their doctrine
-	// against reality instead of following it off a cliff.
-	if got := len(generalsPrompt(lenses[:1], nil, false, false)); got > 2600 {
+	// against reality instead of following it off a cliff. Cards grew with
+	// their typical side wins and ways a move goes worse, about 125 tokens each,
+	// which is what the per-card limit was raised to 2000 for.
+	if got := len(generalsPrompt(lenses[:1], nil, false, false)); got > 3000 {
 		t.Fatalf("one lens costs %d chars (~%d tokens); it should be a few hundred", got, got/4)
 	}
-	if got := len(generalsPrompt(lenses[:3], nil, false, false)); got > 6600 {
+	if got := len(generalsPrompt(lenses[:3], nil, false, false)); got > 8600 {
 		t.Fatalf("three lenses cost %d chars (~%d tokens)", got, got/4)
 	}
 
@@ -176,7 +178,7 @@ func TestGeneralsPromptWithDoctrineStaysCheap(t *testing.T) {
 	lenses := roster(t)
 
 	one := map[string][]gendomain.Passage{lenses[0].ID: lenses[0].Passages()[:1]}
-	if got := len(generalsPrompt(lenses[:1], one, false, false)); got > 3800 {
+	if got := len(generalsPrompt(lenses[:1], one, false, false)); got > 4200 {
 		t.Fatalf("one lens with a passage costs %d chars (~%d tokens)", got, got/4)
 	}
 
@@ -184,7 +186,8 @@ func TestGeneralsPromptWithDoctrineStaysCheap(t *testing.T) {
 	for _, l := range lenses[:3] {
 		deep[l.ID] = l.Passages()[:2]
 	}
-	if got := len(generalsPrompt(lenses[:3], deep, false, false)); got > 12000 {
+	// Still well under the ~19KB of injecting every general in full.
+	if got := len(generalsPrompt(lenses[:3], deep, false, false)); got > 13000 {
 		t.Fatalf("three lenses with two passages each cost %d chars (~%d tokens)", got, got/4)
 	}
 }

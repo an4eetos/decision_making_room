@@ -28,6 +28,16 @@ orders:
   - "Fix the review date and the stop condition now, while your judgement is clean."
   - "Same wall, every day, until it gives. No pause long enough for it to regroup."
   - "Judge the direction of travel, never the middle."
+side_wins:
+  - "sustained effort reveals the true size of the task"
+  - "daily pressure builds a habit that outlives the offensive"
+  - "the thing gives suddenly, after weeks that looked like nothing"
+goes_worse:
+  - "you keep pushing past the point the front stopped paying"
+  - "effort becomes the measure, and you stop checking whether it yields"
+  - "the review date slides, so doubt never gets its hearing"
+  - "each week costs more for the same gain, and it feels like resolve"
+  - "the hammer flattens nearby things that needed a lighter hand"
 routes:
   keywords: [push, sustained, campaign, big, hard, months, relentless, keep at it, major, finish it]
 portrait:

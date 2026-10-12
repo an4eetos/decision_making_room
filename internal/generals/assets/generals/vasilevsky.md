@@ -27,6 +27,16 @@ orders:
   - "For every open front, write what it is waiting for. Work the one at the start of the most arrows."
   - "Give every front a date, and make them converge on one."
   - "Untangle before you fight: cut the problem at the start of the chain."
+side_wins:
+  - "unblocking one front speeds up the others for free"
+  - "mapping dependencies shows which work can simply stop"
+  - "less context switching gives back hours every week"
+goes_worse:
+  - "keeping the schedule takes longer than the work"
+  - "coordination becomes the work and nothing ships"
+  - "fronts come to need your oversight and stall when you step away"
+  - "the one decisive front gets treated as one among four"
+  - "the dependency map goes stale and you keep trusting it"
 routes:
   keywords: [juggling, multiple, parallel, context switch, coordinate, dependencies, blocked, competing, week, schedule]
 portrait:

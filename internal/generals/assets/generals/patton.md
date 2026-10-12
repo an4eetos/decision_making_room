@@ -29,6 +29,16 @@ orders:
   - "Make contact today: the cheapest action that returns a real fact."
   - "Three ugly attempts beat one perfect plan. Each one asks a question."
   - "Pick a direction and hit it hard; turn fast when the ground changes."
+side_wins:
+  - "the first ugly attempt teaches what weeks of planning could not"
+  - "visible progress lifts morale, yours and others'"
+  - "contact shrinks the fear that kept the task frozen"
+goes_worse:
+  - "an irreversible step gets taken as if it were a test"
+  - "rough first results become the standard nobody revisits"
+  - "action hides tiredness, and you burn out calling it momentum"
+  - "the third attempt repeats the first with more confidence"
+  - "your speed tells others you will accept less care from them too"
 routes:
   keywords: [stuck, frozen, procrastinating, avoid, start, begin, momentum, paralysis, overthinking, "can't start", blank page]
 portrait:

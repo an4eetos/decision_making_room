@@ -440,3 +440,51 @@ Body.
 		t.Fatal("overlay did not append the new trap")
 	}
 }
+
+// A forecast starts from the lens's typical side wins and ways it goes worse.
+// An overlay may leave them out; a shipped general may not, or its forecast
+// starts from the same blank page as everyone else's.
+func TestShippedGeneralsCarryTheirForecast(t *testing.T) {
+	t.Parallel()
+
+	for _, lens := range fs.NewRegistry(load(t, "")).Generals() {
+		if n := len(lens.SideWins); n < 1 || n > 3 {
+			t.Errorf("%s: %d side_wins, want 1 to 3", lens.ID, n)
+		}
+		if n := len(lens.GoesWorse); n < 1 || n > 6 {
+			t.Errorf("%s: %d goes_worse, want 1 to 6", lens.ID, n)
+		}
+		card := lens.Card()
+		if !strings.Contains(card, "Typical side wins:") || !strings.Contains(card, "Typically goes worse:") {
+			t.Errorf("%s: forecast lines missing from the card", lens.ID)
+		}
+	}
+}
+
+func TestForecastCeilingsAreEnforced(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	generalsDir := filepath.Join(dir, "generals")
+	if err := os.MkdirAll(generalsDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	doc := `---
+id: zhukov
+name: Zhukov
+family: endurance
+job: My own version.
+deploy_when: [always]
+bias: none stated
+side_wins: [a, b, c, d]
+routes:
+  keywords: [grind]
+---
+`
+	if err := os.WriteFile(filepath.Join(generalsDir, "zhukov.md"), []byte(doc), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := fs.Load(assets.Generals(), assets.Styles(), assets.Traps(), dir); err == nil || !strings.Contains(err.Error(), "at most 3 side_wins") {
+		t.Fatalf("err = %v", err)
+	}
+}

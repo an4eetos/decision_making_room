@@ -30,6 +30,17 @@ orders:
   - "Find out whose side time is on before you move."
   - "Give up the city, keep the army: protect what can fight again, not the symbol."
   - "Price the wait in exact terms, and set the date it ends."
+side_wins:
+  - "the other side's push exhausts itself while you wait"
+  - "the problem resolves on its own, and the force you kept is free"
+  - "waiting shows who was really pushing you, and why"
+goes_worse:
+  - "the window closes quietly while waiting still feels prudent"
+  - "patience becomes the habit, so the next real moment is missed too"
+  - "time was on the other side and you priced it wrong"
+  - "what you kept intact decays from disuse"
+  - "others read the waiting as weakness and push harder"
+  - "the stop date gets moved, and the waiting has no end"
 routes:
   keywords: [wait, patience, delay, postpone, "not yet", hold off, timing, rush, pressure, sunk cost, too early, pushed]
 portrait:

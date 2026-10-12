@@ -39,6 +39,7 @@ const seatJudgement = `Start from your doctrine; you will usually land there, bu
 // outright for the same reason.
 const forecastItems = `- Unexpected wins: up to three side effects in the person's favour that they are not counting on. Fewer real ones beat a stretched third.
 - Where it goes worse: up to five or six mistakes or worse positions this move can land them in that are not obvious: second-order effects, slow drifts, what the move makes harder later, a failure that looks like success while it happens. Each with the early sign that it is starting. Name only the real ones; do not pad to the number.
+Start from the card's "Typical side wins" and "Typically goes worse": check each against this situation, keep the ones that hold here, and add what is specific to this person. A typical one that does not apply here is left out.
 Each item is specific to this person and this move, from their notes where possible. Risks anyone would name ("it might not work", "you could burn out", "it takes time") do not belong on either list.`
 
 // forecastRules introduces forecastItems for whoever is making the move: "each

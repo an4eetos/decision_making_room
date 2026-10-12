@@ -27,6 +27,16 @@ orders:
   - "Win one small thing today that proves the machine still runs."
   - "Plan around what is actually available, not what is owed or hoped for."
   - "Cut off is not beaten. Form the box, hold the core, one win a day inside it."
+side_wins:
+  - "one small win restores belief faster than any talk"
+  - "rebuilt morale shows which problems were only fear"
+  - "a side that came back from losing works harder than one never beaten"
+goes_worse:
+  - "a logistical problem gets treated as a mood"
+  - "easy wins get picked because they can be won, and the real fight waits"
+  - "feeling better is mistaken for being out of the hole"
+  - "reassurance becomes the ritual you need before acting"
+  - "morale built on small wins breaks at the first big loss"
 routes:
   keywords: [demoralised, demoralized, burned out, failed, defeat, confidence, restart, comeback, lost, giving up, hopeless]
 portrait:

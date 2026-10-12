@@ -29,6 +29,16 @@ orders:
   - "Judge it in one look, pick the direction, and move tonight."
   - "Hit the main thing with everything, not the outposts."
   - "Rehearse the hard thing before you need it, until it is only a hard day."
+side_wins:
+  - "speed lands before the other side has organised"
+  - "a bold arrival changes how people treat you afterwards"
+  - "with the main thing taken, the outposts fall on their own"
+goes_worse:
+  - "the glance was a guess and the ground says no"
+  - "the charge leaves allies, supply or people behind"
+  - "one success makes boldness the default even where you never trained"
+  - "the win costs more than it was worth, and nobody counts"
+  - "surprise works once, and next time they are ready for it"
 routes:
   keywords: [habit, routine, practice, practis, drill, skill, training, reps, bold, attack, aggressive, surprise, decisive, "go for it", "strike first", "move fast", opening]
 portrait:

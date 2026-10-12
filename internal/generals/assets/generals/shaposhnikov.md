@@ -28,6 +28,16 @@ orders:
   - "Under stress, run the procedure. No procedure? Write five lines first, then follow them."
   - "Estimate from your record, not from the plan."
   - "The third time it happens, write it down."
+side_wins:
+  - "the procedure lets the next run happen on a bad day"
+  - "writing the steps down exposes the one you always skip"
+  - "once written, others can do it without you"
+goes_worse:
+  - "the template freezes the shape before the work found its own"
+  - "building the system becomes the work, and output stops"
+  - "the checklist gets followed and nobody checks the results"
+  - "procedure kills the judgement that used to catch exceptions"
+  - "outdated steps keep running because they are written down"
 routes:
   keywords: [template, system, process, checklist, repeat, again, standardise, standardize, workflow, setup, reusable]
 portrait:

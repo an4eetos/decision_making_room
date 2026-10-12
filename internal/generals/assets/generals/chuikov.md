@@ -28,6 +28,16 @@ orders:
   - "Define the minimum today. Everything outside that line is allowed to burn."
   - "Get close to the threat this week: the call, the file, the conversation."
   - "Break the defence into small pieces that can each hold alone."
+side_wins:
+  - "holding the minimum buys time for help nobody promised"
+  - "close up, the threat often turns out smaller than feared"
+  - "a held line gives back the sense of control fast"
+goes_worse:
+  - "you defend the position long after its value moved elsewhere"
+  - "the minimum creeps up until holding it eats everything"
+  - "all attention on the threat starves whatever would replace the position"
+  - "holding becomes identity, so letting go later feels like defeat"
+  - "living next to the danger normalises it; you stop seeing how bad it is"
 routes:
   keywords: [collapse, falling apart, losing, "hold the line", "hold my ground", "hold on to", protect, maintain, crisis, barely, survive, minimum]
 portrait:

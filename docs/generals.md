@@ -116,6 +116,15 @@ besides the result it is for:
   what it makes harder later, or a failure that looks like success while it
   happens. Each comes with the early sign that it is starting.
 
+Each general's card carries its own starting point: `side_wins` (at most
+three) and `goes_worse` (at most six), the patterns its kind of move typically
+produces. Zhukov's pressure typically "teaches you to report motion, not truth,
+even to yourself". Kutuzov's patience typically "becomes the habit, so the next
+real moment is missed too". The forecast checks each one against the situation,
+keeps those that hold, and adds what is specific to you. A typical one that
+does not apply is left out. Without these lists every general would forecast
+from the same blank page and land on the same generic risks.
+
 Both numbers are ceilings, not quotas. A general with two real dangers names
 two, because a list padded to six buries the ones that matter. Risks anyone
 would name ("it might not work", "you could burn out") do not belong on either
@@ -179,6 +188,10 @@ them through `GENERALS_DIR`.
 Set `GENERALS_DIR` to a directory containing `generals/` and `styles/`
 subdirectories. A file whose `id` matches a shipped one replaces it; a new `id`
 is appended. Nothing needs recompiling and the repository does not need forking.
+
+In the frontmatter, `side_wins` and `goes_worse` are optional for an overlay,
+and the loader rejects more than three or six. Every shipped general has both,
+and a test enforces it. A card, as served, must stay under 2000 characters.
 
 Each file's body — sent to the model a passage at a time, as above — has eleven
 standard sections, and a test fails if any is missing:

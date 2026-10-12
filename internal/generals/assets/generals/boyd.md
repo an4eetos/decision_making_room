@@ -28,6 +28,16 @@ orders:
   - "Find out within a week whether it is working. If you cannot, shrink the move until you can."
   - "Break your own model on purpose: name the belief you are deciding from, and test it this week."
   - "Trapped is a frame. Probe three directions cheaply before you accept it."
+side_wins:
+  - "short loops kill dead ideas before they cost a month"
+  - "others start reacting to you instead of the reverse"
+  - "fast feedback takes the dread out of being wrong"
+goes_worse:
+  - "a fast loop hides that there is no goal: quick circles"
+  - "fast metrics push out the slow ones that actually matter"
+  - "constant re-orienting leaves nothing in place long enough to compound"
+  - "people who cannot keep up quietly drop out of the loop"
+  - "noise starts reading as signal, because something always changed"
 routes:
   keywords: [feedback, iterate, loop, slow, reacting, tempo, speed, cycle, experiment, learn faster]
 ---

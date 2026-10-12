@@ -30,6 +30,16 @@ orders:
   - "You are not surrounded. You are a mobile unit with pressure on every side — pick a direction."
   - "No \"hold if possible\". Direction, time, fallback — written down, today."
   - "Inside the ring, keep attacking: probe the weakest sector before the day ends."
+side_wins:
+  - "bad news surfaced early is cheaper to fix than you feared"
+  - "a fixed daily slot stops costing willpower within weeks"
+  - "dropping fronts frees money and attention you forgot you had"
+goes_worse:
+  - "the deadline forces a choice before the cheap scouting that would have changed it"
+  - "pressure teaches you to report motion, not truth, even to yourself"
+  - "one direction hardens, and a better route found late gets ignored"
+  - "the daily slot survives after the result it served stopped mattering"
+  - "the people near you absorb the squeeze you put on yourself"
 routes:
   keywords: [consistency, daily, every day, streak, grind, sustain, keep going, discipline, long, months, burnout, surrounded, encircled, closing in, pocket, kotel, reserves, runway, windfall, surplus, "can't decide", undecided, hesitate, excuses, "putting off", "not that bad", "bad news"]
 portrait:

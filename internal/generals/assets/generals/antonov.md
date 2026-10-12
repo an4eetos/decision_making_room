@@ -27,6 +27,16 @@ orders:
   - "Three sentences, written, today: what is true, what the choice is, what you recommend."
   - "Mark every assumption as an assumption. Then check the one that would hurt most."
   - "End with a recommendation. It can be overruled; it cannot be left out."
+side_wins:
+  - "stated plainly, the choice gets decided faster than expected"
+  - "writing it short exposes the assumption you were hiding"
+  - "your notes become reusable for the next decision"
+goes_worse:
+  - "the tidy summary becomes the truth, and the mess it dropped grows unseen"
+  - "people agree with the three sentences and miss what they left out"
+  - "an uncomfortable unknown gets phrased away instead of answered"
+  - "the briefing becomes the output and the doing waits"
+  - "clarity reads as certainty, so others stop checking your work"
 routes:
   keywords: [explain, brief, summar, unclear, write up, communicate, present, confusing, tangled, document]
 portrait:

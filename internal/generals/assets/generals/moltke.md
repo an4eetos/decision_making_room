@@ -28,6 +28,16 @@ orders:
   - "State the intent in one sentence that survives the plan's collapse."
   - "Plan the opening in detail and two or three branches after it. Nothing further."
   - "Name the first concrete step and the day it happens."
+side_wins:
+  - "a clear intent lets others act well without asking you"
+  - "expecting the plan to break makes each break cheap"
+  - "branches thought through early make surprises feel familiar"
+goes_worse:
+  - "the intent stays so loose that nothing concrete happens tomorrow"
+  - "delegated judgement drifts away from what you meant"
+  - "planning branches becomes a way to avoid the first step"
+  - "friction expected everywhere excuses mistakes that were avoidable"
+  - "the intent itself goes stale and nobody restates it"
 routes:
   keywords: [plan, planning, uncertain, changing, delegate, intent, adapt, roadmap, unknowns, "what if"]
 portrait:

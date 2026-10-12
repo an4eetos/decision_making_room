@@ -28,6 +28,16 @@ orders:
   - "No irreversible response in the hot hour. Write it down, sleep, decide cold."
   - "Separate what actually failed from how it felt."
   - "Set the date you go again, and what changes first."
+side_wins:
+  - "the debrief finds a cause different from the one it felt like"
+  - "a counter on your timing lands harder than an angry reply"
+  - "regrouping restores sleep and judgement first"
+goes_worse:
+  - "the regroup passes its date and quietly becomes not returning"
+  - "the window to answer closes during the debrief"
+  - "the other side reads silence as defeat and takes more ground"
+  - "the careful debrief turns into a story that blames nothing"
+  - "waiting for your moment leaves others carrying the cost"
 routes:
   keywords: [failed, setback, went wrong, mistake, broke, recover, regroup, bad day, debrief, postmortem, blew it]
 portrait:
