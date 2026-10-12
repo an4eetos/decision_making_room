@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -152,6 +153,14 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 		return ConsultResult{}, fmt.Errorf("question is required")
 	}
 
+	parent := ctx
+	if d := plan.Tier.Deadline; d > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, d)
+		defer cancel()
+	}
+	ctx = port.WithNotice(ctx, plan.Progress.notice)
+
 	if !skipRetrieval(plan.Question) {
 		plan.Progress.stage(StageSearching, "")
 	}
@@ -218,6 +227,12 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 		result, err = u.executeSingleShot(ctx, plan, context)
 	}
 	if err != nil {
+		// Said in words the person can act on, instead of "context deadline
+		// exceeded" from three layers down.
+		if timedOut(err) && parent.Err() == nil {
+			return ConsultResult{}, fmt.Errorf("the %s answer took longer than %s, usually because the model was overloaded; try again, or a shallower depth",
+				plan.Tier.Tier, plan.Tier.Deadline)
+		}
 		return ConsultResult{}, err
 	}
 
@@ -230,6 +245,10 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	}
 	return result, nil
 }
+
+// timedOut lives outside Execute, where the retrieved entries are called
+// context and shadow the package.
+func timedOut(err error) bool { return errors.Is(err, context.DeadlineExceeded) }
 
 // gatherContext runs retrieval once for every tier. Single-shot and agent paths
 // used to each do their own, with slightly different parameters and different

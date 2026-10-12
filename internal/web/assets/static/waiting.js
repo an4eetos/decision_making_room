@@ -34,6 +34,12 @@ const WAITING_LINES = {
         "Each general is reading your notes on their own",
         "Waiting for the council to report",
     ],
+    // A provider explaining a wait. The server always sends the reason as
+    // the detail; these cover a detail-less event.
+    waiting: [
+        "The model is busy, retrying",
+        "Waiting on the model",
+    ],
     digging: [
         "Going back for more",
         "That wasn't enough — searching again",

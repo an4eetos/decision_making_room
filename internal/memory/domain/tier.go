@@ -1,6 +1,9 @@
 package domain
 
-import "strings"
+import (
+	"strings"
+	"time"
+)
 
 // Tier is how much work a single question is worth. The cost of an answer varies
 // by more than an order of magnitude across these, and most questions do not
@@ -65,6 +68,10 @@ type TierPolicy struct {
 	// round with tools withdrawn, so it can answer rather than stopping mid-dig.
 	MaxToolRounds int
 
+	// Deadline bounds the whole consult. A model call that hangs would
+	// otherwise hold the request for as long as the HTTP client allows, behind
+	// a stream that keeps itself alive.
+	Deadline time.Duration
 	// AnswerBudget is appended to the system prompt. Empty means no instruction.
 	AnswerBudget string
 }
@@ -87,6 +94,7 @@ func PolicyFor(t Tier) TierPolicy {
 			// One passage: the lens's answer to this question in its own words,
 			// for about the price of one more retrieved memory.
 			DoctrinePassages: 1,
+			Deadline:         2 * time.Minute,
 			AnswerBudget:     "Answer in under 120 words. Give one recommendation, not a survey.",
 		}
 	case TierDeep:
@@ -105,7 +113,9 @@ func PolicyFor(t Tier) TierPolicy {
 			Forecast:       true,
 			// Two per lens, and read_doctrine stays for the rest.
 			DoctrinePassages: 2,
-			AnswerBudget:     "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
+			// A council is several agents and a closing call.
+			Deadline:     8 * time.Minute,
+			AnswerBudget: "Take the space you need. Show the reasoning that matters and name what you are unsure about.",
 		}
 	default:
 		return TierPolicy{
@@ -118,6 +128,7 @@ func PolicyFor(t Tier) TierPolicy {
 			MaxToolRounds:    1,
 			DoctrinePassages: 1,
 			Forecast:         true,
+			Deadline:         4 * time.Minute,
 		}
 	}
 }
