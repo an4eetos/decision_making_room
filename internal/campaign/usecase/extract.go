@@ -23,6 +23,15 @@ import (
 // name unknowns and orders in a fixed shape.
 const interrogationModeID = "interrogation"
 
+// redTeamModeID is the shipped red team mode: one general commanding the
+// opposition, whose attacks and cover are read straight out of the answer.
+const redTeamModeID = "red_team"
+
+// redTeamConfidence is what the enemy's estimate carries. It is one general's
+// adversarial reading, by design; whether each attack is real is yours to
+// say, which is why it is only a proposal.
+const redTeamConfidence = 0.7
+
 // Extract maps what you write onto the campaign as proposals.
 //
 // Two paths. An ordinary turn costs one background model call, and only when
@@ -75,6 +84,16 @@ func (u *Extract) ObserveTurn(turn memport.Turn) {
 			defer cancel()
 			if err := u.FromInterrogation(ctx, turn); err != nil {
 				log.Printf("campaign: reading interrogation: %v", err)
+			}
+		}()
+		return
+	}
+	if turn.ModeID == redTeamModeID {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), extractTimeout)
+			defer cancel()
+			if err := u.FromRedTeam(ctx, turn); err != nil {
+				log.Printf("campaign: reading the red team: %v", err)
 			}
 		}()
 		return
@@ -353,4 +372,89 @@ func truncate(s string, max int) string {
 		return s
 	}
 	return string(r[:max]) + "…"
+}
+
+// FromRedTeam reads a red team answer into proposals with no model call: the
+// attacks it named become proposed opposition, typed by the kind of stuck it
+// gave them and aimed at the objective they plainly hit, and the fog it
+// exploited becomes proposed unknowns. The enemy's estimate of your
+// opposition is intelligence, and intelligence is labelled: every strength
+// stays an estimate until you confirm it.
+func (u *Extract) FromRedTeam(ctx context.Context, turn memport.Turn) error {
+	intel := service.ParseRedTeam(turn.AssistantText)
+	if len(intel.Attacks) == 0 && len(intel.Cover) == 0 {
+		return nil
+	}
+	sessionID, messageID := turn.SessionID, turn.MessageID
+
+	live, err := u.repo.ListItems(ctx, []domain.Status{domain.StatusActive}, 300)
+	if err != nil {
+		return err
+	}
+	var objectives []domain.Item
+	for _, it := range live {
+		if it.Type == domain.TypeObjective {
+			objectives = append(objectives, it)
+		}
+	}
+
+	for _, attack := range intel.Attacks {
+		item := domain.Item{
+			Type:        domain.TypeObstacle,
+			Text:        attack.Text,
+			Status:      domain.StatusProposed,
+			Kind:        attack.Kind,
+			Strength:    domain.StrengthDugIn,
+			Source:      domain.SourceRedTeam,
+			SessionID:   &sessionID,
+			MessageID:   &messageID,
+			Confidence:  redTeamConfidence,
+			Fingerprint: service.Fingerprint(attack.Text),
+		}
+		if target := aimAtObjective(attack.Text, objectives); target != nil {
+			item.ObjectiveID, item.FrontID = &target.ID, target.FrontID
+		}
+		if _, err := u.repo.CreateItem(ctx, item); err != nil && !errors.Is(err, port.ErrDuplicate) {
+			return err
+		}
+	}
+
+	for _, question := range intel.Cover {
+		item := domain.Item{
+			Type:        domain.TypeUnknown,
+			Text:        question,
+			Status:      domain.StatusProposed,
+			Source:      domain.SourceRedTeam,
+			SessionID:   &sessionID,
+			MessageID:   &messageID,
+			Confidence:  redTeamConfidence,
+			Fingerprint: service.Fingerprint(question),
+		}
+		if target := aimAtObjective(question, objectives); target != nil {
+			item.ObjectiveID, item.FrontID = &target.ID, target.FrontID
+		}
+		if _, err := u.repo.CreateItem(ctx, item); err != nil && !errors.Is(err, port.ErrDuplicate) {
+			return err
+		}
+	}
+	return nil
+}
+
+// aimAtObjective picks the active objective an attack plainly hits, by the
+// words they share. One shared meaningful word is enough: the item is only
+// a proposal, and a wrong aim is one select away from fixed. Nil when
+// nothing matches, or when there is one objective and it matches nothing,
+// since the red team was attacking something.
+func aimAtObjective(text string, objectives []domain.Item) *domain.Item {
+	var target *domain.Item
+	best := 0
+	for i := range objectives {
+		if n := service.Overlap(text, objectives[i].Text); n > best {
+			target, best = &objectives[i], n
+		}
+	}
+	if target == nil && len(objectives) == 1 {
+		return &objectives[0]
+	}
+	return target
 }

@@ -103,6 +103,33 @@ const HINTS = {
             "A withdrawn objective stays on its row, struck through, and counts for nothing: an orderly withdrawal is not lost ground.",
         ],
     },
+    staff: {
+        title: "The staff",
+        what: "The generals read the map, not a question. <strong>Readings</strong> are what the arithmetic says on its own: what is overdue, which front is overextended or has gone quiet, a fortress with nothing aimed at it, fog nobody has scouted. An <strong>appraisal</strong> is the generals' judgment over those numbers.",
+        uses: [
+            "<strong>Ask the staff</strong> has them name one point of main effort, where to yield ground, what is overextended, which fog to lift first, and two or three orders. Standard seats two generals in one call; Deep convenes three as a council, each reading the map alone.",
+            "<strong>Discuss</strong> opens the appraisal as a conversation with the generals who wrote it seated, so arguing back is arguing with them.",
+            "Appraise one front from its header to keep the others out of it.",
+        ],
+        notes: [
+            "Readings cost nothing and refresh on every load; an appraisal costs model calls and is kept with its date, so the page shows what the staff last said rather than recomputing it.",
+            "The map also goes into every ordinary answer, so the generals appraise the map and not just the question. Turn that off with <code>CAMPAIGN_STAFF_ENABLED=false</code>.",
+            "Withdrawal is a legitimate order, and the staff will recommend it when it is the right one.",
+        ],
+    },
+    redteam: {
+        title: "Red team",
+        what: "One general takes command of the opposition on your map and attacks your plan. The positions marked ▲ become its units, the fog ? its cover, and every order you gave is a move it gets to answer.",
+        uses: [
+            "Each turn says how it holds each position, where your plan breaks (three attacks, each with the early sign you will see), which unknowns it exploits, what it concedes, and what it would take to beat it.",
+            "The attacks it names arrive in Intel as proposed opposition, and the fog it exploits as proposed unknowns, with no extra model call. Keep what is real; drop what is not.",
+            "Seat a general first to choose who commands; otherwise the room picks. <strong>Leave</strong> goes back to ordinary advice.",
+        ],
+        notes: [
+            "It attacks the plan, never you, and stays inside what could actually happen to you. A red team that concedes nothing has found nothing.",
+            "It never switches on by itself. Open it from the mode menu, the briefing bar, or an objective on the campaign page.",
+        ],
+    },
     intel: {
         title: "Intel",
         what: "Goals, blockers and open questions picked up from what you wrote, waiting for you to keep or drop them. Nothing goes on the map without your say.",

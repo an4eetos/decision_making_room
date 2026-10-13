@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
+	camdomain "github.com/an4eetos/decision-room/internal/campaign/domain"
 	"github.com/an4eetos/decision-room/internal/checkin/domain"
 	"github.com/an4eetos/decision-room/internal/checkin/port"
 	"github.com/an4eetos/decision-room/internal/checkin/service"
@@ -388,4 +389,103 @@ func TestNotifierNeverUsesAShell(t *testing.T) {
 	}
 	// Runs without error; the payload is a literal argument to echo.
 	n.Notify("hi", "; rm -rf / && echo pwned")
+}
+
+// ---- sitreps ----------------------------------------------------------------
+
+type fakeSitreps struct {
+	sitrep camdomain.Sitrep
+	err    error
+}
+
+func (f fakeSitreps) Sitrep(context.Context) (camdomain.Sitrep, error) { return f.sitrep, f.err }
+
+func mapWithWork() camdomain.Sitrep {
+	front := uuid.New()
+	return camdomain.Sitrep{
+		Day: "2026-09-26",
+		Fronts: []camdomain.SitrepFront{{
+			ID: front, Name: "Work", Line: 0.25, OrdersOpen: 1, OrdersDue: 1,
+			Objectives: []camdomain.SitrepObjective{{
+				TheatrePost: camdomain.TheatrePost{ID: uuid.New(), Text: "Ship v2", Status: camdomain.StatusActive},
+				Progress:    0.25,
+				Orders:      []camdomain.SitrepOrder{{ID: uuid.New(), Text: "Write the tests", Due: "2026-09-26", DueToday: true}},
+			}},
+		}},
+		Readings: []camdomain.Reading{{Kind: camdomain.ReadingAdvanced, Text: "◆ Ship v2 on Work is the closest to taken, 25% held."}},
+	}
+}
+
+// With a map, a check-in is a sitrep: named for what it reports, with the
+// map in the question and the intent drawn from map state. It stays plain
+// and cheap.
+func TestCheckInsBecomeSitrepsWhenThereIsAMap(t *testing.T) {
+	t.Parallel()
+
+	now := at(8, 5)
+	g, repo, ans, _ := setup(now)
+	g.WithSitreps(fakeSitreps{sitrep: mapWithWork()})
+	scheduler(g, now, nil).Tick(context.Background())
+
+	items, _ := repo.Unseen(context.Background(), 5)
+	if len(items) != 1 || items[0].Title != "Morning orders" {
+		t.Fatalf("the morning check-in is the morning orders: %+v", items)
+	}
+	in := ans.lastInput
+	if !in.Plain || in.Tier != "quick" || in.ModeID != "day_plan" {
+		t.Fatalf("a sitrep is still one plain, quick call: %+v", in)
+	}
+	for _, want := range []string{"Write me a short sitrep", "point of main effort", "Front: Work — line 25%", "◆ Ship v2", "Write the tests (due today)", "closest to taken"} {
+		if !strings.Contains(in.Question, want) {
+			t.Fatalf("the sitrep question lacks %q:\n%s", want, in.Question)
+		}
+	}
+
+	// The evening one reports gains and losses; "check in now" is a sitrep.
+	evening := at(21, 5)
+	g.now = func() time.Time { return evening }
+	scheduler(g, evening, nil).Tick(context.Background())
+	items, _ = repo.Unseen(context.Background(), 5)
+	var titles []string
+	for _, c := range items {
+		titles = append(titles, c.Title)
+	}
+	if len(items) != 2 || !strings.Contains(strings.Join(titles, ","), "Evening gains and losses") {
+		t.Fatalf("evening sitrep: %v", titles)
+	}
+	if !strings.Contains(ans.lastInput.Question, "Gains and losses") {
+		t.Fatalf("evening intent:\n%s", ans.lastInput.Question)
+	}
+	c, err := g.Now(context.Background())
+	if err != nil || c.Title != "Sitrep" {
+		t.Fatalf("check in now with a map is a sitrep: %+v %v", c, err)
+	}
+}
+
+// An empty map, or one that cannot be read, leaves the check-in as it was.
+func TestCheckInsStayPlainWithoutAMap(t *testing.T) {
+	t.Parallel()
+
+	now := at(8, 5)
+	g, repo, ans, _ := setup(now)
+	g.WithSitreps(fakeSitreps{sitrep: camdomain.Sitrep{Empty: true}})
+	scheduler(g, now, nil).Tick(context.Background())
+
+	items, _ := repo.Unseen(context.Background(), 5)
+	if len(items) != 1 || items[0].Title != "Morning check-in" {
+		t.Fatalf("no map, no sitrep: %+v", items)
+	}
+	if strings.Contains(ans.lastInput.Question, "sitrep") || strings.Contains(ans.lastInput.Question, "Front:") {
+		t.Fatalf("an empty map adds nothing:\n%s", ans.lastInput.Question)
+	}
+
+	broken, repo2, ans2, _ := setup(now)
+	broken.WithSitreps(fakeSitreps{err: errors.New("db down")})
+	scheduler(broken, now, nil).Tick(context.Background())
+	if items, _ := repo2.Unseen(context.Background(), 5); len(items) != 1 || items[0].Title != "Morning check-in" {
+		t.Fatalf("a map that cannot be read degrades to the plain check-in: %+v", items)
+	}
+	if ans2.calls != 1 {
+		t.Fatal("the check-in itself still happens")
+	}
 }

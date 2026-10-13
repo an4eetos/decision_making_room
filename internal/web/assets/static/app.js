@@ -195,7 +195,7 @@ function renderChatMessages(container, messages) {
 
     // What you wrote during an interrogation sits in the same room as the
     // questions, so it takes the same background.
-    // The same goes for what you wrote under fire.
+    // The same goes for what you wrote under fire, or under attack.
     const marked = messages.map((m, i) => {
         if (m.role !== "user") {
             return m;
@@ -203,6 +203,9 @@ function renderChatMessages(container, messages) {
         const next = messages[i + 1]?.mode;
         if (next === INTERROGATION_MODE) {
             return { ...m, interrogation: true };
+        }
+        if (next === RED_TEAM_MODE) {
+            return { ...m, redteam: true };
         }
         return next === BEAST_MODE ? { ...m, beast: true } : m;
     });
@@ -216,6 +219,7 @@ function chatMessageHTML(message) {
     const isAssistant = message.role === "assistant";
     const interrogating = isAssistant ? message.mode === INTERROGATION_MODE : Boolean(message.interrogation);
     const beast = isAssistant ? message.mode === BEAST_MODE : Boolean(message.beast);
+    const redTeam = isAssistant ? message.mode === RED_TEAM_MODE : Boolean(message.redteam);
     // Only assistant answers are markdown. What you typed is shown exactly as
     // you typed it — rendering your own text would mangle anything containing
     // an asterisk or a hash.
@@ -225,7 +229,9 @@ function chatMessageHTML(message) {
         ? null
         : interrogating
             ? renderInterrogation(message.content)
-            : renderBriefing(message.content);
+            : redTeam
+                ? renderRedTeam(message.content)
+                : renderBriefing(message.content);
     const body = structured
         ? `<div class="chat-message-body structured">${structured}</div>`
         : isAssistant
@@ -238,14 +244,16 @@ function chatMessageHTML(message) {
 
     // Which lenses produced this answer, and whether you picked them. An
     // auto-selected lens should never look like one you chose.
-    const mode = isAssistant && message.mode && message.mode !== "open" && !interrogating && !beast
+    const mode = isAssistant && message.mode && message.mode !== "open" && !interrogating && !beast && !redTeam
         ? `<span class="mode-badge">${escapeHTML(modeChipName(message.mode))}</span>`
         : "";
     const room = interrogating
         ? `<span class="interrogation-badge">${isAssistant ? "Interrogation" : "Under questioning"}</span>`
         : beast
             ? `<span class="beast-badge">${isAssistant ? "Beast mode" : "Under fire"}</span>`
-            : "";
+            : redTeam
+                ? `<span class="redteam-badge">${isAssistant ? "Red team" : "Under attack"}</span>`
+                : "";
 
     const lenses = isAssistant && message.generals?.length
         ? `<span class="lens-badges">${message.generals.map((id) =>
@@ -255,7 +263,7 @@ function chatMessageHTML(message) {
         : "";
 
     return `
-    <div class="chat-message ${escapeHTML(message.role)}${interrogating ? " interrogation" : ""}${beast ? " beast" : ""}">
+    <div class="chat-message ${escapeHTML(message.role)}${interrogating ? " interrogation" : ""}${beast ? " beast" : ""}${redTeam ? " redteam" : ""}">
         <div class="chat-message-head">
             <span class="chat-message-role">${escapeHTML(message.role)}</span>
             ${room}
@@ -474,6 +482,7 @@ function setupConsultForm() {
         onChange: () => {
             syncInterrogation();
             syncBeast();
+            syncRedTeam();
         },
     });
     // Beast mode's ranking of who shouts, from the mode file.
@@ -738,6 +747,69 @@ function setupConsultForm() {
         leaveBeast();
     });
 
+    // Red team: one general takes command of the opposition. The bar on the
+    // composer names who, and Leave goes back to ordinary advice.
+    const redTeamBar = document.getElementById("redteam-bar");
+    const redTeamWho = document.getElementById("redteam-who");
+
+    function redTeaming() {
+        return modeChip?.pinned() === RED_TEAM_MODE;
+    }
+
+    // syncRedTeam puts the room in or out of the red team. Given the stored
+    // messages, it names the general in command from the last attack.
+    function syncRedTeam(stored) {
+        const on = redTeaming();
+        messages.classList.toggle("redteaming", on);
+        form.classList.toggle("redteaming", on);
+        if (redTeamBar) {
+            redTeamBar.hidden = !on;
+        }
+        if (!on) {
+            return;
+        }
+        const last = stored && [...stored].reverse().find((m) => m.role === "assistant" && m.mode === RED_TEAM_MODE);
+        const seated = last?.generals?.length ? last.generals : (generals?.selected() ?? []);
+        if (redTeamWho) {
+            redTeamWho.textContent = seated.length
+                ? `${lensName(seated[0])} commands the opposition`
+                : "The room picks who commands the opposition";
+        }
+    }
+
+    async function leaveRedTeam(sessionID = activeSessionID) {
+        modeChip?.setPinned(null);
+        modeChip?.setDetected(null);
+        syncRedTeam();
+        if (!sessionID) {
+            return;
+        }
+        try {
+            await setSessionMode(sessionID, "");
+        } catch (error) {
+            showMessage(result, error.message, "error");
+        }
+    }
+
+    // enterRedTeam pins the mode and sends the opening attack. From the
+    // campaign page it arrives aimed at one objective or front; from the
+    // briefing bar it takes the whole map.
+    function enterRedTeam(question) {
+        if (currentRun()) {
+            return;
+        }
+        modeChip?.setPinned(RED_TEAM_MODE);
+        syncInterrogation();
+        syncBeast();
+        syncRedTeam();
+        sendNow(question || redTeamQuestion());
+    }
+
+    document.getElementById("redteam-now")?.addEventListener("click", () => enterRedTeam());
+    document.getElementById("leave-redteam")?.addEventListener("click", () => {
+        leaveRedTeam();
+    });
+
     let activeSessionID = null;
     let sessionLoadToken = 0;
     let cachedSessions = [];
@@ -854,6 +926,7 @@ function setupConsultForm() {
             modeChip?.setDetected(data.session?.mode, "sticky");
             syncInterrogation(data.messages ?? []);
             syncBeast(data.messages ?? []);
+            syncRedTeam(data.messages ?? []);
             result.innerHTML = "";
             const failure = failures.get(sessionID);
             if (failure) {
@@ -886,6 +959,7 @@ function setupConsultForm() {
         syncInterrogation([]);
         activeSessionID = null;
         syncBeast([]);
+        syncRedTeam([]);
         // A send from the previous new chat carries on in the background.
         draftRun = null;
         sessionLoadToken++;
@@ -932,6 +1006,23 @@ function setupConsultForm() {
 
     async function initChat() {
         const sessionList = await refreshSessions();
+
+        // The campaign page sends an attack here: a new conversation with
+        // the red team pinned and the opening question written, aimed at
+        // the objective or front it came from.
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("redteam")) {
+            const question = redTeamQuestion(params.get("kind"), params.get("redteam"));
+            // Taken off the URL at once, so a reload does not attack twice.
+            const url = new URL(window.location.href);
+            url.searchParams.delete("redteam");
+            url.searchParams.delete("kind");
+            history.replaceState({ sessionID: null }, "", url);
+            startNewChat();
+            enterRedTeam(question);
+            return;
+        }
+
         const restoredID = resolveActiveSessionID(sessionList);
         if (restoredID) {
             await loadSession(restoredID);
@@ -1046,6 +1137,7 @@ function setupConsultForm() {
         // Fixed for this send: switching mode mid-answer does not restyle it.
         const underQuestioning = interrogating();
         const underFire = beasting();
+        const underAttack = redTeaming();
 
         // Everything this send touches hangs off run, never off "whatever is on
         // screen": you can open another conversation, or start a new one, while
@@ -1064,6 +1156,10 @@ function setupConsultForm() {
         if (underFire) {
             run.userEl.classList.add("beast");
             run.assistantEl.classList.add("beast");
+        }
+        if (underAttack) {
+            run.userEl.classList.add("redteam");
+            run.assistantEl.classList.add("redteam");
         }
         if (run.sessionID) {
             runs.set(run.sessionID, run);
@@ -1107,7 +1203,9 @@ function setupConsultForm() {
             // scrolling up to reread something should not be yanked back.
             const follow = followsAnswer();
             const text = underFire ? stripBeastFlags(streamed) : stripInterrogateFlag(streamed);
-            pendingBody.innerHTML = (underQuestioning && renderInterrogation(text)) || renderMarkdown(text);
+            pendingBody.innerHTML = (underQuestioning && renderInterrogation(text))
+                || (underAttack && renderRedTeam(text))
+                || renderMarkdown(text);
             if (follow) {
                 messages.scrollTop = messages.scrollHeight;
             }
@@ -1244,6 +1342,7 @@ function setupConsultForm() {
             if (isShown(run)) {
                 syncInterrogation(data.messages);
                 syncBeast(data.messages);
+                syncRedTeam(data.messages);
             }
 
             // Anything you committed to is extracted in the background; pick

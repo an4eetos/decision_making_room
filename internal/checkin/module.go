@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	camusecase "github.com/an4eetos/decision-room/internal/campaign/usecase"
 	chkpostgres "github.com/an4eetos/decision-room/internal/checkin/adapters/driven/postgres"
 	"github.com/an4eetos/decision-room/internal/checkin/port"
 	"github.com/an4eetos/decision-room/internal/checkin/service"
@@ -62,11 +63,13 @@ func provideGenerate(
 	consult *memusecase.Consult,
 	chat *memusecase.Chat,
 	commitments *comusecase.Manage,
+	sitreps *camusecase.Sitreps,
 	repo port.Repository,
 	notifier *usecase.Notifier,
 	loc *time.Location,
 ) *usecase.Generate {
-	return usecase.NewGenerate(consult, chat, commitments, repo, notifier, loc)
+	// With a map to read, check-ins are sitreps drawn from it.
+	return usecase.NewGenerate(consult, chat, commitments, repo, notifier, loc).WithSitreps(sitreps)
 }
 
 func provideScheduler(

@@ -201,7 +201,7 @@ func (c *Council) seat(
 ) councilPosition {
 	messages := buildConsultMessages(
 		seatPrompt(plan, lens),
-		aboutMe, plan.History,
+		aboutMe, plan.Situation, plan.History,
 		formatContext(prefetch, plan.Tier.MaxBodyRunes),
 		plan.Question,
 	)
@@ -248,7 +248,7 @@ func (c *Council) synthesise(
 
 	messages := buildConsultMessages(
 		buildSystemPrompt(systemPrompt, plan),
-		aboutMe, plan.History,
+		aboutMe, plan.Situation, plan.History,
 		formatContext(collected, plan.Tier.MaxBodyRunes),
 		plan.Question,
 	)

@@ -12,6 +12,8 @@ import (
 
 	"github.com/google/uuid"
 
+	camdomain "github.com/an4eetos/decision-room/internal/campaign/domain"
+	camservice "github.com/an4eetos/decision-room/internal/campaign/service"
 	"github.com/an4eetos/decision-room/internal/checkin/domain"
 	"github.com/an4eetos/decision-room/internal/checkin/port"
 	"github.com/an4eetos/decision-room/internal/checkin/service"
@@ -31,12 +33,19 @@ type (
 	CommitmentLister interface {
 		List(ctx context.Context, statuses []comdomain.Status) ([]comdomain.Commitment, error)
 	}
+	// SitrepSource reads the campaign map the way the staff does. Optional:
+	// without it, or with an empty map, a check-in is what it was before the
+	// map existed.
+	SitrepSource interface {
+		Sitrep(ctx context.Context) (camdomain.Sitrep, error)
+	}
 )
 
 type Generate struct {
 	consult     Answerer
 	chat        SessionStarter
 	commitments CommitmentLister
+	sitreps     SitrepSource
 	repo        port.Repository
 	notifier    *Notifier
 	loc         *time.Location
@@ -65,6 +74,15 @@ func NewGenerate(
 	}
 }
 
+// WithSitreps turns check-ins into sitreps: the morning one names today's
+// point of main effort from the map, the midday one reports what is in
+// contact, the evening one the day's gains and losses. With an empty map
+// each is the plain check-in it always was.
+func (g *Generate) WithSitreps(s SitrepSource) *Generate {
+	g.sitreps = s
+	return g
+}
+
 // intents is what each shape of check-in is for. The model is told this rather
 // than handed the mode's full output template, because a check-in is a short
 // message that ends in a question, not a plan.
@@ -74,10 +92,29 @@ var intents = map[string]string{
 	"debrief":     "Ask what closed today and what is carrying over. If something I committed to was due, ask about it by name.",
 }
 
+// sitrepIntents replace the intents when there is a map to read. Each is
+// drawn from map state: morning orders, a midday contact report, evening
+// gains and losses.
+var sitrepIntents = map[string]string{
+	"day_plan": "Morning orders. From the map, name today's point of main effort: one objective, by its text, and the one order that serves it today. " +
+		"If an order is due today or overdue, say which. If a reading says a front is overextended or has gone quiet, say so in one clause.",
+	"block_start": "Contact report. Which orders are in contact right now (due today or overdue), and am I on them? " +
+		"Name one position from the map by its text. If a front has gone quiet, say so once, without lecturing.",
+	"debrief": "Gains and losses. What moved on the map today (taken, cleared, lifted, orders carried out) and what did not. " +
+		"If an order due today was not done, ask about it by name. A withdrawal is a gain if it was on purpose; say so.",
+}
+
 var titles = map[string]string{
 	"day_plan":    "Morning check-in",
 	"block_start": "Midday check-in",
 	"debrief":     "Evening check-in",
+}
+
+// sitrepTitles name the check-in for what it reports when the map is read.
+var sitrepTitles = map[string]string{
+	"day_plan":    "Morning orders",
+	"block_start": "Midday contact report",
+	"debrief":     "Evening gains and losses",
 }
 
 // Scheduled writes the check-in for a slot. It costs one model call, at the
@@ -94,14 +131,20 @@ func (g *Generate) Scheduled(ctx context.Context, slot service.Slot, localDate t
 		return domain.CheckIn{}, port.ErrAlreadyFired
 	}
 
-	body, err := g.write(ctx, slot.ModeID)
+	body, sitrep, err := g.write(ctx, slot.ModeID)
 	if err != nil {
 		return domain.CheckIn{}, err
 	}
 
 	title := titles[slot.ModeID]
+	if sitrep {
+		title = sitrepTitles[slot.ModeID]
+	}
 	if title == "" {
 		title = strings.ToUpper(slot.Name[:1]) + slot.Name[1:] + " check-in"
+		if sitrep {
+			title = strings.ToUpper(slot.Name[:1]) + slot.Name[1:] + " sitrep"
+		}
 	}
 
 	return g.store(ctx, domain.CheckIn{
@@ -120,9 +163,13 @@ func (g *Generate) Now(ctx context.Context) (domain.CheckIn, error) {
 	local := g.now().In(g.loc)
 	mode := service.ModeForHour(local.Hour())
 
-	body, err := g.write(ctx, mode)
+	body, sitrep, err := g.write(ctx, mode)
 	if err != nil {
 		return domain.CheckIn{}, err
+	}
+	title := "Check-in"
+	if sitrep {
+		title = "Sitrep"
 	}
 
 	// Minute-resolution slot: a double-click is one check-in, not two model
@@ -130,18 +177,31 @@ func (g *Generate) Now(ctx context.Context) (domain.CheckIn, error) {
 	return g.store(ctx, domain.CheckIn{
 		Slot: "now-" + local.Format("1504"), Kind: domain.KindScheduled,
 		LocalDate: service.LocalDate(local), ModeID: mode,
-		Title: "Check-in", Body: body,
+		Title: title, Body: body,
 	})
 }
 
-func (g *Generate) write(ctx context.Context, modeID string) (string, error) {
+// write asks the model for the check-in, and reports whether it was drawn
+// from the map, which decides what the check-in is called.
+func (g *Generate) write(ctx context.Context, modeID string) (string, bool, error) {
 	open, err := g.commitments.List(ctx, []comdomain.Status{comdomain.StatusOpen})
 	if err != nil {
-		return "", fmt.Errorf("load commitments: %w", err)
+		return "", false, fmt.Errorf("load commitments: %w", err)
+	}
+
+	// A map that cannot be read is logged and the check-in is the plain
+	// kind: the check-in is the point, the map is what it is drawn from.
+	var brief string
+	if g.sitreps != nil {
+		if sitrep, err := g.sitreps.Sitrep(ctx); err != nil {
+			log.Printf("check-in: reading the map: %v", err)
+		} else {
+			brief = camservice.Brief(sitrep)
+		}
 	}
 
 	local := g.now().In(g.loc)
-	question := g.question(modeID, local, open)
+	question := g.question(modeID, local, open, brief)
 
 	result, err := g.consult.Execute(ctx, memusecase.ConsultInput{
 		Question: question,
@@ -150,25 +210,37 @@ func (g *Generate) write(ctx context.Context, modeID string) (string, error) {
 		Plain:    true,
 	})
 	if err != nil {
-		return "", fmt.Errorf("write check-in: %w", err)
+		return "", false, fmt.Errorf("write check-in: %w", err)
 	}
 
 	body := strings.TrimSpace(result.Answer)
 	if body == "" {
-		return "", errors.New("the model returned an empty check-in")
+		return "", false, errors.New("the model returned an empty check-in")
 	}
-	return body, nil
+	return body, brief != "", nil
 }
 
-func (g *Generate) question(modeID string, local time.Time, open []comdomain.Commitment) string {
+// question writes the ask. With a map it is a sitrep: the intent is drawn
+// from map state and the map itself travels in the question, because a plain
+// check-in carries no lenses and no context block of its own.
+func (g *Generate) question(modeID string, local time.Time, open []comdomain.Commitment, brief string) string {
 	var b strings.Builder
 
-	fmt.Fprintf(&b, "Write me a short check-in. It is %s, %s.\n\n",
-		local.Weekday(), local.Format("15:04"))
+	if brief != "" {
+		fmt.Fprintf(&b, "Write me a short sitrep. It is %s, %s.\n\n", local.Weekday(), local.Format("15:04"))
+	} else {
+		fmt.Fprintf(&b, "Write me a short check-in. It is %s, %s.\n\n", local.Weekday(), local.Format("15:04"))
+	}
 
 	intent := intents[modeID]
+	if brief != "" {
+		intent = sitrepIntents[modeID]
+	}
 	if intent == "" {
 		intent = intents["block_start"]
+		if brief != "" {
+			intent = sitrepIntents["block_start"]
+		}
 	}
 	b.WriteString(intent)
 	b.WriteString("\n\n")
@@ -182,6 +254,11 @@ func (g *Generate) question(modeID string, local time.Time, open []comdomain.Com
 			fmt.Fprintf(&b, "- %s%s\n", c.Text, dueNote(c, local))
 		}
 		b.WriteString("\n")
+	}
+
+	if brief != "" {
+		b.WriteString(brief)
+		b.WriteString("\n\n")
 	}
 
 	b.WriteString("Under 90 words. Refer to at least one specific thing — from the list " +

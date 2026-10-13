@@ -41,6 +41,8 @@
                 <button type="button" class="hint" data-hint="checkins"></button>
                 <button id="beast-now" type="button" class="sit-chip beast-now" title="The generals stop being polite: orders on a clock, and one of them swears at you.">Beast mode</button>
                 <button type="button" class="hint" data-hint="beast"></button>
+                <button id="redteam-now" type="button" class="sit-chip red-team-now" title="One general takes command of the opposition on your map and attacks your plan.">Red team</button>
+                <button type="button" class="hint" data-hint="redteam"></button>
                 <span class="mode-chip-wrap">
                     <button id="mode-chip" type="button" class="mode-chip" aria-haspopup="listbox" aria-expanded="false">
                         <span id="mode-chip-label">Open</span>
@@ -72,6 +74,14 @@
                 <span class="interrogation-bar-actions">
                     <button id="take-position" type="button" class="btn-secondary take-position" title="End the questioning and write the position it earned">Take a position</button>
                     <button id="leave-interrogation" type="button" class="btn-secondary" title="Back to ordinary advice">Leave</button>
+                </span>
+            </div>
+            <div id="redteam-bar" class="redteam-bar" hidden>
+                <span class="redteam-bar-label">Red team</span>
+                <span id="redteam-who" class="redteam-who">The opposition has a commander</span>
+                <button type="button" class="hint" data-hint="redteam"></button>
+                <span class="redteam-bar-actions">
+                    <button id="leave-redteam" type="button" class="btn-secondary" title="Back to ordinary advice">Leave</button>
                 </span>
             </div>
             <div id="beast-bar" class="beast-bar" hidden>

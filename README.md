@@ -10,8 +10,10 @@ written about your own work gives better advice than one that has not.
 > **Status:** early but usable. Retrieval, chat with depth tiers, the generals
 > roster, conversation modes, interrogation, beast mode, open loops, check-ins, the journal
 > watcher and the relocation planner all work today, and v2, **the Campaign**,
-> has begun: objectives, opposition and fog of war, proposed from what you
-> write. The map itself is next. See [the roadmap](#roadmap).
+> is under way: objectives, opposition and fog of war proposed from what you
+> write, drawn as a theatre map, and now read by the staff — the generals
+> appraise the map, check-ins are sitreps, and a red team attacks your plan.
+> Logistics is next. See [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -111,7 +113,9 @@ kill list.
 
 Fifteen modes across four families — plan, decide, unblock, review — plus **Open**,
 which imposes nothing, because not every question should be forced into a
-framework.
+framework. Four more are never detected and only ever entered on purpose:
+**Interrogation**, **Beast mode**, and the two staff modes, **Staff appraisal**
+and **Red team**.
 
 The detected mode shows in a chip above the conversation along with why it was
 picked, and you can pin one. A conversation stays in its mode unless you clearly
@@ -142,6 +146,11 @@ Turn on check-ins and the room starts the conversation:
 - **Morning** helps decide what today is for, **midday** checks you are on what
   you meant to be on, **evening** asks what closed. Each names something specific
   — an overdue commitment, a note from yesterday — and ends with one question.
+- With a campaign map they become **sitreps**, drawn from map state: **morning
+  orders** name today's point of main effort and the order that serves it, the
+  **midday contact report** says which orders are in contact and whether you are
+  on them, and **evening gains and losses** reports what moved on the map today
+  and what did not. With no map, a check-in is what it always was.
 - **Quiet for a while** fires when you have written nothing for six hours during
   the day, and names what was due.
 - **Gone quiet** fires once when something goes stale, asking whether you still
@@ -187,6 +196,36 @@ An ordinary turn costs one background model call, and only when what you wrote
 sounds like a goal, a blocker or an open question; a free prefilter skips the
 rest. If you never open the page, the room answers exactly as before. Details in
 [docs/campaign.md](docs/campaign.md).
+
+### The staff
+
+Once there is a map, the generals read it with you. Every answer carries the
+map in its context — the fronts, what sits on them, what moved in the last day,
+and what the arithmetic says — so an answer about this week's work is written by
+lenses that can see ◆ *Ship v2* is overdue and ▲ *No tests* is a fortress with
+nothing aimed at it. No model call is spent on this; it is one database read.
+
+- **Readings** are what the numbers say on their own: an objective past its
+  date, a front overextended (orders open, nothing moved) or gone quiet, a
+  fortress with nothing aimed at it, fog nobody has scouted, strengths still
+  estimated, the objective closest to taken. They refresh on every load of the
+  campaign page.
+- **Ask the staff** has the generals appraise the map: one point of main effort,
+  where to yield ground, what is overextended, which fog to lift first, and two
+  or three orders. Standard seats two generals in one call; Deep convenes three
+  as a council, each reading the map alone. The appraisal is kept with its date,
+  and **Discuss** opens it as a conversation with the generals who wrote it
+  seated.
+- **Red team**: one general takes command of the opposition on your map and
+  attacks your plan — how each position holds, where the plan breaks, which fog
+  it exploits, what it concedes, and what it would take to beat it. Open it from
+  an objective or a front on the campaign page, from the briefing bar, or from
+  the mode menu. The attacks it names arrive in Intel as proposed opposition and
+  the fog it exploits as proposed unknowns, with no extra model call.
+
+Withdrawal is a legitimate order, and the staff will recommend it when it is the
+right one. Set `CAMPAIGN_STAFF_ENABLED=false` to keep the map out of ordinary
+answers; the readings, the appraisal and the red team still work.
 
 ## Generals
 
@@ -270,6 +309,7 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `CHECKIN_TZ` | *(machine's)* | e.g. `Asia/Almaty` |
 | `COMMITMENT_EXTRACTION_ENABLED` | `true` | propose open loops from what you write |
 | `CAMPAIGN_EXTRACTION_ENABLED` | `true` | propose objectives, obstacles and unknowns from what you write |
+| `CAMPAIGN_STAFF_ENABLED` | `true` | read the campaign map into every answer, so the generals appraise the map and not just the question |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -312,6 +352,10 @@ server never imports a domain package.
 | `POST` | `/api/campaign/items/{id}/lift` | lift fog with what you found |
 | `POST` | `/api/campaign/items/{id}/recon` | send a recon order against an unknown |
 | `PUT` | `/api/campaign/orders/{id}/target` | aim an open loop at an item |
+| `GET` | `/api/campaign/map.svg?day=` | the theatre map, today's or a past day's; `/theatre` is the same as JSON, `/timelapse` the days on record |
+| `GET` | `/api/campaign/sitrep` | the map as the staff reads it: lines, orders by name, what moved, the readings |
+| `GET` `POST` | `/api/campaign/appraisals` | what the staff said, latest first; ask for a new one with `{"front_id", "tier"}` |
+| `POST` | `/api/campaign/appraisals/{id}/open` | discuss — opens the conversation |
 | `GET` | `/api/checkins/unseen` | waiting check-ins |
 | `POST` | `/api/checkins/now` | check in now |
 | `POST` | `/api/checkins/{id}/open` | reply — opens the conversation |
@@ -407,7 +451,7 @@ campaign keeps the rules v1 already follows:
 - [x] **v2.2 The theatre map** — server-rendered SVG of fronts, objectives and the
   opposition, with a front line that moves as loops close; a daily snapshot and a
   timelapse of the campaign so far
-- [ ] **v2.3 The staff** — generals appraise the map, not just the question: where
+- [x] **v2.3 The staff** — generals appraise the map, not just the question: where
   the point of main effort is, where to yield ground, what is overextended.
   Check-ins become sitreps drawn from map state. **Red team**: one general takes
   command of the opposition and attacks your plan

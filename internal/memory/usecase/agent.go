@@ -57,7 +57,7 @@ func (a *AgentConsult) Execute(ctx context.Context, plan ConsultPlan, prefetch [
 	collected := append([]domain.MemoryEntry(nil), prefetch...)
 	messages := buildConsultMessages(
 		buildSystemPrompt(agentSystemPrompt, plan),
-		aboutMe, plan.History,
+		aboutMe, plan.Situation, plan.History,
 		formatContext(prefetch, plan.Tier.MaxBodyRunes),
 		plan.Question,
 	)
@@ -111,7 +111,7 @@ func (a *AgentConsult) fallbackAnswer(
 ) (ConsultResult, error) {
 	finalMessages := buildConsultMessages(
 		buildSystemPrompt(systemPrompt, plan),
-		aboutMe, plan.History,
+		aboutMe, plan.Situation, plan.History,
 		formatContext(collected, plan.Tier.MaxBodyRunes),
 		plan.Question,
 	)

@@ -43,3 +43,12 @@ type SnapshotRepository interface {
 	// ListSnapshots returns the most recent snapshots, oldest first.
 	ListSnapshots(ctx context.Context, limit int) ([]domain.Snapshot, error)
 }
+
+// AppraisalRepository keeps what the staff said, with the date it said it.
+type AppraisalRepository interface {
+	CreateAppraisal(ctx context.Context, a domain.Appraisal) (domain.Appraisal, error)
+	GetAppraisal(ctx context.Context, id uuid.UUID) (domain.Appraisal, error)
+	// ListAppraisals returns the latest first.
+	ListAppraisals(ctx context.Context, limit int) ([]domain.Appraisal, error)
+	AttachAppraisalSession(ctx context.Context, id, sessionID uuid.UUID) error
+}

@@ -103,6 +103,89 @@ the day's map. A ticker rather than a midnight job, because a laptop asleep at
 midnight would skip the day. Days follow `CHECKIN_TZ`. The timelapse on the
 campaign page plays the record oldest first and ends on the live map.
 
+## The staff
+
+The generals read the map, not just the question. Everything they read is
+one deterministic reading, the **sitrep**, taken from the live map and
+yesterday's snapshot with no model in the loop:
+
+- every front with its line, and where the line stood on the last snapshot
+  before today;
+- every objective with what stands in front of it and the orders aimed at
+  each, by name, with what is due today or overdue; fog marked as scouted
+  when a recon order is out against it;
+- what moved in the last twenty-four hours: objectives taken, opposition
+  cleared, fog lifted, objectives withdrawn, orders carried out, and the
+  front lines that moved;
+- the **readings**: what the arithmetic says on its own.
+
+| Reading | Means |
+|---|---|
+| overdue | an active objective past its date |
+| overextended | four or more orders open on a front and its line has not moved since the last snapshot |
+| quiet | a front with live positions, no open orders, and a line that has not moved |
+| fortress | a strength-3 obstacle with nothing aimed at it: go around, or commit |
+| unwanted | opposition typed *not really wanted*: a case for withdrawing the objective behind it |
+| unscouted | fog with no reconnaissance sent against it |
+| estimated | how many enemy strengths nobody has confirmed |
+| closest | the live objective with the most ground held |
+
+`GET /api/campaign/sitrep` serves it, and the campaign page shows the
+readings in a strip under the map on every load.
+
+**Into every answer.** The sitrep is rendered as a short brief and placed in
+the context of every answer, between *about me* and the retrieved memories,
+through the memory module's `SituationReader` port. The generals therefore
+argue with the map in front of them: an answer about this week can say that
+◆ *Ship v2* is overdue, that ▲ *No tests* is a fortress nobody has aimed at,
+that the Health front has gone quiet. It costs one database read and no
+model call, and an empty map adds nothing, so the room answers as it did
+before there was a map. `CAMPAIGN_STAFF_ENABLED=false` turns it off. Plain
+check-ins carry their own reading instead (below), and the brief is capped
+at four thousand characters so a large map is summarised, not dumped.
+
+**The appraisal.** *Ask the staff* on the campaign page runs the `staff`
+mode: a question that names the objectives in play, answered with the map in
+context, in a fixed shape — the situation, one point of main effort, where to
+yield ground, what is overextended, which fog to lift first, and two or
+three orders with a direction, a time and a fallback. The mode seats Manstein
+(concentration), Kutuzov (preservation) and Vasilevsky (several fronts at
+once), so there is a real fork in it: one lens that concentrates, one that
+yields. Standard is two generals in one call; Deep is a council of three,
+each reading the map alone before the exchange is written. The result is
+stored with its date, generals and depth; the page shows the latest and keeps
+the earlier ones. *Discuss* opens it as a conversation, lazily and once, with
+the generals who wrote it seated, so arguing back is arguing with them. One
+front can be appraised alone from its header. A second request while one is
+being written is refused rather than spending a second set of calls.
+
+**Sitreps.** With a map, check-ins are drawn from it. The morning one is
+*Morning orders*: today's point of main effort and the order that serves it.
+Midday is the *Contact report*: which orders are in contact (due today or
+overdue) and whether you are on them. Evening is *Gains and losses*: what
+moved on the map today and what did not. Each is still one quick, plain
+model call; the sitrep travels in the question. With no map, a check-in is
+exactly what it was.
+
+**Red team.** The `red_team` mode hands one general command of the
+opposition: the positions marked ▲ are its units, the fog ? its cover, and
+each kind of stuck holds the way it holds — *waiting* by your not chasing
+the input, *fear* by your not looking, *too big* by never being cut down,
+*not really wanted* because you do not want to win. It writes who commands,
+how each position holds, three attacks with the early sign you will see when
+each is working, the fog it exploits, what it concedes, and what it would
+take to beat it. Seat a general to choose who commands; otherwise Manstein,
+the operator who wins from a weak position, takes it. Open it from an
+objective or a front on the campaign page, from the briefing bar, or from
+the mode menu.
+
+A red team turn also costs nothing extra on the map: the attacks are read
+out of the answer as proposed opposition, typed by the kind of stuck the red
+team gave them, estimated as dug in, and aimed at the objective they share
+the most words with; the questions under *Your fog, my cover* become proposed
+unknowns. Both carry the `red_team` source, so Intel says they are the
+enemy's estimate.
+
 ## Data
 
 `migrations/008_campaign.sql`: `fronts`, one `campaign_items` table for all
@@ -114,4 +197,8 @@ orders themselves stay.
 day holding the laid-out map as JSON, so a past day is drawn by the same
 renderer as today's.
 
-Not yet: the staff reading the map (v2.3) and supply per front (v2.4).
+`migrations/011_staff.sql`: `campaign_appraisals`, what the staff said and
+when, with the conversation it was opened into; and `red_team` as a source
+for the opposition and fog the red team proposes.
+
+Not yet: supply per front (v2.4).

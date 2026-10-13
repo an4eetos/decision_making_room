@@ -18,6 +18,10 @@ const (
 	// FamilyBeast is the crisis gear: the generals shout, swear and put timers
 	// on orders. Entered on purpose, never detected.
 	FamilyBeast Family = "beast"
+	// FamilyStaff is the generals reading the campaign map rather than a
+	// question: the staff appraisal, and the red team that attacks the plan
+	// from the opposition's side. Entered on purpose, never detected.
+	FamilyStaff Family = "staff"
 )
 
 // Mode is one conversation shape.
@@ -48,6 +52,11 @@ type Mode struct {
 	// Shouters ranks the generals who may take the profane voice in beast mode,
 	// most aggressive first. The first one seated shouts; the rest stay clipped.
 	Shouters []string `yaml:"shouters"`
+
+	// RedTeam hands the one seated general command of the opposition on the
+	// map: it attacks the plan instead of advising on it. One general by
+	// definition, so the mode caps lenses at one.
+	RedTeam bool `yaml:"red_team"`
 
 	// SystemPrompt and OutputPrompt come from the "## System" and "## Output"
 	// sections of the body. ConcludePrompt comes from "## Position" and replaces
@@ -102,6 +111,13 @@ func (m Mode) IsInterrogation() bool { return m.Family == FamilyInterrogate }
 
 // IsBeast reports the crisis mode: profane generals and timed orders.
 func (m Mode) IsBeast() bool { return m.Family == FamilyBeast }
+
+// IsStaff reports a mode where the generals read the map rather than a
+// question: an appraisal, or a red team.
+func (m Mode) IsStaff() bool { return m.Family == FamilyStaff }
+
+// IsRedTeam reports a mode where one general commands the opposition.
+func (m Mode) IsRedTeam() bool { return m.RedTeam }
 
 type Registry struct {
 	Modes []Mode

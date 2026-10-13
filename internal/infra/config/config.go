@@ -77,6 +77,10 @@ type Config struct {
 	// you write. Like open loops, a qualifying turn costs one background model
 	// call behind a free prefilter; interrogation turns cost none.
 	CampaignExtraction bool
+	// CampaignStaff reads the campaign map into every answer, so the generals
+	// appraise the map and not just the question. One database read per
+	// answer, no model call; off, the room answers as it did before the map.
+	CampaignStaff bool
 
 	// Check-ins are off by default: a tool that starts messaging you unasked
 	// is one people uninstall. Slots are "name@HH:MM" pairs.
@@ -151,6 +155,7 @@ func Load() (Config, error) {
 		ModesDir:               os.Getenv("MODES_DIR"),
 		CommitmentExtraction:   envBoolOrDefault("COMMITMENT_EXTRACTION_ENABLED", true),
 		CampaignExtraction:     envBoolOrDefault("CAMPAIGN_EXTRACTION_ENABLED", true),
+		CampaignStaff:          envBoolOrDefault("CAMPAIGN_STAFF_ENABLED", true),
 		CheckinEnabled:         envBoolOrDefault("CHECKIN_ENABLED", false),
 		CheckinSlots:           envOrDefault("CHECKIN_SLOTS", "morning@08:00,midday@13:00,evening@21:00"),
 		CheckinTimezone:        os.Getenv("CHECKIN_TZ"),

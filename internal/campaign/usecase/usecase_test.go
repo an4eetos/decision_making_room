@@ -347,3 +347,76 @@ func TestProbeAimsAtTheObstacleItAttacks(t *testing.T) {
 		t.Fatalf("the probe should be an order aimed at the bank obstacle: %+v", all)
 	}
 }
+
+// A red team turn costs no model call: its attacks arrive as proposed
+// opposition, typed and aimed, and the fog it exploits as proposed unknowns.
+func TestRedTeamAttacksBecomeProposedOpposition(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	repo, orders := newMemRepo(), newMemOrders()
+	manage := NewManage(repo, comusecase.NewManage(orders))
+	work, _ := manage.CreateFront(ctx, "Work")
+	ship, _ := manage.CreateItem(ctx, CreateInput{Type: domain.TypeObjective, Text: "Ship the beta", FrontID: &work.ID})
+	_, _ = manage.CreateItem(ctx, CreateInput{Type: domain.TypeObjective, Text: "Run a marathon", FrontID: &work.ID})
+
+	extract := NewExtract(nil, repo, comusecase.NewManage(orders), true)
+	turn := memport.Turn{SessionID: uuid.New(), MessageID: uuid.New(), ModeID: "red_team", AssistantText: `**Where the plan breaks**
+- Your beta has no date, so I wait and let the announcement rot as a draft; the sign is a second week without one (undefined)
+- Your marathon training is at the mercy of the weather you never plan around (too_big)
+
+**Your fog, my cover**
+- Does anyone outside the team want the beta? You would find out with one email.
+`}
+	if err := extract.FromRedTeam(ctx, turn); err != nil {
+		t.Fatal(err)
+	}
+
+	proposals, _ := manage.Proposals(ctx)
+	if len(proposals) != 3 {
+		t.Fatalf("two attacks and one unknown proposed, got %+v", proposals)
+	}
+	var beta, runs, fog domain.Item
+	for _, p := range proposals {
+		switch {
+		case strings.HasPrefix(p.Text, "Your beta"):
+			beta = p
+		case strings.HasPrefix(p.Text, "Your marathon"):
+			runs = p
+		case strings.HasSuffix(p.Text, "?"):
+			fog = p
+		}
+	}
+	if beta.Type != domain.TypeObstacle || beta.Kind != domain.KindUndefined || beta.Strength != domain.StrengthDugIn || beta.StrengthConfirmed {
+		t.Fatalf("an attack is dug-in opposition, estimated: %+v", beta)
+	}
+	if beta.Source != domain.SourceRedTeam || beta.ObjectiveID == nil || *beta.ObjectiveID != ship.ID || beta.FrontID == nil || *beta.FrontID != work.ID {
+		t.Fatalf("aimed at the objective it names, on its front, from the red team: %+v", beta)
+	}
+	if runs.ObjectiveID == nil || *runs.ObjectiveID == ship.ID {
+		t.Fatalf("the second attack hits the marathon: %+v", runs)
+	}
+	if fog.Type != domain.TypeUnknown || fog.Text != "Does anyone outside the team want the beta?" || fog.ObjectiveID == nil || *fog.ObjectiveID != ship.ID {
+		t.Fatalf("cover becomes fog on the objective it names: %+v", fog)
+	}
+
+	// The same turn again proposes nothing twice.
+	if err := extract.FromRedTeam(ctx, turn); err != nil {
+		t.Fatal(err)
+	}
+	if again, _ := manage.Proposals(ctx); len(again) != 3 {
+		t.Fatalf("duplicates are one row: %d", len(again))
+	}
+
+	// ObserveTurn routes a red team turn here without a model, even with none wired.
+	extract.ObserveTurn(memport.Turn{SessionID: uuid.New(), MessageID: uuid.New(), ModeID: "red_team", AssistantText: "**Your fog, my cover**\n- Who signs off?"})
+	deadline := time.Now().Add(2 * time.Second)
+	for {
+		if repo.byText("Who signs off?").ID != uuid.Nil {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("the observed red team turn should have proposed its fog")
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+}

@@ -249,3 +249,65 @@ func TestSnapshotsRoundTrip(t *testing.T) {
 		t.Fatalf("limited list: %+v", recent)
 	}
 }
+
+func TestAppraisalsRoundTrip(t *testing.T) {
+	pool := startPostgres(t)
+	ctx := context.Background()
+	repo := postgres.NewRepository(pool)
+
+	if _, err := repo.GetAppraisal(ctx, uuid.New()); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("an unknown appraisal is not found: %v", err)
+	}
+	if _, err := repo.CreateAppraisal(ctx, domain.Appraisal{Body: "  "}); err == nil {
+		t.Fatal("an empty appraisal is refused by the schema")
+	}
+
+	front, err := repo.CreateFront(ctx, "Work")
+	if err != nil {
+		t.Fatal(err)
+	}
+	whole, err := repo.CreateAppraisal(ctx, domain.Appraisal{Tier: "standard", Generals: []string{"kutuzov", "manstein"}, Body: "**Point of main effort**\nShip."})
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if whole.FrontID != nil || len(whole.Generals) != 2 || whole.CreatedAt.IsZero() {
+		t.Fatalf("appraisal did not round-trip: %+v", whole)
+	}
+	onFront, err := repo.CreateAppraisal(ctx, domain.Appraisal{FrontID: &front.ID, Tier: "deep", Body: "Hold."})
+	if err != nil {
+		t.Fatalf("create on a front: %v", err)
+	}
+	if onFront.FrontID == nil || *onFront.FrontID != front.ID || len(onFront.Generals) != 0 {
+		t.Fatalf("front appraisal: %+v", onFront)
+	}
+
+	list, err := repo.ListAppraisals(ctx, 10)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(list) != 2 || list[0].ID != onFront.ID {
+		t.Fatalf("latest first: %+v", list)
+	}
+	if one, _ := repo.ListAppraisals(ctx, 1); len(one) != 1 {
+		t.Fatalf("limit: %+v", one)
+	}
+
+	session := uuid.New()
+	if err := repo.AttachAppraisalSession(ctx, whole.ID, session); err == nil {
+		t.Fatal("a session that does not exist is refused by the foreign key")
+	}
+	if err := repo.AttachAppraisalSession(ctx, uuid.New(), session); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("attaching to an unknown appraisal: %v", err)
+	}
+	var created uuid.UUID
+	if err := pool.QueryRow(ctx, `INSERT INTO chat_sessions (title) VALUES ('Staff appraisal') RETURNING id`).Scan(&created); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.AttachAppraisalSession(ctx, whole.ID, created); err != nil {
+		t.Fatalf("attach: %v", err)
+	}
+	got, _ := repo.GetAppraisal(ctx, whole.ID)
+	if got.SessionID == nil || *got.SessionID != created {
+		t.Fatalf("the session should be attached: %+v", got)
+	}
+}
