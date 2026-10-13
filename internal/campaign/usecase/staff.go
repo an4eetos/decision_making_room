@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +19,11 @@ import (
 // staffModeID is the shipped staff appraisal mode: the generals read the map
 // rather than a question.
 const staffModeID = "staff"
+
+// appraisalTimeout bounds a background appraisal. The consult bounds itself
+// by tier (four minutes standard, eight deep); this is the backstop above
+// that, so a provider that hangs cannot hold the staff busy for good.
+const appraisalTimeout = 10 * time.Minute
 
 // What the staff needs, as interfaces, so an appraisal can be tested without
 // a model and a retrieval stack behind it.
@@ -41,6 +48,13 @@ var ErrStaffBusy = errors.New("the staff is already appraising the map; give it 
 // main effort is, where to yield ground, what is overextended. It is the one
 // place the campaign calls the model because you asked, rather than in the
 // background after a turn.
+//
+// An appraisal runs in the background, on its own context, like extraction
+// does: a standard one is one call bounded at four minutes, a deep one a
+// council bounded at eight, and a request held open that long with nothing
+// on the wire is one a browser or a proxy may drop. So Start returns at
+// once, the page polls Status, and an appraisal you asked for and walked
+// away from is still there when you come back.
 type Staff struct {
 	sitreps *Sitreps
 	manage  *Manage
@@ -49,6 +63,19 @@ type Staff struct {
 	chat    SessionStarter
 	busy    chan struct{}
 	now     func() time.Time
+
+	mu    sync.Mutex
+	state StaffStatus
+}
+
+// StaffStatus is what the page polls: whether an appraisal is being written,
+// since when, and how the last one ended if it failed.
+type StaffStatus struct {
+	Busy  bool      `json:"busy"`
+	Since time.Time `json:"since,omitempty"`
+	// Error is the last failure, kept until the next appraisal starts, so
+	// a page that was not watching still sees why nothing new arrived.
+	Error string `json:"error,omitempty"`
 }
 
 func NewStaff(sitreps *Sitreps, manage *Manage, repo port.AppraisalRepository, consult Answerer, chat SessionStarter) *Staff {
@@ -70,9 +97,52 @@ type AppraiseInput struct {
 // becoming the map itself; the map travels in the context.
 const maxAppraisalObjectives = 12
 
-// Appraise has the generals read the map and stores what they said. The
-// sitrep goes into the context through the same reader every answer uses;
-// the question names the objectives so retrieval finds the notes behind them.
+// Start checks the request against the map and starts the appraisal in the
+// background. It returns at once: ErrStaffBusy if one is already being
+// written, ErrNothingToAppraise on an empty map or front, and nil once the
+// staff is at work. The result lands in the store; Status says how it went.
+func (s *Staff) Start(ctx context.Context, in AppraiseInput) error {
+	select {
+	case s.busy <- struct{}{}:
+	default:
+		return ErrStaffBusy
+	}
+
+	sitrep, front, err := s.prepare(ctx, in)
+	if err != nil {
+		<-s.busy
+		return err
+	}
+
+	s.mu.Lock()
+	s.state = StaffStatus{Busy: true, Since: s.now()}
+	s.mu.Unlock()
+
+	go func() {
+		defer func() { <-s.busy }()
+		bg, cancel := context.WithTimeout(context.Background(), appraisalTimeout)
+		defer cancel()
+		_, err := s.appraise(bg, in, sitrep, front)
+		s.mu.Lock()
+		s.state = StaffStatus{}
+		if err != nil {
+			log.Printf("campaign: staff appraisal: %v", err)
+			s.state.Error = err.Error()
+		}
+		s.mu.Unlock()
+	}()
+	return nil
+}
+
+// Status reports whether the staff is at work, and the last failure if any.
+func (s *Staff) Status() StaffStatus {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.state
+}
+
+// Appraise runs an appraisal and waits for it. The page goes through Start;
+// this is for callers that want the result in hand, and for tests.
 func (s *Staff) Appraise(ctx context.Context, in AppraiseInput) (domain.Appraisal, error) {
 	select {
 	case s.busy <- struct{}{}:
@@ -81,29 +151,42 @@ func (s *Staff) Appraise(ctx context.Context, in AppraiseInput) (domain.Appraisa
 	}
 	defer func() { <-s.busy }()
 
-	sitrep, err := s.sitreps.Sitrep(ctx)
+	sitrep, front, err := s.prepare(ctx, in)
 	if err != nil {
 		return domain.Appraisal{}, err
 	}
+	return s.appraise(ctx, in, sitrep, front)
+}
+
+// prepare reads the map and checks there is something to appraise, before
+// any model call is spent.
+func (s *Staff) prepare(ctx context.Context, in AppraiseInput) (domain.Sitrep, *domain.SitrepFront, error) {
+	sitrep, err := s.sitreps.Sitrep(ctx)
+	if err != nil {
+		return domain.Sitrep{}, nil, err
+	}
 	if sitrep.Empty {
-		return domain.Appraisal{}, ErrNothingToAppraise
+		return domain.Sitrep{}, nil, ErrNothingToAppraise
 	}
-
-	var front *domain.SitrepFront
-	if in.FrontID != nil {
-		for i := range sitrep.Fronts {
-			if sitrep.Fronts[i].ID == *in.FrontID {
-				front = &sitrep.Fronts[i]
+	if in.FrontID == nil {
+		return sitrep, nil, nil
+	}
+	for i := range sitrep.Fronts {
+		if sitrep.Fronts[i].ID == *in.FrontID {
+			front := &sitrep.Fronts[i]
+			if len(front.Objectives) == 0 && len(front.Loose) == 0 {
+				return domain.Sitrep{}, nil, ErrNothingToAppraise
 			}
-		}
-		if front == nil {
-			return domain.Appraisal{}, fmt.Errorf("front: %w", port.ErrNotFound)
-		}
-		if len(front.Objectives) == 0 && len(front.Loose) == 0 {
-			return domain.Appraisal{}, ErrNothingToAppraise
+			return sitrep, front, nil
 		}
 	}
+	return domain.Sitrep{}, nil, fmt.Errorf("front: %w", port.ErrNotFound)
+}
 
+// appraise has the generals read the map and stores what they said. The
+// sitrep goes into the context through the same reader every answer uses;
+// the question names the objectives so retrieval finds the notes behind them.
+func (s *Staff) appraise(ctx context.Context, in AppraiseInput, sitrep domain.Sitrep, front *domain.SitrepFront) (domain.Appraisal, error) {
 	tier := strings.TrimSpace(in.Tier)
 	if tier == "" {
 		tier = "standard"

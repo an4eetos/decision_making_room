@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/an4eetos/decision-room/internal/campaign/domain"
+	"github.com/an4eetos/decision-room/internal/campaign/port"
 	"github.com/an4eetos/decision-room/internal/campaign/service"
 )
 
@@ -67,21 +68,19 @@ func (s *Sitreps) Situation(ctx context.Context) (string, error) {
 }
 
 // LastBefore returns the latest snapshot taken before a YYYY-MM-DD day, or nil
-// when there is none: yesterday's map, usually.
+// when there is none: yesterday's map, usually. One row: it is read on every
+// answer and every check-in, so it must not load the whole record the way
+// the timelapse does.
 func (s *Snapshots) LastBefore(ctx context.Context, day string) (*domain.Theatre, error) {
 	if _, err := time.Parse("2006-01-02", day); err != nil {
 		return nil, errors.New("day must be YYYY-MM-DD")
 	}
-	snaps, err := s.repo.ListSnapshots(ctx, maxTimelapseDays)
+	snap, err := s.repo.GetSnapshotBefore(ctx, day)
+	if errors.Is(err, port.ErrNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
-	var last *domain.Theatre
-	for i := range snaps {
-		if snaps[i].Day >= day {
-			break
-		}
-		last = &snaps[i].Theatre
-	}
-	return last, nil
+	return &snap.Theatre, nil
 }

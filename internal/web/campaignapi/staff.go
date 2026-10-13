@@ -63,11 +63,14 @@ func (h *Handler) appraisals(w http.ResponseWriter, r *http.Request) {
 	for _, a := range list {
 		out = append(out, toAppraisal(a))
 	}
-	writeJSON(w, http.StatusOK, map[string]any{"items": out})
+	writeJSON(w, http.StatusOK, map[string]any{"items": out, "status": h.staff.Status()})
 }
 
-// appraise asks the staff to read the map now. It costs model calls at the
-// asked depth and waits for them, so the page calls it with a long timeout.
+// appraise asks the staff to read the map. The appraisal runs in the
+// background and this returns 202 at once; the page polls the list, whose
+// status says when the staff is done or why it failed. A request held open
+// for a council's eight minutes with nothing on the wire would be one a
+// browser could drop, and an appraisal lost with it.
 func (h *Handler) appraise(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		FrontID string `json:"front_id"`
@@ -82,19 +85,16 @@ func (h *Handler) appraise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a, err := h.staff.Appraise(r.Context(), usecase.AppraiseInput{FrontID: front, Tier: req.Tier})
+	err = h.staff.Start(r.Context(), usecase.AppraiseInput{FrontID: front, Tier: req.Tier})
 	switch {
-	case errors.Is(err, usecase.ErrStaffBusy):
-		httpError(w, http.StatusConflict, err.Error())
-		return
-	case errors.Is(err, usecase.ErrNothingToAppraise):
+	case errors.Is(err, usecase.ErrStaffBusy), errors.Is(err, usecase.ErrNothingToAppraise):
 		httpError(w, http.StatusConflict, err.Error())
 		return
 	case err != nil:
 		respond(w, err)
 		return
 	}
-	writeJSON(w, http.StatusCreated, toAppraisal(a))
+	writeJSON(w, http.StatusAccepted, map[string]any{"status": h.staff.Status()})
 }
 
 // openAppraisal turns an appraisal into a conversation, once.

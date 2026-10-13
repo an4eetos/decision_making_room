@@ -236,3 +236,75 @@ func TestOpenSeatsTheGeneralsOnceAndOnlyWhenAsked(t *testing.T) {
 		t.Fatalf("unknown appraisal: %v", err)
 	}
 }
+
+// The page asks and comes straight back; the appraisal lands in the store
+// on its own time and Status says how it went.
+func TestStartAppraisesInTheBackground(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	staff, manage, ans, _ := staffSetup(t)
+
+	if err := staff.Start(ctx, AppraiseInput{}); !errors.Is(err, ErrNothingToAppraise) {
+		t.Fatalf("an empty map is refused before anything starts: %v", err)
+	}
+	if staff.Status().Busy {
+		t.Fatal("a refused start leaves the staff free")
+	}
+
+	work, _ := manage.CreateFront(ctx, "Work")
+	_, _ = manage.CreateItem(ctx, CreateInput{Type: domain.TypeObjective, Text: "Ship v2", FrontID: &work.ID})
+
+	ans.block = make(chan struct{})
+	if err := staff.Start(ctx, AppraiseInput{Tier: "deep"}); err != nil {
+		t.Fatal(err)
+	}
+	status := staff.Status()
+	if !status.Busy || status.Since.IsZero() {
+		t.Fatalf("started: %+v", status)
+	}
+	if err := staff.Start(ctx, AppraiseInput{}); !errors.Is(err, ErrStaffBusy) {
+		t.Fatalf("a second start while one runs is refused: %v", err)
+	}
+	if _, err := staff.Appraise(ctx, AppraiseInput{}); !errors.Is(err, ErrStaffBusy) {
+		t.Fatalf("so is a synchronous one: %v", err)
+	}
+
+	close(ans.block)
+	waitFree := func() StaffStatus {
+		deadline := time.Now().Add(2 * time.Second)
+		for {
+			if s := staff.Status(); !s.Busy {
+				return s
+			}
+			if time.Now().After(deadline) {
+				t.Fatal("the appraisal never finished")
+			}
+			time.Sleep(5 * time.Millisecond)
+		}
+	}
+	if s := waitFree(); s.Error != "" {
+		t.Fatalf("a finished appraisal reports no error: %+v", s)
+	}
+	list, _ := staff.Appraisals(ctx, 10)
+	if len(list) != 1 || list[0].Tier != "standard" || ans.last.Tier != "deep" {
+		t.Fatalf("stored at the depth asked: %+v / %+v", list, ans.last)
+	}
+
+	// A failure is kept on the status until the next start, so a page that
+	// was not watching still learns why nothing arrived.
+	ans.err = errors.New("model overloaded")
+	if err := staff.Start(ctx, AppraiseInput{}); err != nil {
+		t.Fatal(err)
+	}
+	if s := waitFree(); !strings.Contains(s.Error, "model overloaded") {
+		t.Fatalf("the failure should be reported: %+v", s)
+	}
+	ans.err = nil
+	if err := staff.Start(ctx, AppraiseInput{}); err != nil {
+		t.Fatal(err)
+	}
+	if s := staff.Status(); s.Error != "" {
+		t.Fatalf("a new start clears the old failure: %+v", s)
+	}
+	waitFree()
+}

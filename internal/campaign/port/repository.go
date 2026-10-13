@@ -40,6 +40,10 @@ type SnapshotRepository interface {
 	SaveSnapshot(ctx context.Context, s domain.Snapshot) error
 	// GetSnapshot returns the snapshot for a YYYY-MM-DD day.
 	GetSnapshot(ctx context.Context, day string) (domain.Snapshot, error)
+	// GetSnapshotBefore returns the latest snapshot taken before a YYYY-MM-DD
+	// day: yesterday's map, usually. One row, because it is read on every
+	// answer. ErrNotFound when there is none.
+	GetSnapshotBefore(ctx context.Context, day string) (domain.Snapshot, error)
 	// ListSnapshots returns the most recent snapshots, oldest first.
 	ListSnapshots(ctx context.Context, limit int) ([]domain.Snapshot, error)
 }

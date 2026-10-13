@@ -248,6 +248,18 @@ func TestSnapshotsRoundTrip(t *testing.T) {
 	if len(recent) != 2 || recent[0].Day != "2026-01-02" || recent[1].Day != "2026-01-03" {
 		t.Fatalf("limited list: %+v", recent)
 	}
+
+	// The sitrep's one-row read: the latest day strictly before the one asked.
+	before, err := repo.GetSnapshotBefore(ctx, "2026-01-03")
+	if err != nil || before.Day != "2026-01-02" || before.Theatre.Fronts[0].Line != 0.75 {
+		t.Fatalf("snapshot before: %+v %v", before, err)
+	}
+	if _, err := repo.GetSnapshotBefore(ctx, "2026-01-01"); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("nothing before the first day: %v", err)
+	}
+	if _, err := repo.GetSnapshotBefore(ctx, "yesterday"); err == nil {
+		t.Fatal("a bad day is refused")
+	}
 }
 
 func TestAppraisalsRoundTrip(t *testing.T) {

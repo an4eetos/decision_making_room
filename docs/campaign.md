@@ -156,8 +156,14 @@ each reading the map alone before the exchange is written. The result is
 stored with its date, generals and depth; the page shows the latest and keeps
 the earlier ones. *Discuss* opens it as a conversation, lazily and once, with
 the generals who wrote it seated, so arguing back is arguing with them. One
-front can be appraised alone from its header. A second request while one is
-being written is refused rather than spending a second set of calls.
+front can be appraised alone from its header. The appraisal runs in the
+background on the server, bounded by its tier's deadline and a ten-minute
+backstop: the request returns at once and the page polls until the staff
+reports back, so a council's eight minutes are never a single request held
+open with nothing on the wire, and an appraisal you asked for and walked
+away from is still there when you come back. A second request while one is
+being written is refused rather than spending a second set of calls, and a
+failed one is reported on the page until the next starts.
 
 **Sitreps.** With a map, check-ins are drawn from it. The morning one is
 *Morning orders*: today's point of main effort and the order that serves it.

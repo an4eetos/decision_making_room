@@ -616,9 +616,10 @@ function setupCampaignPage() {
         advanced: "Closest",
     };
 
-    // How long to wait for an appraisal. A standard one is one call bounded
-    // at four minutes; a deep one convenes a council bounded at eight.
-    const APPRAISAL_TIMEOUT = { standard: 250000, deep: 500000 };
+    // The appraisal runs on the server in the background; the page asks for
+    // it and then polls at this interval until the staff reports back.
+    const STAFF_POLL_MS = 4000;
+    let staffPoll = null;
 
     function readingsHTML(readings) {
         if (!readings || readings.length === 0) {
@@ -683,14 +684,29 @@ function setupCampaignPage() {
         const chosen = staff.front.value;
         staff.front.innerHTML = `<option value="">The whole map</option>` + active.map((f) =>
             `<option value="${escapeHTML(f.id)}" ${f.id === chosen ? "selected" : ""}>${escapeHTML(f.name)}</option>`).join("");
-        staff.ask.disabled = !hasMap;
+
+        // Busy on the server, whoever asked: the button waits and the page
+        // polls, so an appraisal asked for in another tab still lands here.
+        const busy = Boolean(staff.status?.busy);
+        staff.section.classList.toggle("busy", busy);
+        staff.ask.disabled = !hasMap || busy;
+        staff.ask.textContent = busy ? "The staff is reading the map…" : "Ask the staff";
+        if (busy && !staffPoll) {
+            staffPoll = setTimeout(() => {
+                staffPoll = null;
+                loadStaff();
+            }, STAFF_POLL_MS);
+        }
 
         staff.readings.innerHTML = hasMap ? readingsHTML(s.readings) : "";
 
         const [latest, ...rest] = staff.appraisals;
-        staff.appraisal.innerHTML = latest
+        const failure = !busy && staff.status?.error
+            ? `<p class="staff-failed error">The last appraisal failed: ${escapeHTML(staff.status.error)}</p>`
+            : "";
+        staff.appraisal.innerHTML = failure + (latest
             ? appraisalHTML(latest)
-            : `<p class="staff-empty muted">The staff has not read the map yet. Ask, and the generals say where the point of main effort is, where to yield ground, and what is overextended.</p>`;
+            : `<p class="staff-empty muted">The staff has not read the map yet. Ask, and the generals say where the point of main effort is, where to yield ground, and what is overextended.</p>`);
 
         staff.earlier.hidden = rest.length === 0;
         staff.earlierList.innerHTML = rest.map((a) => `
@@ -716,36 +732,34 @@ function setupCampaignPage() {
         }
         const [sitrep, appraisals] = await Promise.all([
             apiJSON("/api/campaign/sitrep").catch(() => null),
-            apiJSON("/api/campaign/appraisals").then((d) => d.items || []).catch(() => []),
+            apiJSON("/api/campaign/appraisals").catch(() => ({ items: [], status: null })),
         ]);
         staff.sitrep = sitrep;
-        staff.appraisals = appraisals;
+        staff.appraisals = appraisals.items || [];
+        staff.status = appraisals.status || null;
         renderStaff();
     }
 
+    // askStaff starts the appraisal and comes straight back; renderStaff
+    // keeps polling while the server says the staff is busy.
     async function askStaff(frontID) {
         if (!staff.ask || staff.ask.disabled) {
             return;
         }
         const tier = staff.tier?.value || "standard";
-        const label = staff.ask.textContent;
         staff.ask.disabled = true;
-        staff.ask.textContent = tier === "deep" ? "The council is reading the map…" : "Reading the map…";
-        staff.section.classList.add("busy");
         try {
-            await apiJSON("/api/campaign/appraisals", {
+            const started = await apiJSON("/api/campaign/appraisals", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ front_id: frontID || "", tier }),
-                timeoutMs: APPRAISAL_TIMEOUT[tier] ?? APPRAISAL_TIMEOUT.standard,
+                timeoutMs: 30000,
             });
-            await loadStaff();
+            staff.status = started.status || { busy: true };
+            renderStaff();
         } catch (error) {
             showMessage(result, error.message, "error");
-        } finally {
-            staff.ask.textContent = label;
             staff.ask.disabled = false;
-            staff.section.classList.remove("busy");
         }
     }
 

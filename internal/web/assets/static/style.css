@@ -3863,6 +3863,11 @@ button.est:hover {
     max-width: 70ch;
 }
 
+.staff-failed {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+}
+
 .appraisal {
     display: flex;
     flex-direction: column;

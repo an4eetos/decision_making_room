@@ -354,7 +354,7 @@ server never imports a domain package.
 | `PUT` | `/api/campaign/orders/{id}/target` | aim an open loop at an item |
 | `GET` | `/api/campaign/map.svg?day=` | the theatre map, today's or a past day's; `/theatre` is the same as JSON, `/timelapse` the days on record |
 | `GET` | `/api/campaign/sitrep` | the map as the staff reads it: lines, orders by name, what moved, the readings |
-| `GET` `POST` | `/api/campaign/appraisals` | what the staff said, latest first; ask for a new one with `{"front_id", "tier"}` |
+| `GET` `POST` | `/api/campaign/appraisals` | what the staff said, latest first, with whether one is being written; `POST {"front_id", "tier"}` starts one in the background and returns 202 |
 | `POST` | `/api/campaign/appraisals/{id}/open` | discuss — opens the conversation |
 | `GET` | `/api/checkins/unseen` | waiting check-ins |
 | `POST` | `/api/checkins/now` | check in now |
