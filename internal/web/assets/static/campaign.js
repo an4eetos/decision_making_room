@@ -171,6 +171,7 @@ function setupCampaignPage() {
             ]);
             state = { ...map, loops: loops || [] };
             render();
+            await loadTheatre();
         } catch (error) {
             showMessage(result, error.message, "error");
         }
@@ -423,6 +424,151 @@ function setupCampaignPage() {
                 ${i.answer ? `<span class="resolved-answer">→ ${escapeHTML(i.answer)}</span>` : ""}
                 <button type="button" class="link-btn" data-action="status" data-status="active">Reopen</button>
             </li>`).join("");
+    }
+
+    // ---------- The theatre map and its timelapse ----------
+    //
+    // The map is an SVG drawn on the server; the page inlines it so its titles
+    // show as tooltips. Frames are the daily snapshots, oldest first, with the
+    // live map as the last stop.
+
+    const theatre = {
+        section: document.getElementById("theatre"),
+        map: document.getElementById("theatre-map"),
+        scrub: document.getElementById("theatre-scrub"),
+        day: document.getElementById("theatre-day"),
+        caption: document.getElementById("theatre-caption"),
+        play: document.getElementById("theatre-play"),
+        open: document.getElementById("theatre-open"),
+        frames: [],
+        timer: null,
+        token: 0,
+    };
+
+    function captionFor(frame) {
+        const t = frame.totals;
+        if (!t) {
+            return "";
+        }
+        const parts = [
+            `${t.objectives} objective${t.objectives === 1 ? "" : "s"}${t.taken ? ` · ${t.taken} taken` : ""}${t.withdrawn ? ` · ${t.withdrawn} withdrawn` : ""}`,
+            `${t.opposition} opposition${t.cleared ? ` · ${t.cleared} cleared` : ""}`,
+            `${t.fog} in fog${t.lifted ? ` · ${t.lifted} lifted` : ""}`,
+            `${t.orders_open} orders open${t.orders_done ? ` · ${t.orders_done} carried out` : ""}`,
+        ];
+        return parts.join("  —  ");
+    }
+
+    async function showFrame(index) {
+        const frame = theatre.frames[index];
+        if (!frame) {
+            return;
+        }
+        const token = ++theatre.token;
+        const url = frame.live ? "/api/campaign/map.svg" : `/api/campaign/map.svg?day=${encodeURIComponent(frame.day)}`;
+        theatre.day.textContent = frame.live ? "Today" : frame.day;
+        theatre.day.classList.toggle("past", !frame.live);
+        theatre.open.href = url;
+        try {
+            const response = await fetch(url, { headers: { Accept: "image/svg+xml" } });
+            if (!response.ok) {
+                throw new Error(`map: ${response.status}`);
+            }
+            const svg = await response.text();
+            if (token !== theatre.token) {
+                return; // a later frame won
+            }
+            theatre.map.innerHTML = svg;
+            theatre.caption.textContent = frame.live ? captionFor(theatre.liveTotals ? { totals: theatre.liveTotals } : {}) : captionFor(frame);
+        } catch (error) {
+            if (token === theatre.token) {
+                theatre.map.innerHTML = `<div class="error">${escapeHTML(error.message)}</div>`;
+            }
+        }
+    }
+
+    function stopPlaying() {
+        if (theatre.timer) {
+            clearInterval(theatre.timer);
+            theatre.timer = null;
+        }
+        theatre.play.textContent = "▶ Timelapse";
+    }
+
+    function startPlaying() {
+        const last = theatre.frames.length - 1;
+        if (last < 1) {
+            return;
+        }
+        let i = Number(theatre.scrub.value);
+        if (i >= last) {
+            i = 0;
+        }
+        theatre.play.textContent = "■ Stop";
+        const step = () => {
+            theatre.scrub.value = String(i);
+            showFrame(i);
+            if (i >= last) {
+                stopPlaying();
+                return;
+            }
+            i += 1;
+        };
+        step();
+        theatre.timer = setInterval(step, 600);
+    }
+
+    // loadTheatre refreshes the frame list and shows today. It runs after
+    // every reload of the page's data, so an action moves the line at once.
+    async function loadTheatre() {
+        if (!theatre.section) {
+            return;
+        }
+        stopPlaying();
+        let days = [];
+        try {
+            const data = await apiJSON("/api/campaign/timelapse");
+            days = (data.days || []).filter((d) => d.day !== data.today);
+        } catch {
+            // No record yet; the live map still draws.
+        }
+        try {
+            const live = await apiJSON("/api/campaign/theatre");
+            theatre.liveTotals = live.theatre?.totals || null;
+        } catch {
+            theatre.liveTotals = null;
+        }
+        theatre.frames = [...days, { live: true }];
+
+        const hasFronts = (state.fronts || []).some((f) => f.status === "active");
+        const hasItems = (state.items || []).some(live);
+        theatre.section.hidden = !hasFronts && !hasItems && days.length === 0;
+        if (theatre.section.hidden) {
+            return;
+        }
+        const last = theatre.frames.length - 1;
+        theatre.scrub.max = String(last);
+        theatre.scrub.value = String(last);
+        theatre.scrub.disabled = last < 1;
+        theatre.play.disabled = last < 1;
+        theatre.play.title = last < 1
+            ? "The timelapse needs more than one day on record"
+            : "Play the campaign so far, one day per frame";
+        await showFrame(last);
+    }
+
+    if (theatre.section) {
+        theatre.scrub.addEventListener("input", () => {
+            stopPlaying();
+            showFrame(Number(theatre.scrub.value));
+        });
+        theatre.play.addEventListener("click", () => {
+            if (theatre.timer) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
     }
 
     async function act(fn) {

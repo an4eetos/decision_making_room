@@ -90,6 +90,19 @@ const HINTS = {
             "If you never open this page, the room answers exactly as it does without it.",
         ],
     },
+    theatre: {
+        title: "Theatre map",
+        what: "The campaign drawn as a map. Each front is a lane, each objective a row: your side on the left, the <strong>objective</strong> a diamond on the right, the <strong>opposition</strong> and <strong>fog</strong> on the ground ahead of the front line.",
+        uses: [
+            "The line advances as loops close: an obstacle cleared, fog lifted, an order carried out, an objective taken. Opposition weighs its strength, so clearing a fortress moves it further than an outpost.",
+            "Ground held is what moved in the last thirty days. Let a front go quiet for a month and its line falls back to the start — that is the point.",
+            "A dashed line is where the front stood a week ago. The timelapse plays the campaign so far, one day per frame, from the daily snapshot.",
+        ],
+        notes: [
+            "Drawn on the server from the data, with no model in the loop. Open it as an SVG to save or share it.",
+            "A withdrawn objective stays on its row, struck through, and counts for nothing: an orderly withdrawal is not lost ground.",
+        ],
+    },
     intel: {
         title: "Intel",
         what: "Goals, blockers and open questions picked up from what you wrote, waiting for you to keep or drop them. Nothing goes on the map without your say.",

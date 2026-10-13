@@ -3688,3 +3688,74 @@ button.est:hover {
     font-size: 0.78rem;
     word-break: break-word;
 }
+
+/* ---------- Theatre map ----------
+   The map itself is an SVG drawn on the server and inlined here, with its own
+   styles; the page only frames it and drives the timelapse. */
+
+.theatre {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px 10px;
+    border: 1px solid var(--wr-line);
+    border-radius: 10px;
+    background: var(--wr-panel);
+}
+
+.theatre-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+
+.theatre-head h2 {
+    margin: 0;
+}
+
+.theatre-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+}
+
+.theatre-controls input[type="range"] {
+    width: min(260px, 50vw);
+    accent-color: var(--wr-amber);
+}
+
+.theatre-controls input[type="range"]:disabled {
+    opacity: 0.4;
+}
+
+.theatre-day {
+    min-width: 7.5ch;
+    font-family: var(--wr-mono);
+    color: var(--wr-text-2);
+}
+
+.theatre-day.past {
+    color: var(--wr-amber-text);
+}
+
+.theatre-map-wrap {
+    overflow-x: auto;
+    border-radius: 6px;
+}
+
+.theatre-map-wrap svg {
+    display: block;
+    width: 100%;
+    min-width: 640px;
+    height: auto;
+    border-radius: 6px;
+}
+
+.theatre-caption {
+    margin: 0;
+    font-size: 0.8rem;
+}

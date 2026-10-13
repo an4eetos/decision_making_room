@@ -9,6 +9,20 @@
         <div id="campaign-summary" class="campaign-summary"></div>
     </header>
 
+    <section id="theatre" class="theatre" hidden>
+        <header class="theatre-head">
+            <h2 class="wr-label">Theatre map <button type="button" class="hint" data-hint="theatre"></button></h2>
+            <div class="theatre-controls">
+                <button type="button" class="mini-btn" id="theatre-play" title="Play the campaign so far, one day per frame">▶ Timelapse</button>
+                <input type="range" id="theatre-scrub" min="0" max="0" value="0" step="1" aria-label="Day on the map">
+                <span id="theatre-day" class="theatre-day">Today</span>
+                <a id="theatre-open" class="link-btn" href="/api/campaign/map.svg" target="_blank" rel="noopener">Open as SVG</a>
+            </div>
+        </header>
+        <div id="theatre-map" class="theatre-map-wrap" aria-live="polite"></div>
+        <p id="theatre-caption" class="theatre-caption muted"></p>
+    </section>
+
     <section id="campaign-proposals" class="campaign-proposals" hidden>
         <h2 class="wr-label">Waiting for you <button type="button" class="hint" data-hint="intel"></button></h2>
         <ul id="campaign-proposal-list" class="intel-list"></ul>
