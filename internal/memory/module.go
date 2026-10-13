@@ -190,31 +190,38 @@ func provideMemoryTools(retriever *usecase.Retrieve, repo port.MemoryRepository,
 	return usecase.NewMemoryToolExecutor(retriever, repo, generals)
 }
 
-func provideConsult(
-	repo port.MemoryRepository,
-	retriever *usecase.Retrieve,
-	llm port.LLM,
-	toolLLM port.ToolLLM,
-	initialContext port.InitialContextReader,
-	tools *usecase.MemoryToolExecutor,
-	registry genport.Registry,
-	detector *modeservice.Detector,
-	doctrine *usecase.DoctrineIndex,
-	cfg config.Config,
-) *usecase.Consult {
+type consultParams struct {
+	fx.In
+
+	Repo           port.MemoryRepository
+	Retriever      *usecase.Retrieve
+	LLM            port.LLM
+	ToolLLM        port.ToolLLM
+	InitialContext port.InitialContextReader
+	Tools          *usecase.MemoryToolExecutor
+	Registry       genport.Registry
+	Detector       *modeservice.Detector
+	Doctrine       *usecase.DoctrineIndex
+	Config         config.Config
+	// Situation is the campaign map, read into every answer. Optional:
+	// without it the generals answer the question alone.
+	Situation port.SituationReader `optional:"true"`
+}
+
+func provideConsult(p consultParams) *usecase.Consult {
 	return usecase.NewConsult(
-		repo,
-		retriever,
-		llm,
-		toolLLM,
-		initialContext,
-		tools,
-		registry,
-		detector,
-		doctrine,
-		domain.ParseTier(cfg.DefaultTier, domain.TierStandard),
-		domain.ParseTier(cfg.MaxTier, domain.TierDeep),
-	)
+		p.Repo,
+		p.Retriever,
+		p.LLM,
+		p.ToolLLM,
+		p.InitialContext,
+		p.Tools,
+		p.Registry,
+		p.Detector,
+		p.Doctrine,
+		domain.ParseTier(p.Config.DefaultTier, domain.TierStandard),
+		domain.ParseTier(p.Config.MaxTier, domain.TierDeep),
+	).WithSituation(p.Situation)
 }
 
 type chatParams struct {

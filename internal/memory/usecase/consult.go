@@ -104,6 +104,17 @@ type Consult struct {
 	resolver       *PlanResolver
 	deep           *Deep
 	doctrine       *DoctrineIndex
+	// situation reads the campaign map into every answer. Optional: nil, or
+	// an empty map, leaves the answer as it was before there was a map.
+	situation port.SituationReader
+}
+
+// WithSituation gives the generals the map. They appraise the map, not just
+// the question: the point of main effort, what is overextended, where to
+// yield. It costs one database read per answer and no model call.
+func (u *Consult) WithSituation(reader port.SituationReader) *Consult {
+	u.situation = reader
+	return u
 }
 
 func NewConsult(
@@ -189,6 +200,7 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	// Skipped with retrieval: a greeting has nothing for doctrine to bear on.
 	if !skipRetrieval(plan.Question) {
 		plan.Doctrine = u.doctrine.Select(ctx, plan)
+		plan.Situation = u.readSituation(ctx, plan)
 		plan.Progress.stage(StageReading, "")
 	}
 
@@ -249,6 +261,22 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 // timedOut lives outside Execute, where the retrieved entries are called
 // context and shadow the package.
 func timedOut(err error) bool { return errors.Is(err, context.DeadlineExceeded) }
+
+// readSituation fetches the map brief for the context block. A plain
+// check-in carries its own reading of the map in its question, so it is
+// skipped there; a failed read is logged and the answer goes on without the
+// map, which is what it would have done before there was one.
+func (u *Consult) readSituation(ctx context.Context, plan ConsultPlan) string {
+	if u.situation == nil || plan.Plain {
+		return ""
+	}
+	brief, err := u.situation.Situation(ctx)
+	if err != nil {
+		log.Printf("consult: reading the map: %v", err)
+		return ""
+	}
+	return brief
+}
 
 // gatherContext runs retrieval once for every tier. Single-shot and agent paths
 // used to each do their own, with slightly different parameters and different
@@ -355,7 +383,7 @@ func (u *Consult) executeSingleShot(ctx context.Context, plan ConsultPlan, entri
 
 	messages := buildConsultMessages(
 		buildSystemPrompt(systemPrompt, plan),
-		aboutMe, plan.History,
+		aboutMe, plan.Situation, plan.History,
 		formatContext(entries, plan.Tier.MaxBodyRunes),
 		plan.Question,
 	)
@@ -445,6 +473,13 @@ func buildSystemPrompt(base string, plan ConsultPlan) string {
 		// The lenses question instead of debating, so the exchange template
 		// would fight the mode's. No flag either: this is where a flag leads.
 		if lenses := interrogationPrompt(plan.Generals, plan.Doctrine, plan.Traps, plan.SpottedTraps(), plan.Conclude); lenses != "" {
+			parts = append(parts, lenses)
+		}
+	} else if plan.Mode.IsRedTeam() {
+		// One general commands the opposition and attacks the plan. No
+		// exchange: an attack written by three lenses agreeing is no attack.
+		// No flag: the person asked to be attacked, not questioned.
+		if lenses := redTeamPrompt(plan.Generals, plan.Doctrine, strings.TrimSpace(plan.Situation) != ""); lenses != "" {
 			parts = append(parts, lenses)
 		}
 	} else {

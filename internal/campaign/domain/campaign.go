@@ -128,6 +128,9 @@ const (
 	SourceManual        Source = "manual"
 	SourceChat          Source = "chat"
 	SourceInterrogation Source = "interrogation"
+	// SourceRedTeam is opposition or fog the red team named while attacking
+	// the plan: the enemy's own estimate, proposed for you to keep or drop.
+	SourceRedTeam Source = "red_team"
 )
 
 // Item is one objective, obstacle or unknown.

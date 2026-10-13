@@ -60,6 +60,15 @@ function strengthPips(strength) {
     return [1, 2, 3].map((n) => `<span class="pip ${n <= strength ? "on" : ""}"></span>`).join("");
 }
 
+// redTeamHref opens the chat with the red team mode pinned and the attack
+// aimed at one objective or one front. The chat page reads the parameters
+// and writes the opening question; the map itself reaches the general
+// through the answer's context.
+function redTeamHref(kind, text) {
+    const params = new URLSearchParams({ redteam: text, kind });
+    return `/?${params.toString()}`;
+}
+
 // proposalHTML is one item waiting for you: what it is, what the room read it
 // as, and a front to file it under before you keep it.
 function proposalHTML(item, fronts) {
@@ -70,7 +79,7 @@ function proposalHTML(item, fronts) {
     } else if (item.type === "objective" && item.due) {
         meta = `<span class="intel-meta">by ${escapeHTML(item.due)}</span>`;
     }
-    const from = item.source === "interrogation" ? "from an interrogation" : "you said this";
+    const from = { interrogation: "from an interrogation", red_team: "the red team's estimate" }[item.source] || "you said this";
 
     return `
     <li class="intel proposed type-${escapeHTML(item.type)}" data-id="${escapeHTML(item.id)}">
@@ -171,7 +180,7 @@ function setupCampaignPage() {
             ]);
             state = { ...map, loops: loops || [] };
             render();
-            await loadTheatre();
+            await Promise.all([loadTheatre(), loadStaff()]);
         } catch (error) {
             showMessage(result, error.message, "error");
         }
@@ -271,6 +280,7 @@ function setupCampaignPage() {
                 <span class="row-actions">
                     <button type="button" class="mini-btn" data-action="status" data-status="resolved" title="Objective taken">Taken</button>
                     <button type="button" class="mini-btn" data-action="status" data-status="withdrawn" title="An orderly withdrawal: a legitimate order, not a loss">Withdraw</button>
+                    ${it.status === "active" ? `<a class="mini-btn red-team-link" href="${redTeamHref("objective", it.text)}" title="One general takes command of what stands against this objective and attacks your plan for it">Red team</a>` : ""}
                     <button type="button" class="loop-x" data-action="status" data-status="dropped" title="Take off the map">×</button>
                 </span>
             </div>
@@ -327,6 +337,8 @@ function setupCampaignPage() {
                 </span>
                 <span class="row-actions">
                     <button type="button" class="mini-btn" data-action="rename-front">Rename</button>
+                    <button type="button" class="mini-btn" data-action="appraise-front" data-front="${escapeHTML(front.id)}" title="The staff appraises this front alone">Appraise</button>
+                    ${items.some((i) => i.type === "objective") ? `<a class="mini-btn red-team-link" href="${redTeamHref("front", front.name)}" title="One general takes command of the opposition on this front and attacks your plan">Red team</a>` : ""}
                     <button type="button" class="mini-btn" data-action="withdraw-front" title="Close this front. What is on it stays on the record.">Withdraw</button>
                 </span>
             </header>
@@ -571,6 +583,214 @@ function setupCampaignPage() {
         });
     }
 
+    // ---------- The staff ----------
+    //
+    // Two layers, like the rest of the campaign. The readings are arithmetic
+    // from the sitrep, drawn on every load with no model. The appraisal is
+    // the generals' judgment, written only when you ask and kept with its
+    // date, so the page shows what the staff last said rather than
+    // recomputing it.
+
+    const staff = {
+        section: document.getElementById("staff"),
+        readings: document.getElementById("staff-readings"),
+        appraisal: document.getElementById("staff-appraisal"),
+        earlier: document.getElementById("staff-earlier"),
+        earlierList: document.getElementById("staff-earlier-list"),
+        front: document.getElementById("staff-front"),
+        tier: document.getElementById("staff-tier"),
+        ask: document.getElementById("staff-ask"),
+        roster: {},
+        sitrep: null,
+        appraisals: [],
+    };
+
+    const READING_LABEL = {
+        overdue: "Overdue",
+        overextended: "Overextended",
+        quiet: "Quiet",
+        fortress: "Fortress",
+        unwanted: "Not wanted",
+        unscouted: "Unscouted",
+        estimated: "Estimates",
+        advanced: "Closest",
+    };
+
+    // The appraisal runs on the server in the background; the page asks for
+    // it and then polls at this interval until the staff reports back.
+    const STAFF_POLL_MS = 4000;
+    let staffPoll = null;
+
+    function readingsHTML(readings) {
+        if (!readings || readings.length === 0) {
+            return `<li class="reading muted">Nothing the arithmetic can say yet. Aim orders at the map and let a day pass.</li>`;
+        }
+        return readings.map((r) => `
+            <li class="reading kind-${escapeHTML(r.kind)}">
+                <span class="reading-kind">${escapeHTML(READING_LABEL[r.kind] || r.kind)}</span>
+                <span class="reading-text">${escapeHTML(r.text)}</span>
+            </li>`).join("");
+    }
+
+    function generalChips(ids) {
+        return (ids || []).map((id) => {
+            const g = staff.roster[id];
+            if (!g) {
+                return `<span class="lens-badge">${escapeHTML(String(id).replace(/_/g, " "))}</span>`;
+            }
+            return `<span class="appraisal-general" style="--family:${familyStyle(g.family).color}">${portrait(g, 26, "round")}<span>${escapeHTML(g.name)}</span></span>`;
+        }).join("");
+    }
+
+    function frontName(id) {
+        if (!id) {
+            return "";
+        }
+        return (state.fronts || []).find((f) => f.id === id)?.name ?? "";
+    }
+
+    function appraisalHTML(a) {
+        const front = frontName(a.front_id);
+        return `
+        <article class="appraisal" data-appraisal="${escapeHTML(a.id)}">
+            <header class="appraisal-head">
+                <span class="appraisal-generals">${generalChips(a.generals)}</span>
+                <span class="appraisal-meta">
+                    ${front ? `<span class="appraisal-front">${escapeHTML(front)}</span>` : `<span class="appraisal-front">Whole map</span>`}
+                    ${a.tier ? `<span class="tier-badge tier-${escapeHTML(a.tier)}">${escapeHTML(a.tier)}</span>` : ""}
+                    <span class="muted">${escapeHTML(timeAgo(a.created_at))}</span>
+                </span>
+                <span class="appraisal-actions">
+                    <button type="button" class="mini-btn" data-action="discuss" title="Open it as a conversation with the generals who wrote it">${a.session_id ? "Continue the discussion" : "Discuss"}</button>
+                </span>
+            </header>
+            <div class="appraisal-body markdown">${renderMarkdown(a.body)}</div>
+        </article>`;
+    }
+
+    function renderStaff() {
+        if (!staff.section) {
+            return;
+        }
+        const s = staff.sitrep;
+        const hasMap = s && !s.empty;
+        const hasAppraisals = staff.appraisals.length > 0;
+        staff.section.hidden = !hasMap && !hasAppraisals;
+        if (staff.section.hidden) {
+            return;
+        }
+
+        const active = (state.fronts || []).filter((f) => f.status === "active");
+        const chosen = staff.front.value;
+        staff.front.innerHTML = `<option value="">The whole map</option>` + active.map((f) =>
+            `<option value="${escapeHTML(f.id)}" ${f.id === chosen ? "selected" : ""}>${escapeHTML(f.name)}</option>`).join("");
+
+        // Busy on the server, whoever asked: the button waits and the page
+        // polls, so an appraisal asked for in another tab still lands here.
+        const busy = Boolean(staff.status?.busy);
+        staff.section.classList.toggle("busy", busy);
+        staff.ask.disabled = !hasMap || busy;
+        staff.ask.textContent = busy ? "The staff is reading the map…" : "Ask the staff";
+        if (busy && !staffPoll) {
+            staffPoll = setTimeout(() => {
+                staffPoll = null;
+                loadStaff();
+            }, STAFF_POLL_MS);
+        }
+
+        staff.readings.innerHTML = hasMap ? readingsHTML(s.readings) : "";
+
+        const [latest, ...rest] = staff.appraisals;
+        const failure = !busy && staff.status?.error
+            ? `<p class="staff-failed error">The last appraisal failed: ${escapeHTML(staff.status.error)}</p>`
+            : "";
+        staff.appraisal.innerHTML = failure + (latest
+            ? appraisalHTML(latest)
+            : `<p class="staff-empty muted">The staff has not read the map yet. Ask, and the generals say where the point of main effort is, where to yield ground, and what is overextended.</p>`);
+
+        staff.earlier.hidden = rest.length === 0;
+        staff.earlierList.innerHTML = rest.map((a) => `
+            <li class="appraisal-earlier" data-appraisal="${escapeHTML(a.id)}">
+                <span class="muted">${escapeHTML(formatDate(a.created_at))}</span>
+                <span>${escapeHTML(frontName(a.front_id) || "Whole map")}</span>
+                <span class="appraisal-generals">${generalChips(a.generals)}</span>
+                <button type="button" class="link-btn" data-action="show-appraisal">Show</button>
+            </li>`).join("");
+    }
+
+    async function loadStaff() {
+        if (!staff.section) {
+            return;
+        }
+        if (Object.keys(staff.roster).length === 0) {
+            try {
+                const roster = await apiJSON("/api/generals");
+                staff.roster = Object.fromEntries(roster.map((g) => [g.id, g]));
+            } catch {
+                // Names fall back to tidied ids.
+            }
+        }
+        const [sitrep, appraisals] = await Promise.all([
+            apiJSON("/api/campaign/sitrep").catch(() => null),
+            apiJSON("/api/campaign/appraisals").catch(() => ({ items: [], status: null })),
+        ]);
+        staff.sitrep = sitrep;
+        staff.appraisals = appraisals.items || [];
+        staff.status = appraisals.status || null;
+        renderStaff();
+    }
+
+    // askStaff starts the appraisal and comes straight back; renderStaff
+    // keeps polling while the server says the staff is busy.
+    async function askStaff(frontID) {
+        if (!staff.ask || staff.ask.disabled) {
+            return;
+        }
+        const tier = staff.tier?.value || "standard";
+        staff.ask.disabled = true;
+        try {
+            const started = await apiJSON("/api/campaign/appraisals", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ front_id: frontID || "", tier }),
+                timeoutMs: 30000,
+            });
+            staff.status = started.status || { busy: true };
+            renderStaff();
+        } catch (error) {
+            showMessage(result, error.message, "error");
+            staff.ask.disabled = false;
+        }
+    }
+
+    async function discussAppraisal(id) {
+        try {
+            const { session_id: sessionID } = await apiJSON(`/api/campaign/appraisals/${id}/open`, { method: "POST" });
+            window.location.href = `/?session=${encodeURIComponent(sessionID)}`;
+        } catch (error) {
+            showMessage(result, error.message, "error");
+        }
+    }
+
+    staff.ask?.addEventListener("click", () => askStaff(staff.front?.value || ""));
+
+    staff.section?.addEventListener("click", (e) => {
+        const button = e.target.closest("[data-action]");
+        const card = e.target.closest("[data-appraisal]");
+        if (!button || !card) {
+            return;
+        }
+        if (button.dataset.action === "discuss") {
+            discussAppraisal(card.dataset.appraisal);
+        } else if (button.dataset.action === "show-appraisal") {
+            const chosen = staff.appraisals.find((a) => a.id === card.dataset.appraisal);
+            if (chosen) {
+                staff.appraisal.innerHTML = appraisalHTML(chosen);
+                staff.appraisal.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+    });
+
     async function act(fn) {
         try {
             await fn();
@@ -628,6 +848,13 @@ function setupCampaignPage() {
             break;
         case "restore-front":
             act(() => campaignCall(`/api/campaign/fronts/${button.dataset.front}`, "PATCH", { status: "active" }));
+            break;
+        case "appraise-front":
+            if (staff.front) {
+                staff.front.value = button.dataset.front;
+            }
+            staff.section?.scrollIntoView({ behavior: "smooth", block: "start" });
+            askStaff(button.dataset.front);
             break;
         }
     });

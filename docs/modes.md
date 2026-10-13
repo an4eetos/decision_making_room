@@ -4,10 +4,10 @@ A mode is what kind of question you are asking. It decides three things: the
 instructions the model gets, the shape the answer takes, and what retrieval
 favours.
 
-Fifteen ship, plus `interrogation` and `beast`, which are never detected. The most
-important is `open`, which imposes no template at all — without it, every
-casual question gets forced into a framework, which is worse than having no
-modes.
+Fifteen ship, plus four that are never detected: `interrogation`, `beast`, and
+the two staff modes, `staff` and `red_team`. The most important is `open`, which
+imposes no template at all — without it, every casual question gets forced into
+a framework, which is worse than having no modes.
 
 ## Detection
 
@@ -141,6 +141,29 @@ cuts off is reported as blocked rather than stored half-written.
 Beast turns are kept out of open-loop and campaign extraction: the orders
 already have their own board.
 
+## The staff modes
+
+Two modes in the `staff` family read the campaign map rather than a question.
+Both are `explicit_only`: the staff reads the map on request, never because a
+keyword matched.
+
+**Staff appraisal** (`staff`) is the ordinary exchange laid over a fixed
+template: the situation, one point of main effort, where to yield ground, what
+is overextended, which fog to lift first, and orders. The lenses argue inside
+those sections, as in any structured mode, and at depth they convene as a
+council. The campaign page's *Ask the staff* runs it with a question that names
+the objectives in play; pinning it in a conversation runs it on what you ask.
+The map reaches it through the context like any other answer. See
+[docs/campaign.md](campaign.md#the-staff).
+
+**Red team** (`red_team`) carries `red_team: true` in its frontmatter, which
+replaces the exchange with one general commanding the opposition. The loader
+requires `generals.max: 1` on such a mode: two enemies argue with each other
+instead of with the plan. No council, no forecast, no interrogation flag. Its
+output sections are fixed and the room reads them: the attacks under *Where
+the plan breaks* and the questions under *Your fog, my cover* are proposed to
+the map without a model call. *Leave* goes back to ordinary advice.
+
 ## Writing your own
 
 Set `MODES_DIR` to a directory of markdown files. A file whose `id` matches a
@@ -151,6 +174,7 @@ shipped mode replaces it; a new `id` is appended.
 id: my_mode
 name: My Mode
 family: plan            # plan | decide | unblock | review | open
+                        # interrogate, beast and staff are explicit_only
 summary: One line, shown in the mode menu.
 triggers:
   keywords: ["a phrase", "another phrase"]
@@ -164,6 +188,8 @@ generals:
   default: [zhukov]
   max: 2
 styles: [block_operator]
+# explicit_only: true   # never detected; needs no triggers
+# red_team: true        # one general commands the opposition; needs max: 1
 ---
 
 ## System

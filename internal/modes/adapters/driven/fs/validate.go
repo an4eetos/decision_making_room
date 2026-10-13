@@ -12,7 +12,7 @@ import (
 var validFamilies = []domain.Family{
 	domain.FamilyPlan, domain.FamilyDecide, domain.FamilyUnblock,
 	domain.FamilyReview, domain.FamilyOpen, domain.FamilyInterrogate,
-	domain.FamilyBeast,
+	domain.FamilyBeast, domain.FamilyStaff,
 }
 
 var validKinds = []string{"decision", "plan", "note", "daily_log"}
@@ -72,6 +72,15 @@ func validate(r domain.Registry) error {
 		}
 		if mode.IsBeast() && len(mode.Shouters) == 0 {
 			problems = append(problems, fmt.Errorf("%s: beast modes need a shouters ranking", where))
+		}
+		// The staff reads the map on request, never because a keyword
+		// matched; and a red team is one general commanding the opposition,
+		// so two would be two enemies arguing with each other.
+		if mode.IsStaff() && !mode.ExplicitOnly {
+			problems = append(problems, fmt.Errorf("%s: staff modes must be explicit_only", where))
+		}
+		if mode.IsRedTeam() && mode.Generals.Max != 1 {
+			problems = append(problems, fmt.Errorf("%s: a red team is one general; set generals.max to 1", where))
 		}
 
 		// A phrase shared by two modes cannot discriminate between them: they

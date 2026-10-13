@@ -37,6 +37,16 @@ func (m *memSnapshots) GetSnapshot(_ context.Context, day string) (domain.Snapsh
 	return s, nil
 }
 
+func (m *memSnapshots) GetSnapshotBefore(ctx context.Context, day string) (domain.Snapshot, error) {
+	all, _ := m.ListSnapshots(ctx, 0)
+	for i := len(all) - 1; i >= 0; i-- {
+		if all[i].Day < day {
+			return all[i], nil
+		}
+	}
+	return domain.Snapshot{}, port.ErrNotFound
+}
+
 func (m *memSnapshots) ListSnapshots(_ context.Context, _ int) ([]domain.Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

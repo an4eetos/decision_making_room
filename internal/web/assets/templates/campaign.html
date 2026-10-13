@@ -23,6 +23,26 @@
         <p id="theatre-caption" class="theatre-caption muted"></p>
     </section>
 
+    <section id="staff" class="staff" hidden>
+        <header class="staff-head">
+            <h2 class="wr-label">The staff <button type="button" class="hint" data-hint="staff"></button></h2>
+            <div class="staff-controls">
+                <select id="staff-front" aria-label="What to appraise"><option value="">The whole map</option></select>
+                <select id="staff-tier" aria-label="Depth">
+                    <option value="standard">Standard · two generals, one call</option>
+                    <option value="deep">Deep · a council of three</option>
+                </select>
+                <button type="button" class="mini-btn" id="staff-ask" title="The generals read the map: the point of main effort, where to yield ground, what is overextended. Costs model calls at the chosen depth.">Ask the staff</button>
+            </div>
+        </header>
+        <ul id="staff-readings" class="staff-readings" aria-label="Readings"></ul>
+        <div id="staff-appraisal" class="staff-appraisal"></div>
+        <details id="staff-earlier" class="staff-earlier" hidden>
+            <summary>Earlier appraisals</summary>
+            <ul id="staff-earlier-list"></ul>
+        </details>
+    </section>
+
     <section id="campaign-proposals" class="campaign-proposals" hidden>
         <h2 class="wr-label">Waiting for you <button type="button" class="hint" data-hint="intel"></button></h2>
         <ul id="campaign-proposal-list" class="intel-list"></ul>

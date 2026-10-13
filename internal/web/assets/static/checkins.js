@@ -91,7 +91,10 @@ function setupCheckins() {
         const label = nowButton.textContent;
         nowButton.textContent = "Checking in…";
         try {
-            await apiJSON("/api/checkins/now", { method: "POST", timeoutMs: 60000 });
+            // Just over the quick tier's two-minute deadline: the server
+            // bounds the call and reports it in words, so the page should
+            // not give up first and leave a finished check-in unshown.
+            await apiJSON("/api/checkins/now", { method: "POST", timeoutMs: 125000 });
             await poll();
         } catch (error) {
             showMessage(document.getElementById("consult-result"), error.message, "error");

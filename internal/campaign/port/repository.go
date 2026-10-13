@@ -40,6 +40,19 @@ type SnapshotRepository interface {
 	SaveSnapshot(ctx context.Context, s domain.Snapshot) error
 	// GetSnapshot returns the snapshot for a YYYY-MM-DD day.
 	GetSnapshot(ctx context.Context, day string) (domain.Snapshot, error)
+	// GetSnapshotBefore returns the latest snapshot taken before a YYYY-MM-DD
+	// day: yesterday's map, usually. One row, because it is read on every
+	// answer. ErrNotFound when there is none.
+	GetSnapshotBefore(ctx context.Context, day string) (domain.Snapshot, error)
 	// ListSnapshots returns the most recent snapshots, oldest first.
 	ListSnapshots(ctx context.Context, limit int) ([]domain.Snapshot, error)
+}
+
+// AppraisalRepository keeps what the staff said, with the date it said it.
+type AppraisalRepository interface {
+	CreateAppraisal(ctx context.Context, a domain.Appraisal) (domain.Appraisal, error)
+	GetAppraisal(ctx context.Context, id uuid.UUID) (domain.Appraisal, error)
+	// ListAppraisals returns the latest first.
+	ListAppraisals(ctx context.Context, limit int) ([]domain.Appraisal, error)
+	AttachAppraisalSession(ctx context.Context, id, sessionID uuid.UUID) error
 }

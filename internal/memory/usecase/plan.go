@@ -44,6 +44,12 @@ type ConsultPlan struct {
 	// Styles are the working styles this mode leans on.
 	Styles []gendomain.Lens
 
+	// Situation is the campaign map as the staff reads it, in words, for the
+	// context block. Filled after retrieval from the SituationReader when
+	// there is one; empty on an empty map, a greeting, or a plain check-in,
+	// which carries its own reading of the map.
+	Situation string
+
 	// Plain drops the output template and lenses; see ConsultInput.Plain.
 	Plain bool
 
@@ -186,13 +192,14 @@ func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
 }
 
 // UsesCouncil reports whether the generals argue as separate agents. Only the
-// ordinary exchange does: an interrogation and beast mode run one voice by
-// design, a plain check-in has no lenses, and a closing turn writes the
-// position the conversation earned rather than a fresh debate.
+// ordinary exchange does: an interrogation, beast mode and a red team run one
+// voice by design, a plain check-in has no lenses, and a closing turn writes
+// the position the conversation earned rather than a fresh debate. A staff
+// appraisal is an ordinary exchange over the map, so at depth it convenes.
 func (p ConsultPlan) UsesCouncil() bool {
 	return p.Tier.Council && len(p.Generals) >= 2 &&
 		!p.Plain && !p.Conclude &&
-		!p.Mode.IsBeast() && !p.Mode.IsInterrogation()
+		!p.Mode.IsBeast() && !p.Mode.IsInterrogation() && !p.Mode.IsRedTeam()
 }
 
 // SpottedTraps lists the ids of the traps found in what the person wrote.

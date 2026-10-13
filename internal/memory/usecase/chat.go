@@ -76,12 +76,19 @@ func (c *Chat) WithBeastBoard(board port.BeastBoard) *Chat {
 // Check-ins use it, so that answering one is just replying — there is no second
 // conversation mechanism to build or maintain.
 func (c *Chat) StartSession(ctx context.Context, title, content, modeID string) (ChatSessionDTO, error) {
+	return c.StartSessionWith(ctx, title, content, modeID, nil)
+}
+
+// StartSessionWith is StartSession with the generals who wrote the opening
+// message seated for the follow-ups. A staff appraisal uses it: arguing back
+// is arguing with the generals who read the map, not a fresh pick.
+func (c *Chat) StartSessionWith(ctx context.Context, title, content, modeID string, generals []string) (ChatSessionDTO, error) {
 	title = strings.TrimSpace(title)
 	if title == "" {
 		title = "Check-in"
 	}
 
-	session, err := c.repo.CreateSession(ctx, port.ChatSession{Title: title, ModeID: modeID})
+	session, err := c.repo.CreateSession(ctx, port.ChatSession{Title: title, ModeID: modeID, Generals: generals})
 	if err != nil {
 		return ChatSessionDTO{}, err
 	}
@@ -91,6 +98,7 @@ func (c *Chat) StartSession(ctx context.Context, title, content, modeID string) 
 		Role:      "assistant",
 		Content:   content,
 		ModeID:    modeID,
+		Generals:  generals,
 	}); err != nil {
 		return ChatSessionDTO{}, err
 	}

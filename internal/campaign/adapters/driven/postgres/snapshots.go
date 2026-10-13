@@ -51,6 +51,23 @@ func (r *Repository) GetSnapshot(ctx context.Context, day string) (domain.Snapsh
 	return s, nil
 }
 
+// GetSnapshotBefore is the one-row read the sitrep makes on every answer.
+func (r *Repository) GetSnapshotBefore(ctx context.Context, day string) (domain.Snapshot, error) {
+	d, err := time.Parse("2006-01-02", day)
+	if err != nil {
+		return domain.Snapshot{}, fmt.Errorf("snapshot day %q: %w", day, err)
+	}
+	s, err := scanSnapshot(r.pool.QueryRow(ctx,
+		`SELECT day, taken_at, state FROM campaign_snapshots WHERE day < $1 ORDER BY day DESC LIMIT 1`, d))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.Snapshot{}, port.ErrNotFound
+	}
+	if err != nil {
+		return domain.Snapshot{}, fmt.Errorf("get snapshot before: %w", err)
+	}
+	return s, nil
+}
+
 // ListSnapshots returns the latest limit days, oldest first, which is the
 // order a timelapse plays in.
 func (r *Repository) ListSnapshots(ctx context.Context, limit int) ([]domain.Snapshot, error) {

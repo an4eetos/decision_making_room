@@ -86,6 +86,19 @@ extra fields into the prompt:
   more than one lens, a rival of the leading lens is seated beside it, so the
   answer has an actual fork in it.
 
+## The red team
+
+The red team is the one place a lens argues against you. One general takes
+command of the opposition on the campaign map and attacks the plan with its
+own doctrine turned around: its *always asks* become the questions that find
+the gap, its *typically goes worse* is its playbook, and its *concedes when*
+is what it refuses to give you. The doctrine passages chosen for it lean on
+*In the pocket* and *Facing the unknown*, which say how the lens holds ground
+and reads an advance. It still weighs reality: an attack that could not happen
+to this person is noise, and a red team that concedes nothing has found
+nothing. Seat a general to choose who commands; otherwise the mode's default
+takes it. See [docs/campaign.md](campaign.md#the-staff).
+
 ## Lenses lead, reality decides
 
 A general usually lands where its doctrine points, but it never follows the

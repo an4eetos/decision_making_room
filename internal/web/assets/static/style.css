@@ -3759,3 +3759,359 @@ button.est:hover {
     margin: 0;
     font-size: 0.8rem;
 }
+
+/* ---------- The staff ----------
+   Readings are arithmetic and sit in a quiet strip; the appraisal is the
+   generals' judgment and gets the panel. Red is kept for what is late or
+   holding, amber for estimates, green for what is going well. */
+.staff {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px 12px;
+    border: 1px solid var(--wr-line);
+    border-radius: 10px;
+    background: var(--wr-panel);
+}
+
+.staff.busy {
+    border-color: var(--wr-amber-line);
+}
+
+.staff-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+
+.staff-head h2 {
+    margin: 0;
+}
+
+.staff-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.staff-controls select {
+    max-width: 16rem;
+}
+
+.staff-readings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.reading {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    max-width: 100%;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--wr-line-soft);
+    border-radius: 8px;
+    background: var(--wr-panel-2);
+    font-size: 0.82rem;
+    color: var(--wr-text-2);
+}
+
+.reading-kind {
+    flex: none;
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-muted);
+}
+
+.reading.kind-overdue,
+.reading.kind-overextended {
+    border-color: var(--wr-red-soft);
+}
+
+.reading.kind-overdue .reading-kind,
+.reading.kind-overextended .reading-kind,
+.reading.kind-fortress .reading-kind {
+    color: var(--wr-red-text);
+}
+
+.reading.kind-unscouted .reading-kind {
+    color: var(--wr-int);
+}
+
+.reading.kind-estimated .reading-kind,
+.reading.kind-unwanted .reading-kind {
+    color: var(--wr-amber-text);
+}
+
+.reading.kind-advanced .reading-kind {
+    color: var(--wr-green);
+}
+
+.staff-empty {
+    margin: 0;
+    font-size: 0.88rem;
+    max-width: 70ch;
+}
+
+.staff-failed {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+}
+
+.appraisal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--wr-line-soft);
+    border-left: 3px solid var(--wr-amber);
+    border-radius: 8px;
+    background: var(--wr-panel-2);
+}
+
+.appraisal-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+}
+
+.appraisal-generals {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.appraisal-general {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--wr-text);
+}
+
+.appraisal-meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+}
+
+.appraisal-front {
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-amber-text);
+}
+
+.appraisal-actions {
+    margin-left: auto;
+}
+
+.appraisal-body {
+    font-size: 0.92rem;
+}
+
+.appraisal-body > p:first-child {
+    margin-top: 0;
+}
+
+.appraisal-body strong {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-family: var(--wr-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-amber-text);
+}
+
+.staff-earlier {
+    font-size: 0.85rem;
+}
+
+.staff-earlier summary {
+    cursor: pointer;
+    color: var(--wr-muted);
+}
+
+.staff-earlier ul {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.appraisal-earlier {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--wr-line-soft);
+}
+
+.appraisal-earlier .appraisal-general {
+    font-size: 0.8rem;
+}
+
+/* ---------- Red team ----------
+   The enemy's colour on your own map: the conflict red, hotter than the
+   fork and colder than beast mode's fire. */
+.red-team-link,
+.mini-btn.red-team-link {
+    color: var(--wr-red-text);
+    border-color: var(--wr-red-soft);
+    text-decoration: none;
+}
+
+.mini-btn.red-team-link:hover {
+    border-color: var(--wr-red);
+}
+
+.chat-message.redteam {
+    background: color-mix(in srgb, var(--wr-red-soft) 55%, var(--wr-panel));
+    border-color: var(--wr-red-soft);
+    border-left: 3px solid var(--wr-red);
+}
+
+.redteam-badge {
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--wr-red) 18%, transparent);
+    color: var(--wr-red-text);
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.sit-chip.red-team-now {
+    border-color: var(--wr-red-soft);
+    color: var(--wr-red-text);
+    cursor: pointer;
+}
+
+.sit-chip.red-team-now:hover {
+    border-color: var(--wr-red);
+}
+
+.redteam-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--wr-red-soft);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--wr-red-soft) 45%, var(--wr-panel));
+}
+
+.redteam-bar[hidden] {
+    display: none;
+}
+
+.redteam-bar-label {
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wr-red);
+}
+
+.redteam-who {
+    font-size: 0.85rem;
+    color: var(--wr-red-text);
+}
+
+.redteam-bar-actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.redteam-bar-actions .btn-secondary {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+}
+
+/* The red team's own sections, when the answer parses: the attacks in red,
+   the concession in green, the counter-orders in amber. */
+.redteam-answer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rt-block {
+    padding: 8px 10px;
+    border: 1px solid var(--wr-line-soft);
+    border-radius: 8px;
+    background: var(--wr-panel-2);
+}
+
+.rt-block .markdown > :first-child {
+    margin-top: 0;
+}
+
+.rt-block .markdown > :last-child {
+    margin-bottom: 0;
+}
+
+.rt-key {
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--wr-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-muted);
+}
+
+.rt-breaks {
+    border-color: var(--wr-red-soft);
+}
+
+.rt-breaks .rt-key {
+    color: var(--wr-red-text);
+}
+
+.rt-cover {
+    border-color: var(--wr-int-line);
+    background: var(--wr-int-soft);
+}
+
+.rt-cover .rt-key {
+    color: var(--wr-int-text);
+}
+
+.rt-concede .rt-key {
+    color: var(--wr-green);
+}
+
+.rt-beat {
+    border-color: var(--wr-amber-line);
+    background: var(--wr-amber-soft);
+}
+
+.rt-beat .rt-key {
+    color: var(--wr-amber-text);
+}
