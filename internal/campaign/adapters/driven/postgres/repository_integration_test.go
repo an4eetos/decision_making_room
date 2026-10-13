@@ -3,8 +3,10 @@ package postgres_test
 import (
 	"context"
 	"errors"
+	"os"
 	"os/exec"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,17 +22,29 @@ import (
 )
 
 // startPostgres runs the real embedded migrations, the same path the binary
-// takes at startup, so the campaign schema's checks are what is tested.
+// takes at startup, so the campaign schema's checks are what is tested. With
+// TEST_DATABASE_URL set it uses that database instead of a container.
 func startPostgres(t *testing.T) *pgxpool.Pool {
 	t.Helper()
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
 	}
+	ctx := context.Background()
+	if url := os.Getenv("TEST_DATABASE_URL"); url != "" {
+		pool, err := infrapg.NewPool(ctx, url)
+		if err != nil {
+			t.Fatalf("connect: %v", err)
+		}
+		t.Cleanup(pool.Close)
+		if err := infrapg.Migrate(ctx, pool); err != nil {
+			t.Fatalf("migrate: %v", err)
+		}
+		return pool
+	}
 	if exec.Command("docker", "info").Run() != nil {
 		t.Skip("docker not available")
 	}
 
-	ctx := context.Background()
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			Image:        "pgvector/pgvector:pg16",
@@ -170,5 +184,68 @@ func TestCampaignRepositoryRoundTrip(t *testing.T) {
 	kept, err := orders.Get(ctx, order.ID)
 	if err != nil || kept.TargetID != nil {
 		t.Fatalf("the order should survive with its aim cleared: %+v %v", kept, err)
+	}
+}
+
+func TestSnapshotsRoundTrip(t *testing.T) {
+	pool := startPostgres(t)
+	ctx := context.Background()
+	repo := postgres.NewRepository(pool)
+
+	if _, err := repo.GetSnapshot(ctx, "2026-01-01"); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("a day with no snapshot is not found: %v", err)
+	}
+	if err := repo.SaveSnapshot(ctx, domain.Snapshot{Day: "not a day"}); err == nil {
+		t.Fatal("a bad day is refused")
+	}
+
+	front := uuid.New()
+	theatre := domain.Theatre{Fronts: []domain.TheatreFront{{
+		ID: front, Name: "Work", Line: 0.5,
+		Rows: []domain.TheatreRow{{
+			Objective: &domain.TheatrePost{ID: uuid.New(), Text: "Ship", Status: domain.StatusActive},
+			Progress:  0.5, Obstacles: []domain.TheatrePost{}, Unknowns: []domain.TheatrePost{},
+			Orders: domain.TheatreOrders{Open: 1},
+		}},
+	}}, Totals: domain.TheatreTotals{Objectives: 1, OrdersOpen: 1}}
+
+	first := time.Date(2026, 1, 2, 9, 0, 0, 0, time.UTC)
+	for _, day := range []string{"2026-01-02", "2026-01-03", "2026-01-01"} {
+		if err := repo.SaveSnapshot(ctx, domain.Snapshot{Day: day, TakenAt: first, Theatre: theatre}); err != nil {
+			t.Fatalf("save %s: %v", day, err)
+		}
+	}
+	// The same day written again replaces the first write.
+	theatre.Fronts[0].Line = 0.75
+	later := first.Add(8 * time.Hour)
+	if err := repo.SaveSnapshot(ctx, domain.Snapshot{Day: "2026-01-02", TakenAt: later, Theatre: theatre}); err != nil {
+		t.Fatalf("resave: %v", err)
+	}
+
+	got, err := repo.GetSnapshot(ctx, "2026-01-02")
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if got.Day != "2026-01-02" || got.Theatre.Day != "2026-01-02" || !got.TakenAt.Equal(later) {
+		t.Fatalf("snapshot header did not round-trip: %+v", got)
+	}
+	if len(got.Theatre.Fronts) != 1 || got.Theatre.Fronts[0].ID != front || got.Theatre.Fronts[0].Line != 0.75 {
+		t.Fatalf("theatre did not round-trip: %+v", got.Theatre)
+	}
+	if row := got.Theatre.Fronts[0].Rows[0]; row.Objective == nil || row.Objective.Text != "Ship" || row.Orders.Open != 1 {
+		t.Fatalf("row did not round-trip: %+v", row)
+	}
+
+	all, err := repo.ListSnapshots(ctx, 10)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(all) != 3 || all[0].Day != "2026-01-01" || all[2].Day != "2026-01-03" {
+		t.Fatalf("snapshots list oldest first: %+v", all)
+	}
+	// The limit keeps the most recent days, still oldest first.
+	recent, _ := repo.ListSnapshots(ctx, 2)
+	if len(recent) != 2 || recent[0].Day != "2026-01-02" || recent[1].Day != "2026-01-03" {
+		t.Fatalf("limited list: %+v", recent)
 	}
 }

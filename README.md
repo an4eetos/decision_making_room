@@ -404,7 +404,7 @@ campaign keeps the rules v1 already follows:
 - [x] **v2.1 Opposition and intel** — obstacles extracted from what you write,
   typed by kind of stuck, strength estimated then confirmed; fog of war over
   what is unknown; reconnaissance as a kind of order
-- [ ] **v2.2 The theatre map** — server-rendered SVG of fronts, objectives and the
+- [x] **v2.2 The theatre map** — server-rendered SVG of fronts, objectives and the
   opposition, with a front line that moves as loops close; a daily snapshot and a
   timelapse of the campaign so far
 - [ ] **v2.3 The staff** — generals appraise the map, not just the question: where

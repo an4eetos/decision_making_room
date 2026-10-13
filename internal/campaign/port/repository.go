@@ -33,3 +33,13 @@ type Repository interface {
 	// ListItems returns items in the given statuses; no statuses means all.
 	ListItems(ctx context.Context, statuses []domain.Status, limit int) ([]domain.Item, error)
 }
+
+// SnapshotRepository keeps one theatre per day for the timelapse.
+type SnapshotRepository interface {
+	// SaveSnapshot writes the day's snapshot, replacing the one already there.
+	SaveSnapshot(ctx context.Context, s domain.Snapshot) error
+	// GetSnapshot returns the snapshot for a YYYY-MM-DD day.
+	GetSnapshot(ctx context.Context, day string) (domain.Snapshot, error)
+	// ListSnapshots returns the most recent snapshots, oldest first.
+	ListSnapshots(ctx context.Context, limit int) ([]domain.Snapshot, error)
+}

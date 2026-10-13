@@ -19,16 +19,20 @@ import (
 )
 
 type Handler struct {
-	manage *usecase.Manage
+	manage    *usecase.Manage
+	snapshots *usecase.Snapshots
 }
 
-func NewHandler(manage *usecase.Manage) *Handler {
-	return &Handler{manage: manage}
+func NewHandler(manage *usecase.Manage, snapshots *usecase.Snapshots) *Handler {
+	return &Handler{manage: manage, snapshots: snapshots}
 }
 
 func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/campaign", h.getMap)
 	mux.HandleFunc("GET /api/campaign/proposals", h.proposals)
+	mux.HandleFunc("GET /api/campaign/map.svg", h.mapSVG)
+	mux.HandleFunc("GET /api/campaign/theatre", h.theatre)
+	mux.HandleFunc("GET /api/campaign/timelapse", h.timelapse)
 	mux.HandleFunc("POST /api/campaign/fronts", h.createFront)
 	mux.HandleFunc("POST /api/campaign/fronts/starters", h.addStarters)
 	mux.HandleFunc("PATCH /api/campaign/fronts/{id}", h.updateFront)
