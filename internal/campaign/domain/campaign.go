@@ -24,12 +24,16 @@ const (
 
 // Front is an area of life or work. You create them; extraction never does.
 type Front struct {
-	ID        uuid.UUID
-	Name      string
-	Status    FrontStatus
-	Position  int
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID       uuid.UUID
+	Name     string
+	Status   FrontStatus
+	Position int
+	// Funds is the money this front can draw on, in FundsCurrency; nil is
+	// none set. It is yours, so it is never an estimate.
+	Funds         *float64
+	FundsCurrency string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // StarterFronts are offered on an empty campaign, one click each. They are
@@ -152,6 +156,11 @@ type Item struct {
 
 	// Unknowns only: what reconnaissance found.
 	Answer string
+
+	// Objectives only: what taking it will cost, as you set it. Nil is no
+	// cost named, which is not the same as free.
+	Cost         *float64
+	CostCurrency string
 
 	DueAt       *time.Time
 	Source      Source

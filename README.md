@@ -11,9 +11,10 @@ written about your own work gives better advice than one that has not.
 > roster, conversation modes, interrogation, beast mode, open loops, check-ins, the journal
 > watcher and the relocation planner all work today, and v2, **the Campaign**,
 > is under way: objectives, opposition and fog of war proposed from what you
-> write, drawn as a theatre map, and now read by the staff — the generals
-> appraise the map, check-ins are sitreps, and a red team attacks your plan.
-> Logistics is next. See [the roadmap](#roadmap).
+> write, drawn as a theatre map, read by the staff — the generals appraise
+> the map, check-ins are sitreps, a red team attacks your plan — and now
+> supplied: every front's orders are weighed against the hours, energy and
+> money you report. The campaign record is next. See [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -227,6 +228,33 @@ Withdrawal is a legitimate order, and the staff will recommend it when it is the
 right one. Set `CAMPAIGN_STAFF_ENABLED=false` to keep the map out of ordinary
 answers; the readings, the appraisal and the red team still work.
 
+### Logistics
+
+A front with more orders than supply is overextended, so the campaign page
+keeps a supply line for each front, and every figure in it is one you
+reported — none is read from what you write:
+
+- **Time** comes from **sorties**, the focus blocks you log on a front. One
+  tap logs a default block today; or give it a length, the order it served,
+  and a day you forgot to log.
+- **Energy** is one tap a day, 1 *spent* to 5 *sharp*, under the evening
+  check-in or on the campaign page.
+- **Money** is the funds you set against a front, against what its objectives
+  cost and what the stays deployed on it will cost. Different currencies are
+  listed side by side, never converted at a guessed rate.
+
+The staff reads it before a front collapses rather than after the line stops
+moving: **outrunning its supply** when what falls due this week needs more
+than the front's hours a week plus one spare sortie, or its backlog would
+outlast the two weeks an order stays fresh; **supply cut** when the sorties
+stopped while orders fall due; **overdrawn** when costs pass funds; a
+**deployment** landing within two weeks with critical pitfalls unhandled;
+**low energy** when most recent evenings were. An order costs one sortie,
+marked `est`, until the front has done three and has a rate of its own. A
+front you never log sorties on is never called out of supply, and with
+nothing reported, answers are exactly what they were. Details in
+[docs/campaign.md](docs/campaign.md#logistics).
+
 ## Generals
 
 Twenty strategic lenses. Pick up to three under the composer and they argue about
@@ -272,6 +300,11 @@ line — an `est` badge, and the share of the total that is guesswork. Type a re
 price on any line and it replaces the estimate, is marked as confirmed, and is
 remembered for the next time you stay in that city.
 
+**Deployed on** puts a stay on a campaign front as a forward base: its setup
+budget draws on the front's funds, still marked with how much of it is an
+estimate, and the staff reads its readiness — critical pitfalls unhandled,
+items still needed — in the two weeks before it lands.
+
 Extend or correct the knowledge base without forking: point `RELOCATION_CATALOG_DIR`
 at a directory with `catalog/` and `pitfalls/` YAML. An entry with an existing id
 replaces the shipped one; a new id is appended. It is validated at startup, and a
@@ -310,6 +343,7 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `COMMITMENT_EXTRACTION_ENABLED` | `true` | propose open loops from what you write |
 | `CAMPAIGN_EXTRACTION_ENABLED` | `true` | propose objectives, obstacles and unknowns from what you write |
 | `CAMPAIGN_STAFF_ENABLED` | `true` | read the campaign map into every answer, so the generals appraise the map and not just the question |
+| `SORTIE_MINUTES` | `25` | the default sortie (focus block), and what an order is estimated to cost before a front has a rate of its own |
 | `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
 | `HTTP_ADDR` | `:8080` | |
 
@@ -348,7 +382,7 @@ server never imports a domain package.
 | `POST` | `/api/campaign/fronts` | open a front; `/fronts/starters` opens the starter set |
 | `PATCH` | `/api/campaign/fronts/{id}` | rename, withdraw, restore |
 | `POST` | `/api/campaign/items` | add an objective, obstacle or unknown |
-| `PATCH` | `/api/campaign/items/{id}` | keep, drop, resolve, withdraw, file, retype, confirm strength |
+| `PATCH` | `/api/campaign/items/{id}` | keep, drop, resolve, withdraw, file, retype, confirm strength, cost an objective |
 | `POST` | `/api/campaign/items/{id}/lift` | lift fog with what you found |
 | `POST` | `/api/campaign/items/{id}/recon` | send a recon order against an unknown |
 | `PUT` | `/api/campaign/orders/{id}/target` | aim an open loop at an item |
@@ -356,6 +390,12 @@ server never imports a domain package.
 | `GET` | `/api/campaign/sitrep` | the map as the staff reads it: lines, orders by name, what moved, the readings |
 | `GET` `POST` | `/api/campaign/appraisals` | what the staff said, latest first, with whether one is being written; `POST {"front_id", "tier"}` starts one in the background and returns 202 |
 | `POST` | `/api/campaign/appraisals/{id}/open` | discuss — opens the conversation |
+| `GET` | `/api/campaign/logistics` | supply per front, energy, deployments, and the last two weeks of sorties |
+| `GET` `POST` | `/api/campaign/sorties` | focus blocks flown; `POST {"front_id", "order_id", "minutes", "day", "note"}`, all but the front optional |
+| `DELETE` | `/api/campaign/sorties/{id}` | take a sortie off the record |
+| `GET` `PUT` | `/api/campaign/energy` | the week's taps; `PUT {"day", "level"}` is the one tap, 1 to 5 |
+| `DELETE` | `/api/campaign/energy/{day}` | take a day's tap back |
+| `GET` | `/api/campaign/fronts` | the fronts alone; `PATCH /fronts/{id}` also takes `funds` and `currency`, or `clear_funds` |
 | `GET` | `/api/checkins/unseen` | waiting check-ins |
 | `POST` | `/api/checkins/now` | check in now |
 | `POST` | `/api/checkins/{id}/open` | reply — opens the conversation |
@@ -368,6 +408,7 @@ server never imports a domain package.
 | `GET` `POST` | `/api/relocation/plans` | |
 | `GET` `PATCH` `DELETE` | `/api/relocation/plans/{id}` | |
 | `POST` | `/api/relocation/plans/{id}/build?reprice=true` | rebuild, optionally repricing |
+| `PUT` | `/api/relocation/plans/{id}/deployment` | deploy on a campaign front, `{"front_id"}`; empty takes it off the map |
 | `PATCH` `DELETE` | `/api/relocation/items/{id}` | |
 
 ```bash
@@ -455,7 +496,7 @@ campaign keeps the rules v1 already follows:
   the point of main effort is, where to yield ground, what is overextended.
   Check-ins become sitreps drawn from map state. **Red team**: one general takes
   command of the opposition and attacks your plan
-- [ ] **v2.4 Logistics** — supply per front: hours from your sorties, energy you
+- [x] **v2.4 Logistics** — supply per front: hours from your sorties, energy you
   report in one tap at the evening check-in (never inferred from your writing),
   money; overextension warnings before a front collapses; relocation as a
   deployment with its own supply line

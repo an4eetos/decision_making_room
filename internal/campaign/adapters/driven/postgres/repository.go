@@ -21,7 +21,7 @@ type Repository struct {
 
 func NewRepository(pool *pgxpool.Pool) *Repository { return &Repository{pool: pool} }
 
-const frontColumns = `id, name, status, position, created_at, updated_at`
+const frontColumns = `id, name, status, position, funds, funds_currency, created_at, updated_at`
 
 // CreateFront appends the front after the existing ones.
 func (r *Repository) CreateFront(ctx context.Context, name string) (domain.Front, error) {
@@ -40,9 +40,10 @@ func (r *Repository) CreateFront(ctx context.Context, name string) (domain.Front
 
 func (r *Repository) UpdateFront(ctx context.Context, f domain.Front) (domain.Front, error) {
 	updated, err := scanFront(r.pool.QueryRow(ctx, `
-		UPDATE fronts SET name = $2, status = $3, position = $4, updated_at = now()
+		UPDATE fronts SET name = $2, status = $3, position = $4, funds = $5,
+			funds_currency = $6, updated_at = now()
 		WHERE id = $1
-		RETURNING `+frontColumns, f.ID, f.Name, string(f.Status), f.Position))
+		RETURNING `+frontColumns, f.ID, f.Name, string(f.Status), f.Position, f.Funds, fundsCurrency(f)))
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return domain.Front{}, port.ErrNotFound
@@ -90,21 +91,22 @@ func (r *Repository) ListFronts(ctx context.Context, activeOnly bool) ([]domain.
 }
 
 const itemColumns = `id, type, front_id, objective_id, text, status, kind, strength,
-	strength_confirmed, answer, due_at, source, session_id, message_id, confidence,
-	fingerprint, created_at, updated_at, resolved_at`
+	strength_confirmed, answer, cost, cost_currency, due_at, source, session_id, message_id,
+	confidence, fingerprint, created_at, updated_at, resolved_at`
 
 func (r *Repository) CreateItem(ctx context.Context, it domain.Item) (domain.Item, error) {
 	created, err := scanItem(r.pool.QueryRow(ctx, `
 		INSERT INTO campaign_items
 			(type, front_id, objective_id, text, status, kind, strength, strength_confirmed,
 			 answer, due_at, source, session_id, message_id, confidence, fingerprint,
-			 resolved_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
+			 cost, cost_currency, resolved_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
 			CASE WHEN $5 IN ('resolved', 'withdrawn', 'dropped') THEN now() END)
 		RETURNING `+itemColumns,
 		string(it.Type), it.FrontID, it.ObjectiveID, it.Text, string(it.Status),
 		nullKind(it.Kind), nullStrength(it.Strength), it.StrengthConfirmed, it.Answer,
-		it.DueAt, string(it.Source), it.SessionID, it.MessageID, it.Confidence, it.Fingerprint))
+		it.DueAt, string(it.Source), it.SessionID, it.MessageID, it.Confidence, it.Fingerprint,
+		it.Cost, costCurrency(it)))
 	if isUniqueViolation(err) {
 		return domain.Item{}, port.ErrDuplicate
 	}
@@ -132,14 +134,15 @@ func (r *Repository) UpdateItem(ctx context.Context, it domain.Item) (domain.Ite
 		UPDATE campaign_items SET
 			front_id = $2, objective_id = $3, text = $4, status = $5, kind = $6,
 			strength = $7, strength_confirmed = $8, answer = $9, due_at = $10,
-			fingerprint = $11, updated_at = now(),
+			fingerprint = $11, cost = $12, cost_currency = $13, updated_at = now(),
 			resolved_at = CASE
 				WHEN $5 IN ('resolved', 'withdrawn', 'dropped') THEN COALESCE(resolved_at, now())
 				ELSE NULL END
 		WHERE id = $1
 		RETURNING `+itemColumns,
 		it.ID, it.FrontID, it.ObjectiveID, it.Text, string(it.Status), nullKind(it.Kind),
-		nullStrength(it.Strength), it.StrengthConfirmed, it.Answer, it.DueAt, it.Fingerprint))
+		nullStrength(it.Strength), it.StrengthConfirmed, it.Answer, it.DueAt, it.Fingerprint,
+		it.Cost, costCurrency(it)))
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
 		return domain.Item{}, port.ErrNotFound
@@ -198,10 +201,13 @@ func scanFront(row scannable) (domain.Front, error) {
 		f      domain.Front
 		status string
 	)
-	if err := row.Scan(&f.ID, &f.Name, &status, &f.Position, &f.CreatedAt, &f.UpdatedAt); err != nil {
+	if err := row.Scan(&f.ID, &f.Name, &status, &f.Position, &f.Funds, &f.FundsCurrency, &f.CreatedAt, &f.UpdatedAt); err != nil {
 		return domain.Front{}, err
 	}
 	f.Status = domain.FrontStatus(status)
+	if f.Funds == nil {
+		f.FundsCurrency = ""
+	}
 	return f, nil
 }
 
@@ -213,9 +219,9 @@ func scanItem(row scannable) (domain.Item, error) {
 		strength            *int16
 	)
 	err := row.Scan(&it.ID, &typ, &it.FrontID, &it.ObjectiveID, &it.Text, &status, &kind,
-		&strength, &it.StrengthConfirmed, &it.Answer, &it.DueAt, &source, &it.SessionID,
-		&it.MessageID, &it.Confidence, &it.Fingerprint, &it.CreatedAt, &it.UpdatedAt,
-		&it.ResolvedAt)
+		&strength, &it.StrengthConfirmed, &it.Answer, &it.Cost, &it.CostCurrency, &it.DueAt,
+		&source, &it.SessionID, &it.MessageID, &it.Confidence, &it.Fingerprint, &it.CreatedAt,
+		&it.UpdatedAt, &it.ResolvedAt)
 	if err != nil {
 		return domain.Item{}, err
 	}
@@ -247,6 +253,22 @@ func nullStrength(s int) *int16 {
 	}
 	v := int16(s)
 	return &v
+}
+
+// A currency is stored only with an amount, which a check constraint
+// enforces; an amount cleared takes its currency with it.
+func fundsCurrency(f domain.Front) string {
+	if f.Funds == nil {
+		return ""
+	}
+	return f.FundsCurrency
+}
+
+func costCurrency(it domain.Item) string {
+	if it.Cost == nil {
+		return ""
+	}
+	return it.CostCurrency
 }
 
 func isUniqueViolation(err error) bool {

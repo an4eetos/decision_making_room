@@ -56,3 +56,31 @@ type AppraisalRepository interface {
 	ListAppraisals(ctx context.Context, limit int) ([]domain.Appraisal, error)
 	AttachAppraisalSession(ctx context.Context, id, sessionID uuid.UUID) error
 }
+
+// LogisticsRepository keeps what supplies the fronts: the sorties flown and
+// the energy reported. Both are yours; nothing here is extracted.
+type LogisticsRepository interface {
+	CreateSortie(ctx context.Context, s domain.Sortie) (domain.Sortie, error)
+	DeleteSortie(ctx context.Context, id uuid.UUID) error
+	// ListSorties returns the sorties flown on or after a YYYY-MM-DD day,
+	// latest first.
+	ListSorties(ctx context.Context, since string) ([]domain.Sortie, error)
+	// FirstSortieDay is the day of the first sortie on record, empty with
+	// none: a supply record younger than its window is measured over what
+	// there is, not diluted by days before it began.
+	FirstSortieDay(ctx context.Context) (string, error)
+
+	// SaveEnergy writes a day's reading, replacing one already there.
+	SaveEnergy(ctx context.Context, r domain.EnergyReport) (domain.EnergyReport, error)
+	DeleteEnergy(ctx context.Context, day string) error
+	// ListEnergy returns the readings on or after a YYYY-MM-DD day, oldest
+	// first.
+	ListEnergy(ctx context.Context, since string) ([]domain.EnergyReport, error)
+}
+
+// DeploymentSource reads the relocation plans deployed on a front: a stay as
+// a forward base with its own supply line. The relocation module implements
+// it, so the campaign never imports the planner.
+type DeploymentSource interface {
+	Deployments(ctx context.Context) ([]domain.Deployment, error)
+}

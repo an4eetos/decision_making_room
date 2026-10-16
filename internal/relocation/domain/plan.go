@@ -62,8 +62,12 @@ type Plan struct {
 	Currency    string
 	Status      PlanStatus
 	Notes       string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	// FrontID is the campaign front the stay is deployed on: a forward base
+	// whose setup budget draws on the front's funds. Nil is a stay off the
+	// map.
+	FrontID   *uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	Items    []Item
 	Pitfalls []PlanPitfall

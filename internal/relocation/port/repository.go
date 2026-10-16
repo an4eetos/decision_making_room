@@ -14,6 +14,9 @@ type PlanRepository interface {
 	GetPlan(ctx context.Context, id uuid.UUID) (domain.Plan, error)
 	ListPlans(ctx context.Context) ([]domain.Plan, error)
 	DeletePlan(ctx context.Context, id uuid.UUID) error
+	// SetPlanFront deploys a plan on a campaign front, or with nil takes it
+	// off the map. ErrUnknownFront when the front does not exist.
+	SetPlanFront(ctx context.Context, id uuid.UUID, frontID *uuid.UUID) error
 
 	// ReplaceItems upserts by (plan_id, catalog_id) and removes catalogue lines
 	// that no longer apply. Lines you added yourself, and any status or price you
@@ -48,3 +51,10 @@ var ErrNotFound = errNotFound{}
 type errNotFound struct{}
 
 func (errNotFound) Error() string { return "relocation: not found" }
+
+// ErrUnknownFront is a deployment aimed at a front that is not there.
+var ErrUnknownFront = errUnknownFront{}
+
+type errUnknownFront struct{}
+
+func (errUnknownFront) Error() string { return "relocation: no such front" }

@@ -148,6 +148,11 @@ type Patch struct {
 	Status          *domain.Status
 	DueAt           *time.Time
 	ClearDue        bool
+	// Cost sets what taking an objective will cost, in CostCurrency (empty
+	// is its front's funds currency); ClearCost removes it.
+	Cost         *float64
+	CostCurrency string
+	ClearCost    bool
 }
 
 // allowed are the transitions that make sense. Mostly they stop a proposal
@@ -226,6 +231,13 @@ func (u *Manage) Update(ctx context.Context, id uuid.UUID, p Patch) (domain.Item
 		item.DueAt = p.DueAt
 		if p.ClearDue {
 			item.DueAt = nil
+		}
+		edited = true
+	}
+
+	if p.Cost != nil || p.ClearCost {
+		if err := u.setCost(ctx, &item, p.Cost, p.CostCurrency, p.ClearCost); err != nil {
+			return domain.Item{}, err
 		}
 		edited = true
 	}

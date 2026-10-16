@@ -13,6 +13,9 @@ function setupCheckins() {
     const nowButton = document.getElementById("checkin-now");
 
     let latest = [];
+    // The day's energy, by day, so the evening card's tap shows what was
+    // already reported when the cards are redrawn on the next poll.
+    let energyByDay = {};
 
     function renderBadge(count) {
         if (!badge) {
@@ -38,6 +41,7 @@ function setupCheckins() {
                     <span class="checkin-time muted">${escapeHTML(timeAgo(c.created_at))}</span>
                 </header>
                 <div class="checkin-body markdown">${renderMarkdown(c.body)}</div>
+                ${c.asks_energy ? energyTapHTML(c.day, energyByDay[c.day] || 0) : ""}
                 <div class="checkin-actions">
                     <button type="button" class="btn primary" data-checkin-open>Reply</button>
                     <button type="button" class="btn" data-checkin-dismiss>Not now</button>
@@ -45,10 +49,25 @@ function setupCheckins() {
             </article>`).join("");
     }
 
+    // loadEnergy reads the week's taps, only when an evening card is waiting:
+    // the unseen poll itself stays one indexed query.
+    async function loadEnergy() {
+        if (!latest.some((c) => c.asks_energy)) {
+            return;
+        }
+        try {
+            const data = await apiJSON("/api/campaign/energy?days=7");
+            energyByDay = Object.fromEntries((data.reports || []).map((r) => [r.day, r.level]));
+        } catch {
+            // The tap still works; it just starts unlit.
+        }
+    }
+
     async function poll() {
         try {
             const data = await apiJSON("/api/checkins/unseen");
             latest = data.items || [];
+            await loadEnergy();
             renderBadge(data.count || 0);
             if (typeof setSituationChip === "function") {
                 setSituationChip("sit-next", data.next_at
@@ -68,6 +87,19 @@ function setupCheckins() {
             return;
         }
         const id = card.dataset.checkin;
+
+        // One tap reports the evening's energy; the card stays, so it can
+        // still be answered or put off.
+        const tap = e.target.closest("[data-energy]");
+        if (tap) {
+            const container = tap.closest("[data-energy-day]");
+            try {
+                energyByDay[container.dataset.energyDay] = await tapEnergy(container, Number(tap.dataset.energy));
+            } catch (error) {
+                showMessage(document.getElementById("consult-result"), error.message, "error");
+            }
+            return;
+        }
 
         try {
             if (e.target.closest("[data-checkin-open]")) {

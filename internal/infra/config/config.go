@@ -81,6 +81,10 @@ type Config struct {
 	// appraise the map and not just the question. One database read per
 	// answer, no model call; off, the room answers as it did before the map.
 	CampaignStaff bool
+	// SortieMinutes is the length of a default sortie, the focus block a
+	// front's hours are logged in, and what an order is estimated to cost
+	// before a front has a rate of its own.
+	SortieMinutes int
 
 	// Check-ins are off by default: a tool that starts messaging you unasked
 	// is one people uninstall. Slots are "name@HH:MM" pairs.
@@ -99,6 +103,11 @@ type Config struct {
 func Load() (Config, error) {
 	if err := loadDotEnv(".env"); err != nil {
 		return Config{}, fmt.Errorf("load .env: %w", err)
+	}
+
+	sortieMinutes, err := strconv.Atoi(envOrDefault("SORTIE_MINUTES", "25"))
+	if err != nil || sortieMinutes < 5 || sortieMinutes > 480 {
+		return Config{}, fmt.Errorf("SORTIE_MINUTES must be 5 to 480 minutes")
 	}
 
 	topK, err := strconv.Atoi(envOrDefault("RETRIEVAL_TOP_K", "8"))
@@ -156,6 +165,7 @@ func Load() (Config, error) {
 		CommitmentExtraction:   envBoolOrDefault("COMMITMENT_EXTRACTION_ENABLED", true),
 		CampaignExtraction:     envBoolOrDefault("CAMPAIGN_EXTRACTION_ENABLED", true),
 		CampaignStaff:          envBoolOrDefault("CAMPAIGN_STAFF_ENABLED", true),
+		SortieMinutes:          sortieMinutes,
 		CheckinEnabled:         envBoolOrDefault("CHECKIN_ENABLED", false),
 		CheckinSlots:           envOrDefault("CHECKIN_SLOTS", "morning@08:00,midday@13:00,evening@21:00"),
 		CheckinTimezone:        os.Getenv("CHECKIN_TZ"),

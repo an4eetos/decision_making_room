@@ -323,3 +323,137 @@ func TestAppraisalsRoundTrip(t *testing.T) {
 		t.Fatalf("the session should be attached: %+v", got)
 	}
 }
+
+func TestLogisticsRoundTrip(t *testing.T) {
+	pool := startPostgres(t)
+	ctx := context.Background()
+	repo := postgres.NewRepository(pool)
+	orders := compostgres.NewRepository(pool)
+
+	if first, err := repo.FirstSortieDay(ctx); err != nil || first != "" {
+		t.Fatalf("no sorties yet: %q %v", first, err)
+	}
+
+	work, err := repo.CreateFront(ctx, "Work")
+	if err != nil {
+		t.Fatal(err)
+	}
+	order, err := orders.Create(ctx, comdomain.Commitment{Text: "Write the tests", Status: comdomain.StatusOpen, Source: comdomain.SourceManual, Confidence: 1, Fingerprint: "tests"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := repo.CreateSortie(ctx, domain.Sortie{FrontID: work.ID, OrderID: &order.ID, Minutes: 25, Day: "2026-10-16", Note: "tests"})
+	if err != nil {
+		t.Fatalf("create sortie: %v", err)
+	}
+	if s.ID == uuid.Nil || s.Day != "2026-10-16" || s.OrderID == nil || s.CreatedAt.IsZero() {
+		t.Fatalf("sortie did not round-trip: %+v", s)
+	}
+	if _, err := repo.CreateSortie(ctx, domain.Sortie{FrontID: work.ID, Minutes: 50, Day: "2026-10-01"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.CreateSortie(ctx, domain.Sortie{FrontID: uuid.New(), Minutes: 25, Day: "2026-10-16"}); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("a sortie on a front that is not there: %v", err)
+	}
+	if _, err := repo.CreateSortie(ctx, domain.Sortie{FrontID: work.ID, Minutes: 0, Day: "2026-10-16"}); err == nil {
+		t.Fatal("the schema refuses a sortie of no length")
+	}
+
+	recent, err := repo.ListSorties(ctx, "2026-10-10")
+	if err != nil || len(recent) != 1 || recent[0].ID != s.ID {
+		t.Fatalf("sorties since a day: %+v %v", recent, err)
+	}
+	if first, _ := repo.FirstSortieDay(ctx); first != "2026-10-01" {
+		t.Fatalf("first sortie: %q", first)
+	}
+	// The order goes; the sortie stays, on the front in general.
+	if _, err := pool.Exec(ctx, `DELETE FROM commitments WHERE id = $1`, order.ID); err != nil {
+		t.Fatal(err)
+	}
+	if again, _ := repo.ListSorties(ctx, "2026-10-16"); len(again) != 1 || again[0].OrderID != nil {
+		t.Fatalf("the sortie outlives its order: %+v", again)
+	}
+	if err := repo.DeleteSortie(ctx, s.ID); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.DeleteSortie(ctx, s.ID); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("deleted twice: %v", err)
+	}
+
+	if _, err := repo.SaveEnergy(ctx, domain.EnergyReport{Day: "2026-10-16", Level: 2}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.SaveEnergy(ctx, domain.EnergyReport{Day: "2026-10-17", Level: 4}); err != nil {
+		t.Fatal(err)
+	}
+	replaced, err := repo.SaveEnergy(ctx, domain.EnergyReport{Day: "2026-10-17", Level: 5})
+	if err != nil || replaced.Level != 5 {
+		t.Fatalf("a second tap replaces the first: %+v %v", replaced, err)
+	}
+	if _, err := repo.SaveEnergy(ctx, domain.EnergyReport{Day: "2026-10-17", Level: 6}); err == nil {
+		t.Fatal("the schema refuses a level off the scale")
+	}
+	energy, err := repo.ListEnergy(ctx, "2026-10-16")
+	if err != nil || len(energy) != 2 || energy[0].Day != "2026-10-16" || energy[1].Level != 5 {
+		t.Fatalf("energy oldest first: %+v %v", energy, err)
+	}
+	if err := repo.DeleteEnergy(ctx, "2026-10-16"); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.DeleteEnergy(ctx, "2026-10-16"); !errors.Is(err, port.ErrNotFound) {
+		t.Fatalf("cleared twice: %v", err)
+	}
+
+	funds := 2500.0
+	work.Funds, work.FundsCurrency = &funds, "EUR"
+	work, err = repo.UpdateFront(ctx, work)
+	if err != nil || work.Funds == nil || *work.Funds != 2500 || work.FundsCurrency != "EUR" {
+		t.Fatalf("funds: %+v %v", work, err)
+	}
+	work.FundsCurrency = "euros"
+	if _, err := repo.UpdateFront(ctx, work); err == nil {
+		t.Fatal("the schema refuses funds without a currency code")
+	}
+	work.Funds, work.FundsCurrency = nil, "EUR"
+	if cleared, err := repo.UpdateFront(ctx, work); err != nil || cleared.Funds != nil || cleared.FundsCurrency != "" {
+		t.Fatalf("clearing funds takes the currency with it: %+v %v", cleared, err)
+	}
+
+	cost := 300.0
+	visa, err := repo.CreateItem(ctx, domain.Item{
+		Type: domain.TypeObjective, FrontID: &work.ID, Text: "Get the visa", Status: domain.StatusActive,
+		Source: domain.SourceManual, Confidence: 1, Fingerprint: "visa", Cost: &cost, CostCurrency: "EUR",
+	})
+	if err != nil || visa.Cost == nil || *visa.Cost != 300 || visa.CostCurrency != "EUR" {
+		t.Fatalf("cost: %+v %v", visa, err)
+	}
+	visa.Cost = nil
+	if visa, err = repo.UpdateItem(ctx, visa); err != nil || visa.Cost != nil || visa.CostCurrency != "" {
+		t.Fatalf("cleared cost: %+v %v", visa, err)
+	}
+	if _, err := repo.CreateItem(ctx, domain.Item{
+		Type: domain.TypeUnknown, Text: "Which visa?", Status: domain.StatusActive,
+		Source: domain.SourceManual, Confidence: 1, Fingerprint: "which", Cost: &cost, CostCurrency: "EUR",
+	}); err == nil {
+		t.Fatal("the schema refuses a cost on anything but an objective")
+	}
+
+	// A stay deployed on a front loses its front, not itself, when the
+	// front goes.
+	var plan uuid.UUID
+	if err := pool.QueryRow(ctx, `INSERT INTO relocation_plans (destination, nights, front_id) VALUES ('Lisbon', 30, $1) RETURNING id`, work.ID).Scan(&plan); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, `DELETE FROM fronts WHERE id = $1`, work.ID); err != nil {
+		t.Fatal(err)
+	}
+	var front *uuid.UUID
+	if err := pool.QueryRow(ctx, `SELECT front_id FROM relocation_plans WHERE id = $1`, plan).Scan(&front); err != nil || front != nil {
+		t.Fatalf("the deployment is cleared with its front: %v %v", front, err)
+	}
+	var left int
+	if err := pool.QueryRow(ctx, `SELECT count(*) FROM sorties`).Scan(&left); err != nil || left != 0 {
+		t.Fatalf("sorties go with their front: %d %v", left, err)
+	}
+}

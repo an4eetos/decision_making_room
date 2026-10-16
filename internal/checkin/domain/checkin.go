@@ -35,3 +35,14 @@ type CheckIn struct {
 	SeenAt    *time.Time
 	CreatedAt time.Time
 }
+
+// eveningModeID is the mode the evening check-in opens in.
+const eveningModeID = "debrief"
+
+// AsksEnergy reports whether the check-in carries the one-tap energy
+// report: the evening one, scheduled or asked for at that hour. Energy is
+// reported, never inferred from what you write, so it is asked for once a
+// day, at the end of it, and nowhere in the model's text.
+func (c CheckIn) AsksEnergy() bool {
+	return c.Kind == KindScheduled && c.ModeID == eveningModeID
+}

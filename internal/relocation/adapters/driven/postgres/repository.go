@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/an4eetos/decision-room/internal/relocation/domain"
@@ -64,6 +65,24 @@ func (r *Repository) UpdatePlan(ctx context.Context, p domain.Plan) (domain.Plan
 		return domain.Plan{}, fmt.Errorf("update plan: %w", err)
 	}
 	return r.GetPlan(ctx, id)
+}
+
+// SetPlanFront deploys a plan on a front, or with nil takes it off the map.
+// A front that does not exist is ErrUnknownFront, not a server error.
+func (r *Repository) SetPlanFront(ctx context.Context, id uuid.UUID, frontID *uuid.UUID) error {
+	tag, err := r.pool.Exec(ctx,
+		`UPDATE relocation_plans SET front_id = $2, updated_at = now() WHERE id = $1`, id, frontID)
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+		return port.ErrUnknownFront
+	}
+	if err != nil {
+		return fmt.Errorf("deploy plan: %w", err)
+	}
+	if tag.RowsAffected() == 0 {
+		return port.ErrNotFound
+	}
+	return nil
 }
 
 func (r *Repository) GetPlan(ctx context.Context, id uuid.UUID) (domain.Plan, error) {

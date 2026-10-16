@@ -4115,3 +4115,332 @@ button.est:hover {
 .rt-beat .rt-key {
     color: var(--wr-amber-text);
 }
+
+/* ---------- Logistics ----------
+   Supply as reported: time, energy, money. Quiet by default; a front
+   outrunning its supply takes the red edge the readings use for what is
+   holding, an estimate keeps its dashed amber badge, and energy runs from
+   red through amber to green so the week reads at a glance. */
+.logistics {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--wr-line);
+    border-radius: 10px;
+    background: var(--wr-panel);
+}
+
+.logistics-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+}
+
+.logistics-head h2 {
+    margin: 0;
+}
+
+.logistics-note {
+    margin: 0;
+    font-size: 0.82rem;
+    max-width: 80ch;
+}
+
+.logistics-energy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.energy-tap {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.energy-tap.busy {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.energy-ask {
+    margin-right: 4px;
+    font-family: var(--wr-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-muted);
+}
+
+.energy-level {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 6px;
+    background: none;
+    color: var(--wr-text-2);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.energy-level:hover {
+    border-color: var(--wr-line-strong);
+    color: var(--wr-text);
+}
+
+.energy-n {
+    font-family: var(--wr-mono);
+    font-weight: 700;
+}
+
+.energy-level.on {
+    color: var(--wr-bg);
+    border-color: transparent;
+}
+
+.energy-level.on.lvl-1, .energy-dot.lvl-1 { background: var(--wr-red); }
+.energy-level.on.lvl-2, .energy-dot.lvl-2 { background: #c9773c; }
+.energy-level.on.lvl-3, .energy-dot.lvl-3 { background: var(--wr-amber); }
+.energy-level.on.lvl-4, .energy-dot.lvl-4 { background: #b4b65a; }
+.energy-level.on.lvl-5, .energy-dot.lvl-5 { background: var(--wr-green); }
+
+.energy-week {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.energy-dot {
+    display: inline-block;
+    min-width: 1.6rem;
+    padding: 0 0.2rem;
+    border-radius: 4px;
+    color: var(--wr-bg);
+    font-family: var(--wr-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.4rem;
+    text-align: center;
+}
+
+.checkin-card .energy-tap {
+    margin-top: 0.6rem;
+}
+
+.logistics-fronts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.supply-row {
+    display: grid;
+    grid-template-columns: minmax(6rem, 9rem) repeat(3, minmax(0, 1fr)) auto;
+    align-items: baseline;
+    gap: 6px 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--wr-line-soft);
+    border-radius: 8px;
+    background: var(--wr-panel-2);
+    font-size: 0.82rem;
+    color: var(--wr-text-2);
+}
+
+.supply-row.outrun,
+.supply-row.cut {
+    border-color: var(--wr-red-soft);
+    border-left: 3px solid var(--wr-red);
+}
+
+.supply-front {
+    font-weight: 600;
+    color: var(--wr-text);
+}
+
+.supply-cell b {
+    color: var(--wr-text);
+}
+
+.supply-label {
+    display: block;
+    font-family: var(--wr-mono);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wr-faint);
+}
+
+.supply-row.outrun .supply-orders .supply-label,
+.supply-row.cut .supply-time .supply-label,
+.supply-money.overdrawn .supply-label {
+    color: var(--wr-red-text);
+}
+
+.supply-money.overdrawn b {
+    color: var(--wr-red-text);
+}
+
+.supply-deployments,
+.supply-row .sortie-form {
+    grid-column: 1 / -1;
+}
+
+.supply-deployments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.deployment-chip {
+    padding: 0.15rem 0.55rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 999px;
+    font-size: 0.76rem;
+    color: var(--wr-text-2);
+}
+
+.deployment-chip:hover {
+    border-color: var(--wr-amber-line);
+    color: var(--wr-text);
+    text-decoration: none;
+}
+
+.deployment-chip.critical {
+    border-color: var(--wr-red-soft);
+    color: var(--wr-red-text);
+}
+
+.sortie-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--wr-line-soft);
+}
+
+.sortie-form select,
+.sortie-form input {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.sortie-form select[name="order_id"] {
+    max-width: 18rem;
+}
+
+.sortie-form input[name="note"] {
+    flex: 1 1 10rem;
+}
+
+.logistics-sorties summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--wr-muted);
+}
+
+.sortie-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sortie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    font-size: 0.8rem;
+    color: var(--wr-text-2);
+}
+
+.sortie-day {
+    min-width: 5.5rem;
+    font-family: var(--wr-mono);
+    font-size: 0.72rem;
+}
+
+.sortie-front {
+    color: var(--wr-text);
+}
+
+.sortie-len {
+    font-family: var(--wr-mono);
+    font-size: 0.75rem;
+}
+
+.cost-chip {
+    padding: 0 0.45rem;
+    border: 1px solid var(--wr-line);
+    border-radius: 999px;
+    background: none;
+    color: var(--wr-text-2);
+    font-family: var(--wr-mono);
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.cost-chip:hover {
+    border-color: var(--wr-line-strong);
+    color: var(--wr-text);
+}
+
+.reading.kind-outrun,
+.reading.kind-cut,
+.reading.kind-overdrawn {
+    border-color: var(--wr-red-soft);
+}
+
+.reading.kind-outrun .reading-kind,
+.reading.kind-cut .reading-kind,
+.reading.kind-overdrawn .reading-kind {
+    color: var(--wr-red-text);
+}
+
+.reading.kind-deployment .reading-kind,
+.reading.kind-energy .reading-kind {
+    color: var(--wr-amber-text);
+}
+
+.reloc-deploy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0.75rem 0 0;
+    font-size: 0.8rem;
+}
+
+.reloc-deploy select {
+    padding: 0.4rem 0.6rem;
+}
+
+.reloc-deploy-empty {
+    align-self: center;
+    margin-top: 0.75rem;
+}
+
+@media (max-width: 760px) {
+    .supply-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .supply-front {
+        grid-column: 1 / -1;
+    }
+
+    .supply-row .row-actions {
+        grid-column: 1 / -1;
+    }
+}
