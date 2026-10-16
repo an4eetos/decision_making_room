@@ -17,6 +17,9 @@ import (
 type Sitreps struct {
 	manage    *Manage
 	snapshots *Snapshots
+	// logistics reads the supply lines into the sitrep. Optional: without
+	// it the sitrep is what it was before supply existed.
+	logistics *Logistics
 	loc       *time.Location
 	// readsIntoAnswers is CAMPAIGN_STAFF_ENABLED: whether the map goes into
 	// ordinary answers. Off, the room answers as it did before the map.
@@ -29,6 +32,14 @@ func NewSitreps(manage *Manage, snapshots *Snapshots, loc *time.Location, readsI
 		loc = time.Local
 	}
 	return &Sitreps{manage: manage, snapshots: snapshots, loc: loc, readsIntoAnswers: readsIntoAnswers, now: time.Now}
+}
+
+// WithLogistics reads supply into every sitrep: hours from sorties, energy
+// reported, money, deployments, and the readings that warn when a front's
+// orders outrun them.
+func (s *Sitreps) WithLogistics(l *Logistics) *Sitreps {
+	s.logistics = l
+	return s
 }
 
 // Sitrep reads the live map: the theatre with its orders by name, what moved
@@ -50,7 +61,19 @@ func (s *Sitreps) Sitrep(ctx context.Context) (domain.Sitrep, error) {
 			prior = nil
 		}
 	}
-	return service.Read(m.Fronts, m.Items, m.Orders, prior, now), nil
+	sitrep := service.Read(m.Fronts, m.Items, m.Orders, prior, now)
+	// An empty map has no fronts to supply: no reads for a campaign
+	// nobody opened.
+	if s.logistics != nil && !sitrep.Empty {
+		// Supply that cannot be read is logged and left out: the map still
+		// reads without it.
+		if supply, err := s.logistics.Read(ctx, m, now); err != nil {
+			log.Printf("campaign: sitrep logistics: %v", err)
+		} else {
+			sitrep = service.Supplied(sitrep, supply)
+		}
+	}
+	return sitrep, nil
 }
 
 // Situation implements the memory module's SituationReader: the brief that

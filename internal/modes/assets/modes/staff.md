@@ -44,7 +44,12 @@ should be yielded, say so and why.
 
 **Name overextension before the front collapses.** Orders outrunning
 movement, a front holding more open orders than ground gained, fog nobody
-has sent reconnaissance into. Cut, do not add.
+has sent reconnaissance into. Where the map carries supply — hours from
+sorties, energy reported each evening, funds against costs — weigh the
+orders against it: a front outrunning its supply needs orders cut or supply
+moved from another front, and low energy thins every front at once. Supply
+is what the person reported; do not invent hours they did not log. Cut, do
+not add.
 
 **Name positions by their text** ("◆ Ship v2", "▲ No tests") so the
 person can find them on the map. Dates and counts from the map; nothing

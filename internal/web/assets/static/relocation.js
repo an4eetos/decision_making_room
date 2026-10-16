@@ -62,6 +62,8 @@ function setupRelocation() {
 
     let activeID = null;
     let activePlan = null;
+    // Campaign fronts a stay can be deployed on.
+    let fronts = [];
 
     function fail(error) {
         showMessage(errorEl, error.message, "error");
@@ -161,10 +163,29 @@ function setupRelocation() {
                 <p class="muted">${bits.map(escapeHTML).join(" · ")}</p>
             </div>
             <div class="reloc-header-actions">
+                ${renderDeploy(plan)}
                 <button type="button" class="btn" data-action="edit">Edit stay</button>
                 <button type="button" class="btn primary" data-action="reprice">Price for this city</button>
             </div>
         </header>`;
+    }
+
+    // renderDeploy puts the stay on a campaign front as a deployment: a
+    // forward base whose setup budget draws on the front's funds, read by the
+    // staff before it lands. Nothing about the list changes.
+    function renderDeploy(plan) {
+        const choices = fronts.filter((f) => f.status === "active" || f.id === plan.front_id);
+        if (choices.length === 0) {
+            return `<a class="link-btn reloc-deploy-empty" href="/campaign" title="Open a front on the campaign page to deploy this stay on it">Not on the campaign map</a>`;
+        }
+        return `
+        <label class="reloc-deploy" title="Deploy this stay on a campaign front: its setup budget draws on the front's funds, and the staff reads its readiness before it lands">
+            <span class="muted">Deployed on</span>
+            <select data-deploy>
+                <option value="">Not on the map</option>
+                ${choices.map((f) => `<option value="${escapeHTML(f.id)}" ${f.id === plan.front_id ? "selected" : ""}>${escapeHTML(f.name)}</option>`).join("")}
+            </select>
+        </label>`;
     }
 
     function renderBudget(budget) {
@@ -457,6 +478,20 @@ function setupRelocation() {
     planEl.addEventListener("change", async (e) => {
         clearError();
 
+        if (e.target.matches("[data-deploy]")) {
+            try {
+                activePlan = await apiJSON(`/api/relocation/plans/${activePlan.id}/deployment`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ front_id: e.target.value }),
+                });
+                renderPlan();
+            } catch (error) {
+                fail(error);
+            }
+            return;
+        }
+
         if (e.target.matches(".reloc-status")) {
             await patchItem(e.target.dataset.itemId, { status: e.target.value });
             return;
@@ -504,9 +539,17 @@ function setupRelocation() {
 
     (async () => {
         try {
+            try {
+                fronts = await apiJSON("/api/campaign/fronts");
+            } catch {
+                // Without the campaign a stay is simply not deployed.
+                fronts = [];
+            }
             const plans = await refreshPlans();
             if (plans.length > 0) {
-                await loadPlan(plans[0].id);
+                // A deployment on the campaign page links here with ?plan=.
+                const wanted = new URLSearchParams(window.location.search).get("plan");
+                await loadPlan((plans.find((p) => p.id === wanted) || plans[0]).id);
             } else {
                 showForm(true);
             }

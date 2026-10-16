@@ -6,6 +6,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	camport "github.com/an4eetos/decision-room/internal/campaign/port"
 	"github.com/an4eetos/decision-room/internal/infra/config"
 	memport "github.com/an4eetos/decision-room/internal/memory/port"
 	relfs "github.com/an4eetos/decision-room/internal/relocation/adapters/driven/fs"
@@ -22,6 +23,10 @@ var Module = fx.Module("relocation",
 		providePriceRepository,
 		providePrice,
 		provideBuild,
+		usecase.NewDeployments,
+		// A stay deployed on a front is part of its supply line. The campaign
+		// reads it through its own port, so it never imports the planner.
+		func(d *usecase.Deployments) camport.DeploymentSource { return d },
 	),
 )
 

@@ -23,10 +23,11 @@ type Handler struct {
 	snapshots *usecase.Snapshots
 	sitreps   *usecase.Sitreps
 	staff     *usecase.Staff
+	logs      *usecase.Logistics
 }
 
-func NewHandler(manage *usecase.Manage, snapshots *usecase.Snapshots, sitreps *usecase.Sitreps, staff *usecase.Staff) *Handler {
-	return &Handler{manage: manage, snapshots: snapshots, sitreps: sitreps, staff: staff}
+func NewHandler(manage *usecase.Manage, snapshots *usecase.Snapshots, sitreps *usecase.Sitreps, staff *usecase.Staff, logistics *usecase.Logistics) *Handler {
+	return &Handler{manage: manage, snapshots: snapshots, sitreps: sitreps, staff: staff, logs: logistics}
 }
 
 func (h *Handler) Register(mux *http.ServeMux) {
@@ -39,6 +40,14 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/campaign/appraisals", h.appraisals)
 	mux.HandleFunc("POST /api/campaign/appraisals", h.appraise)
 	mux.HandleFunc("POST /api/campaign/appraisals/{id}/open", h.openAppraisal)
+	mux.HandleFunc("GET /api/campaign/logistics", h.logistics)
+	mux.HandleFunc("GET /api/campaign/sorties", h.listSorties)
+	mux.HandleFunc("POST /api/campaign/sorties", h.logSortie)
+	mux.HandleFunc("DELETE /api/campaign/sorties/{id}", h.deleteSortie)
+	mux.HandleFunc("GET /api/campaign/energy", h.listEnergy)
+	mux.HandleFunc("PUT /api/campaign/energy", h.reportEnergy)
+	mux.HandleFunc("DELETE /api/campaign/energy/{day}", h.clearEnergy)
+	mux.HandleFunc("GET /api/campaign/fronts", h.listFronts)
 	mux.HandleFunc("POST /api/campaign/fronts", h.createFront)
 	mux.HandleFunc("POST /api/campaign/fronts/starters", h.addStarters)
 	mux.HandleFunc("PATCH /api/campaign/fronts/{id}", h.updateFront)
@@ -56,10 +65,13 @@ type frontDTO struct {
 	Name     string    `json:"name"`
 	Status   string    `json:"status"`
 	Position int       `json:"position"`
+	// Funds is what the front can draw on; null is none set.
+	Funds         *float64 `json:"funds"`
+	FundsCurrency string   `json:"funds_currency,omitempty"`
 }
 
 func toFront(f domain.Front) frontDTO {
-	return frontDTO{ID: f.ID, Name: f.Name, Status: string(f.Status), Position: f.Position}
+	return frontDTO{ID: f.ID, Name: f.Name, Status: string(f.Status), Position: f.Position, Funds: f.Funds, FundsCurrency: f.FundsCurrency}
 }
 
 type itemDTO struct {
@@ -73,6 +85,8 @@ type itemDTO struct {
 	Strength          int        `json:"strength,omitempty"`
 	StrengthConfirmed bool       `json:"strength_confirmed"`
 	Answer            string     `json:"answer,omitempty"`
+	Cost              *float64   `json:"cost,omitempty"`
+	CostCurrency      string     `json:"cost_currency,omitempty"`
 	Due               string     `json:"due,omitempty"`
 	Overdue           bool       `json:"overdue"`
 	Source            string     `json:"source"`
@@ -87,7 +101,8 @@ func toItem(it domain.Item, now time.Time) itemDTO {
 	dto := itemDTO{
 		ID: it.ID, Type: string(it.Type), FrontID: it.FrontID, ObjectiveID: it.ObjectiveID,
 		Text: it.Text, Status: string(it.Status), Kind: string(it.Kind), Strength: it.Strength,
-		StrengthConfirmed: it.StrengthConfirmed, Answer: it.Answer, Source: string(it.Source),
+		StrengthConfirmed: it.StrengthConfirmed, Answer: it.Answer, Cost: it.Cost,
+		CostCurrency: it.CostCurrency, Source: string(it.Source),
 		SessionID: it.SessionID, Confidence: it.Confidence, CreatedAt: it.CreatedAt,
 		UpdatedAt: it.UpdatedAt, ResolvedAt: it.ResolvedAt,
 	}
@@ -209,18 +224,42 @@ func (h *Handler) updateFront(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name   *string `json:"name"`
 		Status *string `json:"status"`
+		// Funds sets the money the front can draw on, in currency;
+		// clear_funds removes it.
+		Funds      *float64 `json:"funds"`
+		Currency   string   `json:"currency"`
+		ClearFunds bool     `json:"clear_funds"`
 	}
 	if !decode(w, r, &req) {
 		return
 	}
-	var status *domain.FrontStatus
-	if req.Status != nil {
-		s := domain.FrontStatus(*req.Status)
-		status = &s
+	var (
+		f   domain.Front
+		err error
+	)
+	if req.Name != nil || req.Status != nil {
+		var status *domain.FrontStatus
+		if req.Status != nil {
+			s := domain.FrontStatus(*req.Status)
+			status = &s
+		}
+		if f, err = h.manage.UpdateFront(r.Context(), id, req.Name, status); err != nil {
+			respond(w, err)
+			return
+		}
 	}
-	f, err := h.manage.UpdateFront(r.Context(), id, req.Name, status)
-	if err != nil {
-		respond(w, err)
+	if req.Funds != nil || req.ClearFunds {
+		funds := req.Funds
+		if req.ClearFunds {
+			funds = nil
+		}
+		if f, err = h.manage.SetFunds(r.Context(), id, funds, req.Currency); err != nil {
+			respond(w, err)
+			return
+		}
+	}
+	if f.ID == uuid.Nil {
+		httpError(w, http.StatusBadRequest, "nothing to change")
 		return
 	}
 	writeJSON(w, http.StatusOK, toFront(f))
@@ -282,12 +321,20 @@ func (h *Handler) updateItem(w http.ResponseWriter, r *http.Request) {
 		ConfirmStrength bool    `json:"confirm_strength"`
 		Status          *string `json:"status"`
 		Due             *string `json:"due"`
+		// Cost is what taking an objective will cost; an empty
+		// cost_currency is its front's funds currency.
+		Cost         *float64 `json:"cost"`
+		CostCurrency string   `json:"cost_currency"`
+		ClearCost    bool     `json:"clear_cost"`
 	}
 	if !decode(w, r, &req) {
 		return
 	}
 
-	p := usecase.Patch{Text: req.Text, Strength: req.Strength, ConfirmStrength: req.ConfirmStrength}
+	p := usecase.Patch{
+		Text: req.Text, Strength: req.Strength, ConfirmStrength: req.ConfirmStrength,
+		Cost: req.Cost, CostCurrency: req.CostCurrency, ClearCost: req.ClearCost,
+	}
 	if req.FrontID != nil {
 		if *req.FrontID == "" {
 			p.ClearFront = true

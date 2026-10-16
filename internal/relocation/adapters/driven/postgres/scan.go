@@ -12,7 +12,8 @@ import (
 
 const planColumns = `
 	SELECT id, destination, country_code, arrive_on, depart_on, nights, party_size,
-	       housing, climate, budget_style, currency, status, notes, created_at, updated_at
+	       housing, climate, budget_style, currency, status, notes, front_id, created_at,
+	       updated_at
 	FROM relocation_plans`
 
 type scannable interface {
@@ -29,7 +30,7 @@ func (r *Repository) scanPlan(row scannable) (domain.Plan, error) {
 
 	err := row.Scan(&p.ID, &p.Destination, &p.CountryCode, &arriveOn, &departOn,
 		&p.Nights, &p.PartySize, &housing, &climate, &budget, &p.Currency,
-		&status, &p.Notes, &p.CreatedAt, &p.UpdatedAt)
+		&status, &p.Notes, &p.FrontID, &p.CreatedAt, &p.UpdatedAt)
 	if err != nil {
 		return domain.Plan{}, err
 	}

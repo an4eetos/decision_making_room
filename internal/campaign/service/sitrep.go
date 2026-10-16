@@ -231,10 +231,19 @@ func readings(s domain.Sitrep) []domain.Reading {
 		}
 	}
 
+	supply := supplyOf(s)
 	for i := range s.Fronts {
 		f := &s.Fronts[i]
+		line := supply[f.ID]
 		switch {
-		case f.OrdersOpen >= overextendedOrders && (!f.HasPrior || math.Abs(f.Line-f.PriorLine) < lineMoved):
+		case line != nil && line.Outrun:
+			add(domain.ReadingOutrun, outrunText(*line, *s.Logistics), frontID(*f), nil)
+		case line != nil && line.Cut:
+			add(domain.ReadingCut, cutText(*line, *s.Logistics), frontID(*f), nil)
+		// Overextension by count is the proxy for a front with no supply
+		// to weigh its orders against. Where sorties measure it, the supply
+		// decides: a front its sorties keep up with is not overextended.
+		case (line == nil || line.Sorties == 0) && f.OrdersOpen >= overextendedOrders && (!f.HasPrior || math.Abs(f.Line-f.PriorLine) < lineMoved):
 			since := "nothing has moved"
 			if s.Since != "" {
 				since = "the line has not moved since " + s.Since
@@ -246,6 +255,26 @@ func readings(s domain.Sitrep) []domain.Reading {
 				since = " since " + s.Since
 			}
 			add(domain.ReadingQuiet, fmt.Sprintf("%s has gone quiet: no open orders and nothing moved%s.", f.Name, since), frontID(*f), nil)
+		}
+	}
+
+	// Money and deployments come after the fronts' time, and energy after
+	// both: it thins every front at once.
+	if supply != nil {
+		for _, line := range s.Logistics.Fronts {
+			if line.Overdrawn {
+				add(domain.ReadingOverdrawn, overdrawnText(line), ptr(line.FrontID), nil)
+			}
+		}
+		for _, line := range s.Logistics.Fronts {
+			for _, d := range line.Deployments {
+				if landing(d) {
+					add(domain.ReadingDeployment, deploymentText(d, line.Front), ptr(line.FrontID), nil)
+				}
+			}
+		}
+		if s.Logistics.Energy.Low {
+			add(domain.ReadingEnergy, energyText(s.Logistics.Energy), nil, nil)
 		}
 	}
 
@@ -385,6 +414,10 @@ func Brief(s domain.Sitrep) string {
 			fmt.Fprintf(&b, "- %s\n", r.Text)
 		}
 	}
+
+	// Last, so a long map is cut here first: the readings above already
+	// carry what the supply lines warn of.
+	writeSupply(&b, s.Logistics)
 
 	return truncateRunes(strings.TrimRight(b.String(), "\n"), briefRunes)
 }

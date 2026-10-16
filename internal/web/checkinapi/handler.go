@@ -31,15 +31,23 @@ func (h *Handler) Register(mux *http.ServeMux) {
 }
 
 type checkinDTO struct {
-	ID        uuid.UUID `json:"id"`
-	Kind      string    `json:"kind"`
-	Title     string    `json:"title"`
-	Body      string    `json:"body"`
-	CreatedAt time.Time `json:"created_at"`
+	ID    uuid.UUID `json:"id"`
+	Kind  string    `json:"kind"`
+	Title string    `json:"title"`
+	Body  string    `json:"body"`
+	// Day is the local date the check-in belongs to: the evening an energy
+	// tap on it is about, even when the tap comes after midnight.
+	Day string `json:"day"`
+	// AsksEnergy shows the one-tap energy report under it.
+	AsksEnergy bool      `json:"asks_energy"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 func toDTO(c domain.CheckIn) checkinDTO {
-	return checkinDTO{ID: c.ID, Kind: string(c.Kind), Title: c.Title, Body: c.Body, CreatedAt: c.CreatedAt}
+	return checkinDTO{
+		ID: c.ID, Kind: string(c.Kind), Title: c.Title, Body: c.Body,
+		Day: c.LocalDate.Format("2006-01-02"), AsksEnergy: c.AsksEnergy(), CreatedAt: c.CreatedAt,
+	}
 }
 
 // unseen is polled by every page, so it is one indexed query and nothing else.

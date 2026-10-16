@@ -31,6 +31,9 @@ type Sitrep struct {
 	Moved Movement `json:"moved"`
 	// Readings are what the numbers say on their own.
 	Readings []Reading `json:"readings"`
+	// Logistics is what supplies each front, when it was read. Nil leaves
+	// the sitrep as it was before supply existed.
+	Logistics *Logistics `json:"logistics,omitempty"`
 }
 
 // SitrepFront is one front as read.
@@ -131,6 +134,21 @@ const (
 	// ReadingAdvanced is the live objective closest to taken: the candidate
 	// for the point of main effort, if the staff agrees.
 	ReadingAdvanced ReadingKind = "advanced"
+
+	// ReadingOutrun is a front whose orders are outrunning its supply: the
+	// overextension warning that comes before the front collapses, rather
+	// than after the line has stopped moving.
+	ReadingOutrun ReadingKind = "outrun"
+	// ReadingCut is a front whose sorties stopped while orders on it fall
+	// due: a supply line cut.
+	ReadingCut ReadingKind = "cut"
+	// ReadingOverdrawn is a front whose costs exceed its funds.
+	ReadingOverdrawn ReadingKind = "overdrawn"
+	// ReadingDeployment is a deployment landing within two weeks with work
+	// still outstanding before it does.
+	ReadingDeployment ReadingKind = "deployment"
+	// ReadingEnergy is energy reported low on most of the last evenings.
+	ReadingEnergy ReadingKind = "energy"
 )
 
 // Reading is one thing the arithmetic says. FrontID and ItemID point at what

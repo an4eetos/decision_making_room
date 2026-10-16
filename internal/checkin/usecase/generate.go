@@ -97,11 +97,13 @@ var intents = map[string]string{
 // gains and losses.
 var sitrepIntents = map[string]string{
 	"day_plan": "Morning orders. From the map, name today's point of main effort: one objective, by its text, and the one order that serves it today. " +
-		"If an order is due today or overdue, say which. If a reading says a front is overextended or has gone quiet, say so in one clause.",
+		"If an order is due today or overdue, say which. If a reading says a front is overextended or has gone quiet, say so in one clause. " +
+		"If a front is outrunning its supply or energy has run low, pick an order that fits what is left and name one to cut.",
 	"block_start": "Contact report. Which orders are in contact right now (due today or overdue), and am I on them? " +
 		"Name one position from the map by its text. If a front has gone quiet, say so once, without lecturing.",
 	"debrief": "Gains and losses. What moved on the map today (taken, cleared, lifted, orders carried out) and what did not. " +
-		"If an order due today was not done, ask about it by name. A withdrawal is a gain if it was on purpose; say so.",
+		"If an order due today was not done, ask about it by name. A withdrawal is a gain if it was on purpose; say so. " +
+		"Do not ask about energy: I report it with one tap under this check-in.",
 }
 
 var titles = map[string]string{

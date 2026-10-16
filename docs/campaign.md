@@ -192,6 +192,72 @@ the most words with; the questions under *Your fog, my cover* become proposed
 unknowns. Both carry the `red_team` source, so Intel says they are the
 enemy's estimate.
 
+## Logistics
+
+Supply is what feeds a front, and v2.4 reads three kinds of it. All three
+are reported by you; none is inferred from what you write, because a supply
+line guessed from your tone is one you would stop trusting.
+
+| Supply | Where it comes from |
+|---|---|
+| **Time** | **sorties**: the focus blocks you log against a front, each optionally on one order. *+ Sortie* logs one default block today; *…* sets its length, its order and its day, up to four weeks back |
+| **Energy** | one tap a day, 1 *spent* to 5 *sharp*, under the evening check-in or on the campaign page. A tap after midnight on last night's check-in lands on last night |
+| **Money** | the funds you set against a front, against what its live objectives cost (a cost you set on an objective) and what the stays deployed on it cost |
+
+**The arithmetic.** Hours a week are the sortie hours on a front over the
+last fourteen days, scaled to a week, so a day off moves the rate a little
+rather than by half (a record younger than two weeks is measured over what
+there is, at least a week). An order costs one default sortie
+(`SORTIE_MINUTES`, 25 by default), marked `est`, until the front has carried
+out three orders in the last four weeks; from then on it costs the front's
+own rate, sortie hours over orders done. Orders open on a front are the
+ones aimed at what is filed under it, the same rule the theatre lays lanes
+out by.
+
+**Warnings before collapse.** The readings gain five kinds, all arithmetic:
+
+| Reading | Means |
+|---|---|
+| outrun | the orders due within a week need more than the front's weekly hours plus one spare sortie, or its backlog would take longer than an order stays fresh (`COMMITMENT_STALE_AFTER`, two weeks) plus one sortie |
+| cut | a front with orders due within a week, no sorties in the window, and sorties in the weeks before it: a supply line that stopped |
+| overdrawn | a front's costs exceed its funds, with the share of them that is an estimate |
+| deployment | a stay deployed on a front lands within two weeks with critical pitfalls unhandled, items still needed, or half its cost estimated |
+| energy | most of the last three evenings reported were low or spent |
+
+The one spare sortie is deliberate: a single order more than a thin week
+supplies is a stretch, not a front about to collapse. Time readings need a
+record: a front you never log a sortie on is never called out of supply,
+and until a sortie is logged anywhere, nothing about hours is said at all.
+Where sorties do measure a front, the supply decides overextension: an
+*outrun* or *cut* reading takes the place of the count-based *overextended*,
+and a front its sorties keep up with is not called overextended. A front
+with no sorties to judge by is still read by count.
+
+**Money is never converted.** A front's costs are summed in the currency of
+its funds, or, with none set, the currency carrying most of them. Costs in
+any other currency are listed beside the sum, never converted at a guessed
+rate. A cost you put on an objective is yours and confirmed; a deployment's
+cost keeps the relocation planner's estimated share, so the map and the
+planner never disagree about how much of a stay is a guess.
+
+**Deployments.** *Deployed on* in the relocation planner puts a stay on a
+front as a forward base. Its setup budget joins the front's costs; its
+arrival date, unhandled critical pitfalls and items still needed are read
+before it lands; the campaign page links back to the plan. A stay that is
+done, abandoned or already departed is no longer a deployment. The relocation
+module provides the deployments through the campaign's own port, so the
+campaign never imports the planner.
+
+**Into the brief.** The supply lines are written after the readings, so a
+long map is cut there first, and only once something is reported: with no
+sorties, no energy and no money, the brief and the readings are exactly what
+they were. The morning sitrep is told to pick an order that fits what is
+left when a front is outrunning its supply or energy has run low; the
+evening one not to ask about energy, since the tap does; the staff
+appraisal weighs orders against supply and is told not to invent hours that
+were not logged. `GET /api/campaign/logistics` serves the supply lines with
+the last two weeks of sorties; the sitrep carries them too.
+
 ## Data
 
 `migrations/008_campaign.sql`: `fronts`, one `campaign_items` table for all
@@ -207,4 +273,11 @@ renderer as today's.
 when, with the conversation it was opened into; and `red_team` as a source
 for the opposition and fog the red team proposes.
 
-Not yet: supply per front (v2.4).
+`migrations/012_logistics.sql`: `sorties` (one per focus block, on a
+front, optionally on an order; the sortie outlives its order) and
+`energy_reports` (one per day, a second tap replaces the first); `funds` and
+`funds_currency` on `fronts`; `cost` and `cost_currency` on `campaign_items`,
+objectives only; and `front_id` on `relocation_plans`, cleared if the front
+goes. A currency is required with every amount.
+
+Not yet: the campaign record (v2.5).

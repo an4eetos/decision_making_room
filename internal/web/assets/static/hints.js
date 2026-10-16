@@ -117,6 +117,21 @@ const HINTS = {
             "Withdrawal is a legitimate order, and the staff will recommend it when it is the right one.",
         ],
     },
+    logistics: {
+        title: "Logistics",
+        what: "What supplies each front. <strong>Time</strong> is the hours a week from the sorties you log on it. <strong>Energy</strong> is one tap each evening, 1 spent to 5 sharp. <strong>Money</strong> is the funds you set against a front, and what its objectives and deployed stays will cost.",
+        uses: [
+            "<strong>+ Sortie</strong> logs one focus block on the front, today. <strong>…</strong> sets its length, the order it served and the day, for a block you forgot to log.",
+            "The orders open on a front are weighed against its hours: open orders times what an order costs there. That is one sortie an order, marked <span class=\"est\">est</span>, until three orders done give the front a rate of its own.",
+            "When what falls due this week needs more than the front's weekly hours plus one spare sortie, or its backlog would outlast the two weeks an order stays fresh, the staff's readings say it is <em>outrunning its supply</em> before it collapses. A front whose sorties keep up is not called overextended. The generals, the check-ins and the appraisal read the same warnings.",
+            "Deploy a stay from the relocation planner and its setup budget draws on the front's funds, with the planner's estimated share kept.",
+        ],
+        notes: [
+            "Everything here is reported, never read from what you write. A front you never log sorties on is never called out of supply.",
+            "Hours are measured over two weeks, so a day off moves the rate a little, not by half. Activity is not scored.",
+            "Amounts in different currencies are never summed or converted; they are listed separately.",
+        ],
+    },
     redteam: {
         title: "Red team",
         what: "One general takes command of the opposition on your map and attacks your plan. The positions marked ▲ become its units, the fog ? its cover, and every order you gave is a move it gets to answer.",

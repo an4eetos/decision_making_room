@@ -180,13 +180,16 @@ function setupCampaignPage() {
             ]);
             state = { ...map, loops: loops || [] };
             render();
-            await Promise.all([loadTheatre(), loadStaff()]);
+            await Promise.all([loadTheatre(), loadStaff(), loadLogistics()]);
         } catch (error) {
             showMessage(result, error.message, "error");
         }
     }
 
     const live = (it) => it.status === "active";
+
+    // amountLabel is a whole amount with its currency, as the brief writes it.
+    const amountLabel = (value, currency) => `${Math.round(value).toLocaleString()}${currency ? ` ${currency}` : ""}`;
 
     // An obstacle or unknown can bear on an objective filed on another front;
     // say which, or the link is invisible.
@@ -277,7 +280,9 @@ function setupCampaignPage() {
                 <span class="objective-mark" aria-hidden="true">◆</span>
                 <span class="objective-text">${escapeHTML(it.text)}</span>
                 ${it.due ? `<span class="loop-due ${it.overdue ? "overdue" : ""}">${it.overdue ? "overdue · " : ""}${escapeHTML(it.due)}</span>` : ""}
+                ${it.cost != null ? `<button type="button" class="cost-chip" data-action="cost" title="What taking it will cost, drawn on the front's funds. Click to change.">${escapeHTML(amountLabel(it.cost, it.cost_currency))}</button>` : ""}
                 <span class="row-actions">
+                    ${it.cost == null ? `<button type="button" class="mini-btn" data-action="cost" title="What taking it will cost, drawn on the front's funds">Cost</button>` : ""}
                     <button type="button" class="mini-btn" data-action="status" data-status="resolved" title="Objective taken">Taken</button>
                     <button type="button" class="mini-btn" data-action="status" data-status="withdrawn" title="An orderly withdrawal: a legitimate order, not a loss">Withdraw</button>
                     ${it.status === "active" ? `<a class="mini-btn red-team-link" href="${redTeamHref("objective", it.text)}" title="One general takes command of what stands against this objective and attacks your plan for it">Red team</a>` : ""}
@@ -614,6 +619,11 @@ function setupCampaignPage() {
         unscouted: "Unscouted",
         estimated: "Estimates",
         advanced: "Closest",
+        outrun: "Outrunning supply",
+        cut: "Supply cut",
+        overdrawn: "Overdrawn",
+        deployment: "Deployment",
+        energy: "Energy",
     };
 
     // The appraisal runs on the server in the background; the page asks for
@@ -791,6 +801,253 @@ function setupCampaignPage() {
         }
     });
 
+    // ---------- Logistics ----------
+    //
+    // What supplies each front, as you report it: sorties logged, energy
+    // tapped, funds set. The page draws the supply lines the sitrep reads;
+    // the warnings themselves are readings, in the staff's strip above, so
+    // they reach the generals the same way.
+
+    const logistics = {
+        section: document.getElementById("logistics"),
+        energy: document.getElementById("logistics-energy"),
+        fronts: document.getElementById("logistics-fronts"),
+        sorties: document.getElementById("logistics-sorties"),
+        sortieList: document.getElementById("logistics-sortie-list"),
+        data: null,
+        // The front whose detailed sortie form is open.
+        open: null,
+    };
+
+    function hoursLabel(h) {
+        if (!h) {
+            return "0 h";
+        }
+        const minutes = Math.round(h * 60);
+        return minutes < 60 ? `${minutes} min` : `${Math.round(h * 10) / 10} h`;
+    }
+
+    function weekdayOf(day) {
+        return new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { weekday: "short" });
+    }
+
+    // dayMinus counts back from a YYYY-MM-DD day in calendar days.
+    function dayMinus(day, n) {
+        const [y, m, d] = day.split("-").map(Number);
+        return new Date(Date.UTC(y, m - 1, d - n)).toISOString().slice(0, 10);
+    }
+
+    // Open orders aimed at something filed under a front: what a sortie
+    // there can be flown on.
+    function ordersOnFront(frontID) {
+        const here = new Set((state.items || []).filter((i) => i.front_id === frontID).map((i) => i.id));
+        return (state.orders || []).filter((o) => (o.status === "open" || o.status === "stale") && here.has(o.target_id));
+    }
+
+    function timeHTML(f, l) {
+        if (!l.sorties) {
+            return `<span class="muted">No sorties logged yet</span>`;
+        }
+        if (f.sorties === 0) {
+            return `<span class="muted">No sorties in ${l.window_days} days${f.earlier_hours ? `, ${hoursLabel(f.earlier_hours)} before that` : ""}</span>`;
+        }
+        return `<b>${hoursLabel(f.hours_per_week)}</b> a week
+            <span class="muted">· ${f.sorties} sortie${f.sorties === 1 ? "" : "s"} in ${l.window_days} days</span>`;
+    }
+
+    function ordersSupplyHTML(f, l) {
+        if (!f.orders_open) {
+            return `<span class="muted">No orders open</span>`;
+        }
+        const rate = f.per_order_measured
+            ? `<span class="muted" title="Sortie hours over the orders carried out here in the last four weeks">at ${hoursLabel(f.hours_per_order)} an order</span>`
+            : `<span class="est" title="An estimate: one ${l.sortie_minutes}-minute sortie an order, until three orders done here give the front a rate of its own">est</span>`;
+        const parts = [`<b>${f.orders_open}</b> open ≈ ${hoursLabel(f.backlog_hours)} ${rate}`];
+        if (f.orders_due_soon) {
+            parts.push(`<b>${f.orders_due_soon}</b> due this week`);
+        }
+        if (f.backlog_weeks) {
+            parts.push(`${Math.round(f.backlog_weeks * 10) / 10} wk to clear`);
+        }
+        return parts.join(" · ");
+    }
+
+    function moneyHTML(f) {
+        let html = `<span class="muted">No funds set</span>`;
+        if (f.funds != null) {
+            html = `<b>${escapeHTML(amountLabel(f.costs, f.currency))}</b> of ${escapeHTML(amountLabel(f.funds, f.currency))}`;
+        } else if (f.costs > 0) {
+            html = `<b>${escapeHTML(amountLabel(f.costs, f.currency))}</b> of costs, no funds set`;
+        }
+        if (f.costs_estimated > 0 && f.costs > 0) {
+            html += ` <span class="est" title="The share of these costs nobody confirmed: a deployment's estimated prices">${Math.round((f.costs_estimated / f.costs) * 100)}% est</span>`;
+        }
+        if (f.unconverted?.length) {
+            html += ` <span class="muted" title="Costs in another currency: listed, never converted at a guessed rate">+ ${escapeHTML(f.unconverted.map((m) => amountLabel(m.amount, m.currency)).join(" + "))}</span>`;
+        }
+        return html;
+    }
+
+    function deploymentsHTML(f) {
+        const chips = (f.deployments || []).map((d) => {
+            let when = "no arrival date";
+            if (d.lands_in !== undefined && d.lands_in !== null) {
+                when = d.lands_in < 0 ? "deployed" : d.lands_in === 0 ? "lands today" : `lands in ${d.lands_in} d`;
+            }
+            const bits = [when];
+            if (d.cost > 0) {
+                bits.push(`${amountLabel(d.cost, d.currency)}${d.estimated_share > 0 ? ` (${Math.round(d.estimated_share * 100)}% est)` : ""}`);
+            }
+            if (d.items_needed) {
+                bits.push(`${d.items_needed} still needed`);
+            }
+            if (d.critical_open) {
+                bits.push(`${d.critical_open} critical pitfall${d.critical_open === 1 ? "" : "s"}`);
+            }
+            return `<a class="deployment-chip ${d.critical_open ? "critical" : ""}" href="/relocation?plan=${encodeURIComponent(d.plan_id)}"
+                title="A stay deployed on this front: its setup budget draws on the front's funds">⌂ ${escapeHTML(d.destination)} · ${bits.map(escapeHTML).join(" · ")}</a>`;
+        });
+        return chips.length ? `<div class="supply-deployments">${chips.join("")}</div>` : "";
+    }
+
+    function sortieFormHTML(f, l, today) {
+        const m = l.sortie_minutes;
+        const lengths = [...new Set([m, m * 2, m * 3, 90, 120])].filter((v) => v <= 480).sort((a, b) => a - b);
+        const days = [0, 1, 2, 3, 4, 5, 6].map((n) => {
+            const day = dayMinus(today, n);
+            const label = n === 0 ? "Today" : n === 1 ? "Yesterday" : `${weekdayOf(day)} ${day.slice(5)}`;
+            return `<option value="${day}">${escapeHTML(label)}</option>`;
+        }).join("");
+        return `
+        <form class="sortie-form" data-front="${escapeHTML(f.front_id)}">
+            <select name="minutes" aria-label="Length">${lengths.map((v) =>
+                `<option value="${v}" ${v === m ? "selected" : ""}>${v} min</option>`).join("")}</select>
+            <select name="order_id" aria-label="Flown on">
+                <option value="">On the front in general</option>
+                ${ordersOnFront(f.front_id).map((o) => `<option value="${escapeHTML(o.id)}">${escapeHTML(o.text)}</option>`).join("")}
+            </select>
+            <select name="day" aria-label="Day">${days}</select>
+            <input name="note" type="text" maxlength="200" placeholder="Note (optional)" autocomplete="off">
+            <button type="submit" class="mini-btn">Log sortie</button>
+            <button type="button" class="link-btn" data-action="sortie-cancel">Cancel</button>
+        </form>`;
+    }
+
+    function supplyRowHTML(f, l, today) {
+        const warn = f.outrun ? "outrun" : f.cut ? "cut" : "";
+        return `
+        <div class="supply-row ${warn}" data-supply-front="${escapeHTML(f.front_id)}">
+            <span class="supply-front">${escapeHTML(f.front)}</span>
+            <span class="supply-cell supply-time"><span class="supply-label">Time</span>${timeHTML(f, l)}</span>
+            <span class="supply-cell supply-orders"><span class="supply-label">Orders</span>${ordersSupplyHTML(f, l)}</span>
+            <span class="supply-cell supply-money ${f.overdrawn ? "overdrawn" : ""}"><span class="supply-label">Money</span>${moneyHTML(f)}</span>
+            <span class="row-actions">
+                <button type="button" class="mini-btn" data-action="sortie" title="Log one ${l.sortie_minutes}-minute sortie on this front, today">+ Sortie</button>
+                <button type="button" class="mini-btn" data-action="sortie-form" aria-expanded="${logistics.open === f.front_id}" title="Log a sortie with its length, its order and its day">…</button>
+                <button type="button" class="mini-btn" data-action="funds" title="Set the money this front can draw on">Funds</button>
+            </span>
+            ${deploymentsHTML(f)}
+            ${logistics.open === f.front_id ? sortieFormHTML(f, l, today) : ""}
+        </div>`;
+    }
+
+    function sortiesHTML(sorties) {
+        return sorties.map((s) => {
+            const front = (state.fronts || []).find((f) => f.id === s.front_id)?.name ?? "";
+            const order = s.order_id ? (state.orders || []).find((o) => o.id === s.order_id)?.text : "";
+            return `
+            <li class="sortie" data-sortie="${escapeHTML(s.id)}">
+                <span class="sortie-day muted">${escapeHTML(weekdayOf(s.day))} ${escapeHTML(s.day.slice(5))}</span>
+                <span class="sortie-front">${escapeHTML(front)}</span>
+                <span class="sortie-len">${s.minutes} min</span>
+                ${order ? `<span class="sortie-order">on ${escapeHTML(order)}</span>` : ""}
+                ${s.note ? `<span class="sortie-note muted">${escapeHTML(s.note)}</span>` : ""}
+                <button type="button" class="loop-x" data-action="sortie-delete" title="Take this sortie off the record">×</button>
+            </li>`;
+        }).join("");
+    }
+
+    function energyHTML(l, today) {
+        const reports = l.energy?.reports || [];
+        const week = reports.length
+            ? `<span class="energy-week" title="Energy as reported, the last seven days">${reports.map((r) =>
+                `<span class="energy-dot lvl-${r.level}" title="${escapeHTML(weekdayOf(r.day))}: ${escapeHTML(energyLabel(r.level))}">${escapeHTML(weekdayOf(r.day).slice(0, 2))}</span>`).join("")}</span>`
+            : "";
+        return energyTapHTML(today, l.energy?.today || 0) + week;
+    }
+
+    function renderLogistics() {
+        if (!logistics.section) {
+            return;
+        }
+        const d = logistics.data;
+        const active = (state.fronts || []).some((f) => f.status === "active");
+        logistics.section.hidden = !d || !active;
+        if (logistics.section.hidden) {
+            return;
+        }
+        const l = d.logistics;
+        logistics.energy.innerHTML = energyHTML(l, d.today);
+        logistics.fronts.innerHTML = (l.fronts || []).map((f) => supplyRowHTML(f, l, d.today)).join("");
+        const sorties = d.sorties || [];
+        logistics.sorties.hidden = sorties.length === 0;
+        logistics.sortieList.innerHTML = sortiesHTML(sorties);
+    }
+
+    async function loadLogistics() {
+        if (!logistics.section) {
+            return;
+        }
+        try {
+            logistics.data = await apiJSON("/api/campaign/logistics");
+        } catch {
+            // Supply is an addition to the map; the rest of the page stands.
+            logistics.data = null;
+        }
+        renderLogistics();
+    }
+
+    // askAmount reads "2500 EUR", "2,500" or "EUR 2500". Empty clears;
+    // cancelling changes nothing.
+    function askAmount(message, current, fallbackCurrency) {
+        const raw = window.prompt(message, current);
+        if (raw === null) {
+            return undefined;
+        }
+        const text = raw.trim().toUpperCase();
+        if (text === "") {
+            return null;
+        }
+        const currency = (text.match(/[A-Z]{3}/) || [fallbackCurrency || "USD"])[0];
+        const amount = Number(text.replace(/[A-Z]{3}/, "").replace(/[\s,]/g, ""));
+        if (!Number.isFinite(amount) || amount < 0) {
+            throw new Error("An amount is a number, with a three-letter currency if it is not the front's: 2500 EUR.");
+        }
+        return { amount, currency };
+    }
+
+    async function setFunds(frontID) {
+        const front = (state.fronts || []).find((f) => f.id === frontID);
+        const current = front?.funds != null ? `${front.funds} ${front.funds_currency}` : "";
+        const value = askAmount(`Money ${front?.name ?? "this front"} can draw on, e.g. 2500 EUR. Empty clears it.`, current, front?.funds_currency);
+        if (value === undefined) {
+            return;
+        }
+        await campaignCall(`/api/campaign/fronts/${frontID}`, "PATCH",
+            value === null ? { clear_funds: true } : { funds: value.amount, currency: value.currency });
+    }
+
+    async function setCost(itemID) {
+        const item = (state.items || []).find((i) => i.id === itemID);
+        const front = (state.fronts || []).find((f) => f.id === item?.front_id);
+        const current = item?.cost != null ? `${item.cost} ${item.cost_currency}` : "";
+        const value = askAmount(`What will taking “${item?.text ?? "this"}” cost? e.g. 300 EUR. Empty clears it.`, current, front?.funds_currency);
+        if (value === undefined) {
+            return;
+        }
+        await patchItem(itemID, value === null ? { clear_cost: true } : { cost: value.amount, cost_currency: value.currency });
+    }
+
     async function act(fn) {
         try {
             await fn();
@@ -801,10 +1058,18 @@ function setupCampaignPage() {
     }
 
     root.addEventListener("click", (e) => {
+        // The energy tap: one reading a day, and the readings move with it.
+        const tap = e.target.closest("[data-energy]");
+        if (tap) {
+            act(() => tapEnergy(tap.closest("[data-energy-day]"), Number(tap.dataset.energy)));
+            return;
+        }
+
         const button = e.target.closest("[data-action]");
         if (!button || button.tagName === "INPUT") {
             return;
         }
+        const supplyEl = button.closest("[data-supply-front]");
         const itemEl = button.closest("[data-id]");
         const frontEl = button.closest("[data-front-id]");
         const id = itemEl?.dataset.id;
@@ -848,6 +1113,27 @@ function setupCampaignPage() {
             break;
         case "restore-front":
             act(() => campaignCall(`/api/campaign/fronts/${button.dataset.front}`, "PATCH", { status: "active" }));
+            break;
+        case "cost":
+            act(() => setCost(id));
+            break;
+        case "sortie":
+            act(() => campaignCall("/api/campaign/sorties", "POST", { front_id: supplyEl.dataset.supplyFront }));
+            break;
+        case "sortie-form":
+            logistics.open = logistics.open === supplyEl.dataset.supplyFront ? null : supplyEl.dataset.supplyFront;
+            renderLogistics();
+            logistics.fronts.querySelector(".sortie-form select")?.focus();
+            break;
+        case "sortie-cancel":
+            logistics.open = null;
+            renderLogistics();
+            break;
+        case "sortie-delete":
+            act(() => campaignCall(`/api/campaign/sorties/${button.closest("[data-sortie]").dataset.sortie}`, "DELETE"));
+            break;
+        case "funds":
+            act(() => setFunds(supplyEl.dataset.supplyFront));
             break;
         case "appraise-front":
             if (staff.front) {
@@ -913,6 +1199,20 @@ function setupCampaignPage() {
                 // know your own blocker better than an estimate does.
                 strength: type === "obstacle" ? 2 : 0,
             }));
+            return;
+        }
+        if (form.matches(".sortie-form")) {
+            e.preventDefault();
+            act(async () => {
+                await campaignCall("/api/campaign/sorties", "POST", {
+                    front_id: form.dataset.front,
+                    minutes: Number(form.elements.minutes.value),
+                    order_id: form.elements.order_id.value,
+                    day: form.elements.day.value,
+                    note: form.elements.note.value.trim(),
+                });
+                logistics.open = null;
+            });
             return;
         }
         if (form.id === "campaign-front-form") {

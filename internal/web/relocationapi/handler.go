@@ -39,6 +39,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("PATCH /api/relocation/plans/{id}", h.updatePlan)
 	mux.HandleFunc("DELETE /api/relocation/plans/{id}", h.deletePlan)
 	mux.HandleFunc("POST /api/relocation/plans/{id}/build", h.buildPlan)
+	mux.HandleFunc("PUT /api/relocation/plans/{id}/deployment", h.deployPlan)
 	mux.HandleFunc("POST /api/relocation/plans/{id}/items", h.addItem)
 	mux.HandleFunc("PATCH /api/relocation/items/{id}", h.updateItem)
 	mux.HandleFunc("DELETE /api/relocation/items/{id}", h.deleteItem)
@@ -187,6 +188,7 @@ func (h *Handler) listPlans(w http.ResponseWriter, r *http.Request) {
 			DepartOn:    formatDate(p.DepartOn),
 			Status:      string(p.Status),
 			Currency:    p.Currency,
+			FrontID:     p.FrontID,
 		})
 	}
 	writeJSON(w, http.StatusOK, out)
@@ -213,6 +215,44 @@ func (h *Handler) deletePlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// deployPlan puts a stay on a campaign front as a deployment, or with an
+// empty front_id takes it off the map. It is not an edit of the stay, so it
+// does not rebuild the list.
+func (h *Handler) deployPlan(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r)
+	if !ok {
+		return
+	}
+	var req struct {
+		FrontID string `json:"front_id"`
+	}
+	if !decode(w, r, &req) {
+		return
+	}
+	var front *uuid.UUID
+	if req.FrontID != "" {
+		parsed, err := uuid.Parse(req.FrontID)
+		if err != nil {
+			httpError(w, http.StatusBadRequest, "front_id: invalid id")
+			return
+		}
+		front = &parsed
+	}
+	err := h.plans.SetPlanFront(r.Context(), id, front)
+	if errors.Is(err, port.ErrUnknownFront) {
+		httpError(w, http.StatusBadRequest, "no such front; open it on the campaign page first")
+		return
+	}
+	if respondRepoError(w, err) {
+		return
+	}
+	plan, err := h.plans.GetPlan(r.Context(), id)
+	if respondRepoError(w, err) {
+		return
+	}
+	writeJSON(w, http.StatusOK, h.planResponse(plan))
 }
 
 func (h *Handler) buildPlan(w http.ResponseWriter, r *http.Request) {

@@ -27,6 +27,8 @@ var Module = fx.Module("campaign",
 		provideSitreps,
 		provideAppraisalRepository,
 		provideStaff,
+		provideLogisticsRepository,
+		provideLogistics,
 		// The staff reads the map into every answer, through the memory
 		// module's own port, so memory never imports the campaign.
 		func(s *usecase.Sitreps) memport.SituationReader { return s },
@@ -65,8 +67,31 @@ func provideSnapshots(manage *usecase.Manage, repo port.SnapshotRepository, loc 
 	return usecase.NewSnapshots(manage, repo, loc, 10*time.Minute)
 }
 
-func provideSitreps(manage *usecase.Manage, snapshots *usecase.Snapshots, loc *time.Location, cfg config.Config) *usecase.Sitreps {
-	return usecase.NewSitreps(manage, snapshots, loc, cfg.CampaignStaff)
+func provideSitreps(manage *usecase.Manage, snapshots *usecase.Snapshots, logistics *usecase.Logistics, loc *time.Location, cfg config.Config) *usecase.Sitreps {
+	return usecase.NewSitreps(manage, snapshots, loc, cfg.CampaignStaff).WithLogistics(logistics)
+}
+
+func provideLogisticsRepository(pool *pgxpool.Pool) port.LogisticsRepository {
+	return campostgres.NewRepository(pool)
+}
+
+// logisticsIn takes the deployments as optional: the relocation module
+// provides them, and without it stays are simply not on the map.
+type logisticsIn struct {
+	fx.In
+
+	Repo        port.LogisticsRepository
+	Manage      *usecase.Manage
+	Deployments port.DeploymentSource `optional:"true"`
+	Loc         *time.Location
+	Cfg         config.Config
+}
+
+// provideLogistics shares the check-in timezone, so the evening a tap
+// belongs to is the evening check-in's, and the commitments' stale horizon,
+// which is what a backlog has to clear within.
+func provideLogistics(in logisticsIn) *usecase.Logistics {
+	return usecase.NewLogistics(in.Repo, in.Manage, in.Deployments, in.Loc, in.Cfg.SortieMinutes, in.Cfg.CommitmentStaleAfter)
 }
 
 func provideAppraisalRepository(pool *pgxpool.Pool) port.AppraisalRepository {
