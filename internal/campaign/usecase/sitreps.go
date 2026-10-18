@@ -20,7 +20,10 @@ type Sitreps struct {
 	// logistics reads the supply lines into the sitrep. Optional: without
 	// it the sitrep is what it was before supply existed.
 	logistics *Logistics
-	loc       *time.Location
+	// record reads the quarter into the sitrep. Optional: without it the
+	// sitrep is what it was before the campaign record existed.
+	record recordSource
+	loc    *time.Location
 	// readsIntoAnswers is CAMPAIGN_STAFF_ENABLED: whether the map goes into
 	// ordinary answers. Off, the room answers as it did before the map.
 	readsIntoAnswers bool
@@ -39,6 +42,18 @@ func NewSitreps(manage *Manage, snapshots *Snapshots, loc *time.Location, readsI
 // orders outrun them.
 func (s *Sitreps) WithLogistics(l *Logistics) *Sitreps {
 	s.logistics = l
+	return s
+}
+
+// recordSource is the quarter a sitrep may mention. The record implements it.
+type recordSource interface {
+	Note(ctx context.Context) (*domain.RecordNote, error)
+}
+
+// WithRecord reads the quarter into every sitrep: unscored predictions while
+// the after-action is open, and the calibration once it is worth watching.
+func (s *Sitreps) WithRecord(r recordSource) *Sitreps {
+	s.record = r
 	return s
 }
 
@@ -71,6 +86,13 @@ func (s *Sitreps) Sitrep(ctx context.Context) (domain.Sitrep, error) {
 			log.Printf("campaign: sitrep logistics: %v", err)
 		} else {
 			sitrep = service.Supplied(sitrep, supply)
+		}
+	}
+	if s.record != nil {
+		if note, err := s.record.Note(ctx); err != nil {
+			log.Printf("campaign: sitrep record: %v", err)
+		} else {
+			sitrep = service.WithRecord(sitrep, note)
 		}
 	}
 	return sitrep, nil

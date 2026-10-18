@@ -117,6 +117,20 @@ const HINTS = {
             "Withdrawal is a legitimate order, and the staff will recommend it when it is the right one.",
         ],
     },
+    record: {
+        title: "Campaign record",
+        what: "One quarter, from planning through the fighting to an after-action. You assign the objectives. A pre-mortem files its failures as predictions; you keep them, state how likely they were, and score them later.",
+        uses: [
+            "<strong>Open this quarter</strong> starts it in planning. Begin operations when the fighting starts, and open the after-action when you want to score it. The calendar does not do this for you.",
+            "A chance is one tap: long shot, even, or likely. Scoring is two taps: it showed, or it did not. Neither is read from what you write.",
+            "<strong>Calibration</strong> is the one number, a Brier score. It appears once five predictions have both a chance and an outcome. 0.25 is a coin flip; lower means the chances you stated matched what happened. Below five, you see the buckets and no number.",
+        ],
+        notes: [
+            "Commendations are lines, not points: an objective taken, an honest withdrawal, a pre-mortem that called it. Closing the quarter seals them.",
+            "Write the after-action is optional and costs one model call. You can close without it.",
+            "If you never open a quarter, the map is unchanged.",
+        ],
+    },
     logistics: {
         title: "Logistics",
         what: "What supplies each front. <strong>Time</strong> is the hours a week from the sorties you log on it. <strong>Energy</strong> is one tap each evening, 1 spent to 5 sharp. <strong>Money</strong> is the funds you set against a front, and what its objectives and deployed stays will cost.",

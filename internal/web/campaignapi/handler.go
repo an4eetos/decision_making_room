@@ -24,10 +24,11 @@ type Handler struct {
 	sitreps   *usecase.Sitreps
 	staff     *usecase.Staff
 	logs      *usecase.Logistics
+	record    *usecase.Record
 }
 
-func NewHandler(manage *usecase.Manage, snapshots *usecase.Snapshots, sitreps *usecase.Sitreps, staff *usecase.Staff, logistics *usecase.Logistics) *Handler {
-	return &Handler{manage: manage, snapshots: snapshots, sitreps: sitreps, staff: staff, logs: logistics}
+func NewHandler(manage *usecase.Manage, snapshots *usecase.Snapshots, sitreps *usecase.Sitreps, staff *usecase.Staff, logistics *usecase.Logistics, record *usecase.Record) *Handler {
+	return &Handler{manage: manage, snapshots: snapshots, sitreps: sitreps, staff: staff, logs: logistics, record: record}
 }
 
 func (h *Handler) Register(mux *http.ServeMux) {
@@ -56,6 +57,7 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/campaign/items/{id}/lift", h.lift)
 	mux.HandleFunc("POST /api/campaign/items/{id}/recon", h.recon)
 	mux.HandleFunc("PUT /api/campaign/orders/{id}/target", h.aim)
+	h.registerRecord(mux)
 }
 
 // ---------- DTOs ----------

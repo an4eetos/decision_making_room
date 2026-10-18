@@ -149,6 +149,13 @@ const (
 	ReadingDeployment ReadingKind = "deployment"
 	// ReadingEnergy is energy reported low on most of the last evenings.
 	ReadingEnergy ReadingKind = "energy"
+
+	// ReadingUnscored is a quarter in review whose kept predictions have not
+	// all been scored. The debrief asks; it does not decide.
+	ReadingUnscored ReadingKind = "unscored"
+	// ReadingCalibration is the Brier score, once enough predictions have
+	// been scored for the number to be worth watching.
+	ReadingCalibration ReadingKind = "calibration"
 )
 
 // Reading is one thing the arithmetic says. FrontID and ItemID point at what

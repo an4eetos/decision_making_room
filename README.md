@@ -14,7 +14,9 @@ written about your own work gives better advice than one that has not.
 > write, drawn as a theatre map, read by the staff — the generals appraise
 > the map, check-ins are sitreps, a red team attacks your plan — and now
 > supplied: every front's orders are weighed against the hours, energy and
-> money you report. The campaign record is next. See [the roadmap](#roadmap).
+> money you report — and kept as a record: a quarter runs from planning
+> through operations to an after-action, pre-mortem predictions are scored
+> by you, and calibration is the one number. See [the roadmap](#roadmap).
 
 ## Quick start
 
@@ -500,7 +502,7 @@ campaign keeps the rules v1 already follows:
   report in one tap at the evening check-in (never inferred from your writing),
   money; overextension warnings before a front collapses; relocation as a
   deployment with its own supply line
-- [ ] **v2.5 Campaign record** — campaigns by quarter, from planning through
+- [x] **v2.5 Campaign record** — campaigns by quarter, from planning through
   operations to an after-action review; pre-mortem predictions scored at the
   debrief, with calibration as the one number worth watching; commendations for
   what actually matters — an objective taken, an honest withdrawal, a pre-mortem
