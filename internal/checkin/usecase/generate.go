@@ -103,7 +103,8 @@ var sitrepIntents = map[string]string{
 		"Name one position from the map by its text. If a front has gone quiet, say so once, without lecturing.",
 	"debrief": "Gains and losses. What moved on the map today (taken, cleared, lifted, orders carried out) and what did not. " +
 		"If an order due today was not done, ask about it by name. A withdrawal is a gain if it was on purpose; say so. " +
-		"Do not ask about energy: I report it with one tap under this check-in.",
+		"Do not ask about energy: I report it with one tap under this check-in. " +
+		"If a reading says pre-mortem predictions are still unscored, ask me to score them on the campaign page. Do not decide whether one came true.",
 }
 
 var titles = map[string]string{

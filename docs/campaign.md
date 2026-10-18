@@ -258,6 +258,55 @@ appraisal weighs orders against supply and is told not to invent hours that
 were not logged. `GET /api/campaign/logistics` serves the supply lines with
 the last two weeks of sorties; the sitrep carries them too.
 
+## The record
+
+A quarter is a campaign, and you open it. The calendar does not. It moves
+planning → operations → review → closed; review can go back to operations,
+and closed is final. One campaign per quarter (`2026-Q4`). If you never open
+one, the map is unchanged.
+
+You assign the objectives the quarter is for. A multi-year objective is not
+pulled in by its date. Taking one you assigned is a commendation, and so is
+withdrawing it. An objective you did not assign does not count. While the
+quarter is open those lines are a view, so restoring an objective removes
+the line. Closing copies them onto the quarter, and a later edit to the map
+does not rewrite them.
+
+**Predictions.** A pre-mortem is read with no model call. *How it failed*
+becomes up to three proposals; *Early warnings* are attached only when there
+is one per failure. *The cheapest insurance* is not a prediction. Keeping
+one is agreement. One shared word can suggest the objective it bears on.
+With no open quarter, the proposal waits unfiled.
+
+The chance is one tap, and it is never inferred: long shot (0.2), even
+(0.5), likely (0.8). You score it yourself: it showed, or it did not. The
+evening check-in asks when the quarter is in review and predictions are
+still unscored. It does not decide.
+
+**Calibration** is the Brier score, the mean of (chance − outcome)², over
+kept predictions that have both. Lower is better; 0.25 is a coin flip. The
+number is withheld until five such predictions exist. Below that, the page
+shows the buckets and no number. Unscored predictions, and predictions with
+no chance, do not move it. The number is sealed when the quarter closes.
+
+**Commendations** are lines, not points. No streaks.
+
+| Line | When |
+|---|---|
+| taken | an assigned objective is taken |
+| withdrawal | an assigned objective is withdrawn |
+| called | a kept prediction scored as showed |
+
+**The after-action** is optional, and only while the quarter is in review.
+*Write the after-action* is one standard call. The question is the record,
+and the mode is told not to add an outcome, a chance, or a commendation
+that is not in it. It runs in the background; the page polls. You can close
+without it. The narrative stays on the record page.
+
+The sitrep mentions at most the quarter that contains today, or the one in
+review when today has none, and only to say that predictions are still
+unscored or to give the calibration once it can be read.
+
 ## Data
 
 `migrations/008_campaign.sql`: `fronts`, one `campaign_items` table for all
@@ -280,4 +329,7 @@ front, optionally on an order; the sortie outlives its order) and
 objectives only; and `front_id` on `relocation_plans`, cleared if the front
 goes. A currency is required with every amount.
 
-Not yet: the campaign record (v2.5).
+`migrations/013_campaign_record.sql`: `campaigns`, one row per quarter;
+`campaign_objectives`, the objectives you assigned; `predictions`, the
+failures a pre-mortem named, with the chance and the outcome you set; and
+`commendations`, written only when the quarter closes.

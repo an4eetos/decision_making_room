@@ -29,6 +29,8 @@ var Module = fx.Module("campaign",
 		provideStaff,
 		provideLogisticsRepository,
 		provideLogistics,
+		provideRecordRepository,
+		provideRecord,
 		// The staff reads the map into every answer, through the memory
 		// module's own port, so memory never imports the campaign.
 		func(s *usecase.Sitreps) memport.SituationReader { return s },
@@ -38,11 +40,18 @@ var Module = fx.Module("campaign",
 			func(e *usecase.Extract) memport.TurnObserver { return e },
 			fx.ResultTags(`group:"turn_observers"`),
 		),
+		// A pre-mortem's failures are filed as predictions without the chat
+		// knowing the record exists.
+		fx.Annotate(
+			func(r *usecase.Record) memport.TurnObserver { return r },
+			fx.ResultTags(`group:"turn_observers"`),
+		),
 		// Open loops ask the campaign which objectives a new commitment can
 		// serve, without importing it.
 		func(m *usecase.Manage) comport.ObjectiveSource { return m },
 	),
 	fx.Invoke(startSnapshots),
+	fx.Invoke(attachRecord),
 )
 
 func provideRepository(pool *pgxpool.Pool) port.Repository {
@@ -73,6 +82,18 @@ func provideSitreps(manage *usecase.Manage, snapshots *usecase.Snapshots, logist
 
 func provideLogisticsRepository(pool *pgxpool.Pool) port.LogisticsRepository {
 	return campostgres.NewRepository(pool)
+}
+
+func provideRecordRepository(pool *pgxpool.Pool) port.RecordRepository {
+	return campostgres.NewRepository(pool)
+}
+
+func provideRecord(repo port.RecordRepository, items port.Repository, loc *time.Location, consult *memusecase.Consult) *usecase.Record {
+	return usecase.NewRecord(repo, items, loc).WithConsult(consult)
+}
+
+func attachRecord(sitreps *usecase.Sitreps, record *usecase.Record) {
+	sitreps.WithRecord(record)
 }
 
 // logisticsIn takes the deployments as optional: the relocation module

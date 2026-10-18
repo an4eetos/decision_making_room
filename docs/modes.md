@@ -4,8 +4,9 @@ A mode is what kind of question you are asking. It decides three things: the
 instructions the model gets, the shape the answer takes, and what retrieval
 favours.
 
-Fifteen ship, plus four that are never detected: `interrogation`, `beast`, and
-the two staff modes, `staff` and `red_team`. The most important is `open`, which
+Fifteen ship, plus five that are never detected: `interrogation`, `beast`,
+the two staff modes `staff` and `red_team`, and `after_action`, which writes
+a quarter's review from the campaign record. The most important is `open`, which
 imposes no template at all — without it, every casual question gets forced into
 a framework, which is worse than having no modes.
 

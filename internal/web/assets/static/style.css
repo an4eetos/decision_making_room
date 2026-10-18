@@ -4431,6 +4431,145 @@ button.est:hover {
     margin-top: 0.75rem;
 }
 
+/* ---------- Campaign record ----------
+   A quarter, its predictions, and the one number. Quiet until there is a
+   record; the calibration figure is the only thing set larger. */
+.record {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--wr-line);
+    border-radius: 10px;
+    background: var(--wr-panel);
+}
+
+.record-head,
+.record-card-head,
+.record-card-actions,
+.record-assign,
+.record-predictions .intel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.record-head {
+    justify-content: space-between;
+}
+
+.record-head h2,
+.record-card h3 {
+    margin: 0;
+}
+
+.record-note,
+.record-card .muted,
+.record-ended,
+.record-calibration-wait,
+.record-warning {
+    margin: 0;
+    font-size: 0.82rem;
+}
+
+.record-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--wr-line);
+}
+
+.record-card-head {
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.record-phase,
+.record-kind,
+.record-outcome {
+    font-family: var(--wr-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--wr-text-2);
+}
+
+.record-ended {
+    color: var(--wr-amber-text);
+}
+
+.record-calibration span {
+    font-variant-numeric: tabular-nums;
+    font-size: 1.4rem;
+    margin-right: 0.35rem;
+}
+
+.record-calibration,
+.record-buckets,
+.record-commendations,
+.record-objectives ul,
+.record-predictions {
+    margin: 0;
+}
+
+.record-buckets,
+.record-commendations,
+.record-objectives ul,
+.record-predictions {
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.record-objectives li,
+.record-predictions li,
+.record-commendations li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.record-predictions li {
+    padding: 8px 0;
+    border-top: 1px solid var(--wr-line);
+}
+
+.mini-btn.on {
+    border-color: var(--wr-line-strong);
+    color: var(--wr-text);
+}
+
+.record-note-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: var(--wr-text-2);
+}
+
+.record-note-field textarea {
+    width: 100%;
+    resize: vertical;
+}
+
+.record-review {
+    font-size: 0.92rem;
+}
+
+.record-closed {
+    opacity: 0.85;
+}
+
+.record-unfiled h3 {
+    margin: 8px 0;
+    font-size: 0.95rem;
+}
+
 @media (max-width: 760px) {
     .supply-row {
         grid-template-columns: 1fr 1fr;

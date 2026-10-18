@@ -83,8 +83,8 @@ func provideBeastHandler(board *beastusecase.Board) *beastapi.Handler {
 	return beastapi.NewHandler(board)
 }
 
-func provideCampaignHandler(manage *camusecase.Manage, snapshots *camusecase.Snapshots, sitreps *camusecase.Sitreps, staff *camusecase.Staff, logistics *camusecase.Logistics) *campaignapi.Handler {
-	return campaignapi.NewHandler(manage, snapshots, sitreps, staff, logistics)
+func provideCampaignHandler(manage *camusecase.Manage, snapshots *camusecase.Snapshots, sitreps *camusecase.Sitreps, staff *camusecase.Staff, logistics *camusecase.Logistics, record *camusecase.Record) *campaignapi.Handler {
+	return campaignapi.NewHandler(manage, snapshots, sitreps, staff, logistics, record)
 }
 
 func provideCheckinHandler(gen *chkusecase.Generate, scheduler *chkusecase.Scheduler) *checkinapi.Handler {

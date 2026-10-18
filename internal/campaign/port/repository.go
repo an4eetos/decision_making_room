@@ -84,3 +84,32 @@ type LogisticsRepository interface {
 type DeploymentSource interface {
 	Deployments(ctx context.Context) ([]domain.Deployment, error)
 }
+
+// RecordRepository keeps the quarters, the predictions filed on them, and the
+// commendations sealed when a quarter closes.
+type RecordRepository interface {
+	CreateCampaign(ctx context.Context, c domain.Campaign) (domain.Campaign, error)
+	GetCampaign(ctx context.Context, id uuid.UUID) (domain.Campaign, error)
+	UpdateCampaign(ctx context.Context, c domain.Campaign) (domain.Campaign, error)
+	DeleteCampaign(ctx context.Context, id uuid.UUID) error
+	// ListCampaigns returns every quarter, newest quarter first.
+	ListCampaigns(ctx context.Context) ([]domain.Campaign, error)
+
+	AssignObjective(ctx context.Context, campaignID, itemID uuid.UUID) error
+	UnassignObjective(ctx context.Context, campaignID, itemID uuid.UUID) error
+	// ListAssignments returns the objective ids assigned to a quarter.
+	ListAssignments(ctx context.Context, campaignID uuid.UUID) ([]uuid.UUID, error)
+
+	CreatePrediction(ctx context.Context, p domain.Prediction) (domain.Prediction, error)
+	GetPrediction(ctx context.Context, id uuid.UUID) (domain.Prediction, error)
+	UpdatePrediction(ctx context.Context, p domain.Prediction) (domain.Prediction, error)
+	// ListPredictions returns every prediction, newest first, including
+	// dropped ones. The record decides which to show.
+	ListPredictions(ctx context.Context) ([]domain.Prediction, error)
+
+	// SealCampaign closes the quarter and writes its commendations in one
+	// transaction. The campaign must already carry phase closed, closed_at,
+	// and the sealed calibration.
+	SealCampaign(ctx context.Context, c domain.Campaign, lines []domain.Commendation) (domain.Campaign, error)
+	ListCommendations(ctx context.Context, campaignID uuid.UUID) ([]domain.Commendation, error)
+}

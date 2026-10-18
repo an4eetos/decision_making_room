@@ -180,7 +180,7 @@ function setupCampaignPage() {
             ]);
             state = { ...map, loops: loops || [] };
             render();
-            await Promise.all([loadTheatre(), loadStaff(), loadLogistics()]);
+            await Promise.all([loadTheatre(), loadStaff(), loadLogistics(), window.refreshCampaignRecord?.()]);
         } catch (error) {
             showMessage(result, error.message, "error");
         }
