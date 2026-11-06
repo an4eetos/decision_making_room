@@ -508,6 +508,14 @@ campaign keeps the rules v1 already follows:
   what actually matters — an objective taken, an honest withdrawal, a pre-mortem
   that called it
 
+### v3 — The field app
+
+The backend hosted on Railway, the repository split into `backend/` and
+`client/` (web and Flutter), and one app for iOS and Android. The journal, the
+context files and the API keys stop being a folder and a `.env` and become
+things you fill in from a client; the server keeps them. The roadmap, milestone
+by milestone, is in [docs/mobile.md](docs/mobile.md).
+
 ## Privacy
 
 With `LLM_PROVIDER=gemini`, your journal text is sent to Google when you ask a
