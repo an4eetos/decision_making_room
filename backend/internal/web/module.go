@@ -23,6 +23,7 @@ import (
 	"github.com/an4eetos/decision-room/internal/web/checkinapi"
 	"github.com/an4eetos/decision-room/internal/web/commitmentsapi"
 	"github.com/an4eetos/decision-room/internal/web/relocationapi"
+	"github.com/an4eetos/decision-room/internal/web/settingsapi"
 	"github.com/an4eetos/decision-room/internal/web/ui"
 )
 
@@ -39,6 +40,7 @@ var Module = fx.Module("web",
 		asRoute(provideCampaignHandler),
 		asRoute(provideBeastHandler),
 		asRoute(provideAuthHandler),
+		asRoute(settingsapi.NewHandler),
 	),
 )
 

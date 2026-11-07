@@ -27,7 +27,10 @@ type Scheduler struct {
 	grace     time.Duration
 	idleAfter time.Duration
 	enabled   bool
-	now       func() time.Time
+	// live, when set, replaces enabled and slots at every tick: both are
+	// settings a client can change while the room runs.
+	live func() (enabled bool, slots []service.Slot)
+	now  func() time.Time
 }
 
 type SchedulerConfig struct {
@@ -50,15 +53,33 @@ func NewScheduler(gen *Generate, chats memport.ChatRepository, cfg SchedulerConf
 	}
 }
 
-func (s *Scheduler) Enabled() bool { return s.enabled && len(s.slots) > 0 }
+// WithLive reads whether check-ins are on, and their slots, at every tick.
+func (s *Scheduler) WithLive(fn func() (bool, []service.Slot)) *Scheduler {
+	s.live = fn
+	return s
+}
+
+// state is whether check-ins are on and their slots, now.
+func (s *Scheduler) state() (bool, []service.Slot) {
+	if s.live != nil {
+		return s.live()
+	}
+	return s.enabled, s.slots
+}
+
+func (s *Scheduler) Enabled() bool {
+	on, slots := s.state()
+	return on && len(slots) > 0
+}
 
 // Schedule is what a client needs to set its own alarms: the slots and the
 // timezone they fire in. A phone that is off at 08:00 reads the check-in when
 // it is on, the same rule a laptop that slept already follows; nothing is
 // pushed, the text waits on the server.
 func (s *Scheduler) Schedule() ScheduleInfo {
-	slots := make([]ScheduledSlot, 0, len(s.slots))
-	for _, slot := range s.slots {
+	_, current := s.state()
+	slots := make([]ScheduledSlot, 0, len(current))
+	for _, slot := range current {
 		slots = append(slots, ScheduledSlot{
 			Name: slot.Name, Time: fmt.Sprintf("%02d:%02d", slot.Hour, slot.Minute), ModeID: slot.ModeID,
 		})
@@ -83,12 +104,13 @@ type ScheduledSlot struct {
 // Tick checks every slot and the idle condition once. Exported so it can be
 // driven directly in tests rather than by waiting on a real ticker.
 func (s *Scheduler) Tick(ctx context.Context) {
-	if !s.Enabled() {
+	on, slots := s.state()
+	if !on || len(slots) == 0 {
 		return
 	}
 
 	now := s.now()
-	for _, slot := range s.slots {
+	for _, slot := range slots {
 		date, due := service.Due(slot, now, s.loc, s.grace)
 		if !due {
 			continue
@@ -100,11 +122,11 @@ func (s *Scheduler) Tick(ctx context.Context) {
 		}
 	}
 
-	s.checkIdle(ctx, now)
+	s.checkIdle(ctx, now, slots)
 }
 
-func (s *Scheduler) checkIdle(ctx context.Context, now time.Time) {
-	if s.idleAfter <= 0 || !service.ActiveHours(s.slots, now, s.loc) {
+func (s *Scheduler) checkIdle(ctx context.Context, now time.Time, slots []service.Slot) {
+	if s.idleAfter <= 0 || !service.ActiveHours(slots, now, s.loc) {
 		return
 	}
 
@@ -126,13 +148,14 @@ func (s *Scheduler) checkIdle(ctx context.Context, now time.Time) {
 // Next returns when the next scheduled check-in is due, or nil when they are
 // off. Today's later slot if there is one, otherwise tomorrow's first.
 func (s *Scheduler) Next() *time.Time {
-	if !s.Enabled() {
+	on, slots := s.state()
+	if !on || len(slots) == 0 {
 		return nil
 	}
 	local := s.now().In(s.loc)
 
 	var next *time.Time
-	for _, slot := range s.slots {
+	for _, slot := range slots {
 		at := time.Date(local.Year(), local.Month(), local.Day(), slot.Hour, slot.Minute, 0, 0, s.loc)
 		if !at.After(local) {
 			at = at.AddDate(0, 0, 1)
@@ -147,12 +170,14 @@ func (s *Scheduler) Next() *time.Time {
 
 // Run ticks until the context ends. It ticks once immediately, so starting the
 // app after a slot's time catches up without waiting a minute.
+// It keeps ticking while check-ins are off, because they can be turned on in
+// Settings; an off tick costs nothing.
 func (s *Scheduler) Run(ctx context.Context) {
-	if !s.Enabled() {
-		log.Printf("check-ins: off (set CHECKIN_ENABLED=true and CHECKIN_SLOTS to turn on)")
-		return
+	if on, slots := s.state(); on && len(slots) > 0 {
+		log.Printf("check-ins: %d slots, timezone %s", len(slots), s.loc)
+	} else {
+		log.Printf("check-ins: off (turn them on in Settings, or set CHECKIN_ENABLED=true)")
 	}
-	log.Printf("check-ins: %d slots, timezone %s", len(s.slots), s.loc)
 
 	s.Tick(ctx)
 	ticker := time.NewTicker(time.Minute)

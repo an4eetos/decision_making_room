@@ -38,6 +38,11 @@ type DoctrineIndex struct {
 
 	mu      sync.RWMutex
 	vectors map[string][]float32 // by passage hash
+	model   string               // the embedding model the vectors came from
+
+	// buildMu serialises builds: a settings change can start one while the
+	// boot build is still running.
+	buildMu sync.Mutex
 }
 
 type indexedPassage struct {
@@ -81,7 +86,19 @@ func (x *DoctrineIndex) Build(ctx context.Context) error {
 	if x.embedder == nil {
 		return nil
 	}
+	x.buildMu.Lock()
+	defer x.buildMu.Unlock()
 	model := x.embedder.ModelID()
+
+	// The embedding model can change at runtime now. Vectors from another
+	// model may share the dimension and still mean nothing against a question
+	// embedded with this one, so they go before anything is compared.
+	x.mu.Lock()
+	if x.model != model {
+		x.vectors = make(map[string][]float32)
+		x.model = model
+	}
+	x.mu.Unlock()
 
 	cached := map[string][]float32{}
 	if x.store != nil {
@@ -101,6 +118,10 @@ func (x *DoctrineIndex) Build(ctx context.Context) error {
 	for _, passages := range x.byLens {
 		for _, p := range passages {
 			keep = append(keep, p.hash)
+			if _, have := x.vectors[p.hash]; have {
+				// Already embedded by an earlier build with this model.
+				continue
+			}
 			if vec, ok := cached[p.hash]; ok {
 				x.vectors[p.hash] = vec
 			} else {

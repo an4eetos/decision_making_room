@@ -43,7 +43,10 @@ type Extract struct {
 	repo    port.Repository
 	orders  *comusecase.Manage
 	enabled bool
-	now     func() time.Time
+	// enabledFn, when set, replaces enabled at every turn: the toggle is a
+	// setting a client can change while the room runs.
+	enabledFn func() bool
+	now       func() time.Time
 	// busy caps model extraction at one in flight; a turn arriving while one
 	// runs is skipped rather than queued, the same rule as open loops.
 	busy chan struct{}
@@ -60,6 +63,19 @@ func NewExtract(llm memport.LLM, repo port.Repository, orders *comusecase.Manage
 	}
 }
 
+// WithEnabled reads the toggle at every turn.
+func (u *Extract) WithEnabled(fn func() bool) *Extract {
+	u.enabledFn = fn
+	return u
+}
+
+func (u *Extract) isEnabled() bool {
+	if u.enabledFn != nil {
+		return u.enabledFn()
+	}
+	return u.enabled
+}
+
 // extractTimeout bounds the background work, on a fresh context: the request's
 // is cancelled the moment the response is written.
 const extractTimeout = 30 * time.Second
@@ -74,7 +90,7 @@ const maxProposedOrders = 3
 
 // ObserveTurn implements memport.TurnObserver. It returns immediately.
 func (u *Extract) ObserveTurn(turn memport.Turn) {
-	if !u.enabled {
+	if !u.isEnabled() {
 		return
 	}
 

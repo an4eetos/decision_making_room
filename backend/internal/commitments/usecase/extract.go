@@ -26,7 +26,10 @@ type Extract struct {
 	llm     memport.LLM
 	repo    port.Repository
 	enabled bool
-	now     func() time.Time
+	// enabledFn, when set, replaces enabled at every turn: the toggle is a
+	// setting a client can change while the room runs.
+	enabledFn func() bool
+	now       func() time.Time
 	// objectives, when set, lets a new commitment say which objective on the
 	// campaign map it serves. Nil extracts exactly as before.
 	objectives port.ObjectiveSource
@@ -48,6 +51,19 @@ func NewExtract(llm memport.LLM, repo port.Repository, enabled bool) *Extract {
 	}
 }
 
+// WithEnabled reads the toggle at every turn.
+func (u *Extract) WithEnabled(fn func() bool) *Extract {
+	u.enabledFn = fn
+	return u
+}
+
+func (u *Extract) isEnabled() bool {
+	if u.enabledFn != nil {
+		return u.enabledFn()
+	}
+	return u.enabled
+}
+
 // WithObjectives links extracted commitments to the objectives they serve.
 func (u *Extract) WithObjectives(source port.ObjectiveSource) *Extract {
 	u.objectives = source
@@ -61,7 +77,7 @@ const extractTimeout = 30 * time.Second
 
 // ObserveTurn implements memport.TurnObserver. It returns immediately.
 func (u *Extract) ObserveTurn(turn memport.Turn) {
-	if !u.enabled || u.llm == nil {
+	if !u.isEnabled() || u.llm == nil {
 		return
 	}
 	// The prefilter runs synchronously because it is free, and most turns stop

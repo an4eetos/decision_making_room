@@ -32,8 +32,12 @@ func NewMemoEmbedder(inner port.Embedder, size int) *MemoEmbedder {
 func (m *MemoEmbedder) ModelID() string { return m.inner.ModelID() }
 
 func (m *MemoEmbedder) Embed(ctx context.Context, text string) ([]float32, error) {
+	// Keyed by model as well: the embedder can be switched in Settings, and a
+	// vector from the old model must not come back labelled as the new one.
+	key := m.inner.ModelID() + "\x00" + text
+
 	m.mu.Lock()
-	if vec, ok := m.cache[text]; ok {
+	if vec, ok := m.cache[key]; ok {
 		m.mu.Unlock()
 		return vec, nil
 	}
@@ -48,13 +52,13 @@ func (m *MemoEmbedder) Embed(ctx context.Context, text string) ([]float32, error
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if _, ok := m.cache[text]; !ok {
+	if _, ok := m.cache[key]; !ok {
 		if len(m.order) >= m.size {
 			delete(m.cache, m.order[0])
 			m.order = m.order[1:]
 		}
-		m.cache[text] = vec
-		m.order = append(m.order, text)
+		m.cache[key] = vec
+		m.order = append(m.order, key)
 	}
 	return vec, nil
 }

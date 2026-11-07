@@ -316,6 +316,15 @@ broken entry fails the boot rather than silently vanishing from your checklist.
 
 Copy `.env.example` to `.env`. Real environment variables take precedence.
 
+Most of what follows can also be set on the **Settings** page, or through
+`/api/settings`, while the room runs: provider, keys, models, effort, tiers,
+check-ins, sortie length and the extraction and staff toggles. The order is
+the environment (with `.env`), then Settings, then the default, so a variable
+set on the server wins and shows as locked. Changes apply to the next
+question; only `CHECKIN_TZ` waits for a restart. Infrastructure, the
+database, the address, `SETTINGS_KEY`, the sign-in variables and the overlay
+directories, is environment only.
+
 | Variable | Default | Notes |
 |---|---|---|
 | `DATABASE_URL` | `postgres://room:room@localhost:5432/decision_room?sslmode=disable` | |
@@ -349,6 +358,7 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `WEB_ROOT` | `../client/web` | the web client's directory, read from disk; edits to templates and CSS need no rebuild |
 | `PORT` | — | hosts such as Railway set it; `HTTP_ADDR` defaults to `:$PORT` when present |
 | `HTTP_ADDR` | `:8080` | |
+| `SETTINGS_KEY` | — | seals keys typed into Settings; `openssl rand -base64 32`. Without it, keys come from the environment only |
 | `ROOM_PASSWORD` | — | the password; unset, choose one on `/setup` with the code from the server log. Changing it and restarting signs every device out |
 | `PUBLIC_URL` | `https://$RAILWAY_PUBLIC_DOMAIN`, else `http://localhost:<port>` | where browsers reach the room; the OIDC redirect URI is built from it |
 | `OIDC_ISSUER` | — | turns on sign-in with any OpenID Connect provider, e.g. `https://accounts.google.com` |
@@ -380,6 +390,11 @@ application" OAuth client in the Google Cloud console, add
 set `OIDC_ISSUER=https://accounts.google.com`, `OIDC_CLIENT_ID`,
 `OIDC_CLIENT_SECRET` and `OIDC_ALLOWED_EMAILS`. Any OpenID Connect provider
 works the same way.
+
+Set `SETTINGS_KEY` too (`openssl rand -base64 32`), then paste your Gemini or
+Anthropic key on the Settings page instead of into a Railway variable. The
+**Test provider** button makes one tiny call and shows the provider's own
+answer, so a wrong key is caught before the first question.
 
 ## Architecture
 
@@ -417,6 +432,9 @@ session: `Authorization: Bearer <token>` from the app or `curl`, or the
 | `POST` | `/api/auth/logout` | revoke this session |
 | `GET` | `/api/auth/sessions` | signed-in devices, the current one marked |
 | `DELETE` | `/api/auth/sessions/{id}` | sign a device out |
+| `GET` | `/api/settings` | every setting a client may change: value (secrets masked to the last four), source, whether the environment locks it, and what the next question would fail on |
+| `PUT` | `/api/settings` | `{"values": {"KEY": "value" or null}}`; validated together and saved in one transaction; null goes back to the default |
+| `POST` | `/api/settings/test` | one tiny chat call and one embedding, with optional unsaved `values` on top; returns each provider's own answer |
 | `GET` | `/api/generals` | the roster |
 | `GET` | `/api/modes` | conversation modes |
 | `POST` | `/api/capture` | append a line to today's note |
@@ -578,7 +596,10 @@ Hosted, every route needs a session. The password is stored as an argon2id
 hash and session tokens only as SHA-256 hashes, so a copy of the database
 cannot be replayed as a login. With OIDC on, the provider learns when you sign
 in to the room, and nothing else. Railway, as the host, can read the database
-and the variables, `ROOM_PASSWORD` and `OIDC_CLIENT_SECRET` included.
+and the variables, `ROOM_PASSWORD` and `OIDC_CLIENT_SECRET` included. Keys
+typed into Settings are sealed with AES-256-GCM in the server, under
+`SETTINGS_KEY`, before they reach the database; the key itself is never sent
+there, so a database copy alone does not reveal them.
 
 ## Licence
 

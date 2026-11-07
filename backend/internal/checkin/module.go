@@ -3,6 +3,8 @@ package checkin
 import (
 	"context"
 	"fmt"
+	"log"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -77,10 +79,33 @@ func provideScheduler(
 	chats memport.ChatRepository,
 	loc *time.Location,
 	cfg config.Config,
+	resolver *config.Resolver,
 ) (*usecase.Scheduler, error) {
 	slots, err := service.ParseSlots(cfg.CheckinSlots)
 	if err != nil {
 		return nil, err
+	}
+	// Slots are validated when they are saved, so a parse failure here means
+	// the environment changed underneath; keep the last good list.
+	var (
+		mu       sync.Mutex
+		lastRaw  = cfg.CheckinSlots
+		lastGood = slots
+	)
+	live := func() (bool, []service.Slot) {
+		cur := resolver.Current()
+		mu.Lock()
+		defer mu.Unlock()
+		if cur.CheckinSlots != lastRaw {
+			parsed, err := service.ParseSlots(cur.CheckinSlots)
+			if err != nil {
+				log.Printf("check-in: CHECKIN_SLOTS %q: %v; keeping the previous slots", cur.CheckinSlots, err)
+			} else {
+				lastGood = parsed
+			}
+			lastRaw = cur.CheckinSlots
+		}
+		return cur.CheckinEnabled, lastGood
 	}
 	return usecase.NewScheduler(gen, chats, usecase.SchedulerConfig{
 		Enabled:   cfg.CheckinEnabled,
@@ -88,7 +113,7 @@ func provideScheduler(
 		Location:  loc,
 		Grace:     cfg.CheckinGrace,
 		IdleAfter: cfg.CheckinIdleAfter,
-	}), nil
+	}).WithLive(live), nil
 }
 
 func startScheduler(lc fx.Lifecycle, s *usecase.Scheduler) {

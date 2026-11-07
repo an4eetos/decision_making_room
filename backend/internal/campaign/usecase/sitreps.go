@@ -27,7 +27,9 @@ type Sitreps struct {
 	// readsIntoAnswers is CAMPAIGN_STAFF_ENABLED: whether the map goes into
 	// ordinary answers. Off, the room answers as it did before the map.
 	readsIntoAnswers bool
-	now              func() time.Time
+	// staffFn, when set, replaces readsIntoAnswers at every answer.
+	staffFn func() bool
+	now     func() time.Time
 }
 
 func NewSitreps(manage *Manage, snapshots *Snapshots, loc *time.Location, readsIntoAnswers bool) *Sitreps {
@@ -35,6 +37,19 @@ func NewSitreps(manage *Manage, snapshots *Snapshots, loc *time.Location, readsI
 		loc = time.Local
 	}
 	return &Sitreps{manage: manage, snapshots: snapshots, loc: loc, readsIntoAnswers: readsIntoAnswers, now: time.Now}
+}
+
+// WithStaff reads CAMPAIGN_STAFF_ENABLED at every answer.
+func (s *Sitreps) WithStaff(fn func() bool) *Sitreps {
+	s.staffFn = fn
+	return s
+}
+
+func (s *Sitreps) staffOn() bool {
+	if s.staffFn != nil {
+		return s.staffFn()
+	}
+	return s.readsIntoAnswers
 }
 
 // WithLogistics reads supply into every sitrep: hours from sorties, energy
@@ -102,7 +117,7 @@ func (s *Sitreps) Sitrep(ctx context.Context) (domain.Sitrep, error) {
 // goes under "About me" in every answer. Empty when the map is empty or the
 // staff is switched off, which leaves the answer exactly as it was.
 func (s *Sitreps) Situation(ctx context.Context) (string, error) {
-	if !s.readsIntoAnswers {
+	if !s.staffOn() {
 		return "", nil
 	}
 	sitrep, err := s.Sitrep(ctx)

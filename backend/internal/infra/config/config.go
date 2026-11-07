@@ -47,6 +47,9 @@ type Config struct {
 	// first boot and replaces a different stored one, signing every device
 	// out. Unset, the first password is chosen on /setup.
 	RoomPassword string
+	// SettingsKey seals the secrets typed into a client. Environment only:
+	// it never goes in the database it protects.
+	SettingsKey string
 	// PasswordLogin turns the password off when false, leaving only OIDC.
 	PasswordLogin bool
 	// PublicURL is where browsers reach the room; the OIDC callback is
@@ -126,98 +129,112 @@ type Config struct {
 	JournalWatchEnabled bool
 }
 
+// Lookup returns a variable's value and whether it is set at all.
+type Lookup func(key string) (string, bool)
+
+// Load reads the process environment, with .env filling what it leaves unset.
 func Load() (Config, error) {
 	if err := loadDotEnv(".env"); err != nil {
 		return Config{}, fmt.Errorf("load .env: %w", err)
 	}
+	return Build(os.LookupEnv)
+}
 
-	sortieMinutes, err := strconv.Atoi(envOrDefault("SORTIE_MINUTES", "25"))
+// Build parses a Config from any source of variables. The environment is one;
+// the Resolver layers stored settings under it and builds again, so a value
+// typed in a client is parsed, defaulted and validated exactly like one from
+// the environment.
+func Build(get Lookup) (Config, error) {
+	e := vars{get: get}
+
+	sortieMinutes, err := strconv.Atoi(e.or("SORTIE_MINUTES", "25"))
 	if err != nil || sortieMinutes < 5 || sortieMinutes > 480 {
 		return Config{}, fmt.Errorf("SORTIE_MINUTES must be 5 to 480 minutes")
 	}
 
-	topK, err := strconv.Atoi(envOrDefault("RETRIEVAL_TOP_K", "8"))
+	topK, err := strconv.Atoi(e.or("RETRIEVAL_TOP_K", "8"))
 	if err != nil {
 		return Config{}, fmt.Errorf("parse RETRIEVAL_TOP_K: %w", err)
 	}
 
-	candidates, err := strconv.Atoi(envOrDefault("RETRIEVAL_CANDIDATES", "30"))
+	candidates, err := strconv.Atoi(e.or("RETRIEVAL_CANDIDATES", "30"))
 	if err != nil {
 		return Config{}, fmt.Errorf("parse RETRIEVAL_CANDIDATES: %w", err)
 	}
 
-	journalDir := envOrDefault("JOURNAL_WATCH_DIR", "./journal")
-	aboutMeFile := envOrDefault("ABOUT_ME_FILE", filepath.Join(journalDir, "about-me.md"))
-	contextDir := envOrDefault("CONTEXT_DIR", filepath.Join(journalDir, "context"))
+	journalDir := e.or("JOURNAL_WATCH_DIR", "./journal")
+	aboutMeFile := e.or("ABOUT_ME_FILE", filepath.Join(journalDir, "about-me.md"))
+	contextDir := e.or("CONTEXT_DIR", filepath.Join(journalDir, "context"))
 
-	maxRunes, err := strconv.Atoi(envOrDefault("INITIAL_CONTEXT_MAX_RUNES", "0"))
+	maxRunes, err := strconv.Atoi(e.or("INITIAL_CONTEXT_MAX_RUNES", "0"))
 	if err != nil {
 		return Config{}, fmt.Errorf("parse INITIAL_CONTEXT_MAX_RUNES: %w", err)
 	}
 
 	cfg := Config{
-		DatabaseURL:         envOrDefault("DATABASE_URL", "postgres://room:room@localhost:5432/decision_room?sslmode=disable"),
-		LLMProvider:         envOrDefault("LLM_PROVIDER", "gemini"),
-		OllamaBaseURL:       envOrDefault("OLLAMA_BASE_URL", "http://localhost:11434"),
-		OllamaChatModel:     envOrDefault("OLLAMA_CHAT_MODEL", "qwen3:8b"),
-		OllamaEmbedModel:    envOrDefault("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
-		GeminiAPIKey:        os.Getenv("GEMINI_API_KEY"),
-		GeminiBaseURL:       envOrDefault("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
-		GeminiChatModel:     envOrDefault("GEMINI_CHAT_MODEL", "gemini-flash-latest"),
-		GeminiChatModels:    parseCSVEnv("GEMINI_CHAT_MODELS"),
-		GeminiFallbackModel: envOrDefault("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest"),
-		GeminiEmbedModel:    envOrDefault("GEMINI_EMBED_MODEL", "gemini-embedding-001"),
-		AnthropicAPIKey:     os.Getenv("ANTHROPIC_API_KEY"),
-		AnthropicBaseURL:    os.Getenv("ANTHROPIC_BASE_URL"),
-		AnthropicChatModel:  envOrDefault("ANTHROPIC_CHAT_MODEL", "claude-opus-5-5"),
-		AnthropicChatModels: parseCSVEnv("ANTHROPIC_CHAT_MODELS"),
+		DatabaseURL:         e.or("DATABASE_URL", "postgres://room:room@localhost:5432/decision_room?sslmode=disable"),
+		LLMProvider:         e.or("LLM_PROVIDER", "gemini"),
+		OllamaBaseURL:       e.or("OLLAMA_BASE_URL", "http://localhost:11434"),
+		OllamaChatModel:     e.or("OLLAMA_CHAT_MODEL", "qwen3:8b"),
+		OllamaEmbedModel:    e.or("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
+		GeminiAPIKey:        e.str("GEMINI_API_KEY"),
+		GeminiBaseURL:       e.or("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"),
+		GeminiChatModel:     e.or("GEMINI_CHAT_MODEL", "gemini-flash-latest"),
+		GeminiChatModels:    e.csv("GEMINI_CHAT_MODELS"),
+		GeminiFallbackModel: e.or("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest"),
+		GeminiEmbedModel:    e.or("GEMINI_EMBED_MODEL", "gemini-embedding-001"),
+		AnthropicAPIKey:     e.str("ANTHROPIC_API_KEY"),
+		AnthropicBaseURL:    e.str("ANTHROPIC_BASE_URL"),
+		AnthropicChatModel:  e.or("ANTHROPIC_CHAT_MODEL", "claude-opus-5-5"),
+		AnthropicChatModels: e.csv("ANTHROPIC_CHAT_MODELS"),
 		// Set but empty means "disabled", so these two read the variable
 		// directly instead of treating empty as unset.
-		AnthropicFallbackModel: envOrDefaultAllowEmpty("ANTHROPIC_FALLBACK_MODEL", "claude-sonnet-5-5"),
-		AnthropicEffort:        envOrDefaultAllowEmpty("ANTHROPIC_EFFORT", "medium"),
-		EmbedProvider:          os.Getenv("EMBED_PROVIDER"),
-		HTTPAddr:               envOrDefault("HTTP_ADDR", listenAddrFromPort()),
-		RoomPassword:           os.Getenv("ROOM_PASSWORD"),
-		PasswordLogin:          envBoolOrDefault("PASSWORD_LOGIN_ENABLED", true),
-		OIDCIssuer:             strings.TrimRight(strings.TrimSpace(os.Getenv("OIDC_ISSUER")), "/"),
-		OIDCClientID:           strings.TrimSpace(os.Getenv("OIDC_CLIENT_ID")),
-		OIDCClientSecret:       os.Getenv("OIDC_CLIENT_SECRET"),
-		OIDCAllowedEmails:      parseCSVEnv("OIDC_ALLOWED_EMAILS"),
-		OIDCName:               os.Getenv("OIDC_NAME"),
-		OIDCAppRedirects:       parseCSVEnv("OIDC_APP_REDIRECTS"),
+		AnthropicFallbackModel: e.orAllowEmpty("ANTHROPIC_FALLBACK_MODEL", "claude-sonnet-5-5"),
+		AnthropicEffort:        e.orAllowEmpty("ANTHROPIC_EFFORT", "medium"),
+		EmbedProvider:          e.str("EMBED_PROVIDER"),
+		HTTPAddr:               e.or("HTTP_ADDR", listenAddrFromPort(e)),
+		RoomPassword:           e.str("ROOM_PASSWORD"),
+		SettingsKey:            e.str("SETTINGS_KEY"),
+		PasswordLogin:          e.bool("PASSWORD_LOGIN_ENABLED", true),
+		OIDCIssuer:             strings.TrimRight(strings.TrimSpace(e.str("OIDC_ISSUER")), "/"),
+		OIDCClientID:           strings.TrimSpace(e.str("OIDC_CLIENT_ID")),
+		OIDCClientSecret:       e.str("OIDC_CLIENT_SECRET"),
+		OIDCAllowedEmails:      e.csv("OIDC_ALLOWED_EMAILS"),
+		OIDCName:               e.str("OIDC_NAME"),
+		OIDCAppRedirects:       e.csv("OIDC_APP_REDIRECTS"),
 		RetrievalTopK:          topK,
 		RetrievalCandidates:    candidates,
-		DefaultTier:            envOrDefault("DEFAULT_TIER", "standard"),
-		MaxTier:                envOrDefault("MAX_TIER", "deep"),
+		DefaultTier:            e.or("DEFAULT_TIER", "standard"),
+		MaxTier:                e.or("MAX_TIER", "deep"),
 		AboutMeFile:            aboutMeFile,
 		ContextDir:             contextDir,
 		InitialContextMaxRunes: maxRunes,
-		WebRoot:                envOrDefault("WEB_ROOT", "../client/web"), // the web client, outside the Go module
-		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
-		GeneralsDir:            os.Getenv("GENERALS_DIR"),
-		ModesDir:               os.Getenv("MODES_DIR"),
-		CommitmentExtraction:   envBoolOrDefault("COMMITMENT_EXTRACTION_ENABLED", true),
-		CampaignExtraction:     envBoolOrDefault("CAMPAIGN_EXTRACTION_ENABLED", true),
-		CampaignStaff:          envBoolOrDefault("CAMPAIGN_STAFF_ENABLED", true),
+		WebRoot:                e.or("WEB_ROOT", "../client/web"), // the web client, outside the Go module
+		RelocationCatalogDir:   e.str("RELOCATION_CATALOG_DIR"),
+		GeneralsDir:            e.str("GENERALS_DIR"),
+		ModesDir:               e.str("MODES_DIR"),
+		CommitmentExtraction:   e.bool("COMMITMENT_EXTRACTION_ENABLED", true),
+		CampaignExtraction:     e.bool("CAMPAIGN_EXTRACTION_ENABLED", true),
+		CampaignStaff:          e.bool("CAMPAIGN_STAFF_ENABLED", true),
 		SortieMinutes:          sortieMinutes,
-		CheckinEnabled:         envBoolOrDefault("CHECKIN_ENABLED", false),
-		CheckinSlots:           envOrDefault("CHECKIN_SLOTS", "morning@08:00,midday@13:00,evening@21:00"),
-		CheckinTimezone:        os.Getenv("CHECKIN_TZ"),
-		CheckinNotifyCmd:       os.Getenv("CHECKIN_NOTIFY_CMD"),
+		CheckinEnabled:         e.bool("CHECKIN_ENABLED", false),
+		CheckinSlots:           e.or("CHECKIN_SLOTS", "morning@08:00,midday@13:00,evening@21:00"),
+		CheckinTimezone:        e.str("CHECKIN_TZ"),
+		CheckinNotifyCmd:       e.str("CHECKIN_NOTIFY_CMD"),
 		JournalWatchDir:        journalDir,
-		JournalWatchEnabled:    envBoolOrDefault("JOURNAL_WATCH_ENABLED", journalDir != ""),
+		JournalWatchEnabled:    e.bool("JOURNAL_WATCH_ENABLED", journalDir != ""),
 	}
 
-	staleAfter, err := time.ParseDuration(envOrDefault("COMMITMENT_STALE_AFTER", "336h"))
+	staleAfter, err := time.ParseDuration(e.or("COMMITMENT_STALE_AFTER", "336h"))
 	if err != nil {
 		return Config{}, fmt.Errorf("parse COMMITMENT_STALE_AFTER: %w", err)
 	}
 	cfg.CommitmentStaleAfter = staleAfter
 
-	if cfg.CheckinGrace, err = time.ParseDuration(envOrDefault("CHECKIN_GRACE", "90m")); err != nil {
+	if cfg.CheckinGrace, err = time.ParseDuration(e.or("CHECKIN_GRACE", "90m")); err != nil {
 		return Config{}, fmt.Errorf("parse CHECKIN_GRACE: %w", err)
 	}
-	if cfg.CheckinIdleAfter, err = time.ParseDuration(envOrDefault("CHECKIN_IDLE_AFTER", "6h")); err != nil {
+	if cfg.CheckinIdleAfter, err = time.ParseDuration(e.or("CHECKIN_IDLE_AFTER", "6h")); err != nil {
 		return Config{}, fmt.Errorf("parse CHECKIN_IDLE_AFTER: %w", err)
 	}
 
@@ -225,7 +242,7 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("DATABASE_URL is required")
 	}
 
-	if err := resolveSignIn(&cfg); err != nil {
+	if err := resolveSignIn(&cfg, e); err != nil {
 		return Config{}, err
 	}
 
@@ -247,17 +264,6 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("unsupported EMBED_PROVIDER %q (use gemini or ollama)", cfg.EmbedProvider)
 	}
 
-	if cfg.LLMProvider == "gemini" && cfg.GeminiAPIKey == "" {
-		return Config{}, fmt.Errorf("GEMINI_API_KEY is required when LLM_PROVIDER=gemini")
-	}
-	if cfg.EmbedProvider == "gemini" && cfg.GeminiAPIKey == "" {
-		// Reached with LLM_PROVIDER=anthropic: Claude answers, but something
-		// still has to turn the journal into vectors.
-		return Config{}, fmt.Errorf("GEMINI_API_KEY is required for embeddings when EMBED_PROVIDER=gemini (Anthropic has no embeddings API; set EMBED_PROVIDER=ollama to embed locally)")
-	}
-	if cfg.LLMProvider == "anthropic" && cfg.AnthropicAPIKey == "" {
-		return Config{}, fmt.Errorf("ANTHROPIC_API_KEY is required when LLM_PROVIDER=anthropic")
-	}
 	if len(cfg.AnthropicChatModels) == 0 {
 		cfg.AnthropicChatModels = []string{cfg.AnthropicChatModel}
 		if fb := cfg.AnthropicFallbackModel; fb != "" && fb != cfg.AnthropicChatModel {
@@ -274,22 +280,33 @@ func Load() (Config, error) {
 	return cfg, nil
 }
 
-func envOrDefault(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
+// vars reads variables through a Lookup. Empty counts as unset, except where
+// orAllowEmpty says set-but-empty means "disabled".
+type vars struct {
+	get Lookup
+}
+
+func (e vars) str(key string) string {
+	v, _ := e.get(key)
+	return v
+}
+
+func (e vars) or(key, fallback string) string {
+	if v := e.str(key); v != "" {
 		return v
 	}
 	return fallback
 }
 
-func envOrDefaultAllowEmpty(key, fallback string) string {
-	if v, ok := os.LookupEnv(key); ok {
+func (e vars) orAllowEmpty(key, fallback string) string {
+	if v, ok := e.get(key); ok {
 		return strings.TrimSpace(v)
 	}
 	return fallback
 }
 
-func envBoolOrDefault(key string, fallback bool) bool {
-	v, ok := os.LookupEnv(key)
+func (e vars) bool(key string, fallback bool) bool {
+	v, ok := e.get(key)
 	if !ok {
 		return fallback
 	}
@@ -300,8 +317,8 @@ func envBoolOrDefault(key string, fallback bool) bool {
 	return parsed
 }
 
-func parseCSVEnv(key string) []string {
-	raw := strings.TrimSpace(os.Getenv(key))
+func (e vars) csv(key string) []string {
+	raw := strings.TrimSpace(e.str(key))
 	if raw == "" {
 		return nil
 	}
@@ -317,15 +334,38 @@ func parseCSVEnv(key string) []string {
 	return out
 }
 
+// ChatProblem says why the configured chat provider cannot answer, or nil.
+// Keys can be typed into a client now, so a missing one is reported on the
+// question that needs it, not at boot.
+func (c Config) ChatProblem() error {
+	switch {
+	case c.LLMProvider == "gemini" && c.GeminiAPIKey == "":
+		return fmt.Errorf("no Gemini API key: add one in Settings, or set GEMINI_API_KEY")
+	case c.LLMProvider == "anthropic" && c.AnthropicAPIKey == "":
+		return fmt.Errorf("no Anthropic API key: add one in Settings, or set ANTHROPIC_API_KEY")
+	}
+	return nil
+}
+
+// EmbedProblem says why the embedder cannot run, or nil.
+func (c Config) EmbedProblem() error {
+	if c.EmbedProvider == "gemini" && c.GeminiAPIKey == "" {
+		// Reached with LLM_PROVIDER=anthropic too: Claude answers, but
+		// something still has to turn the journal into vectors.
+		return fmt.Errorf("no Gemini API key for embeddings: add one in Settings, set GEMINI_API_KEY, or set EMBED_PROVIDER=ollama to embed locally (Anthropic has no embeddings API)")
+	}
+	return nil
+}
+
 // defaultAppRedirect is the Flutter app's callback scheme.
 const defaultAppRedirect = "decisionroom://auth"
 
 // resolveSignIn fills the sign-in defaults and refuses a configuration that
 // would lock the owner out or let a stranger in.
-func resolveSignIn(cfg *Config) error {
-	cfg.PublicURL = strings.TrimRight(strings.TrimSpace(os.Getenv("PUBLIC_URL")), "/")
+func resolveSignIn(cfg *Config, e vars) error {
+	cfg.PublicURL = strings.TrimRight(strings.TrimSpace(e.str("PUBLIC_URL")), "/")
 	if cfg.PublicURL == "" {
-		if domain := strings.TrimSpace(os.Getenv("RAILWAY_PUBLIC_DOMAIN")); domain != "" {
+		if domain := strings.TrimSpace(e.str("RAILWAY_PUBLIC_DOMAIN")); domain != "" {
 			cfg.PublicURL = "https://" + domain
 		} else {
 			cfg.PublicURL = "http://localhost" + portSuffix(cfg.HTTPAddr)
@@ -375,8 +415,8 @@ func portSuffix(addr string) string {
 
 // listenAddrFromPort is the default HTTP_ADDR: ":$PORT" when a host such as
 // Railway assigns the port, ":8080" otherwise. HTTP_ADDR set explicitly wins.
-func listenAddrFromPort() string {
-	if port := strings.TrimSpace(os.Getenv("PORT")); port != "" {
+func listenAddrFromPort(e vars) string {
+	if port := strings.TrimSpace(e.str("PORT")); port != "" {
 		return ":" + port
 	}
 	return ":8080"

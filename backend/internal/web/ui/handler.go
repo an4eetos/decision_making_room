@@ -71,8 +71,13 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /memories", h.memoriesPage)
 	mux.HandleFunc("GET /relocation", h.relocationPage)
 	mux.HandleFunc("GET /campaign", h.campaignPage)
+	mux.HandleFunc("GET /settings", h.settingsPage)
 	mux.HandleFunc("GET /login", h.loginPage)
 	mux.HandleFunc("GET /setup", h.setupPage)
+}
+
+func (h *Handler) settingsPage(w http.ResponseWriter, r *http.Request) {
+	h.render(w, "settings.html", map[string]any{"Title": "Settings"})
 }
 
 // loginPage is static; auth.js asks /api/auth/state which ways in to show,
