@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	"github.com/an4eetos/decision-room/internal/auth"
 	"github.com/an4eetos/decision-room/internal/beast"
 	"github.com/an4eetos/decision-room/internal/campaign"
 	"github.com/an4eetos/decision-room/internal/checkin"
@@ -26,15 +27,22 @@ import (
 	memusecase "github.com/an4eetos/decision-room/internal/memory/usecase"
 	"github.com/an4eetos/decision-room/internal/modes"
 	"github.com/an4eetos/decision-room/internal/relocation"
+	"github.com/an4eetos/decision-room/internal/settings"
+	settingsdomain "github.com/an4eetos/decision-room/internal/settings/domain"
+	settingsusecase "github.com/an4eetos/decision-room/internal/settings/usecase"
 	"github.com/an4eetos/decision-room/internal/web"
 )
 
 var Module = fx.Module("app",
 	fx.Provide(
-		provideConfig,
+		provideEnvConfig,
 		providePool,
+		provideResolver,
+		provideConfig,
 		provideServer,
 	),
+	settings.Module,
+	auth.Module,
 	generals.Module,
 	modes.Module,
 	memory.Module,
@@ -49,13 +57,33 @@ var Module = fx.Module("app",
 	fx.Invoke(warnOnMixedEmbeddings),
 )
 
-func provideConfig() (config.Config, error) {
-	return config.Load()
+// envConfig is the configuration from the environment alone: enough to open
+// the database the stored settings live in. Everything else takes
+// config.Config, which has them layered in.
+type envConfig struct{ config.Config }
+
+func provideEnvConfig() (envConfig, error) {
+	cfg, err := config.Load()
+	return envConfig{cfg}, err
+}
+
+func provideResolver(env envConfig) *config.Resolver {
+	return config.NewResolver(env.Config, settingsdomain.Exposed)
+}
+
+// provideConfig depends on the settings service only for its side effect:
+// the service loads the table when it is built, so the config handed to
+// every constructor already carries the stored values.
+func provideConfig(resolver *config.Resolver, _ *settingsusecase.Service) config.Config {
+	cfg := resolver.Settle()
+	config.LogProblems(cfg)
+	return cfg
 }
 
 // providePool opens the pool and migrates before anything else can use it, so a
 // fresh clone needs one command rather than a separate migrate step.
-func providePool(cfg config.Config, lc fx.Lifecycle) (*pgxpool.Pool, error) {
+func providePool(env envConfig, lc fx.Lifecycle) (*pgxpool.Pool, error) {
+	cfg := env.Config
 	ctx := context.Background()
 
 	pool, err := postgres.NewPool(ctx, cfg.DatabaseURL)
@@ -82,11 +110,14 @@ type serverParams struct {
 	fx.In
 
 	Config config.Config
+	// Required, not optional: a server without it would serve nothing private,
+	// and fx failing at startup says why far more clearly.
+	Auth   httpserver.Authenticator
 	Routes []httpserver.RouteRegistrar `group:"routes"`
 }
 
 func provideServer(p serverParams) *httpserver.Server {
-	return httpserver.New(p.Config.HTTPAddr, p.Routes...)
+	return httpserver.New(p.Config.HTTPAddr, p.Auth, p.Routes...)
 }
 
 func startServer(lc fx.Lifecycle, server *httpserver.Server) {

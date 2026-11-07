@@ -112,6 +112,13 @@ type Consult struct {
 // WithSituation gives the generals the map. They appraise the map, not just
 // the question: the point of main effort, what is overextended, where to
 // yield. It costs one database read per answer and no model call.
+// WithTiers reads the default tier and the ceiling at every question, so a
+// change in Settings applies to the next one.
+func (u *Consult) WithTiers(tiers func() (def, max domain.Tier)) *Consult {
+	u.resolver.tiers = tiers
+	return u
+}
+
 func (u *Consult) WithSituation(reader port.SituationReader) *Consult {
 	u.situation = reader
 	return u
@@ -139,6 +146,8 @@ func NewConsult(
 	} else {
 		maxTier = domain.TierQuick
 	}
+	resolver := NewPlanResolver(registry, detector, defaultTier, maxTier)
+	resolver.toolless = agent == nil
 
 	return &Consult{
 		agent:          agent,
@@ -148,7 +157,7 @@ func NewConsult(
 		retriever:      retriever,
 		llm:            llm,
 		initialContext: initialContext,
-		resolver:       NewPlanResolver(registry, detector, defaultTier, maxTier),
+		resolver:       resolver,
 		doctrine:       doctrine,
 	}
 }
@@ -183,7 +192,7 @@ func (u *Consult) Execute(ctx context.Context, input ConsultInput) (ConsultResul
 	// A confidently wrong answer built on nothing is the worst output this can
 	// produce, so an empty retrieval on the cheapest tier buys one more attempt
 	// with the standard pipeline rather than answering blind.
-	if len(context) == 0 && plan.Tier.Tier == domain.TierQuick && u.resolver.maxTier.Rank() > domain.TierQuick.Rank() {
+	if len(context) == 0 && plan.Tier.Tier == domain.TierQuick && u.resolver.maxRank() > domain.TierQuick.Rank() {
 		escalated := domain.PolicyFor(domain.TierStandard)
 		// Keep the lens count the escalation implies, but not more lenses than
 		// were actually selected.

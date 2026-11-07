@@ -316,6 +316,15 @@ broken entry fails the boot rather than silently vanishing from your checklist.
 
 Copy `.env.example` to `.env`. Real environment variables take precedence.
 
+Most of what follows can also be set on the **Settings** page, or through
+`/api/settings`, while the room runs: provider, keys, models, effort, tiers,
+check-ins, sortie length and the extraction and staff toggles. The order is
+the environment (with `.env`), then Settings, then the default, so a variable
+set on the server wins and shows as locked. Changes apply to the next
+question; only `CHECKIN_TZ` waits for a restart. Infrastructure, the
+database, the address, `SETTINGS_KEY`, the sign-in variables and the overlay
+directories, is environment only.
+
 | Variable | Default | Notes |
 |---|---|---|
 | `DATABASE_URL` | `postgres://room:room@localhost:5432/decision_room?sslmode=disable` | |
@@ -349,6 +358,15 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `WEB_ROOT` | `../client/web` | the web client's directory, read from disk; edits to templates and CSS need no rebuild |
 | `PORT` | — | hosts such as Railway set it; `HTTP_ADDR` defaults to `:$PORT` when present |
 | `HTTP_ADDR` | `:8080` | |
+| `SETTINGS_KEY` | — | seals keys typed into Settings; `openssl rand -base64 32`. Without it, keys come from the environment only |
+| `ROOM_PASSWORD` | — | the password; unset, choose one on `/setup` with the code from the server log. Changing it and restarting signs every device out |
+| `PUBLIC_URL` | `https://$RAILWAY_PUBLIC_DOMAIN`, else `http://localhost:<port>` | where browsers reach the room; the OIDC redirect URI is built from it |
+| `OIDC_ISSUER` | — | turns on sign-in with any OpenID Connect provider, e.g. `https://accounts.google.com` |
+| `OIDC_CLIENT_ID` `OIDC_CLIENT_SECRET` | — | the OAuth client registered with the provider |
+| `OIDC_ALLOWED_EMAILS` | — | required with `OIDC_ISSUER`: the verified addresses let in, comma-separated |
+| `OIDC_NAME` | `Google` or `single sign-on` | the sign-in button's label |
+| `OIDC_APP_REDIRECTS` | `decisionroom://auth` | where a sign-in started by the phone app may return |
+| `PASSWORD_LOGIN_ENABLED` | `true` | `false` leaves OIDC as the only way in |
 
 Migrations run automatically at startup — there is no separate migrate step and
 no need to install goose.
@@ -360,6 +378,23 @@ service with pgvector to the project, reference its `DATABASE_URL` on the app
 service, set `LLM_PROVIDER` and the matching key as variables, and leave
 `JOURNAL_WATCH_DIR` unset: there is no folder to watch on a host. Railway sets
 `PORT` and the health check hits `/health`.
+
+On first boot the room has no password. Either set `ROOM_PASSWORD`, or open
+the deployment's logs, find the line `auth: no password set ... setup code
+XXXX-XXXX-XXXX`, and enter that code on `/setup`. The code is what stops a
+stranger who finds the URL first from claiming the room.
+
+To sign in with Google instead of, or as well as, a password: create a "Web
+application" OAuth client in the Google Cloud console, add
+`https://<your-domain>/auth/oidc/callback` as an authorised redirect URI, and
+set `OIDC_ISSUER=https://accounts.google.com`, `OIDC_CLIENT_ID`,
+`OIDC_CLIENT_SECRET` and `OIDC_ALLOWED_EMAILS`. Any OpenID Connect provider
+works the same way.
+
+Set `SETTINGS_KEY` too (`openssl rand -base64 32`), then paste your Gemini or
+Anthropic key on the Settings page instead of into a Railway variable. The
+**Test provider** button makes one tiny call and shows the provider's own
+answer, so a wrong key is caught before the first question.
 
 ## Architecture
 
@@ -382,9 +417,24 @@ server never imports a domain package.
 
 ## API
 
+Every route except `/health`, the sign-in routes and `/static/` needs a
+session: `Authorization: Bearer <token>` from the app or `curl`, or the
+`room_session` cookie the browser gets at sign-in.
+
 | Method | Path | |
 |---|---|---|
 | `GET` | `/health` | |
+| `GET` | `/api/auth/state` | which ways in are on: `setup_required`, `password`, `oidc` — public |
+| `POST` | `/api/auth/login` | `{"password", "client", "cookie"}`; returns `{"token", "session"}`, or sets the cookie instead when `cookie` is true — public, rate limited |
+| `POST` | `/api/auth/setup` | `{"code", "password", ...}` like login; 404 once a password exists — public, rate limited |
+| `GET` | `/auth/oidc/start?next=` | browser sign-in through the provider; the app adds `app_redirect` and its PKCE `code_challenge` — public |
+| `POST` | `/api/auth/oidc/exchange` | the app redeems `{"code", "code_verifier", "client"}` from its redirect for a token — public, rate limited |
+| `POST` | `/api/auth/logout` | revoke this session |
+| `GET` | `/api/auth/sessions` | signed-in devices, the current one marked |
+| `DELETE` | `/api/auth/sessions/{id}` | sign a device out |
+| `GET` | `/api/settings` | every setting a client may change: value (secrets masked to the last four), source, whether the environment locks it, and what the next question would fail on |
+| `PUT` | `/api/settings` | `{"values": {"KEY": "value" or null}}`; validated together and saved in one transaction; null goes back to the default |
+| `POST` | `/api/settings/test` | one tiny chat call and one embedding, with optional unsaved `values` on top; returns each provider's own answer |
 | `GET` | `/api/generals` | the roster |
 | `GET` | `/api/modes` | conversation modes |
 | `POST` | `/api/capture` | append a line to today's note |
@@ -427,7 +477,12 @@ server never imports a domain package.
 | `PATCH` `DELETE` | `/api/relocation/items/{id}` | |
 
 ```bash
+TOKEN=$(curl -s -X POST localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"password": "...", "client": "curl"}' | jq -r .token)
+
 curl -X POST localhost:8080/api/consult \
+  -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
   -d '{"question": "What did I decide about the database?"}'
 ```
@@ -536,6 +591,15 @@ question or ingest a file. With `anthropic`, what goes into a question is sent
 to Anthropic, and the text being embedded still goes to Google unless
 `EMBED_PROVIDER=ollama`. With `ollama` for both, nothing leaves your machine. Postgres
 runs locally either way. There is no telemetry and no account.
+
+Hosted, every route needs a session. The password is stored as an argon2id
+hash and session tokens only as SHA-256 hashes, so a copy of the database
+cannot be replayed as a login. With OIDC on, the provider learns when you sign
+in to the room, and nothing else. Railway, as the host, can read the database
+and the variables, `ROOM_PASSWORD` and `OIDC_CLIENT_SECRET` included. Keys
+typed into Settings are sealed with AES-256-GCM in the server, under
+`SETTINGS_KEY`, before they reach the database; the key itself is never sent
+there, so a database copy alone does not reveal them.
 
 ## Licence
 

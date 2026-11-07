@@ -9,10 +9,8 @@ import (
 	"go.uber.org/fx"
 
 	genport "github.com/an4eetos/decision-room/internal/generals/port"
-	"github.com/an4eetos/decision-room/internal/infra/anthropic"
 	"github.com/an4eetos/decision-room/internal/infra/config"
-	"github.com/an4eetos/decision-room/internal/infra/gemini"
-	"github.com/an4eetos/decision-room/internal/infra/ollama"
+	"github.com/an4eetos/decision-room/internal/memory/adapters/driven/aiswitch"
 	memfs "github.com/an4eetos/decision-room/internal/memory/adapters/driven/fs"
 	mempostgres "github.com/an4eetos/decision-room/internal/memory/adapters/driven/postgres"
 	"github.com/an4eetos/decision-room/internal/memory/domain"
@@ -44,62 +42,18 @@ var Module = fx.Module("memory",
 	),
 )
 
-// aiBundle exists because one client usually implements all three ports; fx
-// needs them separated to inject them independently. With Anthropic it does not:
-// Claude answers and the embedder comes from EMBED_PROVIDER.
+// aiBundle exists because fx needs the three ports separated to inject them
+// independently. All three are one switch now: it reads the configuration
+// on every call, so provider, model and key can change in Settings.
 type aiBundle struct {
 	LLM      port.LLM
 	ToolLLM  port.ToolLLM
 	Embedder port.Embedder
 }
 
-func provideAI(cfg config.Config) (aiBundle, error) {
-	// Built once and shared when the same provider serves chat and vectors.
-	var gem *gemini.Client
-	geminiClient := func() *gemini.Client {
-		if gem == nil {
-			gem = gemini.NewClient(
-				cfg.GeminiBaseURL,
-				cfg.GeminiAPIKey,
-				cfg.GeminiChatModels,
-				cfg.GeminiEmbedModel,
-			)
-		}
-		return gem
-	}
-	var oll *ollama.Client
-	ollamaClient := func() *ollama.Client {
-		if oll == nil {
-			oll = ollama.NewClient(cfg.OllamaBaseURL, cfg.OllamaChatModel, cfg.OllamaEmbedModel)
-		}
-		return oll
-	}
-
-	var ai aiBundle
-	switch cfg.LLMProvider {
-	case "anthropic":
-		client := anthropic.NewClient(
-			cfg.AnthropicBaseURL,
-			cfg.AnthropicAPIKey,
-			cfg.AnthropicChatModels,
-			cfg.AnthropicEffort,
-		)
-		ai.LLM, ai.ToolLLM = client, client
-	case "gemini":
-		client := geminiClient()
-		ai.LLM, ai.ToolLLM = client, client
-	default:
-		client := ollamaClient()
-		ai.LLM, ai.ToolLLM = client, client
-	}
-
-	switch cfg.EmbedProvider {
-	case "gemini":
-		ai.Embedder = geminiClient()
-	default:
-		ai.Embedder = ollamaClient()
-	}
-	return ai, nil
+func provideAI(resolver *config.Resolver) aiBundle {
+	sw := aiswitch.New(resolver.Current)
+	return aiBundle{LLM: sw, ToolLLM: sw, Embedder: sw}
 }
 
 func provideLLM(ai aiBundle) port.LLM         { return ai.LLM }
@@ -131,10 +85,24 @@ func provideDoctrineIndex(
 	registry genport.Registry,
 	embedder port.Embedder,
 	store port.DoctrineVectorStore,
+	resolver *config.Resolver,
 ) *usecase.DoctrineIndex {
 	index := usecase.NewDoctrineIndex(registry, embedder, store)
 
 	ctx, cancel := context.WithCancel(context.Background())
+
+	// A key typed in Settings, or a new embedding model, finishes what the
+	// boot build could not. Passages already embedded with the model are
+	// kept, so a change that does not touch embeddings costs one read.
+	resolver.OnChange(func(config.Config) {
+		go func() {
+			buildCtx, done := context.WithTimeout(ctx, doctrineBuildTimeout)
+			defer done()
+			if err := index.Build(buildCtx); err != nil {
+				log.Printf("doctrine: %v", err)
+			}
+		}()
+	})
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go func() {
@@ -203,6 +171,7 @@ type consultParams struct {
 	Detector       *modeservice.Detector
 	Doctrine       *usecase.DoctrineIndex
 	Config         config.Config
+	Resolver       *config.Resolver
 	// Situation is the campaign map, read into every answer. Optional:
 	// without it the generals answer the question alone.
 	Situation port.SituationReader `optional:"true"`
@@ -221,7 +190,10 @@ func provideConsult(p consultParams) *usecase.Consult {
 		p.Doctrine,
 		domain.ParseTier(p.Config.DefaultTier, domain.TierStandard),
 		domain.ParseTier(p.Config.MaxTier, domain.TierDeep),
-	).WithSituation(p.Situation)
+	).WithSituation(p.Situation).WithTiers(func() (domain.Tier, domain.Tier) {
+		cfg := p.Resolver.Current()
+		return domain.ParseTier(cfg.DefaultTier, domain.TierStandard), domain.ParseTier(cfg.MaxTier, domain.TierDeep)
+	})
 }
 
 type chatParams struct {

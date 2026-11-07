@@ -46,16 +46,18 @@ func provideSweep(repo port.Repository, cfg config.Config) *usecase.Sweep {
 type extractParams struct {
 	fx.In
 
-	LLM    memport.LLM
-	Repo   port.Repository
-	Config config.Config
+	LLM      memport.LLM
+	Repo     port.Repository
+	Config   config.Config
+	Resolver *config.Resolver
 	// Objectives comes from the campaign when it is wired in; without it
 	// commitments are extracted unlinked, exactly as before.
 	Objectives port.ObjectiveSource `optional:"true"`
 }
 
 func provideExtract(p extractParams) *usecase.Extract {
-	e := usecase.NewExtract(p.LLM, p.Repo, p.Config.CommitmentExtraction)
+	e := usecase.NewExtract(p.LLM, p.Repo, p.Config.CommitmentExtraction).
+		WithEnabled(func() bool { return p.Resolver.Current().CommitmentExtraction })
 	if p.Objectives != nil {
 		e.WithObjectives(p.Objectives)
 	}

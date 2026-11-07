@@ -86,6 +86,12 @@ type PlanResolver struct {
 	detector    *modeservice.Detector
 	defaultTier domain.Tier
 	maxTier     domain.Tier
+	// tiers, when set, overrides both at every call: they are settings a
+	// client can change while the room runs.
+	tiers func() (def, max domain.Tier)
+	// toolless pins the ceiling to quick: without a tool-capable model no
+	// deeper tier can run, whatever a setting says.
+	toolless bool
 }
 
 func NewPlanResolver(
@@ -101,10 +107,28 @@ func NewPlanResolver(
 	}
 }
 
+// limits is the default tier and the ceiling in force now.
+func (r *PlanResolver) limits() (domain.Tier, domain.Tier) {
+	def, max := r.defaultTier, r.maxTier
+	if r.tiers != nil {
+		def, max = r.tiers()
+	}
+	if r.toolless {
+		max = domain.TierQuick
+	}
+	return def, max
+}
+
+func (r *PlanResolver) maxRank() int {
+	_, max := r.limits()
+	return max.Rank()
+}
+
 // Resolve turns request input into a plan: tier capped to what the deployment
 // allows, and lenses either as picked or selected deterministically.
 func (r *PlanResolver) Resolve(input ConsultInput) ConsultPlan {
-	tier := domain.ParseTier(input.Tier, r.defaultTier).CapTo(r.maxTier)
+	def, max := r.limits()
+	tier := domain.ParseTier(input.Tier, def).CapTo(max)
 	policy := domain.PolicyFor(tier)
 
 	// An explicit TopK from the caller still wins; the tier only supplies the

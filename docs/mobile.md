@@ -66,23 +66,44 @@ backend is tested.
   `DATABASE_URL` injected as a reference, `/health` as the health check,
   `HTTP_ADDR` from `PORT`. Migrations already run at boot, so a deploy is a
   push. `LLM_PROVIDER=ollama` is a local-only option and the docs say so.
-- [ ] **Auth.** The room is on the internet now, so loopback trust is not
+- [x] **Auth.** The room is on the internet now, so loopback trust is not
   enough.
-  - `migrations/014_auth.sql`: `owner(password_hash, created_at)` and
-    `sessions(token_hash, client, created_at, last_seen_at, expires_at)`.
-  - `ROOM_PASSWORD` sets the owner on first boot; `/setup` does the same from
-    the browser when the table is empty, and is 404 afterwards.
-  - `POST /api/auth/login` returns a long-lived session token; `DELETE
-    /api/auth/sessions/{id}` revokes one; `GET /api/auth/sessions` lists
-    devices by name. The browser keeps the token in an `HttpOnly` cookie, the
-    phone in secure storage, and both send it as `Authorization: Bearer`.
-  - Middleware in `internal/infra/http` on every `/api/*` route and on the
-    stream. Login is rate limited per address. Nothing else is public.
+  - `migrations/014_auth.sql`: `auth_owner(password_hash, created_at,
+    updated_at)`, one row at most, and `auth_sessions(token_hash, client,
+    created_at, last_seen_at, expires_at)`. Prefixed so `sessions` is never
+    read as the chat's. The password is argon2id in PHC form; only the
+    SHA-256 of a session token is stored.
+  - `ROOM_PASSWORD` sets the owner on first boot, and is authoritative after:
+    a different value on a later boot replaces the password and signs every
+    device out, which is the recovery path. Without it, `/setup` sets the
+    first password, but only with a **one-time code printed in the server
+    log**: otherwise the first stranger to find a fresh Railway URL would own
+    the room. `/setup` is 404 once a password exists.
+  - `POST /api/auth/login` opens a session that slides 90 days forward with
+    use; `DELETE /api/auth/sessions/{id}` revokes one; `GET
+    /api/auth/sessions` lists devices by name; `POST /api/auth/logout`. The
+    browser asks for an `HttpOnly`, `SameSite=Lax` cookie and never sees the
+    token; the phone gets the token and sends it as `Authorization: Bearer`.
+    A cookie-carried write must be same-origin (`Sec-Fetch-Site`, then
+    `Origin`).
+  - **OIDC sign-in** beside the password, for any OpenID Connect issuer
+    (Google documented): authorization code with PKCE, state bound to the
+    browser by a cookie, nonce checked, and `OIDC_ALLOWED_EMAILS` (verified
+    addresses only) required. The app signs in through the system browser:
+    `/auth/oidc/start?app_redirect=decisionroom://auth&code_challenge=…`, back
+    to the app with a one-time code, redeemed at `POST
+    /api/auth/oidc/exchange` with the app's own verifier (RFC 8252).
+    `PASSWORD_LOGIN_ENABLED=false` leaves OIDC as the only way in.
+  - `RequireAuth` in `internal/infra/http` wraps the whole mux, so a route
+    is private unless it is on the public list: `/health`, `/static/`,
+    `/login`, `/setup` and the sign-in endpoints. Pages redirect to `/login`;
+    API calls get 401. Login, setup and the exchange are rate limited per
+    address, with a global backstop, and argon2 runs at most two at a time.
   - Single owner, deliberately: one Railway project per person is the
     hosting model. Accounts and tenancy are a different product and nothing
     here prevents it later.
 - [ ] **Journal store.** The folder stops being the source of truth.
-  - `migrations/015_journal.sql`: `journal_documents(path, body, updated_at,
+  - `migrations/016_journal.sql`: `journal_documents(path, body, updated_at,
     content_hash)`, one row per markdown file, `path` unique.
   - `internal/journal/port`: a `DocumentStore` interface — `List`, `Get`,
     `Put`, `Delete`, `Changed(since)`.
@@ -102,27 +123,46 @@ backend is tested.
     `PUT /api/journal/{path...}` (whole document, `If-Match` on the hash),
     `DELETE /api/journal/{path...}`, `GET /api/journal/export` (zip),
     `POST /api/journal/import` (zip, for moving a folder in once).
-- [ ] **Settings store.** Keys stop living in `.env`.
-  - `migrations/016_settings.sql`: `settings(key, value, updated_at)`;
-    secrets encrypted with `pgcrypto` under `SETTINGS_KEY`, which is a Railway
-    variable and never in the database. Lose it and the stored keys are gone,
-    not leaked.
-  - `internal/infra/config` grows a `Resolver`: environment, then `.env`, then
-    the settings table, then the default. Read at call time, so a key typed in
-    a client works for the next question without a redeploy.
-  - The provider clients in `internal/infra/{gemini,anthropic,ollama}` take
-    the resolver instead of a fixed `Config`. The embedding-model guard
-    already handles a provider switch at runtime by excluding mismatched rows
-    and asking for a reindex.
-  - Routes: `GET /api/settings` (secrets masked to their last four
-    characters), `PUT /api/settings`, `POST /api/settings/test` (one cheap
-    call against the chosen provider, returns ok or the provider's own error).
-  - Exposed: provider, keys, chat and fallback models, effort, check-in slots
-    and timezone, default and max tier, sortie minutes, the extraction and
-    staff toggles. Not exposed: `DATABASE_URL`, `HTTP_ADDR`, `SETTINGS_KEY`,
-    the overlay dirs.
+- [x] **Settings store.** Keys stop living in `.env`.
+  - `migrations/015_settings.sql` (it landed before the journal store, so it
+    took 015): `settings(key, value, secret, created_at, updated_at)`.
+    Secrets are sealed **in the server** with AES-256-GCM under a key derived
+    from `SETTINGS_KEY` by HKDF, the setting's name as associated data, not
+    with `pgcrypto`: `pgcrypto` would send `SETTINGS_KEY` to Postgres inside
+    every query, where statement logging can keep it. A check constraint
+    refuses an unsealed secret. Lose the key and the stored keys are gone, not
+    leaked; a row sealed under another key is reported and ignored, never
+    fatal.
+  - `config.Load` became `config.Build(lookup)`, and `internal/infra/config`
+    grew a `Resolver` that builds again with the environment (with `.env`)
+    over the table over the default, so a stored value is parsed, defaulted
+    and validated exactly like a variable. Only catalogue keys are ever read
+    from the table. The table is loaded before any constructor receives
+    `config.Config`, so settings read once at boot see stored values too.
+  - A missing key no longer stops the room from starting: it is logged at
+    boot and reported on the question that needs it ("add one in Settings").
+  - The provider clients are unchanged; `memory/adapters/driven/aiswitch` sits
+    in front of them, reads the configuration on each call, and rebuilds a
+    client only when its own settings change. The embedding cache and the
+    doctrine index key on the embedding model, and the index rebuilds after a
+    settings change, so a key typed in later finishes what boot could not.
+  - Live: provider, keys, chat and fallback models, effort, Ollama chat model,
+    default and max tier, check-ins on/off and slots, sortie minutes, the
+    extraction and staff toggles. `CHECKIN_TZ` is stored but applies after a
+    restart: the timezone is threaded through campaign and check-ins as a
+    value, and the view marks it `pending_restart`. Environment only:
+    `DATABASE_URL`, `HTTP_ADDR`, `SETTINGS_KEY`, base URLs, sign-in, overlay
+    dirs.
+  - Routes: `GET /api/settings` (the catalogue with values, secrets masked to
+    their last four characters, source, env lock, problems), `PUT
+    /api/settings` (all changes validated together, one transaction, `null`
+    resets), `POST /api/settings/test` (one chat call and one embedding,
+    optionally with unsaved values, returning the provider's own error).
 - [ ] **The web client uses the new stores.** A login page, a `/journal` page
   with a plain textarea editor, and a `/settings` page with the test button.
+  Login, setup and `/settings` (drawn from the catalogue, with the test
+  button and the signed-in devices) are done; `/journal` waits for the
+  journal store.
   This is where "fill it in the app" first exists.
 - [ ] **Contract.** `docs/openapi.yaml`, hand-written, covering every route in
   the README's API table plus the new ones. Go handler tests validate every

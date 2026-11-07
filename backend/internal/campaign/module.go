@@ -66,8 +66,9 @@ func provideManage(repo port.Repository, orders *comusecase.Manage) *usecase.Man
 	return usecase.NewManage(repo, orders)
 }
 
-func provideExtract(llm memport.LLM, repo port.Repository, orders *comusecase.Manage, cfg config.Config) *usecase.Extract {
-	return usecase.NewExtract(llm, repo, orders, cfg.CampaignExtraction)
+func provideExtract(llm memport.LLM, repo port.Repository, orders *comusecase.Manage, cfg config.Config, r *config.Resolver) *usecase.Extract {
+	return usecase.NewExtract(llm, repo, orders, cfg.CampaignExtraction).
+		WithEnabled(func() bool { return r.Current().CampaignExtraction })
 }
 
 // provideSnapshots shares the check-in timezone, so a day on the map ends when
@@ -76,8 +77,9 @@ func provideSnapshots(manage *usecase.Manage, repo port.SnapshotRepository, loc 
 	return usecase.NewSnapshots(manage, repo, loc, 10*time.Minute)
 }
 
-func provideSitreps(manage *usecase.Manage, snapshots *usecase.Snapshots, logistics *usecase.Logistics, loc *time.Location, cfg config.Config) *usecase.Sitreps {
-	return usecase.NewSitreps(manage, snapshots, loc, cfg.CampaignStaff).WithLogistics(logistics)
+func provideSitreps(manage *usecase.Manage, snapshots *usecase.Snapshots, logistics *usecase.Logistics, loc *time.Location, cfg config.Config, r *config.Resolver) *usecase.Sitreps {
+	return usecase.NewSitreps(manage, snapshots, loc, cfg.CampaignStaff).WithLogistics(logistics).
+		WithStaff(func() bool { return r.Current().CampaignStaff })
 }
 
 func provideLogisticsRepository(pool *pgxpool.Pool) port.LogisticsRepository {
@@ -106,13 +108,15 @@ type logisticsIn struct {
 	Deployments port.DeploymentSource `optional:"true"`
 	Loc         *time.Location
 	Cfg         config.Config
+	Resolver    *config.Resolver
 }
 
 // provideLogistics shares the check-in timezone, so the evening a tap
 // belongs to is the evening check-in's, and the commitments' stale horizon,
 // which is what a backlog has to clear within.
 func provideLogistics(in logisticsIn) *usecase.Logistics {
-	return usecase.NewLogistics(in.Repo, in.Manage, in.Deployments, in.Loc, in.Cfg.SortieMinutes, in.Cfg.CommitmentStaleAfter)
+	return usecase.NewLogistics(in.Repo, in.Manage, in.Deployments, in.Loc, in.Cfg.SortieMinutes, in.Cfg.CommitmentStaleAfter).
+		WithSortieMinutes(func() int { return in.Resolver.Current().SortieMinutes })
 }
 
 func provideAppraisalRepository(pool *pgxpool.Pool) port.AppraisalRepository {

@@ -1,0 +1,23 @@
+{{define "settings.html"}}
+{{template "layout-head" .}}
+<section class="card">
+    <h1>Settings</h1>
+    <p class="muted">Changes apply to the next question; nothing needs a redeploy unless it says so.
+        Anything set in the server's environment wins and is shown locked here.</p>
+    <div id="settings-problems"></div>
+    <div id="settings-root" class="settings"></div>
+    <div class="settings-actions">
+        <button type="button" id="settings-save" class="btn primary" disabled>Save</button>
+        <button type="button" id="settings-test" class="btn">Test provider</button>
+        <span id="settings-dirty" class="muted"></span>
+    </div>
+    <div id="settings-result"></div>
+</section>
+
+<section class="card settings-devices">
+    <h2>Signed-in devices</h2>
+    <div id="devices-root" class="muted">Loading…</div>
+</section>
+<script src="/static/settings.js?v=1" defer></script>
+{{template "layout-foot" .}}
+{{end}}

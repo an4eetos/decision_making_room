@@ -40,6 +40,8 @@ type Logistics struct {
 	// sortieMinutes is SORTIE_MINUTES: the default block, and what an order
 	// is estimated to cost before a front has a rate of its own.
 	sortieMinutes int
+	// sortieFn, when set, replaces sortieMinutes at every read.
+	sortieFn func() int
 	// staleAfter is COMMITMENT_STALE_AFTER: the horizon a backlog has to
 	// clear within before its orders go stale.
 	staleAfter time.Duration
@@ -58,12 +60,23 @@ func NewLogistics(repo port.LogisticsRepository, manage *Manage, deployments por
 	}
 }
 
+// WithSortieMinutes reads SORTIE_MINUTES at every use, so a change in
+// Settings applies to the next sortie.
+func (l *Logistics) WithSortieMinutes(fn func() int) *Logistics {
+	l.sortieFn = fn
+	return l
+}
+
 // SortieMinutes is the default length of a sortie.
 func (l *Logistics) SortieMinutes() int {
-	if l.sortieMinutes <= 0 {
+	minutes := l.sortieMinutes
+	if l.sortieFn != nil {
+		minutes = l.sortieFn()
+	}
+	if minutes <= 0 {
 		return 25
 	}
-	return l.sortieMinutes
+	return minutes
 }
 
 // Today is the local date the logistics count days by.
