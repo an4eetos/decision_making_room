@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -97,4 +98,35 @@ func assetsDir(t *testing.T) string {
 	// The web client lives outside the Go module, at client/web from the
 	// repository root.
 	return filepath.Join(filepath.Dir(file), "..", "..", "..", "..", "client", "web")
+}
+
+// /setup exists only while no password is set; /login always renders.
+func TestSetupPageOnlyBeforeAPassword(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		needs bool
+		want  int
+	}{{true, http.StatusOK}, {false, http.StatusNotFound}} {
+		handler, err := NewHandler(assetsDir(t))
+		if err != nil {
+			t.Fatalf("NewHandler: %v", err)
+		}
+		needs := tc.needs
+		handler.WithSetupCheck(func(context.Context) (bool, error) { return needs, nil })
+		mux := http.NewServeMux()
+		handler.Register(mux)
+
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/setup", nil))
+		if rec.Code != tc.want {
+			t.Fatalf("needs=%v: /setup status %d, want %d", tc.needs, rec.Code, tc.want)
+		}
+
+		rec = httptest.NewRecorder()
+		mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/login", nil))
+		if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), `id="oidc-signin"`) {
+			t.Fatalf("/login: %d", rec.Code)
+		}
+	}
 }

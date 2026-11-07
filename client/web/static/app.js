@@ -1,3 +1,34 @@
+// A session can expire or be revoked from another device. Any API call that
+// comes back 401 then takes the page to the login screen, rather than every
+// panel failing on its own with "unauthorized".
+(function () {
+    const originalFetch = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+        const response = await originalFetch(input, init);
+        const url = typeof input === "string" ? input : input.url;
+        const path = new URL(url, location.href).pathname;
+        if (response.status === 401 && path.startsWith("/api/") && !path.startsWith("/api/auth/")) {
+            location.assign("/login?next=" + encodeURIComponent(location.pathname + location.search));
+        }
+        return response;
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const signOut = document.getElementById("nav-signout");
+        if (!signOut) {
+            return;
+        }
+        signOut.addEventListener("click", async () => {
+            signOut.disabled = true;
+            try {
+                await originalFetch("/api/auth/logout", { method: "POST" });
+            } finally {
+                location.assign("/login");
+            }
+        });
+    });
+})();
+
 function escapeHTML(value) {
     return String(value)
         .replaceAll("&", "&amp;")

@@ -3,6 +3,7 @@ package web
 import (
 	"go.uber.org/fx"
 
+	authusecase "github.com/an4eetos/decision-room/internal/auth/usecase"
 	beastusecase "github.com/an4eetos/decision-room/internal/beast/usecase"
 	camusecase "github.com/an4eetos/decision-room/internal/campaign/usecase"
 	chkusecase "github.com/an4eetos/decision-room/internal/checkin/usecase"
@@ -16,6 +17,7 @@ import (
 	relport "github.com/an4eetos/decision-room/internal/relocation/port"
 	relusecase "github.com/an4eetos/decision-room/internal/relocation/usecase"
 	"github.com/an4eetos/decision-room/internal/web/api"
+	"github.com/an4eetos/decision-room/internal/web/authapi"
 	"github.com/an4eetos/decision-room/internal/web/beastapi"
 	"github.com/an4eetos/decision-room/internal/web/campaignapi"
 	"github.com/an4eetos/decision-room/internal/web/checkinapi"
@@ -36,6 +38,7 @@ var Module = fx.Module("web",
 		asRoute(provideCheckinHandler),
 		asRoute(provideCampaignHandler),
 		asRoute(provideBeastHandler),
+		asRoute(provideAuthHandler),
 	),
 )
 
@@ -62,8 +65,16 @@ func provideAPIHandler(
 	return api.NewHandler(ingest, search, consult, chat, capture, generals, modes, reindex, deleteMemory, updateMemory)
 }
 
-func provideUIHandler(cfg config.Config) (*ui.Handler, error) {
-	return ui.NewHandler(cfg.WebRoot)
+func provideAuthHandler(cfg config.Config, svc *authusecase.Service, oidc *authusecase.OIDC) *authapi.Handler {
+	return authapi.NewHandler(svc, oidc, cfg.OIDCName)
+}
+
+func provideUIHandler(cfg config.Config, auth *authusecase.Service) (*ui.Handler, error) {
+	h, err := ui.NewHandler(cfg.WebRoot)
+	if err != nil {
+		return nil, err
+	}
+	return h.WithSetupCheck(auth.NeedsSetup), nil
 }
 
 func provideRelocationHandler(

@@ -2,6 +2,9 @@
 # pgvector in the same project and reference its DATABASE_URL on this one.
 # Set GEMINI_API_KEY or ANTHROPIC_API_KEY (and LLM_PROVIDER) as variables.
 # Leave JOURNAL_WATCH_DIR unset: there is no folder to watch on a host.
+# Set ROOM_PASSWORD, or take the setup code from the first boot's log to /setup.
+# For Google sign-in, set OIDC_ISSUER, OIDC_CLIENT_ID, OIDC_CLIENT_SECRET and
+# OIDC_ALLOWED_EMAILS; the redirect URI is https://<domain>/auth/oidc/callback.
 
 [build]
 builder = "DOCKERFILE"

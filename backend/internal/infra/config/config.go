@@ -42,7 +42,33 @@ type Config struct {
 	// gemini when that is anthropic, which has no embeddings endpoint.
 	EmbedProvider string
 
-	HTTPAddr            string
+	HTTPAddr string
+	// RoomPassword, when set, is the room's password: it creates the owner on
+	// first boot and replaces a different stored one, signing every device
+	// out. Unset, the first password is chosen on /setup.
+	RoomPassword string
+	// PasswordLogin turns the password off when false, leaving only OIDC.
+	PasswordLogin bool
+	// PublicURL is where browsers reach the room; the OIDC callback is
+	// registered under it. Defaults to Railway's public domain, then to
+	// localhost on HTTP_ADDR's port.
+	PublicURL string
+
+	// OIDC sign-in, on when OIDCIssuer is set: any OpenID Connect provider
+	// (Google, Microsoft, Auth0, Authentik, Keycloak). OIDCAllowedEmails is
+	// required with it: the room has one owner, and without the list any
+	// account at the provider would get in.
+	OIDCIssuer        string
+	OIDCClientID      string
+	OIDCClientSecret  string
+	OIDCAllowedEmails []string
+	// OIDCName labels the sign-in button.
+	OIDCName string
+	// OIDCAppRedirects are the app callback URLs a sign-in may return to with
+	// its one-time code. Anything else is refused, so a link cannot send a
+	// code to someone else's app.
+	OIDCAppRedirects []string
+
 	RetrievalTopK       int
 	RetrievalCandidates int
 
@@ -151,6 +177,14 @@ func Load() (Config, error) {
 		AnthropicEffort:        envOrDefaultAllowEmpty("ANTHROPIC_EFFORT", "medium"),
 		EmbedProvider:          os.Getenv("EMBED_PROVIDER"),
 		HTTPAddr:               envOrDefault("HTTP_ADDR", listenAddrFromPort()),
+		RoomPassword:           os.Getenv("ROOM_PASSWORD"),
+		PasswordLogin:          envBoolOrDefault("PASSWORD_LOGIN_ENABLED", true),
+		OIDCIssuer:             strings.TrimRight(strings.TrimSpace(os.Getenv("OIDC_ISSUER")), "/"),
+		OIDCClientID:           strings.TrimSpace(os.Getenv("OIDC_CLIENT_ID")),
+		OIDCClientSecret:       os.Getenv("OIDC_CLIENT_SECRET"),
+		OIDCAllowedEmails:      parseCSVEnv("OIDC_ALLOWED_EMAILS"),
+		OIDCName:               os.Getenv("OIDC_NAME"),
+		OIDCAppRedirects:       parseCSVEnv("OIDC_APP_REDIRECTS"),
 		RetrievalTopK:          topK,
 		RetrievalCandidates:    candidates,
 		DefaultTier:            envOrDefault("DEFAULT_TIER", "standard"),
@@ -189,6 +223,10 @@ func Load() (Config, error) {
 
 	if cfg.DatabaseURL == "" {
 		return Config{}, fmt.Errorf("DATABASE_URL is required")
+	}
+
+	if err := resolveSignIn(&cfg); err != nil {
+		return Config{}, err
 	}
 
 	switch cfg.LLMProvider {
@@ -277,6 +315,62 @@ func parseCSVEnv(key string) []string {
 		}
 	}
 	return out
+}
+
+// defaultAppRedirect is the Flutter app's callback scheme.
+const defaultAppRedirect = "decisionroom://auth"
+
+// resolveSignIn fills the sign-in defaults and refuses a configuration that
+// would lock the owner out or let a stranger in.
+func resolveSignIn(cfg *Config) error {
+	cfg.PublicURL = strings.TrimRight(strings.TrimSpace(os.Getenv("PUBLIC_URL")), "/")
+	if cfg.PublicURL == "" {
+		if domain := strings.TrimSpace(os.Getenv("RAILWAY_PUBLIC_DOMAIN")); domain != "" {
+			cfg.PublicURL = "https://" + domain
+		} else {
+			cfg.PublicURL = "http://localhost" + portSuffix(cfg.HTTPAddr)
+		}
+	}
+
+	if cfg.OIDCIssuer == "" {
+		if !cfg.PasswordLogin {
+			return fmt.Errorf("PASSWORD_LOGIN_ENABLED=false needs OIDC_ISSUER: with neither, nobody can sign in")
+		}
+		return nil
+	}
+
+	if !strings.HasPrefix(cfg.OIDCIssuer, "https://") {
+		return fmt.Errorf("OIDC_ISSUER must be an https URL")
+	}
+	if cfg.OIDCClientID == "" {
+		return fmt.Errorf("OIDC_CLIENT_ID is required with OIDC_ISSUER")
+	}
+	if len(cfg.OIDCAllowedEmails) == 0 {
+		return fmt.Errorf("OIDC_ALLOWED_EMAILS is required with OIDC_ISSUER: without it any account at %s could sign in", cfg.OIDCIssuer)
+	}
+	for i, e := range cfg.OIDCAllowedEmails {
+		cfg.OIDCAllowedEmails[i] = strings.ToLower(e)
+	}
+	if cfg.OIDCName == "" {
+		cfg.OIDCName = "single sign-on"
+		if cfg.OIDCIssuer == "https://accounts.google.com" {
+			cfg.OIDCName = "Google"
+		}
+	}
+	if len(cfg.OIDCAppRedirects) == 0 {
+		cfg.OIDCAppRedirects = []string{defaultAppRedirect}
+	}
+	return nil
+}
+
+// portSuffix turns ":8080" or "0.0.0.0:8080" into ":8080".
+func portSuffix(addr string) string {
+	if i := strings.LastIndex(addr, ":"); i >= 0 {
+		if port := addr[i+1:]; port != "" && port != "80" {
+			return ":" + port
+		}
+	}
+	return ""
 }
 
 // listenAddrFromPort is the default HTTP_ADDR: ":$PORT" when a host such as

@@ -1,0 +1,64 @@
+{{define "auth-head"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>{{.Title}} — Decision Room</title>
+    <link rel="stylesheet" href="/static/style.css?v=20">
+</head>
+<body>
+    <nav class="nav">
+        <span class="brand">Decision Room</span>
+    </nav>
+    <main class="container container--auth">
+{{end}}
+
+{{define "auth-foot"}}
+    </main>
+    <script src="/static/auth.js?v=1"></script>
+</body>
+</html>
+{{end}}
+
+{{define "login.html"}}
+{{template "auth-head" .}}
+<section class="card">
+    <h1>Sign in</h1>
+    <div id="auth-result"></div>
+    <a id="oidc-signin" class="btn primary auth-oidc" href="/auth/oidc/start" hidden>Sign in</a>
+    <p id="auth-or" class="muted auth-or" hidden>or</p>
+    <form id="login-form" class="form" data-auth="login" hidden>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit" class="btn primary">Sign in</button>
+    </form>
+    <p id="auth-setup" class="muted" hidden>No password is set yet. <a href="/setup">Set one</a>.</p>
+</section>
+{{template "auth-foot" .}}
+{{end}}
+
+{{define "setup.html"}}
+{{template "auth-head" .}}
+<section class="card">
+    <h1>Set up the room</h1>
+    <p class="muted">No password is set yet. The setup code is in the server log,
+        on the line that starts with <code>auth: no password set</code>. On Railway
+        that is the deployment's logs. It proves this is your deployment.</p>
+    <form id="setup-form" class="form" data-auth="setup">
+        <label for="code">Setup code</label>
+        <input id="code" name="code" type="text" autocomplete="one-time-code" spellcheck="false" placeholder="XXXX-XXXX-XXXX" required autofocus>
+
+        <label for="password">Password <span class="muted">(at least 10 characters)</span></label>
+        <input id="password" name="password" type="password" autocomplete="new-password" minlength="10" required>
+
+        <label for="confirm">Password again</label>
+        <input id="confirm" name="confirm" type="password" autocomplete="new-password" minlength="10" required>
+
+        <button type="submit" class="btn primary">Set password and sign in</button>
+    </form>
+    <div id="auth-result"></div>
+</section>
+{{template "auth-foot" .}}
+{{end}}

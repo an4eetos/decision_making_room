@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 
+	"github.com/an4eetos/decision-room/internal/auth"
 	"github.com/an4eetos/decision-room/internal/beast"
 	"github.com/an4eetos/decision-room/internal/campaign"
 	"github.com/an4eetos/decision-room/internal/checkin"
@@ -35,6 +36,7 @@ var Module = fx.Module("app",
 		providePool,
 		provideServer,
 	),
+	auth.Module,
 	generals.Module,
 	modes.Module,
 	memory.Module,
@@ -82,11 +84,14 @@ type serverParams struct {
 	fx.In
 
 	Config config.Config
+	// Required, not optional: a server without it would serve nothing private,
+	// and fx failing at startup says why far more clearly.
+	Auth   httpserver.Authenticator
 	Routes []httpserver.RouteRegistrar `group:"routes"`
 }
 
 func provideServer(p serverParams) *httpserver.Server {
-	return httpserver.New(p.Config.HTTPAddr, p.Routes...)
+	return httpserver.New(p.Config.HTTPAddr, p.Auth, p.Routes...)
 }
 
 func startServer(lc fx.Lifecycle, server *httpserver.Server) {

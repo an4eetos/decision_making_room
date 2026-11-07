@@ -4583,3 +4583,37 @@ button.est:hover {
         grid-column: 1 / -1;
     }
 }
+
+/* Sign-in and setup */
+.container--auth {
+    max-width: 26rem;
+    margin-top: 10vh;
+}
+
+.container--auth [hidden] {
+    display: none !important;
+}
+
+.auth-oidc {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.auth-or {
+    text-align: center;
+    margin: 1rem 0 0;
+}
+
+.nav-signout {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--wr-muted);
+    cursor: pointer;
+}
+
+.nav-signout:hover {
+    color: var(--wr-text);
+}
