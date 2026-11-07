@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 
 	"github.com/an4eetos/decision-room/internal/memory/domain"
-	"github.com/an4eetos/decision-room/internal/web/assets"
 )
 
 type Handler struct {
@@ -18,9 +17,10 @@ type Handler struct {
 	static fs.FS
 }
 
-// NewHandler serves the embedded frontend. A non-empty webRoot overrides it with
-// that directory on disk, so the templates and CSS can be edited without a
-// rebuild; anything missing there is an error rather than a silent fallback.
+// NewHandler serves the web client from webRoot, a directory holding templates/
+// and static/. The client lives outside the Go module (client/web at the
+// repository root), so it is read from disk, never embedded; anything missing
+// there is an error rather than a silent fallback.
 func NewHandler(webRoot string) (*Handler, error) {
 	templates, static, err := resolveAssets(webRoot)
 	if err != nil {
@@ -37,7 +37,7 @@ func NewHandler(webRoot string) (*Handler, error) {
 
 func resolveAssets(webRoot string) (templates fs.FS, static fs.FS, err error) {
 	if webRoot == "" {
-		return assets.Templates(), assets.Static(), nil
+		return nil, nil, fmt.Errorf("WEB_ROOT is empty: point it at client/web")
 	}
 
 	templateDir := filepath.Join(webRoot, "templates")

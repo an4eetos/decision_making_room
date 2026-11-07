@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -50,6 +51,34 @@ func NewScheduler(gen *Generate, chats memport.ChatRepository, cfg SchedulerConf
 }
 
 func (s *Scheduler) Enabled() bool { return s.enabled && len(s.slots) > 0 }
+
+// Schedule is what a client needs to set its own alarms: the slots and the
+// timezone they fire in. A phone that is off at 08:00 reads the check-in when
+// it is on, the same rule a laptop that slept already follows; nothing is
+// pushed, the text waits on the server.
+func (s *Scheduler) Schedule() ScheduleInfo {
+	slots := make([]ScheduledSlot, 0, len(s.slots))
+	for _, slot := range s.slots {
+		slots = append(slots, ScheduledSlot{
+			Name: slot.Name, Time: fmt.Sprintf("%02d:%02d", slot.Hour, slot.Minute), ModeID: slot.ModeID,
+		})
+	}
+	return ScheduleInfo{Enabled: s.Enabled(), Timezone: s.loc.String(), Slots: slots}
+}
+
+// ScheduleInfo is the check-in timetable as served to clients.
+type ScheduleInfo struct {
+	Enabled  bool            `json:"enabled"`
+	Timezone string          `json:"timezone"`
+	Slots    []ScheduledSlot `json:"slots"`
+}
+
+// ScheduledSlot is one slot, its time as "HH:MM" in the schedule's timezone.
+type ScheduledSlot struct {
+	Name   string `json:"name"`
+	Time   string `json:"time"`
+	ModeID string `json:"mode_id"`
+}
 
 // Tick checks every slot and the idle condition once. Exported so it can be
 // driven directly in tests rather than by waiting on a real ticker.

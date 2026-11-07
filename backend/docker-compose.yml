@@ -25,7 +25,9 @@ services:
       - ollama:/root/.ollama
 
   app:
-    build: .
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
     profiles: ["app"]
     ports:
       - "8090:8090"

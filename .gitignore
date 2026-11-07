@@ -35,5 +35,5 @@ go.work.sum
 # Leading slashes matter: an unanchored "journal/" also matches
 # internal/journal/, which silently excluded the entire journal package from
 # version control.
-/journal/
-/bin/
+/backend/journal/
+/backend/bin/

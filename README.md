@@ -346,22 +346,34 @@ Copy `.env.example` to `.env`. Real environment variables take precedence.
 | `CAMPAIGN_EXTRACTION_ENABLED` | `true` | propose objectives, obstacles and unknowns from what you write |
 | `CAMPAIGN_STAFF_ENABLED` | `true` | read the campaign map into every answer, so the generals appraise the map and not just the question |
 | `SORTIE_MINUTES` | `25` | the default sortie (focus block), and what an order is estimated to cost before a front has a rate of its own |
-| `WEB_ROOT` | *(empty)* | empty serves the frontend from inside the binary; set it to `./internal/web/assets` to edit templates and CSS without rebuilding |
+| `WEB_ROOT` | `../client/web` | the web client's directory, read from disk; edits to templates and CSS need no rebuild |
+| `PORT` | — | hosts such as Railway set it; `HTTP_ADDR` defaults to `:$PORT` when present |
 | `HTTP_ADDR` | `:8080` | |
 
 Migrations run automatically at startup — there is no separate migrate step and
 no need to install goose.
 
+### Hosting on Railway
+
+`railway.toml` builds the server from `backend/Dockerfile`. Add a Postgres
+service with pgvector to the project, reference its `DATABASE_URL` on the app
+service, set `LLM_PROVIDER` and the matching key as variables, and leave
+`JOURNAL_WATCH_DIR` unset: there is no folder to watch on a host. Railway sets
+`PORT` and the health check hits `/health`.
+
 ## Architecture
 
 ```
-cmd/server            fx bootstrap
-internal/app          config, pool, HTTP server — everything not domain-specific
-internal/memory       domain, ports, usecases, Postgres adapters
-internal/journal      filesystem watcher and sync
-internal/infra        config, postgres, gemini, anthropic, ollama, http
-internal/web          JSON API, browser UI, embedded templates and static files
-migrations            embedded SQL schema
+backend/              the Go module; `make` at the root forwards here
+  cmd/server          fx bootstrap
+  internal/app        config, pool, HTTP server — everything not domain-specific
+  internal/memory     domain, ports, usecases, Postgres adapters
+  internal/journal    filesystem watcher and sync
+  internal/infra      config, postgres, gemini, anthropic, ollama, http
+  internal/web        JSON API and the handlers that serve the web client
+  migrations          embedded SQL schema
+client/web            the browser UI: templates, JS, CSS, portraits
+railway.toml          hosting the backend on Railway
 ```
 
 Hexagonal: usecases depend on ports, adapters implement them, and `fx` wires it
@@ -399,6 +411,7 @@ server never imports a domain package.
 | `DELETE` | `/api/campaign/energy/{day}` | take a day's tap back |
 | `GET` | `/api/campaign/fronts` | the fronts alone; `PATCH /fronts/{id}` also takes `funds` and `currency`, or `clear_funds` |
 | `GET` | `/api/checkins/unseen` | waiting check-ins |
+| `GET` | `/api/checkins/schedule` | the slots and timezone, for a client that sets its own alarms |
 | `POST` | `/api/checkins/now` | check in now |
 | `POST` | `/api/checkins/{id}/open` | reply — opens the conversation |
 | `POST` | `/api/memories` | ingest (JSON or multipart upload) |

@@ -150,7 +150,7 @@ func Load() (Config, error) {
 		AnthropicFallbackModel: envOrDefaultAllowEmpty("ANTHROPIC_FALLBACK_MODEL", "claude-sonnet-5-5"),
 		AnthropicEffort:        envOrDefaultAllowEmpty("ANTHROPIC_EFFORT", "medium"),
 		EmbedProvider:          os.Getenv("EMBED_PROVIDER"),
-		HTTPAddr:               envOrDefault("HTTP_ADDR", ":8080"),
+		HTTPAddr:               envOrDefault("HTTP_ADDR", listenAddrFromPort()),
 		RetrievalTopK:          topK,
 		RetrievalCandidates:    candidates,
 		DefaultTier:            envOrDefault("DEFAULT_TIER", "standard"),
@@ -158,7 +158,7 @@ func Load() (Config, error) {
 		AboutMeFile:            aboutMeFile,
 		ContextDir:             contextDir,
 		InitialContextMaxRunes: maxRunes,
-		WebRoot:                os.Getenv("WEB_ROOT"), // empty => assets embedded in the binary
+		WebRoot:                envOrDefault("WEB_ROOT", "../client/web"), // the web client, outside the Go module
 		RelocationCatalogDir:   os.Getenv("RELOCATION_CATALOG_DIR"),
 		GeneralsDir:            os.Getenv("GENERALS_DIR"),
 		ModesDir:               os.Getenv("MODES_DIR"),
@@ -277,4 +277,13 @@ func parseCSVEnv(key string) []string {
 		}
 	}
 	return out
+}
+
+// listenAddrFromPort is the default HTTP_ADDR: ":$PORT" when a host such as
+// Railway assigns the port, ":8080" otherwise. HTTP_ADDR set explicitly wins.
+func listenAddrFromPort() string {
+	if port := strings.TrimSpace(os.Getenv("PORT")); port != "" {
+		return ":" + port
+	}
+	return ":8080"
 }
