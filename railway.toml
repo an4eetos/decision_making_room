@@ -1,0 +1,14 @@
+# Railway deploys the Go server from this file. Add a Postgres service with
+# pgvector in the same project and reference its DATABASE_URL on this one.
+# Set GEMINI_API_KEY or ANTHROPIC_API_KEY (and LLM_PROVIDER) as variables.
+# Leave JOURNAL_WATCH_DIR unset: there is no folder to watch on a host.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "backend/Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

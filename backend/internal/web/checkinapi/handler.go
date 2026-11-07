@@ -25,6 +25,7 @@ func NewHandler(gen *usecase.Generate, scheduler *usecase.Scheduler) *Handler {
 
 func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/checkins/unseen", h.unseen)
+	mux.HandleFunc("GET /api/checkins/schedule", h.schedule)
 	mux.HandleFunc("POST /api/checkins/now", h.now)
 	mux.HandleFunc("POST /api/checkins/{id}/open", h.open)
 	mux.HandleFunc("POST /api/checkins/{id}/dismiss", h.dismiss)
@@ -48,6 +49,11 @@ func toDTO(c domain.CheckIn) checkinDTO {
 		ID: c.ID, Kind: string(c.Kind), Title: c.Title, Body: c.Body,
 		Day: c.LocalDate.Format("2006-01-02"), AsksEnergy: c.AsksEnergy(), CreatedAt: c.CreatedAt,
 	}
+}
+
+// schedule is the timetable, so a client can set local alarms for the slots.
+func (h *Handler) schedule(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, h.scheduler.Schedule())
 }
 
 // unseen is polled by every page, so it is one indexed query and nothing else.

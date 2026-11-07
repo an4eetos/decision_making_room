@@ -58,10 +58,10 @@ is a smaller change than keeping Go templates alive for them.
 No Flutter yet. The browser gets every new feature first; that is how the
 backend is tested.
 
-- [ ] **Split the repository.** `git mv` into `backend/` and `client/web/`,
+- [x] **Split the repository.** `git mv` into `backend/` and `client/web/`,
   the module path unchanged, `Makefile` at the root delegating into
-  `backend/`, CI paths updated. One PR, no behaviour change.
-- [ ] **Railway.** `railway.toml` with the Go service built from
+  `backend/`. The web client is read from `WEB_ROOT`, never embedded.
+- [x] **Railway.** `railway.toml` with the Go service built from
   `backend/Dockerfile`, a Postgres service from the pgvector template,
   `DATABASE_URL` injected as a reference, `/health` as the health check,
   `HTTP_ADDR` from `PORT`. Migrations already run at boot, so a deploy is a
@@ -128,9 +128,9 @@ backend is tested.
   the README's API table plus the new ones. Go handler tests validate every
   response against it with `kin-openapi`, so the contract cannot drift. The
   Dart client is generated from it.
-- [ ] `GET /api/checkins/schedule` returns the slots and timezone so a phone
-  can set local alarms. A heartbeat comment every 15 seconds on the stream
-  route so a carrier does not close an idle socket mid-council.
+- [x] `GET /api/checkins/schedule` returns the slots and timezone so a phone
+  can set local alarms. The stream route already sends a heartbeat comment
+  every 15 seconds, so a carrier does not close an idle socket mid-council.
 
 **Done when:** a fresh Railway project boots from this repository, you set a
 password, log in from a browser, write `about-me.md` on `/journal`, paste a

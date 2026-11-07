@@ -286,7 +286,7 @@ orders:                    # exactly three, one line each, usable on a real prob
   - Judge by what moved this week, not by the plan.
 routes:
   keywords: [words, "or phrases", that, route, here]
-portrait:                  # optional; file goes in internal/web/assets/static/portraits/
+portrait:                  # optional; file goes in client/web/static/portraits/
   file: brusilov.jpg
   credit: Photographer or painter
   license: Public domain
@@ -326,7 +326,7 @@ replaces the entry, a new id is appended.
 ## Portraits
 
 Twenty of the twenty-one have portraits from Wikimedia Commons, stored at 400
-pixels wide in `internal/web/assets/static/portraits/`. Each general's file
+pixels wide in `client/web/static/portraits/`. Each general's file
 records the author, licence and source, and
 [docs/portrait-credits.md](portrait-credits.md) lists them together. Three are
 CC BY-SA and carry the attribution line the licence asks for. Boyd has no freely

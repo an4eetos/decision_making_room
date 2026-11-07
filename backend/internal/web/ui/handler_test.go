@@ -12,7 +12,7 @@ import (
 func TestPagesRenderDistinctContent(t *testing.T) {
 	t.Parallel()
 
-	handler, err := NewHandler("")
+	handler, err := NewHandler(assetsDir(t))
 	if err != nil {
 		t.Fatalf("NewHandler: %v", err)
 	}
@@ -54,8 +54,7 @@ func TestPagesRenderDistinctContent(t *testing.T) {
 	}
 }
 
-// The embedded assets are the default, but WEB_ROOT has to keep working or
-// nobody can iterate on CSS without a rebuild.
+// Static files are served from WEB_ROOT, so CSS edits need no rebuild.
 func TestWebRootServesFromDisk(t *testing.T) {
 	t.Parallel()
 
@@ -75,13 +74,16 @@ func TestWebRootServesFromDisk(t *testing.T) {
 	}
 }
 
-// A bad WEB_ROOT must fail loudly. Silently falling back to the embedded assets
-// would mean edits appear to do nothing, which is the worst way to lose an hour.
+// A bad WEB_ROOT must fail loudly: there is no embedded fallback any more, and
+// a server with no pages is worse than one that refuses to start.
 func TestWebRootMissingIsAnError(t *testing.T) {
 	t.Parallel()
 
 	if _, err := NewHandler(filepath.Join(t.TempDir(), "nope")); err == nil {
 		t.Fatal("NewHandler with a missing WEB_ROOT returned nil error")
+	}
+	if _, err := NewHandler(""); err == nil {
+		t.Fatal("NewHandler with an empty WEB_ROOT returned nil error")
 	}
 }
 
@@ -92,5 +94,7 @@ func assetsDir(t *testing.T) string {
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
-	return filepath.Join(filepath.Dir(file), "..", "assets")
+	// The web client lives outside the Go module, at client/web from the
+	// repository root.
+	return filepath.Join(filepath.Dir(file), "..", "..", "..", "..", "client", "web")
 }
